@@ -1,0 +1,237 @@
+cdl_savefile_version 1;
+cdl_savefile_command cdl_savefile_version {};
+cdl_savefile_command cdl_savefile_command {};
+cdl_savefile_command cdl_configuration { description hardware template package };
+cdl_savefile_command cdl_package { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_component { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_option { value_source user_value wizard_value inferred_value };
+cdl_savefile_command cdl_interface { value_source user_value wizard_value inferred_value };
+
+cdl_configuration eCos {
+    description "" ;
+    hardware    zpuetherphi ;
+    template    default ;
+    package -hardware CYGPKG_HAL_ZYLIN current ;
+    package -hardware CYGPKG_HAL_ZYLIN_ZPU current ;
+    package -hardware CYGPKG_HAL_ZYLIN_ZPU_PHI current ;
+    package -hardware CYGPKG_IO_ETH_DRIVERS current ;
+    package -hardware CYGPKG_DEVS_ETH_OPENCORES_ETHERMAC current ;
+    package -hardware CYGPKG_DEVS_ETH_ZPU_OPENCORES_PHI current ;
+    package -template CYGPKG_HAL current ;
+    package -template CYGPKG_IO current ;
+    package -template CYGPKG_INFRA current ;
+    package -template CYGPKG_ERROR current ;
+    package -template CYGPKG_ISOINFRA current ;
+    package -template CYGPKG_IO_SERIAL current ;
+    package -template CYGPKG_KERNEL current ;
+    package -template CYGPKG_MEMALLOC current ;
+    package -template CYGPKG_LIBC current ;
+    package -template CYGPKG_LIBC_I18N current ;
+    package -template CYGPKG_LIBC_SETJMP current ;
+    package -template CYGPKG_LIBC_SIGNALS current ;
+    package -template CYGPKG_LIBC_STARTUP current ;
+    package -template CYGPKG_LIBC_STDIO current ;
+    package -template CYGPKG_LIBC_STDLIB current ;
+    package -template CYGPKG_LIBC_STRING current ;
+    package -template CYGPKG_LIBC_TIME current ;
+    package -template CYGPKG_LIBM current ;
+    package -template CYGPKG_IO_WALLCLOCK current ;
+    package CYGPKG_NET_FREEBSD_STACK current ;
+    package CYGPKG_IO_FILEIO current ;
+    package CYGPKG_NET current ;
+    package CYGPKG_HTTPD current ;
+};
+
+cdl_component CYGPKG_IO_ETH_DRIVERS_STAND_ALONE {
+    inferred_value 0
+};
+
+cdl_option CYGINT_DEVS_ETH_OPENCORES_ETHERMAC_TxNUM {
+    user_value 4
+};
+
+cdl_option CYGINT_DEVS_ETH_OPENCORES_ETHERMAC_RxNUM {
+    user_value 32
+};
+
+cdl_option CYGSEM_ERROR_PER_THREAD_ERRNO {
+    inferred_value 0
+};
+
+cdl_option CYGBLD_ISO_CTYPE_HEADER {
+    inferred_value 1 <cyg/libc/i18n/ctype.inl>
+};
+
+cdl_option CYGBLD_ISO_ERRNO_CODES_HEADER {
+    inferred_value 1 <cyg/error/codes.h>
+};
+
+cdl_option CYGBLD_ISO_ERRNO_HEADER {
+    inferred_value 1 <cyg/error/errno.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_FILETYPES_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_STREAMS_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_FILEOPS_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_FILEACCESS_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_FORMATTED_IO_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_CHAR_IO_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_DIRECT_IO_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_FILEPOS_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDIO_ERROR_HEADER {
+    inferred_value 1 <cyg/libc/stdio/stdio.h>
+};
+
+cdl_option CYGBLD_ISO_STDLIB_STRCONV_HEADER {
+    inferred_value 1 <cyg/libc/stdlib/atox.inl>
+};
+
+cdl_option CYGBLD_ISO_STDLIB_ABS_HEADER {
+    inferred_value 1 <cyg/libc/stdlib/abs.inl>
+};
+
+cdl_option CYGBLD_ISO_STDLIB_DIV_HEADER {
+    inferred_value 1 <cyg/libc/stdlib/div.inl>
+};
+
+cdl_option CYGBLD_ISO_STRERROR_HEADER {
+    inferred_value 1 <cyg/error/strerror.h>
+};
+
+cdl_option CYGBLD_ISO_STRTOK_R_HEADER {
+    inferred_value 1 <cyg/libc/string/string.h>
+};
+
+cdl_option CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER {
+    inferred_value 1 <cyg/libc/string/string.h>
+};
+
+cdl_option CYGBLD_ISO_STRING_BSD_FUNCS_HEADER {
+    inferred_value 1 <cyg/libc/string/bsdstring.h>
+};
+
+cdl_option CYGBLD_ISO_STRING_MEMFUNCS_HEADER {
+    inferred_value 1 <cyg/libc/string/string.h>
+};
+
+cdl_option CYGBLD_ISO_STRING_STRFUNCS_HEADER {
+    inferred_value 1 <cyg/libc/string/string.h>
+};
+
+cdl_option CYGBLD_ISO_FNMATCH_HEADER {
+    inferred_value 1 <cyg/fileio/fnmatch.h>
+};
+
+cdl_option CYGBLD_ISO_C_TIME_TYPES_HEADER {
+    inferred_value 1 <cyg/libc/time/time.h>
+};
+
+cdl_option CYGBLD_ISO_C_CLOCK_FUNCS_HEADER {
+    inferred_value 1 <cyg/libc/time/time.h>
+};
+
+cdl_option CYGBLD_ISO_SIGNAL_NUMBERS_HEADER {
+    inferred_value 1 <cyg/libc/signals/signal.h>
+};
+
+cdl_option CYGBLD_ISO_SIGNAL_IMPL_HEADER {
+    inferred_value 1 <cyg/libc/signals/signal.h>
+};
+
+cdl_option CYGBLD_ISO_SETJMP_HEADER {
+    inferred_value 1 <cyg/libc/setjmp/setjmp.h>
+};
+
+cdl_option CYGBLD_ISO_DIRENT_HEADER {
+    inferred_value 1 <cyg/fileio/dirent.h>
+};
+
+cdl_option CYGBLD_ISO_BSDTYPES_HEADER {
+    inferred_value 1 <sys/bsdtypes.h>
+};
+
+cdl_option CYGBLD_ISO_OPEN_MAX_HEADER {
+    inferred_value 1 <cyg/fileio/limits.h>
+};
+
+cdl_option CYGBLD_ISO_NAME_MAX_HEADER {
+    inferred_value 1 <cyg/fileio/limits.h>
+};
+
+cdl_option CYGBLD_ISO_NETDB_PROTO_HEADER {
+    inferred_value 1 <net/netdb.h>
+};
+
+cdl_option CYGBLD_ISO_NETDB_SERV_HEADER {
+    inferred_value 1 <net/netdb.h>
+};
+
+cdl_option CYGDBG_KERNEL_DEBUG_GDB_THREAD_SUPPORT {
+    inferred_value 0
+};
+
+cdl_option CYGNUM_LIBC_MAIN_DEFAULT_STACK_SIZE {
+    user_value 16384
+};
+
+cdl_option CYGPKG_NET_TFTPD_THREAD_STACK_SIZE {
+    user_value (CYGNUM_HAL_STACK_SIZE_TYPICAL+(8192))
+};
+
+cdl_component CYGPKG_NET_DHCP {
+    user_value 0
+};
+
+cdl_component CYGHWR_NET_DRIVER_ETH0_MANUAL {
+    inferred_value 0
+};
+
+cdl_component CYGHWR_NET_DRIVER_ETH0_BOOTP {
+    user_value 0
+};
+
+cdl_component CYGHWR_NET_DRIVER_ETH0_ADDRS {
+    user_value 1
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_IP {
+    user_value 10.0.0.57
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_BROADCAST {
+    user_value 10.0.0.255
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_GATEWAY {
+    user_value 10.0.0.1
+};
+
+cdl_option CYGHWR_NET_DRIVER_ETH0_ADDRS_SERVER {
+    user_value 10.0.0.58
+};
+
+

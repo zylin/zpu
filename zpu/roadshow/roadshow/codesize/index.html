@@ -1,0 +1,58 @@
+<html>
+<body>
+<h1>Compiling hello world program with the ZPU GCC toolchain</h1>
+The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
+some very basic peripherals defined: counter, timer interrupt and a debug output port. 
+<h1>Installation</h1>
+<ol>
+<li>Install Cygwin. http://www.cygwin.com 
+<li>Start Cygwin bash
+<li>unzip zputoolchain.zip
+<li>Add install/bin from zputoolchain.zip to PATH.<br>
+export PATH=$PATH:<unzipdir>/install/bin
+</ol>
+<h1>Hello world example</h1>
+The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
+<p> 
+<code>
+zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections<br>
+zpu-elf-size hello.elf<br>
+</code>
+<h1>Optimizing for size</h1>
+The ZPU toolchain produces highly compact code.  
+<ol>
+<li>Since the ZPU GCC toolchain supports standard ANSI C, it is easy to stumble across
+functionality that takes up a lot of space. E.g. the standard printf() function is a beast. Some compilers drop e.g. floating point support
+from the printf() function and thus boast a "smaller" printf() when in fact they have a non-standard printf(). newlib has a standard printf() function
+and an alternative iprintf() function that works only on integers.
+<li>The ZPU ships with default startup code that works across various configurations of the ZPU, so be warned that there is some overhead that will
+not occurr in the final application(anywhere between 1-4kBytes).
+<li>Compilation and linker options matter. The ZPU benefits greatly from the "-Wl,--relax -Wl,--gc-sections" options which is not used by
+all architectures(e.g. GCC ARM does not implement/need -Wl,--relax).  
+</ol> 
+<h2>Small code example</h2>
+<code>
+zpu-elf-gcc -Os -abel smallstd.c -o smallstd.elf -Wl,--relax -Wl,--gc-sections<br>
+zpu-elf-size small.elf<br>
+<br>
+$ zpu-elf-size small.elf<br>
+   text    data     bss     dec     hex filename<br>
+   2845     952      36    3833     ef9 small.elf<br>
+<br>
+</code>
+
+<h2>Even smaller code example</h2>
+If the ZPU implements the optional instructions, the RAM overhead can be reduced significantly.
+<p>
+<code>
+zpu-elf-gcc -Os -abel crt0_phi.S small.c -o small.elf -Wl,--relax -Wl,--gc-sections -nostdlib <br>
+zpu-elf-size small.elf<br>
+<br>
+$ zpu-elf-size small.elf<br>
+   text    data     bss     dec     hex filename<br>
+     56       8       0      64      40 small.elf<br>
+     <br>
+</code>
+
+</body>
+</html>

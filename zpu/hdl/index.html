@@ -1,0 +1,47 @@
+<html>
+<body>
+<h1>Getting started - FPGA </h1>
+The simplest version of the ZPU uses BRAM. When getting accustomed to the ZPU, a BRAM ZPU with a UART
+is a good place to start.
+<p>
+You'll find a working simulation script in hdl/example/simzpu.do.
+<p>
+When implementing the ZPU, copy the following files and modify them to your needs:
+<ol>
+    <li>hdl/example/zpu_config.vhd - set up RAM size here
+    <li>hdl/example/helloworld.vhd - dual port BRAM implementation. 
+</ol>
+Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is memory mapped(read/write) in the ZPU.
+<h2>Generating VHDL BRAM initialization </h2>
+
+<code>
+../install/bin/zpu-elf-objdump -O binary hello.elf hello.bin<br>
+java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram<br>
+
+</code>
+<h2>Running example simulation</h2>
+The hdl/example directory has a simulation written for Xilinx WebPack ModelSim. From the ModelSim command prompt:
+<ol>
+<li>cd c:/&lt;installfolder&gt;/hdl/example
+<li>do zpusim.do
+</ol>
+<p>
+After running the hello world simulation (see zpusim.do), two files are written to the hdl/exmaple directory:
+<ol>
+<li>log.txt - contains the "Hello world!" text written to the debug channel/simplified UART.
+<li>trace.txt - a trace file for the CPU. The instruction set simulator has the capability of taking
+this file as input in order to verify that the HDL implementation matches the instruction set simulator. 
+When a mismatch is found, the GDB debugger will break. Very handy for debugging custom ZPU implementations. 
+</ol>  
+<h2>HDL Directories & files </h2>
+<ul>
+<li>example - contains example files & working ZPU. Start here.
+<li>wishbone - contains wishbone interface for the ZPU
+<li>zpu3 - if you are interested in developing ZPU cores and not only using them, then this directory contains various stuff of more or less historical interest.
+<li>zpu4 -  if you are interested in developing ZPU cores and not only using them, then this is the active development version. You'll also want to copy out the
+files you need from this folder to your own project.
+</ul>
+
+The HDL files need a bit of spit and polish!
+</body>
+</html>

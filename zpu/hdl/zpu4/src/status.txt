@@ -1,0 +1,109 @@
+- Before NEQBRANCH opt 4.684 DMIPS 8.0 cycles average, after 
+- opcode pairs
+
+0x6060 0.1519223038446077 75961 9.048362120309708 LOADSP + LOADSP
+0x4040 0.13967027934055867 69835 11.08668042546436 STORESP + STORESP
+0x8038 0.10230620461240922 51153 10.251102204408818 IM + NEQBRANCH
+0x4060 0.09856219712439425 49281 9.822802471596571 STORESP + LOADSP
+0x6080 0.09734219468438937 48671 6.483415478886373 LOADSP + IM
+0x3860 0.08642217284434568 43211 12.616350364963504 NEQBRANCH + LOADSP
+0x8080 0.060966121932243864 30483 4.275915275634731 IM + IM 
+0x8005 0.05317010634021268 26585 6.572311495673671 IM + ADD
+0x540 0.05215210430420861 26076 9.339541547277937 ADD + STORESP
+0x3d0d 0.050808101616203236 25404 12.398243045387995 
+0xd04 0.0466000932001864 23300 20.0
+0x6040 0.04389608779217558 21948 9.460344827586207
+0x4080 0.043648087296174594 21824 7.630769230769231
+0xc80 0.03966807933615867 19834 11.438292964244521
+0x8010 0.0391500783001566 19575 6.1248435544430535
+0x480 0.038798077596155195 19399 10.941342357586013
+
+
+- zpu_core.vhd: 1500 LUTs. Xilinx ISE reports 83MHz maximum frequency after P&R
+  which matches what I've found w/my ic300.vhd testbench
+
+- zpu_core_instack.vhd
+  - problems w/simulation trace since storeb/loadb will run into undefined memory
+    during emulation. Solution: implement loadb+storeb.
+  - simulation needs to read cycles from ModelSim trace so as to m ake readcycles 
+    not cause false positives. This has other interesting potentials w.r.t.
+    knowing which instructions take the longest.
+
+- Ca. 1700 LUT inc. all instructions. Removing all higher level instructions
+  => 1300.
+
+- Review memory interface
+  - When is mem_busy high? Will it be high on the next cycle after
+    I've send mem_read/writeEnable?
+  - Should I hold off posting a read/write until mem_busy = '0'?
+  - Write posting could increase performance somewhat. Should there be
+    a seperate write busy signal?
+  - Synchronous reset? The ARM7 will have to copy the program to DRAM and
+    then start the ZPU.
+
+- Current instruction set has  
+  - 31  DMIPS single cycle performance Simulator.java
+  - 8 DMIPS w/single cycle RAM access in ModelSim 
+
+112 0.06100380865858346 67215918
+56 0.04139603650830458 45611457
+129 0.0375812381475752 41408192
+5 0.03703417264799563 40805418
+113 0.03540341331682748 39008596
+128 0.0343154384313754 37809831
+83 0.03322159422742951 36604599
+114 0.03213492807203279 35407276
+132 0.03158580962697109 34802240
+12 0.03049709687915076 33602662
+8 0.029409690138646426 32404523
+115 0.026690690908727877 29408644
+46 0.025054316381406774 27605635
+82 0.023965804208719754 26406278
+84 0.023961360698074072 26401382
+116 0.023417718589457643 25802380
+81 0.02179306727026773 24012288
+117 0.021783900714401432 24002188
+4 0.01797685126990833 19807461
+6 0.016340292503890113 18004249
+85 0.016339001017850734 18002826
+255 0.016338918428089957 18002735
+86 0.016337281154151066 18000931
+11 0.011984767180825744 13205194
+51 0.0114390303780569 12603884
+38 0.010892246228211845 12001420
+118 0.010347263624247446 11400941
+131 0.009257503529350904 10200209
+7 0.008713386756504965 9600684
+22 0.008712946580307425 9600199
+
+
+64 0.16176824859336478 178241352
+96 0.23147927881894828 255051161
+128 0.2646966482624612 291651105
+
+
+- Alternate memory interface to allow more caching in memory subsystem?
+
+-- The memory interface allows a dual port memory to be used 
+-- to increase performance.
+-- 
+-- Also it is possible to implement a zero cycle register file instead
+-- of memory, though obviously that will cause problems w.r.t. max 
+-- frequency for the ZPU.
+--
+-- mem_writeEnable - set to '1' for a single cycle to send off a write request.
+--                   mem_write is valid only while mem_writeEnable='1'.
+-- mem_readEnable - set to '1' for a single cycle to send off a read request.
+--                  mem_read is a single cycle while mem_read_busy='0'.
+-- 
+-- mem_read/write_busy - It is illegal to send off a read/write request when mem_read/write_busy='1'.
+--            Set to '0' when mem_read  is valid after a read request. Note that
+--            the definition allows zero wait state ram.
+-- mem_read/write_addr - address for read/write request
+-- mem_read - read data. Valid only on the cycle after mem_busy='0' after 
+--            mem_readEnable='1' for a single cycle.
+-- mem_write - data to write
+-- mem_writeMask - set to '1' for those bits that are to be written to memory upon
+--                 write request
+-- break - set to '1' when CPU hits break instruction
+-- interrupt - set to '1' until interrupts are cleared by CPU. 

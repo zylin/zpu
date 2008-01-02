@@ -1,0 +1,5 @@
+vhdl work "zpu_config.vhd"
+vhdl work "zpupkg.vhd"
+vhdl work "zpu_core_small.vhd"
+vhdl work "bram_dmips.vhd"
+vhdl work "testlut.vhd"

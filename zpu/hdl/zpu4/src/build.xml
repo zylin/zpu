@@ -1,0 +1,114 @@
+<!--
+
+FIX!!! start /b /wait /belownormal does not propagate return code..
+-->
+<project name="ZPU3" default="all" basedir=".">
+	<property name="chipname" value="ic300"/>
+	<property name="packagetype" value="xc3s400-ft256-4"/>
+		
+		  
+	<description>eCosBoard firmware build file</description>
+
+	<target name="setuplibs">
+		<!-- N/A yet
+		<copy todir="../src">
+			<fileset dir="..\fpgalib\" includes="foo_top.ngc" />
+		</copy>
+		-->
+	</target>
+
+	<target name="setup">
+		<mkdir dir="..\reports"/>
+		<mkdir dir="..\syn"/>
+		<mkdir dir="..\ngo"/>
+		<mkdir dir="..\output"/>
+		<mkdir dir="..\tmp"/>
+		<mkdir dir="..\xst"/>
+	</target>
+
+	<target name="clean">
+		<delete dir="..\reports"/>
+		<delete dir="..\syn"/>
+		<delete dir="..\ngo"/>
+		<delete dir="..\output"/>
+		<delete dir="..\tmp"/>
+		<delete dir="..\xst"/>
+	</target>
+
+	<target name="synthesis" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c xst -intstyle ise -ifn xmake.xst -ofn ..\reports\1_synthesis.txt"/>
+		</exec>
+	</target>
+
+
+	<target name="translate" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c ngdbuild -intstyle ise -dd ..\ngo -uc ${chipname}.ucf -a  -p ${packagetype} ..\syn\${chipname}.ngc ..\ngo\${chipname}.ngd"/>
+		</exec>
+		<move tofile="..\reports\2_translate.txt">
+			<fileset dir="..\ngo" includes="${chipname}.bld"/>
+		</move>
+	</target>
+
+	<target name="mapping" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c map -intstyle ise -p ${packagetype} -ol high -timing -detail -cm area -ignore_keep_hierarchy -pr b -k 6 -r -c 100 -tx off -o ..\ngo\${chipname}_map.ncd ..\ngo\${chipname}.ngd ..\ngo\${chipname}.pcf"/>
+		</exec>
+		<move tofile="..\reports\3_mapping.txt">
+			<fileset dir="..\ngo" includes="${chipname}_map.mrp"/>
+		</move>
+	</target>
+
+
+	<target name="placeandroute" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c par -w -intstyle ise -ol high -t 1 ..\ngo\${chipname}_map.ncd ..\ngo\${chipname}.ncd ..\ngo\${chipname}.pcf"/>
+		</exec>
+		<move tofile="..\reports\4_placeandroute.txt">
+			<fileset dir="..\ngo" includes="${chipname}.par"/>
+		</move>
+		<move tofile="..\reports\5_pads.txt">
+			<fileset dir="..\ngo" includes="${chipname}_pad.txt"/>
+		</move>
+	</target>
+
+
+	<target name="gentime" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c trce -intstyle ise -v 3 -l 3 -a -u 100 ..\ngo\${chipname}.ncd -o ..\reports\timing.twr ..\ngo\${chipname}.pcf"/>
+		</exec>
+		<delete file="..\reports\6_timing.txt"/>
+		<move tofile="..\reports\6_timing.txt">
+			<fileset dir="..\reports" includes="timing.twr"/>
+		</move>
+	</target>
+
+
+	<target name="genbit" depends="setup">
+		<exec executable="cmd" failonerror="true">
+			<arg line="/c bitgen -intstyle ise -w -f ${chipname}.bitgen ..\ngo\${chipname}.ncd"/>
+		</exec>
+		<move tofile="..\reports\7_bitgen.txt">
+			<fileset dir="..\ngo" includes="${chipname}.bgn"/>
+		</move>
+	</target>
+
+	<target name="copyfiles" depends="setup">
+		<copy todir="../output">
+			<fileset dir="..\ngo" includes="${chipname}.bin"/>
+		</copy>
+		<!--
+		<copy tofile="${workspace_loc}\firmware\board\xeddvifpgadata.rawdata">
+			<fileset dir="..\ngo" includes="${chipname}.bin"/>
+		</copy>
+		-->
+	</target>
+
+
+	<target name="all" depends="setuplibs,synthesis,translate,mapping,placeandroute,gentime,genbit,copyfiles">
+
+	</target>
+
+
+</project>

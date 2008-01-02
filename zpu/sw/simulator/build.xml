@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<project name="project" default="build">
+	
+	<target name="build" >
+		<jar destfile="zpusim.jar" basedir="bin"/>
+	</target>
+</project>

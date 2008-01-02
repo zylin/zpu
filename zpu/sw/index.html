@@ -1,0 +1,44 @@
+<html>
+<body>
+<h1>Getting started - a ZPU hello world program</h1>
+The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
+some very basic peripherals defined: counter, timer interrupt and a debug output port. 
+<h2>Installing</h2>
+<ol>
+<li>Install Cygwin. http://www.cygwin.com 
+<li>Install Java
+<li>Start Cygwin bash
+<li>cd zpu/sw
+<li>unzip tools/zputoolchain.zip
+<li>zpu/sw/install/bin now has the .exe files for the GCC toolchain & GDB
+<li>You may want to add install/bin from zputoolchain.zip to PATH.<br>
+export PATH=$PATH:&lt;unzipdir&gt;/install/bin
+</ol>
+<h1>Hello world example</h1>
+The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
+<p> 
+<code>
+cd zpu/sw/helloworld<br>
+../install/bin/zpu-elf-gcc -phi hello.c -o hello.elf <br>
+</code>
+<h2>Running the hello world example in GDB</h2>
+<ol>
+<li>cd zpu/sw/helloworld
+<li>Launch the simulator from a seperate bash shell:<p>
+java -classpath ../simulator/zpusim.jar -Xmx512m com.zylin.zpu.simulator.Phi 4444
+<p>
+<img src="helloworld/zpusim.PNG" border=0> 
+<li>Launch GDB:<p>
+../install/bin/zpu-elf-gdb hello.elf
+<li>Connect to target, load and run application:<p>
+<code>
+(gdb) target remote localhost:4444<br>
+(gdb) load<br>
+(gdb) continue<br>
+</code>
+<p>
+<img src="helloworld/gccgdb.PNG">
+
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+# clock inputs
+net "cpu_clk_p" loc = "R9" | iostandard=LVTTL;
+
+# input pins
+net "cpu_a_p(0)" loc = "N15" | iostandard=LVTTL;
+net "cpu_a_p(1)" loc = "P16" | iostandard=LVTTL;
+net "cpu_a_p(2)" loc = "P13" | iostandard=LVTTL;
+net "cpu_a_p(3)" loc = "N16" | iostandard=LVTTL;
+net "cpu_a_p(4)" loc = "P15" | iostandard=LVTTL;
+net "cpu_a_p(5)" loc = "R11" | iostandard=LVTTL;
+net "cpu_a_p(6)" loc = "T14" | iostandard=LVTTL;
+net "cpu_a_p(7)" loc = "R16" | iostandard=LVTTL;
+net "cpu_a_p(8)" loc = "P14" | iostandard=LVTTL;
+net "cpu_a_p(9)" loc = "T13" | iostandard=LVTTL;
+net "cpu_a_p(10)" loc = "R13" | iostandard=LVTTL;
+net "cpu_a_p(11)" loc = "P7" | iostandard=LVTTL;
+net "cpu_a_p(12)" loc = "N12" | iostandard=LVTTL;
+net "cpu_a_p(13)" loc = "R12" | iostandard=LVTTL;
+net "cpu_a_p(14)" loc = "L13" | iostandard=LVTTL;
+net "cpu_a_p(15)" loc = "K12" | iostandard=LVTTL;
+net "cpu_a_p(16)" loc = "K15" | iostandard=LVTTL;
+net "cpu_a_p(17)" loc = "T10" | iostandard=LVTTL;
+net "cpu_a_p(18)" loc = "T9" | iostandard=LVTTL;
+net "cpu_a_p(19)" loc = "N10" | iostandard=LVTTL;
+net "cpu_a_p(20)" loc = "T8" | iostandard=LVTTL;
+net "cpu_wr_n_p(0)" loc = "L15" | iostandard=LVTTL;
+net "cpu_wr_n_p(1)" loc = "N14" | iostandard=LVTTL;
+net "cpu_oe_n_p" loc = "T12" | iostandard=LVTTL;
+net "cpu_cs_n_p(1)" loc = "R3" | iostandard=LVTTL;
+net "cpu_cs_n_p(2)" loc = "M16" | iostandard=LVTTL;
+net "cpu_cs_n_p(3)" loc = "P11" | iostandard=LVTTL;
+
+#net "sdr_clk_fb_p" loc = "B8" | iostandard=SSTL2_I;
+
+# output pins
+net "cpu_fiq_p" loc = "K16" | iostandard=LVTTL;
+net "cpu_irq_p(0)" loc = "M14" | iostandard=LVTTL;
+net "cpu_irq_p(1)" loc = "J16" | iostandard=LVTTL;
+net "cpu_wait_n_p" loc = "M15" | iostandard=LVTTL;
+
+#net "sdr_clk_p" loc = "D8" | iostandard=SSTL2_I | FAST;
+#net "sdr_clk_n_p" loc = "F5" | iostandard=SSTL2_I | FAST;
+#net "cke_q_p" loc = "F4" | iostandard=SSTL2_I | FAST;
+#net "cs_qn_p" loc = "M2" | iostandard=SSTL2_I | FAST | PULLUP;
+#net "ras_qn_p" loc = "J2" | iostandard=SSTL2_I | FAST | PULLUP | NODELAY;
+#net "cas_qn_p" loc = "M3" | iostandard=SSTL2_I | FAST | PULLUP | NODELAY;
+#net "we_qn_p" loc = "K4" | iostandard=SSTL2_I | FAST | PULLUP | NODELAY;
+#net "dm_q_p(0)" loc = "L4" | iostandard=SSTL2_I | FAST;
+#net "dm_q_p(1)" loc = "E4" | iostandard=SSTL2_I | FAST;
+#net "dqs_q_p(0)" loc = "L3" | iostandard=SSTL2_I | FAST;
+#net "dqs_q_p(1)" loc = "D3" | iostandard=SSTL2_I | FAST;
+#net "ba_q_p(0)" loc = "M1" | iostandard=SSTL2_I | FAST;
+#net "ba_q_p(1)" loc = "J3" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(0)" loc = "J4" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(1)" loc = "N2" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(2)" loc = "H4" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(3)" loc = "P2" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(4)" loc = "E7" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(5)" loc = "G4" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(6)" loc = "D7" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(7)" loc = "G5" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(8)" loc = "C7" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(9)" loc = "F3" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(10)" loc = "N3" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(11)" loc = "E6" | iostandard=SSTL2_I | FAST;
+#net "sdr_a_p(12)" loc = "D6" | iostandard=SSTL2_I | FAST;
+
+# bidirectional pins
+net "cpu_d_p(0)" loc = "M11" | iostandard=LVTTL;
+net "cpu_d_p(1)" loc = "N11" | iostandard=LVTTL;
+net "cpu_d_p(2)" loc = "P10" | iostandard=LVTTL;
+net "cpu_d_p(3)" loc = "R10" | iostandard=LVTTL;
+net "cpu_d_p(4)" loc = "T7" | iostandard=LVTTL;
+net "cpu_d_p(5)" loc = "R7" | iostandard=LVTTL;
+net "cpu_d_p(6)" loc = "N6" | iostandard=LVTTL;
+net "cpu_d_p(7)" loc = "M6" | iostandard=LVTTL;
+net "cpu_d_p(8)" loc = "K13" | iostandard=LVTTL;
+net "cpu_d_p(9)" loc = "M10" | iostandard=LVTTL;
+net "cpu_d_p(10)" loc = "L12" | iostandard=LVTTL;
+net "cpu_d_p(11)" loc = "M13" | iostandard=LVTTL;
+net "cpu_d_p(12)" loc = "K14" | iostandard=LVTTL;
+net "cpu_d_p(13)" loc = "L14" | iostandard=LVTTL;
+net "cpu_d_p(14)" loc = "J13" | iostandard=LVTTL;
+net "cpu_d_p(15)" loc = "J14" | iostandard=LVTTL;
+
+#net "sdr_d_p(0)" loc = "G1" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(1)" loc = "H3" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(2)" loc = "G3" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(3)" loc = "K2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(4)" loc = "F2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(5)" loc = "L2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(6)" loc = "E1" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(7)" loc = "M4" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(8)" loc = "C6" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(9)" loc = "E2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(10)" loc = "C2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(11)" loc = "D1" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(12)" loc = "B7" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(13)" loc = "D2" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(14)" loc = "B6" | iostandard=SSTL2_I | NODELAY | FAST;
+#net "sdr_d_p(15)" loc = "B5" | iostandard=SSTL2_I | NODELAY | FAST;
+
+# TIMING
+# Create timing names
+NET "cpu_clk_p" TNM_NET = "cpu_clk_p";
+NET "sdr_clk_fb_p" TNM_NET = "sdr_clk_fb_p";
+#NET "cpu_clk" TNM_NET = "cpu_clk";
+#NET "cpu_clk_2x" TNM_NET = "cpu_clk_2x";
+#NET "cpu_clk_4x" TNM_NET = "cpu_clk_4x";
+#NET "ddr_in_clk" TNM_NET = "ddr_in_clk";
+#NET "ddr_in_clk_2x" TNM_NET = "ddr_in_clk_2x";
+
+## Create timing
+
+# Periode timing
+TIMESPEC "TS_cpu_clk" = PERIOD "cpu_clk_p" 10 ns HIGH 50 %;
+#TIMESPEC "TS_sdr_clk_fb_p" = PERIOD "sdr_clk_fb_p" 7.8 ns HIGH 50 %;
+
+# Clock domain crossing timing
+#TIMESPEC "TS_cpu1_to_cpu2" = FROM "cpu_clk" TO "cpu_clk_2x" 7.8 ns;
+#TIMESPEC "TS_cpu1_to_cpu4" = FROM "cpu_clk" TO "cpu_clk_4x" 3.9 ns;
+#TIMESPEC "TS_cpu1_to_ddr2" = FROM "cpu_clk" TO "ddr_in_clk" 7.8 ns;
+#TIMESPEC "TS_cpu1_to_ddr2_2x" = FROM "cpu_clk" TO "ddr_in_clk_2x" 3.9 ns;
+
+#TIMESPEC "TS_cpu2_to_cpu1" = FROM "cpu_clk_2x" TO "cpu_clk" 7.8 ns;
+#TIMESPEC "TS_cpu2_to_cpu4" = FROM "cpu_clk_2x" TO "cpu_clk_4x" 3.9 ns;
+#TIMESPEC "TS_cpu2_to_ddr2" = FROM "cpu_clk_2x" TO "ddr_in_clk" 7.8 ns;
+#TIMESPEC "TS_cpu2_to_ddr_2x" = FROM "cpu_clk_2x" TO "ddr_in_clk_2x" 3.9 ns;
+
+#TIMESPEC "TS_cpu4_to_cpu1" = FROM "cpu_clk_4x" TO "cpu_clk" 3.9 ns;
+#TIMESPEC "TS_cpu4_to_cpu2" = FROM "cpu_clk_4x" TO "cpu_clk_2x" 3.9 ns;
+#TIMESPEC "TS_cpu4_to_ddr2" = FROM "cpu_clk_4x" TO "ddr_in_clk" 3.9 ns;
+#TIMESPEC "TS_cpu4_to_ddr2_2x" = FROM "cpu_clk_4x" TO "ddr_in_clk_2x" 3.9 ns;
+
+#TIMESPEC "TS_ddr2_to_cpu1" = FROM "ddr_in_clk" TO "cpu_clk" 7.8 ns;
+#TIMESPEC "TS_ddr2_to_cpu2" = FROM "ddr_in_clk" TO "cpu_clk_2x" 7.8 ns;
+#TIMESPEC "TS_ddr2_to_cpu4" = FROM "ddr_in_clk" TO "cpu_clk_4x" 3.9 ns;
+#TIMESPEC "TS_ddr2_to_ddr2_2x" = FROM "ddr_in_clk" TO "ddr_in_clk_2x" 3.9 ns;
+
+#TIMESPEC "TS_ddr2_2x_to_cpu1" = FROM "ddr_in_clk_2x" TO "cpu_clk" 3.9 ns;
+#TIMESPEC "TS_ddr2_2x_to_cpu2" = FROM "ddr_in_clk_2x" TO "cpu_clk_2x" 3.9 ns;
+#TIMESPEC "TS_ddr2_2x_to_cpu4" = FROM "ddr_in_clk_2x" TO "cpu_clk_4x" 3.9 ns;
+#TIMESPEC "TS_ddr2_2x_to_ddr2" = FROM "ddr_in_clk_2x" TO "ddr_in_clk" 3.9 ns;
+
+
+

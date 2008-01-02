@@ -1,0 +1,27 @@
+-g DebugBitstream:No
+-g Binary:yes
+-g CRC:Enable
+-g ConfigRate:50
+-g CclkPin:Pullnone
+-g M0Pin:Pullnone
+-g M1Pin:Pullnone
+-g M2Pin:Pullnone
+-g ProgPin:PullUp
+-g DonePin:Pullnone
+-g TckPin:Pullnone
+-g TdiPin:Pullnone
+-g TdoPin:Pullnone
+-g TmsPin:Pullnone
+-g UnusedPin:Pullnone
+-g UserID:0xFFFFFFFF
+-g DCMShutDown:Disable
+-g DCIUpdateMode:AsRequired
+-g StartUpClk:CClk
+-g DONE_cycle:4
+-g GTS_cycle:5
+-g GWE_cycle:6
+-g LCK_cycle:NoWait
+-g Security:Level1
+-g DonePipe:No
+-g DriveDone:Yes
+

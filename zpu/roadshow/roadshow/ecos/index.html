@@ -1,0 +1,145 @@
+<html>
+<body>
+<h1>Installing eCos build tools</h1>
+<code>
+tar -xjvf ecossnapshot.tar.bz2<br>
+tar -xjvf repository.tar.bz2<br>
+tar -xjvf ecostools.tar.bz2<br>
+# run this every time you open the shell<br>
+export PATH=$PATH:`pwd`/ecos-install<br>
+export ECOS_REPOSITORY=`pwd`/ecos/packages:`pwd`/repository<br>
+</code>
+<h1>Compiling eCos tests</h1>
+<code>
+ecosconfig new zeta default<br>
+ecosconfig tree<br>
+make<br>
+cd kernel/current<br>
+make tests<br>
+</code>
+
+<h1>Code size ZPU</h1>
+<code>
+$ zpu-elf-size *<br>
+   text    data     bss     dec     hex filename<br>
+  15761    1504   12060   29325    728d bin_sem0<br>
+  16907    1512   14436   32855    8057 bin_sem1<br>
+  17105    1524   30032   48661    be15 bin_sem2<br>
+  17186    1512   14436   33134    816e bin_sem3<br>
+  18986    1500   12036   32522    7f0a clock0<br>
+  15812    1504   13236   30552    7758 clock1<br>
+  25095    1972   13224   40291    9d63 clockcnv<br>
+  16437    1500   13224   31161    79b9 clocktruth<br>
+  15762    1504   12060   29326    728e cnt_sem0<br>
+  17124    1512   14436   33072    8130 cnt_sem1<br>
+  35947    1564   22512   60023    ea77 dhrystone<br>
+  16428    1500   13228   31156    79b4 except1<br>
+  15751    1504   12052   29307    727b flag0<br>
+  19145    1512   15624   36281    8db9 flag1<br>
+  20053    1516  102908  124477   1e63d fptest<br>
+  15998    1496   12092   29586    7392 intr0<br>
+  16080    1496   12200   29776    7450 kalarm0<br>
+  15327    1496   12036   28859    70bb kcache1<br>
+  15549    1496   13224   30269    763d kcache2<br>
+  18291    1500   12260   32051    7d33 kclock0<br>
+  16231    1500   13232   30963    78f3 kclock1<br>
+  16572    1496   13228   31296    7a40 kexcept1<br>
+  15618    1496   12060   29174    71f6 kflag0<br>
+  19287    1500   15624   36411    8e3b kflag1<br>
+  16887    1516   15628   34031    84ef kill<br>
+  16186    1496   12128   29810    7472 kintr0<br>
+  19724    1504   14516   35744    8ba0 klock<br>
+  18283    1500   14592   34375    8647 kmbox1<br>
+  15539    1496   12064   29099    71ab kmutex0<br>
+  16524    1504   15664   33692    839c kmutex1<br>
+  18272    1712   20348   40332    9d8c kmutex3<br>
+  18682    1608   20352   40642    9ec2 kmutex4<br>
+  15619    1496   14412   31527    7b27 ksched1<br>
+  15567    1496   12060   29123    71c3 ksem0<br>
+  17063    1500   14436   32999    80e7 ksem1<br>
+  15504    1496   13228   30228    7614 kthread0<br>
+  16167    1496   14412   32075    7d4b kthread1<br>
+  18281    1512   14580   34373    8645 mbox1<br>
+  20611    1508   14940   37059    90c3 mqueue1<br>
+  15672    1504   12064   29240    7238 mutex0<br>
+  16678    1516   15664   33858    8442 mutex1<br>
+  17694    1508   16868   36070    8ce6 mutex2<br>
+  18203    1720   20344   40267    9d4b mutex3<br>
+  16352    1508   14428   32288    7e20 release<br>
+  15890    1500   14412   31802    7c3a sched1<br>
+  44196    1612  286332  332140   5116c stress_threads<br>
+  17891    1524   16864   36279    8db7 sync2<br>
+  16943    1512   15644   34099    8533 sync3<br>
+  15467    1496   13064   30027    754b thread0<br>
+  16134    1496   14420   32050    7d32 thread1<br>
+  17560    1512   15636   34708    8794 thread2<br>
+  16279    1500   24028   41807    a34f thread_gdb<br>
+  17051    1504   20376   38931    9813 timeslice<br>
+  17146    1504   21564   40214    9d16 timeslice2<br>
+  37313    1512  422380  461205   70995 tm_basic<br>
+</code>
+<h2>Code size ARM (non-thumb)</h2>
+Thumb does not compile out of the box w/AT91 EB40a for which this test was made.<p>
+<code>
+$ arm-elf-size *<br>
+   text    data     bss     dec     hex filename<br>
+  25204     692   16976   42872    a778 bin_sem0<br>
+  26644     700   22096   49440    c120 bin_sem1<br>
+  26996     712   55584   83292   1455c bin_sem2<br>
+  27008     700   22100   49808    c290 bin_sem3<br>
+  28992     688   16944   46624    b620 clock0<br>
+  25456     692   19532   45680    b270 clock1<br>
+  34572    1160   19520   55252    d7d4 clockcnv<br>
+  26224     688   19508   46420    b554 clocktruth<br>
+  25204     692   16976   42872    a778 cnt_sem0<br>
+  26888     700   22108   49696    c220 cnt_sem1<br>
+  44180     752   27416   72348   11a9c dhrystone<br>
+  26088     688   19520   46296    b4d8 except1<br>
+  25236     692   16968   42896    a790 flag0<br>
+  29532     700   24668   54900    d674 flag1<br>
+  29508     704  109652  139864   22258 fptest<br>
+  25932     684   17016   43632    aa70 intr0<br>
+  25824     684   17112   43620    aa64 kalarm0<br>
+  24728     684   16956   42368    a580 kcache1<br>
+  25168     684   19512   45364    b134 kcache2<br>
+  28112     688   17168   45968    b390 kclock0<br>
+  25976     688   19524   46188    b46c kclock1<br>
+  26372     684   19512   46568    b5e8 kexcept1<br>
+  25140     684   16968   42792    a728 kflag0<br>
+  29824     688   24660   55172    d784 kflag1<br>
+  26896     704   24656   52256    cc20 kill<br>
+  26088     684   17028   43800    ab18 kintr0<br>
+  30812     692   22176   53680    d1b0 klock<br>
+  28504     688   22260   51452    c8fc kmbox1<br>
+  24984     684   16984   42652    a69c kmutex0<br>
+  26504     692   24704   51900    cabc kmutex1<br>
+  28792     900   34892   64584    fc48 kmutex3<br>
+  29264     796   34896   64956    fdbc kmutex4<br>
+  25240     684   22084   48008    bb88 ksched1<br>
+  25044     684   16968   42696    a6c8 ksem0<br>
+  26988     688   22100   49776    c270 ksem1<br>
+  25028     684   19512   45224    b0a8 kthread0<br>
+  25996     684   22080   48760    be78 kthread1<br>
+  28552     700   22252   51504    c930 mbox1<br>
+  31324     696   22612   54632    d568 mqueue1<br>
+  25108     692   16980   42780    a71c mutex0<br>
+  26464     704   24700   51868    ca9c mutex1<br>
+  27624     696   27280   55600    d930 mutex2<br>
+  28596     908   34884   64388    fb84 mutex3<br>
+  26156     696   22100   48952    bf38 release<br>
+  25460     688   22084   48232    bc68 sched1<br>
+  56356     828   45892  103076   192a4 stress_threads<br>
+  27900     712   27288   55900    da5c sync2<br>
+  26760     700   24692   52152    cbb8 sync3<br>
+  24924     684   19356   44964    afa4 thread0<br>
+  25868     684   22084   48636    bdfc thread1<br>
+  27452     700   24680   52832    ce60 thread2<br>
+  26136     688   42704   69528   10f98 thread_gdb<br>
+  27212     692   34916   62820    f564 timeslice<br>
+  52728     700  123332  176760   2b278 tm_basic<br>
+</code>
+
+</body>
+</html>
+
+

@@ -1,0 +1,11 @@
+2007-09-11 Øyvind Harboe
+	* Cleaning up zpu/hdl/example. simzpu.do file now uses zpu4/src files instead
+	  of duplicating them. Hello world simzpu.do now works out of the box.
+2007-09-10 Øyvind Harboe
+	* Cleaning up .html files a bit.
+	* retired zpututorial.odt. 
+2007-08-04 Øyvind Harboe
+	* small ZPU hello world example now simulates with valid log.txt/trace.txt file.
+	* Until files are properly organized, ChangeLog will not be kept up to date.
+2007-08-03 Øyvind Harboe
+	* Starting to commit files
