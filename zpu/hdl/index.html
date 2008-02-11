@@ -15,7 +15,7 @@ Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is 
 <h2>Generating VHDL BRAM initialization </h2>
 
 <code>
-../install/bin/zpu-elf-objdump -O binary hello.elf hello.bin<br>
+../install/bin/zpu-elf-objcopy -O binary hello.elf hello.bin<br>
 java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram<br>
 
 </code>

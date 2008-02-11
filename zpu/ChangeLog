@@ -1,2 +1,4 @@
+2008-02-11 Øyvind Harboe
+	* hdl/index.html. Fixed typo. Use objcopy and not objdump.
 2008-01-02 Øyvind Harboe
 	* Moved to www.opencores.org
