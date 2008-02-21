@@ -9,10 +9,10 @@ some very basic peripherals defined: counter, timer interrupt and a debug output
 <li>Install Java
 <li>Start Cygwin bash
 <li>cd zpu/sw
-<li>unzip tools/zputoolchain.zip
-<li>zpu/sw/install/bin now has the .exe files for the GCC toolchain & GDB
-<li>You may want to add install/bin from zputoolchain.zip to PATH.<br>
-export PATH=$PATH:&lt;unzipdir&gt;/install/bin
+<li>sh setup.sh
+<li>/tmp/zpu/install/bin now has the .exe files for the GCC toolchain & GDB
+<li>Optionally you may set up PATH variables to point to /tmp/zpu/install/bin<br>
+source env.sh
 </ol>
 <h1>Hello world example</h1>
 The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.

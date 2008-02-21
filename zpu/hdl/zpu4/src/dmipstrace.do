@@ -1,3 +1,8 @@
+# Xilinx WebPack modelsim script
+#
+# cd C:/workspace/zpu/zpu/hdl/zpu4/src
+# do dmipstrace.do
+
 set BreakOnAssertion 1
 vlib work
 
