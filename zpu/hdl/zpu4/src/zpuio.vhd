@@ -115,30 +115,6 @@ ram_imp: dram port map (
  		mem_writeMask => mem_writeMask);
 
 
-	-- Read/write are on different addresses
-	-- The registers are 8 bits and mapped to bit[7:0]
-	-- 
-	-- 0xC000 Write: Writes to UART TX FIFO (4 byte FIFO) 
-	--        Read : Reads from UART RX FIFO (4 byte FIFO)
-	-- 0xC004 Read : UART status register
-	--                       Bit 0 = RX FIFO empty
-	--                       Bit 1 = TX FIFO full
-	-- 0xA000 Skrive: LED's (8 stk.)
-	
-	-- 0x9000 Write: bit 0: 1= reset counter
-	-- 			   0= counter running
-	-- 		  bit 1: 1= sample counter (when set to 1)
-	-- 			   0=not used
-	-- 	 Read : counter bit[7:0]
-	-- 0x9004 Read: counter bit [15:8]
-	-- 0x9008 Read: counter bit [23:16]
-	-- 0x900C Read: counter bit [31:24]
-	-- 0x9010 Read: counter bit [39:32]
-	-- 0x9014 Read: counter bit [47:40]
-	-- 0x9018 Read: counter bit [55:48]
-	-- 0x901C Read: counter bit [63:56]
-	-- 
-	-- 0x8800 Read: unsigned 8-bit integer with FPGA frequency (in MHz)
 	
 	fauxUart:
 	process(cpu_clk, areset)
@@ -158,7 +134,7 @@ ram_imp: dram port map (
 			end if;
 		
 			if io_writeEnable = '1' then
-				if io_addr=x"1000" then
+				if io_addr=x"2028003" then
 					-- Write to UART
 					uartData <= mem_write(7 downto 0);
 					uartTXPending <= '1';
@@ -167,11 +143,11 @@ ram_imp: dram port map (
  					timer_we <= '1';
 					io_busy <= '1';
 				else
-					report "Illegal IO write" severity failure;
+--					report "Illegal IO write" severity failure;
 				end if;
 			end if;
 			if (io_readEnable = '1') then
-				if io_addr=x"1001" then
+				if io_addr=x"2028003" then
 					io_read <= (0=>'1',  		-- recieve empty
  					            1 => uartTXPending,   -- tx full
  					            others => '0');
@@ -183,7 +159,7 @@ ram_imp: dram port map (
  					io_read <= ZPU_Frequency;
  					io_busy <= '1';
 				else
-					report "Illegal IO read" severity failure;
+--					report "Illegal IO read" severity failure;
 				end if;
 				
 			else 

@@ -52,8 +52,8 @@ component  zpu_io is
 		busy : out std_logic;
 		writeEnable : in std_logic;
 		readEnable : in std_logic;
-		write	: in std_logic_vector(7 downto 0);
-		read	: out std_logic_vector(7 downto 0);
+		write	: in std_logic_vector(wordSize-1 downto 0);
+		read	: out std_logic_vector(wordSize-1 downto 0);
 		addr : in std_logic_vector(maxAddrBit downto minAddrBit)
 		);
 end component;
@@ -82,7 +82,7 @@ signal			  dram_mem_writeMask: std_logic_vector(wordBytes-1 downto 0);
 
 signal	 		  io_busy : std_logic;
 
-signal			  io_mem_read : std_logic_vector(7 downto 0);
+signal			  io_mem_read : std_logic_vector(wordSize-1 downto 0);
 signal			  io_mem_writeEnable : std_logic; 
 signal			  io_mem_readEnable : std_logic;
 
@@ -131,7 +131,7 @@ begin
 		busy => io_busy,
 		writeEnable => io_mem_writeEnable,
 		readEnable => io_mem_readEnable,
-		write	=> mem_write(7 downto 0),
+		write	=> mem_write(wordSize-1 downto 0),
 		read	=> io_mem_read,
 		addr => mem_addr(maxAddrBit downto minAddrBit)
 	);
@@ -154,8 +154,7 @@ begin
 		end if;
 			 
 		if io_ready='1' then
-			mem_read <= (others => '0');
-			mem_read(7 downto 0) <= io_mem_read;
+			mem_read <= io_mem_read;
 		end if;
 	end process;
 

@@ -1,3 +1,7 @@
+2008-02-21 Øyvind Harboe
+	* zpu/zpu/hdl/index.html. Sharpened instructions and shows two working 
+	  examples. Small & medium ZPU.
+	* got zpu4/src/simzpu_medium.do working again. 
 2008-02-11 Øyvind Harboe
 	* hdl/index.html. Fixed typo. Use objcopy and not objdump.
 2008-01-02 Øyvind Harboe

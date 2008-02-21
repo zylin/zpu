@@ -210,9 +210,7 @@ begin
 		if areset = '1' then
 			state <= State_Idle;
 			break <= '0';
-			-- point to top of RAM-8
-			sp <= (others => '0'); 
-			sp(maxAddrBit downto minAddrBit+1) <= (others => '1');
+			sp <= spStart(maxAddrBitIncIO downto minAddrBit); 
 			 
 			pc <= (others => '0');
 			idim_flag <= '0';

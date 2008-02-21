@@ -1,8 +1,8 @@
 # Xilinx WebPack modelsim script
 #
-# 1. Change directory to this source directory
-# cd C:/workspace/zpunew/hdl/example
-# "do zimzpu.do"
+# 
+# cd C:/workspace/zpu/zpu/hdl/example
+# do simzpu_small.do
 
 set BreakOnAssertion 1
 vlib work
