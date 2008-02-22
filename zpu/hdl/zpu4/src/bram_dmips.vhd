@@ -10,11 +10,11 @@ use work.zpupkg.all;
 entity dualport_ram is
 port (clk : in std_logic;
 	memAWriteEnable : in std_logic;
-	memAAddr : in std_logic_vector(maxAddrBit downto minAddrBit);
+	memAAddr : in std_logic_vector(maxAddrBitBRAM downto minAddrBit);
 	memAWrite : in std_logic_vector(wordSize-1 downto 0);
 	memARead : out std_logic_vector(wordSize-1 downto 0);
 	memBWriteEnable : in std_logic;
-	memBAddr : in std_logic_vector(maxAddrBit downto minAddrBit);
+	memBAddr : in std_logic_vector(maxAddrBitBRAM downto minAddrBit);
 	memBWrite : in std_logic_vector(wordSize-1 downto 0);
 	memBRead : out std_logic_vector(wordSize-1 downto 0));
 end dualport_ram;
@@ -22,7 +22,7 @@ end dualport_ram;
 architecture dualport_ram_arch of dualport_ram is
 
 
-type ram_type is array(0 to ((2**(maxAddrBit+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
+type ram_type is array(0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
 
 shared variable ram : ram_type :=
 (

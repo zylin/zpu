@@ -12,6 +12,7 @@ package zpu_config is
 	constant	ZPU_Frequency		: std_logic_vector(7 downto 0) := x"64";
 	constant 	maxAddrBitIncIO		: integer := 27;
 	constant 	maxAddrBitDRAM		: integer := 16;
+	constant 	maxAddrBitBRAM		: integer := 16;
 	constant 	spStart				: std_logic_vector(maxAddrBitIncIO downto 0) := x"001fff8"; 	
 	
 end zpu_config;
