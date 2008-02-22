@@ -1942,7 +1942,7 @@ public class Simulator implements ZPU, Machine, Sim
 
     protected int getRAMSIZE()
     {
-        return (16*1024*1024);
+        return (2*1024*1024);
     }
 
     protected int getStartStack()

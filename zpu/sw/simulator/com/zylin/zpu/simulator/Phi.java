@@ -114,7 +114,7 @@ public class Phi extends Simulator
 
     protected int getRAMSIZE()
     {
-        return 32*1024*1024;
+        return 2*1024*1024;
     }
 
 
