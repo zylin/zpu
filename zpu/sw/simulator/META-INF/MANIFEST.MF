@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ZPU simulator
+Bundle-SymbolicName: com.zylin.zpu.simulator
+Bundle-Version: 1.0.0
+Export-Package: com.zylin.zpu.simulator,
+ com.zylin.zpu.simulator.applet,
+ com.zylin.zpu.simulator.exceptions,
+ com.zylin.zpu.simulator.gdb,
+ com.zylin.zpu.simulator.tools,
+ com.zylin.zpu.stats

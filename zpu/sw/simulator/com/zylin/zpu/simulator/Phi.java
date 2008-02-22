@@ -98,7 +98,7 @@ public class Phi extends Simulator
         }
     }
 
-    Phi() throws CPUException
+    public Phi() throws CPUException
     {
     }
 

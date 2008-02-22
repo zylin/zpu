@@ -159,6 +159,8 @@ class Packet
 			e.printStackTrace();
 			reply("E01");
 		} 
+        
+		sendReply();
 	}
 
 	private void checkEmpty() throws GDBServerException
@@ -192,6 +194,7 @@ class Packet
 	}
 	/**
 	 * @throws GDBServerException
+	 * @throws IOException 
 	 * @throws MemoryAccessException
 	 * 
 	 */
@@ -342,7 +345,7 @@ class Packet
 	{
 		reply.append(string);
 	}
-	void sendReply() throws IOException, NoAckException
+	void sendReply()
 	{
 		// a bit easier to debug if we can see the entire string.
 		StringBuffer buffer = new StringBuffer();
@@ -365,12 +368,25 @@ class Packet
 		}
 		buffer.append(t);
 		this.server.print(GDBServer.REPLY, "Reply " + number + " : " + buffer.toString());
-		this.server.write(buffer.toString().getBytes());
+		try
+		{
+			this.server.write(buffer.toString().getBytes());
+		} catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
 		
 		if (server.alive)
 		{
 			/* check for ack. */
-			int ack = (char)this.server.read();
+			int ack;
+			try
+			{
+				ack = (char)this.server.read();
+			} catch (IOException e)
+			{
+				throw new RuntimeException(e);
+			}
 			if (ack == '+')
 			{
 				return;
@@ -379,6 +395,7 @@ class Packet
 			
 			throw new NoAckException();
 		}
+		reply=new StringBuffer();
 	}
 	
 	private void querySignal()

@@ -2,6 +2,8 @@ package com.zylin.zpu.simulator;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.channels.ServerSocketChannel;
 
 import com.zylin.zpu.simulator.exceptions.CPUException;
@@ -10,7 +12,6 @@ import com.zylin.zpu.simulator.gdb.GDBServer;
 public class SimApp
 {
 	private static Simulator simulator;
-	public ServerSocketChannel channel;
     private String[] args;
     private int portNumber;
 	private SimFactory simFactory;
@@ -40,39 +41,65 @@ public class SimApp
 	void run(String[] args)
 	{
         this.args=args;
+		createSimulator();
         parseArgs();
+        moreParse();
+        runSimAndGDB();
+	}
+	Object launched=new Object();
+	private boolean doneLaunching;
+	private boolean manyGDBSessions;
+	public ServerSocket serverSocket;
+	public void runSimAndGDB()
+	{
         try
 		{
-			channel = ServerSocketChannel.open();
+			serverSocket = new ServerSocket(portNumber);
 			try
 			{
+				serverSocket.setReuseAddress(true);
                 System.out.println("Listening on port " + portNumber);
-				channel.socket().bind(new InetSocketAddress(portNumber));
-				for (;;)
-				{
+                setLaunchedFlag();
+                do 
+                {
 					try
 					{
-						simulator=simFactory.create();
-				        simulator.suspend();
-                        moreParse();
-						run();
+						runGDBServer();
 					} catch (CPUException e)
 					{
 						e.printStackTrace();
-					} 
-				}
+					}
+                } while (manyGDBSessions);
 			} finally
 			{
-				channel.close();
+				serverSocket.close();
 			}
 		} catch (IOException e1)
 		{
 			e1.printStackTrace();
+		} finally
+		{
+            setLaunchedFlag();
 		}
 	
 	}
 
-    private void run() throws CPUException
+	private void setLaunchedFlag()
+	{
+		synchronized(launched)
+		{
+			doneLaunching=true;
+			launched.notify();
+		}
+	}
+
+	public void createSimulator()
+	{
+		simulator=simFactory.create();
+        simulator.suspend();
+	}
+
+    private void runGDBServer() throws CPUException
     {
         final GDBServer gdbServer=new GDBServer(simulator, this);
         simulator.setSyscall(gdbServer);
@@ -98,7 +125,6 @@ public class SimApp
         } 
         finally
         {
-            
             try
             {
                 thread.join();
@@ -109,4 +135,43 @@ public class SimApp
         }
             
     }
+
+	public Simulator getSimulator()
+	{
+		return simulator;
+	}
+
+	public void setPort(int i)
+	{
+		portNumber=i;
+	}
+
+	/** synchronous launch of GDB server */
+	public void launchGDBServer()
+	{
+		Thread t=new Thread(new Runnable()
+		{
+
+			public void run()
+			{
+				runSimAndGDB();
+			}
+		});
+		t.start();
+		synchronized (launched)
+		{
+			while (!doneLaunching)
+			{
+				try
+				{
+					launched.wait(2000);
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		
+	}
 }

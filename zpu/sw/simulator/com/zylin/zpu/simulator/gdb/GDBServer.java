@@ -5,6 +5,7 @@
 package com.zylin.zpu.simulator.gdb;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
@@ -23,30 +24,25 @@ import com.zylin.zpu.simulator.exceptions.UnsupportedSyscallException;
 
 public class GDBServer implements Host 
 {
+	/* logging filter */
 	static final boolean UNKNOWN=false;
 	static final boolean ALL=false;
 	static final boolean CPUEXCEPTION = false;
 	static protected boolean MINIMAL=true;
-	static boolean PACKET=false;
-	static boolean REPLY=false;
+	static boolean PACKET=true;
+	static boolean REPLY=true;
 	static protected boolean IGNOREDEXCEPTIONS=false;
+	
+	
+	
 	protected Throwable packetException;
 	protected Object packetReady=new Object();
 	private Packet packet;
 	boolean done;
-	private Thread asyncMessage;
-	private Object listenBreak=new Object();
-	private boolean listenForBreak;
-	private boolean sleeping;
-	private ByteBuffer readBuffer;
-	private ByteBuffer writeBuffer;
-	private SocketChannel sc;
-	private Selector selectorRead;
-	private Selector selectorWrite;
+	private Socket sc;
     public boolean alive;
     static private int sessionNr;
 	private SimApp app;
-	private boolean stopAsyncMessage;
     Sim simulator;
     
     public GDBServer(Sim simulator, SimApp app)
@@ -66,39 +62,10 @@ public class GDBServer implements Host
 	/** infinite loop that waits for debug sessions to be initiated via TCP/IP */
 	public void gdbServer() throws MemoryAccessException, IOException, GDBServerException, EndSessionException 
 	{
+		sc=app.serverSocket.accept();
 		try
 		{
-			asyncMessage = new Thread(new Runnable()
-			{
-				public void run()
-				{
-					asyncMessage();
-				}
-			});
-			asyncMessage.start();
-			try
-			{
-				readBuffer = ByteBuffer.allocate(1);
-				writeBuffer = ByteBuffer.allocate(128);
-				debugSession();
-			}
-			finally
-			{
-				/* tell it to stop waiting for break chars and wake up the thread */
-				stopAsyncMessage = true;
-				synchronized(listenBreak)
-				{
-					listenBreak.notify();
-				}
-				
-				try
-				{
-					asyncMessage.join();
-				} catch (InterruptedException e3)
-				{
-					e3.printStackTrace();
-				}
-			}
+			debugSession();
 		} catch (IOException e)
 		{
 			// the session failed...
@@ -119,111 +86,12 @@ public class GDBServer implements Host
 		{
 			// some terrible unforseen failure.
 			e.printStackTrace();
+		} finally
+		{
+			sc.close();
 		}
 	}
 
-	/**
-	 * We have to wait for break, but as soon as the main thread wants to wait
-	 * for packets again, we have to stop waiting for a break.
-	 * 
-	 * Tricky....
-	 */
-	private void asyncMessage()
-	{
-		for (;;)
-		{
-			synchronized(listenBreak)
-			{
-				if (stopAsyncMessage)
-				{
-					/* shutting down */
-					return;
-				}
-				try
-				{
-					sleeping=true;
-					listenBreak.notify();
-					
-					listenBreak.wait();
-					sleeping=false;
-					listenBreak.notify();
-				} catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				if (stopAsyncMessage)
-				{
-					/* shutting down */
-					return;
-				}
-			}
-			
-			while (listenForBreak)
-			{
-				try
-				{
-					if (waitSelect(selectorRead, true))
-					{
-						int t = read();
-						if (t == 0x03)
-						{
-							// We received a ctrl-c while processing a package,
-							// this
-							// would be a suspend
-							simulator.suspend();
-						} else
-						{
-							// ignore garbage. Shouldn't happen.
-						}
-					} else
-					{
-						// we've been awoken since we're ready to send 
-						// the reply to the package...
-//						int x=0;
-					}
-				} catch (IOException e)
-				{
-					// Perfectly normal. This would happen if the connection
-					// is terminated.
-				}
-			}
-		}
-	}
-
-	/** wait for read/write ready */
-	private boolean waitSelect(Selector selector, boolean read) throws IOException
-	{
-		boolean gotit=false;
-		
-		selector.select(1000);
-		if (!sc.isOpen())
-		{
-			throw new IOException("Channel closed");
-		}
-		if (!sc.isConnected())
-		{
-			throw new IOException("Channel not connected");
-		}
-
-		// Get list of selection keys with pending events
-		Iterator it = selector.selectedKeys().iterator();
-		// Process each key at a time
-		while (it.hasNext())
-		{
-			// Get the selection key
-			SelectionKey selKey = (SelectionKey) it.next();
-			// Remove it from the list to indicate that it is being
-			// processed
-			it.remove();
-			if (selKey.isValid() && 
-					((read && selKey.isReadable()) || (!read && selKey.isWritable())))
-			{
-				gotit=true;
-			}
-			
-		}
-		return gotit;
-	}
 
 	
 	protected void sleepABit()
@@ -243,44 +111,18 @@ public class GDBServer implements Host
 	{
 		print(MINIMAL, "GDB server waiting for connection " + sessionNr++ + "...");
 
-		writeBuffer.clear();
-		readBuffer.clear();
-
-
-        selectorRead = Selector.open();
         try
         {
-            selectorWrite = Selector.open();
-            try
-            {
-				sc = app.channel.accept();
-		        try
-		        {
-		        	sc.socket().setKeepAlive(true);
-		            sc.configureBlocking(false);
-		            sc.register(selectorRead, SelectionKey.OP_READ);
-		            sc.register(selectorWrite, SelectionKey.OP_WRITE);
-		
-		            sessionStarted();
-		
-		            expect('+'); // connection ack.
-		
-		            sessionLoop();
-		        } finally
-		        {
-		            sc.close();
-		            
-					print(MINIMAL, "Session ended");
-		        }
-            } finally
-            {
-                selectorWrite.close();
-            }
+            sessionStarted();
+
+            expect('+'); // connection ack.
+
+            sessionLoop();
         } finally
         {
-            selectorRead.close();
+			print(MINIMAL, "Session ended");
         }
-	
+            
 	}
 
 	private void sessionStarted()
@@ -301,19 +143,8 @@ public class GDBServer implements Host
 				packet=new Packet(this);
 				packet.receive();
 		
-				enterListenForCtrlC();
-                
-				try
-				{
-					// During execution we can receive an abort/suspend command...
-					packet.parseAndExecute();
-				} 
-				finally
-				{
-					leaveListenForCtrlC();
-				}
-                
-				packet.sendReply();
+				// During execution we can receive an abort/suspend command...
+				packet.parseAndExecute();
 				
 				if (!alive)
 				    throw new EndSessionException();
@@ -337,41 +168,6 @@ public class GDBServer implements Host
 		}
 	}
 
-    private void enterListenForCtrlC()
-    {
-        setBreakListen(true);
-    }
-
-    private void leaveListenForCtrlC()
-    {
-        /* we don't want to wait for the select to time out as that would make
-         * the protocol excruciatingly slow */
-        setBreakListen(false);
-        selectorRead.wakeup();
-        synchronized(listenBreak)
-        {
-        	try
-        	{
-        		while (!sleeping)
-        		{
-        			listenBreak.notify();
-        			listenBreak.wait();
-        		}
-        	} catch (InterruptedException e)
-        	{
-        		e.printStackTrace();
-        	}
-        }
-    }
-
-	private void setBreakListen(boolean state)
-	{
-		synchronized(listenBreak)
-		{
-			listenForBreak=state;
-			listenBreak.notify();
-		}
-	}
 
 	
 
@@ -387,19 +183,9 @@ public class GDBServer implements Host
 	int read() throws IOException
 	{
 		flush();
-		readBuffer.clear();
-		for (;;)
-		{
-			int n;
-			n = sc.read(readBuffer);
-			if (n == 1)
-			{
-				break;
-			}
-			while (!waitSelect(selectorRead, true));
-		}
-		readBuffer.flip();
-		int t = readBuffer.get(0);
+		int t=sc.getInputStream().read();
+		if (t==-1)
+			throw new IOException();
 		return t;
 	}
 
@@ -429,42 +215,12 @@ public class GDBServer implements Host
 
 	public void write(byte[] bytes) throws IOException
 	{
-		int i=0;
-		while (i<bytes.length)
-		{
-			int len;
-			
-			while ((len=Math.min(bytes.length-i, writeBuffer.capacity()-writeBuffer.position()))==0)
-			{
-				flush();
-			}
-			
-			writeBuffer.put(bytes, i, len);
-			
-			i+=len;
-		}
+		sc.getOutputStream().write(bytes);
 	}
 
 	void flush() throws IOException 
 	{
-		if (writeBuffer.position()>0)
-		{
-			writeBuffer.flip();
-			int len=writeBuffer.limit();
-	
-			int j=0;
-			while (j<len)
-			{
-				int t=sc.write(writeBuffer);
-				
-				if (t==0)
-				{
-					while (!waitSelect(selectorWrite, false));
-				}
-				j+=t;
-			}
-			writeBuffer.clear();
-		}		
+		sc.getOutputStream().flush();
 	}
 
     
@@ -544,14 +300,7 @@ public class GDBServer implements Host
     {
         if (!enterSyscall)
             return true;
-        leaveListenForCtrlC();
-        try
-        {
-            performSyscall();
-        } finally
-        {
-            enterListenForCtrlC();
-        }
+        performSyscall();
         return false;
     }
     
@@ -560,11 +309,17 @@ public class GDBServer implements Host
         return simulator.getArg(i+2);
     }
 
-
     public void writeUART(int val)
     {
         System.out.print((char)val);
         System.out.flush();
+        
+
+        Packet p=new Packet(this);
+        p.reply("O" + formatHex(val, "00"));
+        p.sendReply();
+        
+        
     }
     public int readUART() throws CPUException
     {

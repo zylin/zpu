@@ -268,6 +268,8 @@ public class Simulator implements ZPU, Machine, Sim
      **/
 	private void dumpGmon()
 	{
+		if (memory==null)
+			return;
 		try
 		{
 		ByteArrayOutputStream b=new ByteArrayOutputStream();
