@@ -1,3 +1,6 @@
+2008-03-06 Adam Pierce
+	* zpu/zpu/hdl/example/zpuromgen.c - generate rom files
+	  without java
 2008-02-21 Øyvind Harboe
 	* zpu/zpu/sw/index.html. Changed it a bit to make installation easier. 
 	* zpu/zpu/hdl/index.html. Sharpened instructions and shows two working 
