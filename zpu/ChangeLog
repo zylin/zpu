@@ -1,3 +1,5 @@
+2008-04-05 Øyvind Harboe
+	* zpu/docs/zpuphiregs.odt - ZPU Phi register overview
 2008-03-06 Adam Pierce
 	* zpu/zpu/hdl/example/zpuromgen.c - generate rom files
 	  without java
