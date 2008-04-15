@@ -1,3 +1,4 @@
+/* zpu-elf-gcc -g -Wl,--relax test.c -phi -o hello.elf */
 int main(int argc, char **argv)
 {
 	for (;;)

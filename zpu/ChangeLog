@@ -1,3 +1,7 @@
+2008-04-15 Øyvind Harboe
+	* zpu/simzpu_bram.do - retired. 
+	* zpu/zpu_core_bram.vhd - retired
+	* zpu/hdl/zpu3 - retired
 2008-04-05 Øyvind Harboe
 	* zpu/docs/zpuphiregs.odt - ZPU Phi register overview
 2008-03-06 Adam Pierce

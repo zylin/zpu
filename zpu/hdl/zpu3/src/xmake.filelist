@@ -1,5 +1,0 @@
-vhdl zylin "zpu_config.vhd"
-vhdl zylin "zpupkg.vhd"
-vhdl work "dmips_ram.vhd"
-vhdl zylin "zpu_top_bram_intstack.vhd"
-vhdl work "testlut.vhd"
