@@ -1,4 +1,5 @@
 2008-04-15 Øyvind Harboe
+	* zpu/docs/zpu_arch.odt - a short summary of the architecture
 	* zpu/simzpu_bram.do - retired. 
 	* zpu/zpu_core_bram.vhd - retired
 	* zpu/hdl/zpu3 - retired
