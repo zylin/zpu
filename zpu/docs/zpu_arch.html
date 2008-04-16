@@ -41,7 +41,21 @@ All operations are 32 bit wide.
 			If multiple immediate integers are to be pushed onto the stack, they must be interleaved with another instruction, typically NOP.
 		</td>
 		<td>
-			
+			<code style="white-space:pre;">
+pc <= pc + 1 <br>
+idim <= 1 <br>
+if (idim=0) then <br>
+	sp <= sp - 1; <br>
+	for i in wordSize-1 downto 7 loop <br>
+		mem(sp)(i) <= opcode(6) <br>
+	end loop <br>
+	mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
+else <br>
+	mem(sp)(wordSize-1 downto 7) <= mem(sp)(wordSize-8 downto 0) <br>
+	mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
+end if
+			</code>
+
 		</td>
 	</tr>
 	<tr>
