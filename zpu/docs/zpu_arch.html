@@ -1,0 +1,335 @@
+<html>
+<body>
+<h1>Instruction set</h1>
+Only the base instructions are implemented in the architecture. More advanced instructions, like ASHIFTLEFT are emulated in the illegal instruction vector.
+
+All operations are 32 bit wide.
+<table border="1">
+	<tr><td>Name</td><td>Opcode</td><td>Description</td><td>Definition</td></tr>
+	<tr>
+		<td>
+			BREAKPOINT
+		</td>
+		<td>
+			00000000
+		</td>
+		<td>
+			The debugger sets a memory location to this value to set a breakpoint. Once a JTAG-like 
+			debugger interface is added, it will be convenient to be able to distinguish 
+			between a breakpoint and an illegal(possibly emulated) instruction.
+		</td>
+		<td>
+			No effect on registers
+		</td>
+	</tr>
+	<tr>
+		<td>
+			IM
+		</td>
+		<td>
+			1xxx xxxx
+		</td>
+		<td>
+			Pushes 7 bit sign extended integer and sets the a «instruction decode interrupt mask» flag(IDIM).
+			<p> 
+			If the IDIM flag is already set, this instruction shifts the value on the stack left by 7 bits and stores the 7 bit immediate value into the lower 7 bits.
+			<p> 
+			Unless an instruction is listed as treating the IDIM flag specially, it should be assumed to clear the IDIM flag.
+			<p> 
+			To push a 14 bit integer onto the stack, use two consequtive IM instructions. 
+			<p> 
+			If multiple immediate integers are to be pushed onto the stack, they must be interleaved with another instruction, typically NOP.
+		</td>
+		<td>
+			
+		</td>
+	</tr>
+	<tr>
+		<td>
+			STORESP
+		</td>
+		<td>
+			010x xxxx
+		</td>
+		<td>
+			Pop value off stack and store it in the SP+xxxxx*4 memory location, where xxxxx is a positive integer.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			LOADSP
+		</td>
+		<td>
+			011x xxxx
+		</td>
+		<td>
+			Push value of memory location SP+xxxxx*4, where xxxxx is a positive integer, onto stack.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			ADDSP
+		</td>
+		<td>
+			0001 xxxx
+		</td>
+		<td>
+			Add value of memory location SP+xxxx*4 to value on top of stack.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			EMULATE
+		</td>
+		<td>
+			001x xxxx
+		</td>
+		<td>
+			Push PC to stack and set PC to 0x0+xxxxx*32. This is used to emulate opcodes. See zpupgk.vhd for list of emulate opcode values used. zpu_core.vhd contains reference implementations of these instructions rather than letting the ZPU execute the EMULATE instruction
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			PUSHPC
+		</td>
+		<td>
+			emulated
+		</td>
+		<td>
+			Pushes program counter onto the stack.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			POPPC
+		</td>
+		<td>
+			0000 0100
+		</td>
+		<td>
+			Pops address off stack and sets PC
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			LOAD
+		</td>
+		<td>
+			0000 1000
+		</td>
+		<td>
+			Pops address stored on stack and loads the value of that address onto stack.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			LOAD
+		</td>
+		<td>
+			0000 1000
+		</td>
+		<td>
+			Pops address stored on stack and loads the value of that address onto stack.
+			<p>
+			Bit 0 and 1 of address are always 0.
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			STORE
+		</td>
+		<td>
+			0000 1100
+		</td>
+		<td>
+			Pops address, then value from stack and stores the value into the memory location of the address.
+			<p>
+			Bit 0 and 1 of address are always 0
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			PUSHSP
+		</td>
+		<td>
+			0000 0010
+		</td>
+		<td>
+			Pushes stack pointer. 
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			POPSP
+		</td>
+		<td>
+			0000 1101
+		</td>
+		<td>
+			Used to allocate/deallocate space on stack for variables or when changing threads. 
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			ADD
+		</td>
+		<td>
+			0000 0101
+		</td>
+		<td>
+			Pops two values on stack adds them and pushes the result
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			AND
+		</td>
+		<td>
+			0000 0110
+		</td>
+		<td>
+			Pops two values off the stack and does a bitwise-and & pushes the result onto the stack
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			OR
+		</td>
+		<td>
+			0000 0111
+		</td>
+		<td>
+			Pops two integers, does a bitwise or and pushes result
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			NOT
+		</td>
+		<td>
+			0000 1001
+		</td>
+		<td>
+			Bitwise inverse of value on stack
+
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			FLIP
+		</td>
+		<td>
+			0000 1010
+		</td>
+		<td>
+			Reverses the bit order of the value on the stack, i.e. abc->cba, 100->001, 110->011, etc. 
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			NOP
+		</td>
+		<td>
+			0000 1011
+		</td>
+		<td>
+			No operation
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			Fix! add emulated instructions! Listed in zpupkg.vhd
+		</td>
+		<td>
+			001x xxxx
+		</td>
+		<td>
+			Fix!!
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+</table>
+	
+<h1>Vectors</h1>
+<table border="1">
+	<tr><td>Address</td><td>Name</td><td>Description</td></tr>
+	<tr>
+		<td>0x000</td>
+		<td>Reset</td>
+		<td>
+			1.When the ZPU boots, this is the first instruction to be executed.
+			<p>
+			2.The stack pointer is initialised to maximum RAM address
+			</td>
+	</tr>
+	<tr>
+		<td>0x020</td>
+		<td>Interrupt</td>
+		<td>
+			This is the entry point for interrupts.
+		</td>
+	</tr>
+	<tr>
+		<td>0x040-</td>
+		<td>Emulated instructions</td>
+		<td>
+			Emulated opcode 34. Note that opcode 32 and opcode 33 are not normally used to emulate instructions as these memory addresses are already used by boot vector, GCC registers and the interrupt vector.
+		</td>
+	</tr>
+</table>
+	
+</body>
+<html>
