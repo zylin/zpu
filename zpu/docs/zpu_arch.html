@@ -344,6 +344,383 @@ end if
 		</td>
 	</tr>
 </table>
+
+<h1>Phi memory map</h1>
+The ZPU architecture does not define a memory map as such, but the GCC + libgloss + ecos hal library uses the
+memory map below.
+<p>
+	<TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
+		<COL WIDTH=85>
+		<COL WIDTH=42>
+		<COL WIDTH=136>
+		<COL WIDTH=283>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Address</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Type</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Name</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Description</B></FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0000</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+				enable</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:1] Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]	Enable ZPU operations</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	ZPU
+				is held in Idle mode</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	ZPU
+				running</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A000C</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+				UART to ARM7 TX</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+				ZPU side</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:9] Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[8]	TX buffer ready (valid on ready)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	TX
+				buffer not ready (full)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	TX
+				buffer ready</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[7:0]	TX byte (valid on write)</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0010</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+				UART to ARM7 RX</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+				ZPU side</B></FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:9] Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[8]	RX buffer data valid</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	TX
+				buffer not valid</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	TX
+				buffer valid</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[7:0]	RX byte (when valid)</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0014</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(1)</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]	Reset counter (valid for write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Reset
+				counter</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[1]	Sample counter (valid for write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Sample
+				counter</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:0]		Counter bit 31:0</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0018</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(2)</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:0]		Counter bit 63:32</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0020</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
+				/ Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Global_Interrupt_mask</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:1]		Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		Global intr. Mask</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupts
+				enabled</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupts
+				disabled</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0024</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_INTERRUPT_ENABLE</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:1]		Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		UART RX interrupt enable</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupt
+				disable</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				enable</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0028</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_interrupt</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:1]		Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		UART RX interrupt pending (Read)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	No
+				interrupt pending</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				pending</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		Clear UART interrupt (Write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				cleared</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A002C</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Interrupt_enable</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:1]		Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		Timer interrupt  enable</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupt
+				disable</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				enable</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0030</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
+				/</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_interrupt</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:2]		Not used</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		Timer interrupt pending (Read)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	No
+				interrupt pending</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				pending</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[1]		Reset Timer counter (Write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Timer
+				counter reset</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[0]		Clear Timer interrupt (Write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
+				cleared</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0034</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Period</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:0]		Interrupt period (write)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">		Number
+				of clock cycles</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">		between
+				timer interrupts</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+				</B>The timer will start at Timer_Periode value and count <B>down</B>
+				to zero, and generate an interrupt</FONT></FONT></P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">.0x080A0038</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Counter</FONT></FONT></P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+				[31:0]		Timer counter (read)</FONT></FONT></P>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=85>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+			<TD WIDTH=42>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=136>
+				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+				</P>
+			</TD>
+			<TD WIDTH=283>
+				<P LANG="en-US" CLASS="western"><BR>
+				</P>
+			</TD>
+		</TR>
+	</TABLE>
+
 	
 </body>
 <html>

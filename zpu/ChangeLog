@@ -1,4 +1,6 @@
 2008-04-16 Øyvind Harboe
+	* zpu/docs/zpu_arch.html: added Phi memory map to end of zpu_arch.html
+	* zpu/docs/zpuphiregs.odt: retired
 	* zpu/docs/zpu_arch.html: added. Need to define instruction set.
 	* zpu/docs/zpu_arch.odt: retired
 2008-04-15 Øyvind Harboe
