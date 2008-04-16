@@ -1,5 +1,52 @@
 <html>
 <body>
+<h1>Introduction</h1>
+The ZPU is a zero operand, or stack based CPU. The opcodes have a fixed width of 8 bits. 
+<p>
+Example:
+<p>
+<div style="white-space:pre;background-color:#dddddd;">
+	<code style="white-space:pre;background-color:#dddddd;">
+		IM 5                ; push 5 onto the stack
+		LOADSP 20           ; push value at memory location SP+20
+		ADD                 ; pop 2 values on the stack and push the result
+	</code>
+</div>
+As can be seen, a lot of information is packed into the 8 bits, e.g. the IM instruction pushes a 7 bit signed integer onto the stack. 
+<p>
+The choice of opcodes is intimately tied to the GCC toolchain capabilities.
+<p>
+<div style="white-space:pre;background-color:#dddddd;">
+	<code style="white-space:pre;background-color:#dddddd;">
+	/* simple program showing some interesting qualities of the ZPU toolchain */
+	void bar(int);
+	int j;
+	void foo(int a, int b, int c)
+	{
+	  a++;
+	  b+=a;
+	  j=c;
+	  bar(b);
+	}
+
+foo:
+ loadsp 4	; a is at memory location SP+4
+ im 1
+ add
+ loadsp 12	; b is now at memory location SP+12
+ add
+ loadsp 16	; c is now at memory location SP+16
+ im 24		; «j» is at absolute memory location 24. 
+; Notice how the ZPU toolchain is using link-time relaxation
+; to squeeze the address into a single no-op
+ store
+ im 22		; the fn bar is at address 22
+ call
+ im 12
+ return	; 12 bytes of arguments + return from fn
+</code>
+</div>
+
 <h1>Instruction set</h1>
 Only the base instructions are implemented in the architecture. More advanced instructions, like ASHIFTLEFT are emulated in the illegal instruction vector.
 
