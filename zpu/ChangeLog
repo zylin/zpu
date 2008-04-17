@@ -1,4 +1,5 @@
 2008-04-17 Øyvind Harboe
+	* deleted duplicate files from example folder.
 	* retired Xilinx synthesizing example. It messes up the zpu4 directory.
 2008-04-16 Øyvind Harboe
 	* zpu/doc/zpupresentation_old.odt: interesting bits moved into zpu_arch.html
