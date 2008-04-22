@@ -1,3 +1,16 @@
+2008-04-17 Arnim Läuger
+	* zpu/hdl/example_ghdl/ghdl_import.sh, zpu/hdl/example_ghdl/ghdl_make.sh,
+	  zpu/hdl/example_ghdl/ghdl_options.sh, zpu/hdl/example_ghdl/README: GHDL example
+	* zpu/hdl/zpu4/src/dmipssmalltrace_ghdl.sh: testcase for GHDL
+	* zpu/hdl/zpu4/src/dmipstrace_ghdl.sh: testcase for GHDL
+	* zpu/hdl/zpu4/src/simzpu_medium_ghdl.sh: testcase for GHDL
+	* zpu/hdl/example/helloworld.vhd, zpu/hdl/zpu4/src/bram_dmips.vhd,
+	  zpu/hdl/zpu4/src/dmipssmalltrace_ghdl.sh, zpu/hdl/zpu4/src/dram_dmips.vhd,
+	  zpu/hdl/zpu4/src/dram_hello.vhd, zpu/hdl/zpu4/src/io.vhd,
+	  zpu/hdl/zpu4/src/sim_fpga_top.vhd, zpu/hdl/zpu4/src/sim_small_fpga_top.vhd,
+	  zpu/hdl/zpu4/src/timer.vhd, zpu/hdl/zpu4/src/trace.vhd,
+	  zpu/hdl/zpu4/src/zpu_config_trace.vhd, zpu/hdl/zpu4/src/zpu_core_small.vhd,
+	  zpu/hdl/zpu4/src/zpu_core.vhd, zpu/hdl/zpu4/src/zpupkg.vhd: conversion to numeric_std
 2008-04-17 Øyvind Harboe
 	* deleted duplicate files from example folder.
 	* retired Xilinx synthesizing example. It messes up the zpu4 directory.

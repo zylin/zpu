@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
 
 use std.textio.all;
 
@@ -63,12 +63,12 @@ begin
 				if addr=x"2028003" then
 					-- Write to UART
 					-- report "" & character'image(conv_integer(memBint)) severity note;
-				    print(l_file, character'val(conv_integer(write)));
+				    print(l_file, character'val(to_integer(unsigned(write))));
 				elsif addr(12)='1' then
 --				    report "xxx" severity failure;
 -- 					timer_we <= '1';
 				else
-					print(l_file, character'val(conv_integer(write)));
+					print(l_file, character'val(to_integer(unsigned(write))));
 					report "Illegal IO write" severity warning;
 				end if;
 				

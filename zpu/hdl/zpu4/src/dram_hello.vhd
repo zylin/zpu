@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 
 library work;
@@ -22,7 +22,7 @@ end dram;
 architecture dram_arch of dram is
 
 
-type ram_type is array(0 to ((2**(maxAddrBitDRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
+type ram_type is array(natural range 0 to ((2**(maxAddrBitDRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
 
 shared variable ram : ram_type :=
 (
@@ -3093,10 +3093,10 @@ begin
 		if areset = '1' then
 		elsif (clk'event and clk = '1') then
 			if (mem_writeEnable = '1') then
-				ram(conv_integer(mem_addr(maxAddrBit downto minAddrBit))) := mem_write;
+				ram(to_integer(unsigned(mem_addr(maxAddrBit downto minAddrBit)))) := mem_write;
 			end if;
 		if (mem_readEnable = '1') then
-			mem_read <= ram(conv_integer(mem_addr(maxAddrBit downto minAddrBit)));
+			mem_read <= ram(to_integer(unsigned(mem_addr(maxAddrBit downto minAddrBit))));
 		end if;
 	end if;
 end process;

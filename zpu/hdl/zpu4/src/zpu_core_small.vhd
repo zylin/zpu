@@ -3,7 +3,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
 
 library work;
 use work.zpu_config.all;
@@ -32,18 +32,18 @@ signal		readIO : std_logic;
 
 
 signal memAWriteEnable : std_logic;
-signal memAAddr : std_logic_vector(maxAddrBit downto minAddrBit);
-signal memAWrite : std_logic_vector(wordSize-1 downto 0);
-signal memARead : std_logic_vector(wordSize-1 downto 0);
+signal memAAddr : unsigned(maxAddrBit downto minAddrBit);
+signal memAWrite : unsigned(wordSize-1 downto 0);
+signal memARead : unsigned(wordSize-1 downto 0);
 signal memBWriteEnable : std_logic;
-signal memBAddr : std_logic_vector(maxAddrBit downto minAddrBit);
-signal memBWrite : std_logic_vector(wordSize-1 downto 0);
-signal memBRead : std_logic_vector(wordSize-1 downto 0);
+signal memBAddr : unsigned(maxAddrBit downto minAddrBit);
+signal memBWrite : unsigned(wordSize-1 downto 0);
+signal memBRead : unsigned(wordSize-1 downto 0);
 
 
 
-signal	pc				: std_logic_vector(maxAddrBit downto 0);
-signal	sp				: std_logic_vector(maxAddrBit downto minAddrBit);
+signal	pc				: unsigned(maxAddrBit downto 0);
+signal	sp				: unsigned(maxAddrBit downto minAddrBit);
 
 signal	idim_flag			: std_logic;
 
@@ -117,6 +117,14 @@ signal sampledDecodedOpcode : DecodedOpcodeType;
 
 signal state : State_Type;
 
+subtype AddrBitBRAM_range is natural range maxAddrBitBRAM downto minAddrBit;
+signal memAAddr_stdlogic  : std_logic_vector(AddrBitBRAM_range);
+signal memAWrite_stdlogic : std_logic_vector(memAWrite'range);
+signal memARead_stdlogic  : std_logic_vector(memARead'range);
+signal memBAddr_stdlogic  : std_logic_vector(AddrBitBRAM_range);
+signal memBWrite_stdlogic : std_logic_vector(memBWrite'range);
+signal memBRead_stdlogic  : std_logic_vector(memBRead'range);
+
 begin
 	traceFileGenerate:
    if Generate_Trace generate
@@ -134,17 +142,23 @@ begin
 	end generate;
 
 
+	memAAddr_stdlogic  <= std_logic_vector(memAAddr(AddrBitBRAM_range));
+	memAWrite_stdlogic <= std_logic_vector(memAWrite);
+	memBAddr_stdlogic  <= std_logic_vector(memBAddr(AddrBitBRAM_range));
+	memBWrite_stdlogic <= std_logic_vector(memBWrite);
 	memory: dualport_ram port map (
        	clk => clk,
 	memAWriteEnable => memAWriteEnable,
-	memAAddr => memAAddr(maxAddrBitBRAM downto minAddrBit),
-	memAWrite => memAWrite,
-	memARead => memARead,
+	memAAddr => memAAddr_stdlogic,
+	memAWrite => memAWrite_stdlogic,
+	memARead => memARead_stdlogic,
 	memBWriteEnable => memBWriteEnable,
-	memBAddr => memBAddr(maxAddrBitBRAM downto minAddrBit),
-	memBWrite => memBWrite,
-	memBRead => memBRead
+	memBAddr => memBAddr_stdlogic,
+	memBWrite => memBWrite_stdlogic,
+	memBRead => memBRead_stdlogic
         );
+	memARead <= unsigned(memARead_stdlogic);
+	memBRead <= unsigned(memBRead_stdlogic);
 
 
 
@@ -152,7 +166,7 @@ begin
 	process(memBRead, pc)
 		variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
 	begin
-		tOpcode := memBRead((wordBytes-1-conv_integer(pc(minAddrBit-1 downto 0))+1)*8-1 downto (wordBytes-1-conv_integer(pc(minAddrBit-1 downto 0)))*8);
+		tOpcode := std_logic_vector(memBRead((wordBytes-1-to_integer(pc(minAddrBit-1 downto 0))+1)*8-1 downto (wordBytes-1-to_integer(pc(minAddrBit-1 downto 0)))*8));
 
 		sampledOpcode <= tOpcode;
 
@@ -199,12 +213,12 @@ begin
 
 	opcodeControl:
 	process(clk, areset)
-		variable spOffset : std_logic_vector(4 downto 0);
+		variable spOffset : unsigned(4 downto 0);
 	begin
 		if areset = '1' then
 			state <= State_Resync;
 			break <= '0';
-			sp <= spStart(maxAddrBit downto minAddrBit); 
+			sp <= unsigned(spStart(maxAddrBit downto minAddrBit));
 			pc <= (others => '0');
 			idim_flag <= '0';
 			begin_inst <= '0';
@@ -234,8 +248,8 @@ begin
 			out_mem_writeEnable <= '0';
 			out_mem_readEnable <= '0';
 			begin_inst <= '0';
-			out_mem_addr <= memARead(maxAddrBitIncIO downto 0);
-			mem_write <= memBRead;
+			out_mem_addr <= std_logic_vector(memARead(maxAddrBitIncIO downto 0));
+			mem_write <= std_logic_vector(memBRead);
 			
 			decodedOpcode <= sampledDecodedOpcode;
 			opcode <= sampledOpcode;
@@ -251,16 +265,16 @@ begin
 					-- trace
 					begin_inst <= '1';
 					trace_pc <= (others => '0');
-					trace_pc(maxAddrBit downto 0) <= pc;
+					trace_pc(maxAddrBit downto 0) <= std_logic_vector(pc);
 					trace_opcode <= opcode;
 					trace_sp <= (others => '0');
-					trace_sp(maxAddrBit downto minAddrBit) <=	sp;
-					trace_topOfStack <= memARead;
-					trace_topOfStackB <= memBRead;
+					trace_sp(maxAddrBit downto minAddrBit) <= std_logic_vector(sp);
+					trace_topOfStack <= std_logic_vector(memARead);
+					trace_topOfStackB <= std_logic_vector(memBRead);
 
 					-- during the next cycle we'll be reading the next opcode	
 					spOffset(4):=not opcode(4);
-					spOffset(3 downto 0):=opcode(3 downto 0);
+					spOffset(3 downto 0) := unsigned(opcode(3 downto 0));
 	
 					idim_flag <= '0';
 					case decodedOpcode is
@@ -273,11 +287,11 @@ begin
 								for i in wordSize-1 downto 7 loop
 									memAWrite(i) <= opcode(6);
 								end loop;
-								memAWrite(6 downto 0) <= opcode(6 downto 0);
+								memAWrite(6 downto 0) <= unsigned(opcode(6 downto 0));
 							else
 								memAAddr <= sp;
 								memAWrite(wordSize-1 downto 7) <= memARead(wordSize-8 downto 0);
-								memAWrite(6 downto 0) <= opcode(6 downto 0);
+								memAWrite(6 downto 0) <= unsigned(opcode(6 downto 0));
 							end if;
 						when Decoded_StoreSP =>
 							memBWriteEnable <= '1';
@@ -298,7 +312,7 @@ begin
 							--        98 7654 3210
 							-- 0000 00aa aaa0 0000
 							pc <= (others => '0');
-							pc(9 downto 5) <= opcode(4 downto 0);
+							pc(9 downto 5) <= unsigned(opcode(4 downto 0));
 						when Decoded_AddSP =>
 							memAAddr <= sp;
 							memBAddr <= sp+spOffset;
@@ -327,7 +341,7 @@ begin
 							state <= State_And;
 						when Decoded_Load =>
 							if (memARead(ioBit)='1') then
-								out_mem_addr <= memARead(maxAddrBitIncIO downto 0);
+								out_mem_addr <= std_logic_vector(memARead(maxAddrBitIncIO downto 0));
 								out_mem_readEnable <= '1';
 								state <= State_ReadIO;
 							else 
@@ -363,13 +377,13 @@ begin
 					if (in_mem_busy = '0') then
 						state <= State_Fetch;
 						memAWriteEnable <= '1';
-						memAWrite <= mem_read;
+						memAWrite <= unsigned(mem_read);
 					end if;
 				when State_WriteIO =>
 					sp <= sp + 1;
 					out_mem_writeEnable <= '1';
-					out_mem_addr <= memARead(maxAddrBitIncIO downto 0);
-					mem_write <= memBRead;
+					out_mem_addr <= std_logic_vector(memARead(maxAddrBitIncIO downto 0));
+					mem_write <= std_logic_vector(memBRead);
 					state <= State_WriteIODone;
 				when State_WriteIODone =>
 					if (in_mem_busy = '0') then

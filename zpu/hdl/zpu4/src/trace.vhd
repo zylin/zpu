@@ -1,7 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
---use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
 
 use std.textio.all;
 
@@ -45,7 +44,7 @@ receive_data: process
 variable l: line;
 variable t	: std_logic_vector(wordSize-1 downto 0);
 variable t2	: std_logic_vector(maxAddrBitIncIO downto 0);
-variable counter : std_logic_vector(63 downto 0);
+variable counter : unsigned(63 downto 0);
    
    
    
@@ -69,7 +68,7 @@ counter := (others => '0');
 		if begin_inst = '1' then
 			t(maxAddrBitIncIO downto 2):=sp;
 			t2:=pc;
-     		print(l_file, "0x" & hstr(t2) & " 0x" & hstr(opcode) & " 0x" & hstr(t) & " 0x" & hstr(memA) & " 0x" & hstr(memB) & " 0x" & hstr(intSp) & " 0x" & hstr(counter));
+     		print(l_file, "0x" & hstr(t2) & " 0x" & hstr(opcode) & " 0x" & hstr(t) & " 0x" & hstr(memA) & " 0x" & hstr(memB) & " 0x" & hstr(intSp) & " 0x" & hstr(std_logic_vector(counter)));
 		end if;
 		
      	wait until clk = '0';

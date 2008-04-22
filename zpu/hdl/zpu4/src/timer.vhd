@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use ieee.numeric_std.all;
  
 entity timer is
   port(
@@ -19,7 +19,7 @@ signal	sample	: std_logic;
 signal	reset		: std_logic;
 
 
-signal	cnt		: std_logic_vector(63 downto 0);
+signal	cnt		: unsigned(63 downto 0);
 signal	cnt_smp	: std_logic_vector(63 downto 0);
 
 begin
@@ -36,7 +36,7 @@ begin
 			cnt <= cnt + 1;
 			if sample = '1' then
 --				report "sampling" severity failure;
-				cnt_smp <= cnt;
+				cnt_smp <= std_logic_vector(cnt);
 			end if;
 		end if;
 	end process;

@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-use IEEE.STD_LOGIC_ARITH.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.zpu_config.all;
@@ -133,33 +133,33 @@ package zpupkg is
 	constant	OpCode_Compare	: std_logic_vector(3 downto 0) := "1110";
 	constant	OpCode_PopInt	: std_logic_vector(3 downto 0) := "1111";
 	
-	constant	OpCode_Lessthan				: std_logic_vector(5 downto 0) := conv_std_logic_vector(36, 6);
-	constant	OpCode_Lessthanorequal		: std_logic_vector(5 downto 0) := conv_std_logic_vector(37, 6);
-	constant	OpCode_Ulessthan			: std_logic_vector(5 downto 0) := conv_std_logic_vector(38, 6);
-	constant	OpCode_Ulessthanorequal		: std_logic_vector(5 downto 0) := conv_std_logic_vector(39, 6);
+	constant	OpCode_Lessthan				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(36, 6));
+	constant	OpCode_Lessthanorequal		: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(37, 6));
+	constant	OpCode_Ulessthan			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(38, 6));
+	constant	OpCode_Ulessthanorequal		: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(39, 6));
 
-	constant	OpCode_Swap					: std_logic_vector(5 downto 0) := conv_std_logic_vector(40, 6);
-	constant	OpCode_Mult					: std_logic_vector(5 downto 0) := conv_std_logic_vector(41, 6);
+	constant	OpCode_Swap					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(40, 6));
+	constant	OpCode_Mult					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(41, 6));
 	
-	constant	OpCode_Lshiftright			: std_logic_vector(5 downto 0) := conv_std_logic_vector(42, 6);
-	constant	OpCode_Ashiftleft			: std_logic_vector(5 downto 0) := conv_std_logic_vector(43, 6);
-	constant	OpCode_Ashiftright			: std_logic_vector(5 downto 0) := conv_std_logic_vector(44, 6);
-	constant	OpCode_Call					: std_logic_vector(5 downto 0) := conv_std_logic_vector(45, 6);
+	constant	OpCode_Lshiftright			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(42, 6));
+	constant	OpCode_Ashiftleft			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(43, 6));
+	constant	OpCode_Ashiftright			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(44, 6));
+	constant	OpCode_Call					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(45, 6));
 
-	constant	OpCode_Eq					: std_logic_vector(5 downto 0) := conv_std_logic_vector(46, 6);
-	constant	OpCode_Neq					: std_logic_vector(5 downto 0) := conv_std_logic_vector(47, 6);
+	constant	OpCode_Eq					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(46, 6));
+	constant	OpCode_Neq					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(47, 6));
 
-	constant	OpCode_Sub					: std_logic_vector(5 downto 0) := conv_std_logic_vector(49, 6);
-	constant	OpCode_Loadb				: std_logic_vector(5 downto 0) := conv_std_logic_vector(51, 6);
-	constant	OpCode_Storeb				: std_logic_vector(5 downto 0) := conv_std_logic_vector(52, 6);
+	constant	OpCode_Sub					: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(49, 6));
+	constant	OpCode_Loadb				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(51, 6));
+	constant	OpCode_Storeb				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(52, 6));
 
-	constant	OpCode_Eqbranch				: std_logic_vector(5 downto 0) := conv_std_logic_vector(55, 6);
-	constant	OpCode_Neqbranch			: std_logic_vector(5 downto 0) := conv_std_logic_vector(56, 6);
-	constant	OpCode_Poppcrel				: std_logic_vector(5 downto 0) := conv_std_logic_vector(57, 6);
+	constant	OpCode_Eqbranch				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(55, 6));
+	constant	OpCode_Neqbranch			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(56, 6));
+	constant	OpCode_Poppcrel				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(57, 6));
 
-	constant	OpCode_Pushspadd			: std_logic_vector(5 downto 0) := conv_std_logic_vector(61, 6);
-	constant	OpCode_Mult16x16			: std_logic_vector(5 downto 0) := conv_std_logic_vector(62, 6);
-	constant	OpCode_Callpcrel			: std_logic_vector(5 downto 0) := conv_std_logic_vector(63, 6);
+	constant	OpCode_Pushspadd			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(61, 6));
+	constant	OpCode_Mult16x16			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(62, 6));
+	constant	OpCode_Callpcrel			: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(63, 6));
 	
 
 

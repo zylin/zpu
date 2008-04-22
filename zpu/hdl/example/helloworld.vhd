@@ -1,6 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
+use ieee.numeric_std.all;
 
 
 library work;
@@ -22,7 +22,7 @@ end dualport_ram;
 architecture dualport_ram_arch of dualport_ram is
 
 
-type ram_type is array(0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
+type ram_type is array(natural range 0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
 
 shared variable ram : ram_type :=
 (
@@ -3094,10 +3094,10 @@ begin
 		end if;
 	
 		if (memAWriteEnable = '1') then
-			ram(conv_integer(memAAddr)) := memAWrite;
+			ram(to_integer(unsigned(memAAddr))) := memAWrite;
 			memARead <= memAWrite;
 		else
-			memARead <= ram(conv_integer(memAAddr));
+			memARead <= ram(to_integer(unsigned(memAAddr)));
 		end if;
 	end if;
 end process;
@@ -3106,10 +3106,10 @@ process (clk)
 begin
 	if (clk'event and clk = '1') then
 		if (memBWriteEnable = '1') then
-			ram(conv_integer(memBAddr)) := memBWrite;
+			ram(to_integer(unsigned(memBAddr))) := memBWrite;
 			memBRead <= memBWrite;
 		else
-			memBRead <= ram(conv_integer(memBAddr));
+			memBRead <= ram(to_integer(unsigned(memBAddr)));
 		end if;
 	end if;
 end process;
