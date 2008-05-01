@@ -81,7 +81,9 @@ State_FetchNext,
 State_AddSP,
 State_ReadIODone,
 State_Decode,
-State_Resync
+State_Resync,
+State_Interrupt
+
 );
 
 type DecodedOpcodeType is
@@ -130,6 +132,7 @@ subtype index is integer range 0 to 3;
 signal tOpcode_sel : index;
 
 
+signal inInterrupt : std_logic;
 
 
 
@@ -262,6 +265,7 @@ begin
 			out_mem_readEnable <= '0';
 			memAWrite <= (others => '0');
 			memBWrite <= (others => '0');
+			inInterrupt <= '0';
 		elsif (clk'event and clk = '1') then
 			memAWriteEnable <= '0';
 			memBWriteEnable <= '0';
@@ -284,6 +288,9 @@ begin
 			
 			decodedOpcode <= sampledDecodedOpcode;
 			opcode <= sampledOpcode;
+			if interrupt='0' then
+				inInterrupt <= '0'; -- no longer in an interrupt
+			end if;
 
 			case state is
 				when State_Execute =>
@@ -309,6 +316,14 @@ begin
 	
 					idim_flag <= '0';
 					case decodedOpcode is
+						when Decoded_Interrupt =>
+							sp <= sp - 1;
+							memAAddr <= sp - 1;
+							memAWriteEnable <= '1';
+							memAWrite <= (others => DontCareValue);
+							memAWrite(maxAddrBitIncIO downto 0) <= pc;
+							pc <= conv_std_logic_vector(32, maxAddrBitIncIo+1); -- interrupt address
+			  				report "ZPU jumped to interrupt!" severity note;
 						when Decoded_Im =>
 							idim_flag <= '1';
 							memAWriteEnable <= '1';
@@ -436,6 +451,10 @@ begin
 					memBAddr <= sp + 1;
 					state <= State_Decode;
 				when State_Decode =>
+					if interrupt='1' and inInterrupt='0' and idim_flag='0' then
+						-- We got an interrupt, execute interrupt instead of next instruction
+						decodedOpcode <= Decoded_Interrupt;
+					end if;
 					-- during the State_Execute cycle we'll be fetching SP+1
 					memAAddr <= sp;
 					memBAddr <= sp + 1;
