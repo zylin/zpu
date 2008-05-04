@@ -59,8 +59,9 @@ begin
 		elsif (clk'event and clk = '1') then
 --			timer_we <= '0';
 			if writeEnable = '1' then
-				-- external interface
-				if addr=x"2028003" then
+				-- external interface (fixed address)
+				--<JK> extend compare to avoid waring messages
+				if ("000" & addr)=x"2028003" then
 					-- Write to UART
 					-- report "" & character'image(conv_integer(memBint)) severity note;
 				    print(l_file, character'val(to_integer(unsigned(write))));
@@ -69,24 +70,26 @@ begin
 -- 					timer_we <= '1';
 				else
 					print(l_file, character'val(to_integer(unsigned(write))));
-					report "Illegal IO write" severity warning;
+					-- report "Illegal IO write" severity warning;
 				end if;
 				
 			end if;
 			read <= (others => '0');
 			if (readEnable = '1') then
-				if addr=x"1001" then
+				--<JK> extend compare to avoid waring messages
+				if ("000" & addr)=x"0001001" then
 					read <= (0=>'1', others => '0'); -- recieve empty
  				elsif addr(12)='1' then
  					read(7 downto 0) <= timer_read;
  				elsif addr(11)='1' then
  					read(7 downto 0) <= ZPU_Frequency;
- 				elsif addr=x"2028003" then
+				--<JK> extend compare to avoid waring messages
+				elsif ("000" & addr)=x"2028003" then
 					read <= (others => '0');
 				else
 					read <= (others => '0');
 					read(8) <= '1';
-					report "Illegal IO read" severity warning;
+					-- report "Illegal IO read" severity warning;
 				end if;
 			end if;
 		end if;

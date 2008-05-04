@@ -6,7 +6,10 @@
 
 int counter;
 
-/* Example of single, fixed interval non-maskable, nested interrupt */
+/* Example of single, fixed interval non-maskable, nested interrupt. The interrupt signal is
+ * held high for enough cycles to guarantee that it will be noticed, i.e. longer than
+ * any io access + 4 cycles roughly.
+ */
 void  _zpu_interrupt(void)
 {
 	/* interrupts are enabled so we need to finish up quickly,

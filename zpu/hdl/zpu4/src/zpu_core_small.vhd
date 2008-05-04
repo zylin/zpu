@@ -125,6 +125,11 @@ signal memBAddr_stdlogic  : std_logic_vector(AddrBitBRAM_range);
 signal memBWrite_stdlogic : std_logic_vector(memBWrite'range);
 signal memBRead_stdlogic  : std_logic_vector(memBRead'range);
 
+-- debug
+subtype index is integer range 0 to 3;
+signal tOpcode_sel : index;
+
+
 begin
 	traceFileGenerate:
    if Generate_Trace generate
@@ -141,6 +146,8 @@ begin
         );
 	end generate;
 
+	--<JK> not used in this design
+	mem_writeMask <= (others => '1');
 
 	memAAddr_stdlogic  <= std_logic_vector(memAAddr(AddrBitBRAM_range));
 	memAWrite_stdlogic <= std_logic_vector(memAWrite);
@@ -160,14 +167,23 @@ begin
 	memARead <= unsigned(memARead_stdlogic);
 	memBRead <= unsigned(memBRead_stdlogic);
 
+tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
 
 
 	decodeControl:
-	process(memBRead, pc)
+	process(memBRead, pc,tOpcode_sel)
 		variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
 	begin
-		tOpcode := std_logic_vector(memBRead((wordBytes-1-to_integer(pc(minAddrBit-1 downto 0))+1)*8-1 downto (wordBytes-1-to_integer(pc(minAddrBit-1 downto 0)))*8));
-
+		--<JK> not worked with synopsys
+		--<JK> tOpcode := std_logic_vector(memBRead((wordBytes-1-to_integer(pc(minAddrBit-1 downto 0))+1)*8-1 downto (wordBytes-1-to_integer(pc(minAddrBit-1 downto 0)))*8));
+		--<JK> use full case
+		case (tOpcode_sel) is
+			when 0 => tOpcode := std_logic_vector(memBRead(31 downto 24));
+			when 1 => tOpcode := std_logic_vector(memBRead(23 downto 16));
+			when 2 => tOpcode := std_logic_vector(memBRead(15 downto 8));
+			when 3 => tOpcode := std_logic_vector(memBRead(7 downto 0));
+			when others => tOpcode := std_logic_vector(memBRead(7 downto 0));
+		end case;
 		sampledOpcode <= tOpcode;
 
 		if (tOpcode(7 downto 7)=OpCode_Im) then
@@ -230,7 +246,8 @@ begin
 			out_mem_readEnable <= '0';
 			memAWrite <= (others => '0');
 			memBWrite <= (others => '0');
-			mem_writeMask <= (others => '1');
+			-- avoid Latch in synopsys
+			-- mem_writeMask <= (others => '1');
 		elsif (clk'event and clk = '1') then
 			memAWriteEnable <= '0';
 			memBWriteEnable <= '0';
