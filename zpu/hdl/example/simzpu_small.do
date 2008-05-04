@@ -8,10 +8,10 @@ set BreakOnAssertion 1
 vlib work
 
 vcom -93 -explicit  zpu_config.vhd
-vcom -93 -explicit  ../zpu4/src/zpupkg.vhd
+vcom -93 -explicit  ../zpu4/core/zpupkg.vhd
 vcom -93 -explicit  ../zpu4/src/txt_util.vhd
 vcom -93 -explicit  sim_small_fpga_top.vhd
-vcom -93 -explicit  ../zpu4/src/zpu_core_small.vhd
+vcom -93 -explicit  ../zpu4/core/zpu_core_small.vhd
 vcom -93 -explicit  helloworld.vhd
 vcom -93 -explicit  ../zpu4/src/timer.vhd
 vcom -93 -explicit  ../zpu4/src/io.vhd

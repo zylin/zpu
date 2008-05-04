@@ -1,5 +1,8 @@
+2008-05-04 Øyvind Harboe
+	* moved ZPU core files to seperate folder
+	* deleted some obsolete files
 2008-05-01 Øyvind Harboe
-	* zpu/hdl/zy1000 - ZPU implementation used on the zy1000 dev kit
+	* zpu/hdl/zy2000 - ZPU implementation used on the zy2000 dev kit
 2008-04-17 Arnim Läuger
 	* zpu/hdl/example_ghdl/ghdl_import.sh, zpu/hdl/example_ghdl/ghdl_make.sh,
 	  zpu/hdl/example_ghdl/ghdl_options.sh, zpu/hdl/example_ghdl/README: GHDL example
