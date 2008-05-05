@@ -453,6 +453,7 @@ begin
 				when State_Decode =>
 					if interrupt='1' and inInterrupt='0' and idim_flag='0' then
 						-- We got an interrupt, execute interrupt instead of next instruction
+						inInterrupt <= '1';
 						decodedOpcode <= Decoded_Interrupt;
 					end if;
 					-- during the State_Execute cycle we'll be fetching SP+1
