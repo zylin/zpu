@@ -1,5 +1,14 @@
 <html>
 <body>
+<h1>Index</h1>
+<ul>
+<li> <a href="#introduction">Introduction</a>
+<li> <a href="#instructionset">Instruction set</a>
+<li> <a href="#vectors">Jump vectors</a>
+<li> <a href="#memorymap">Memory map</a>
+<li> <a href="#interrupts">Interrupts</a>
+</ul>
+<a name="introduction"/>
 <h1>Introduction</h1>
 The ZPU is a zero operand, or stack based CPU. The opcodes have a fixed width of 8 bits. 
 <p>
@@ -47,6 +56,7 @@ foo:
 </code>
 </div>
 
+<a name="instructionset"/>
 <h1>Instruction set</h1>
 Only the base instructions are implemented in the architecture. More advanced instructions, like ASHIFTLEFT are emulated in the illegal instruction vector.
 
@@ -364,6 +374,7 @@ end if
 	</tr>
 </table>
 	
+<a name="vectors"/>
 <h1>Vectors</h1>
 <table border="1">
 	<tr><td>Address</td><td>Name</td><td>Description</td></tr>
@@ -392,6 +403,7 @@ end if
 	</tr>
 </table>
 
+<a name="memorymap"/>
 <h1>Phi memory map</h1>
 The ZPU architecture does not define a memory map as such, but the GCC + libgloss + ecos hal library uses the
 memory map below.
@@ -767,7 +779,28 @@ memory map below.
 			</TD>
 		</TR>
 	</TABLE>
-
-	
+<a name="interrupts"/>
+<h1>Interrupts</h1>
+The ZPU supports interrupts.
+<p>
+To trigger an interrupt, the interrupt signal must be asserted. The ZPU does
+not define any interrupt disabling mechanism, this must be implemented by the
+interrupt controller and controlled via memory mapped IO.
+<p>
+Interrupts are masked when the IDIM flag is set, i.e.
+with consequtive IM instructions.
+<p>
+The ZPU has an edge triggered interrupt. As the ZPU notices that the interrupt
+is asserted, it will execute the interrupt instruction. The interrupt signal
+must stay asserted until the ZPU acknowledges it. 
+<p>
+When the interrupt instruction is executed, the PC will be pushed onto the
+stack and the PC will be set to the interrupt vector address (0x20).
+<p>
+Note that the GCC compiler requires three registers r0,r1,r2,r3 for some
+rather uncommon operations. These 32 registers are mapped to memory locations 0x0,
+0x4, 0x8, 0xc.  The default interrupt vector at address 0x20 will load the
+value of these memory locations onto the stack, call _zpu_interrupt and
+restore them.
 </body>
 <html>
