@@ -1,0 +1,108 @@
+# ====================================================================
+#
+#      hal_zylin.cdl
+#
+#      ZYLIN architectural HAL package configuration data
+#
+# ====================================================================
+#####ECOSGPLCOPYRIGHTBEGIN####
+## -------------------------------------------
+## This file is part of eCos, the Embedded Configurable Operating System.
+## Copyright (C) 1998, 1999, 2000, 2001, 2002 Red Hat, Inc.
+##
+## eCos is free software; you can redistribute it and/or modify it under
+## the terms of the GNU General Public License as published by the Free
+## Software Foundation; either version 2 or (at your option) any later version.
+##
+## eCos is distributed in the hope that it will be useful, but WITHOUT ANY
+## WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+## for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with eCos; if not, write to the Free Software Foundation, Inc.,
+## 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+##
+## As a special exception, if other files instantiate templates or use macros
+## or inline functions from this file, or you compile this file and link it
+## with other works to produce a work based on this file, this file does not
+## by itself cause the resulting work to be covered by the GNU General Public
+## License. However the source code for this file must still be made available
+## in accordance with section (3) of the GNU General Public License.
+##
+## This exception does not invalidate any other reasons why a work based on
+## this file might be covered by the GNU General Public License.
+##
+## Alternative licenses for eCos may be arranged by contacting Red Hat, Inc.
+## at http://sources.redhat.com/ecos/ecos-license/
+## -------------------------------------------
+#####ECOSGPLCOPYRIGHTEND####
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      bartv
+# Original data:  gthomas
+# Contributors:
+# Date:           1999-06-13
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+cdl_package CYGPKG_HAL_ZYLIN {
+    display       "ZYLIN architecture"
+    parent        CYGPKG_HAL
+    hardware
+    include_dir   cyg/hal
+    requires      !CYGDBG_KERNEL_DEBUG_GDB_THREAD_SUPPORT
+    define_header hal_zylin.h
+    description   "
+        The ZYLIN architecture HAL package provides generic
+        support for this processor architecture. It is also
+        necessary to select a specific target platform HAL
+        package."
+
+    compile       hal_misc.c context.S  vectors.c 
+
+    # The "-o file" is a workaround for CR100958 - without it the
+    # output file would end up in the source directory under CygWin.
+    # n.b. grep does not behave itself under win32
+    make -priority 1 {
+        zylin.inc : <PACKAGE>/src/hal_mk_defs.c
+        $(CC) $(CFLAGS) $(INCLUDE_PATH) -Wp,-MD,zylin.tmp -o hal_mk_defs.tmp -S $<
+        fgrep .equ hal_mk_defs.tmp | sed s/#// > $@
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 zylin.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm zylin.tmp hal_mk_defs.tmp
+    }
+
+    make {
+        <PREFIX>/lib/vectors.o : <PACKAGE>/src/vectors.c
+        $(CC) -Wp,-MD,vectors.tmp $(INCLUDE_PATH) $(CFLAGS) -c -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 vectors.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm vectors.tmp
+    }
+
+
+    make {
+        <PREFIX>/lib/target.ld: <PACKAGE>/src/zylin.ld
+        $(CC) -E -P -Wp,-MD,target.tmp -xc $(INCLUDE_PATH) $(CFLAGS) -o $@ $<
+        @echo $@ ": \\" > $(notdir $@).deps
+        @tail -n +2 target.tmp >> $(notdir $@).deps
+        @echo >> $(notdir $@).deps
+        @rm target.tmp
+    }
+
+
+    cdl_option CYGBLD_LINKER_SCRIPT {
+        display "Linker script"
+        flavor data
+	no_define
+        calculated  { "src/zylin.ld" }
+    }
+
+}
+
+# EOF hal_zylin.cdl

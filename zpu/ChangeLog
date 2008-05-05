@@ -1,3 +1,6 @@
+2008-05-05 Øyvind Harboe
+	* added eCos HAL for ZPU
+	  zpu/zpu/sw/ecos/repository
 2008-05-04 Øyvind Harboe
 	* moved ZPU core files to seperate folder
 	* deleted some obsolete files
