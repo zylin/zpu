@@ -4,11 +4,15 @@
 #include <stdio.h>
 
 
-int counter;
+volatile int counter;
 
 /* Example of single, fixed interval non-maskable, nested interrupt. The interrupt signal is
  * held high for enough cycles to guarantee that it will be noticed, i.e. longer than
  * any io access + 4 cycles roughly.
+ * 
+ * Any non-trivial interrupt controller would have support for
+ * acknowledging interrupts(i.e. keep interrupts asserted until
+ * software acknowledges them via memory mapped IO).
  */
 void  _zpu_interrupt(void)
 {
@@ -29,6 +33,7 @@ int main(int argc, char **argv)
 		} else
 		{
 			puts("Got interrupt\n");
+			t=counter;
 		}
 	}
     

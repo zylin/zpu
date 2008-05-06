@@ -1,3 +1,31 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+
+library work;
+use work.zpu_config.all;
+use work.zpupkg.all;
+
+entity dualport_ram is
+port (clk : in std_logic;
+	memAWriteEnable : in std_logic;
+	memAAddr : in std_logic_vector(maxAddrBitBRAM downto minAddrBit);
+	memAWrite : in std_logic_vector(wordSize-1 downto 0);
+	memARead : out std_logic_vector(wordSize-1 downto 0);
+	memBWriteEnable : in std_logic;
+	memBAddr : in std_logic_vector(maxAddrBitBRAM downto minAddrBit);
+	memBWrite : in std_logic_vector(wordSize-1 downto 0);
+	memBRead : out std_logic_vector(wordSize-1 downto 0));
+end dualport_ram;
+
+architecture dualport_ram_arch of dualport_ram is
+
+
+type ram_type is array(natural range 0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
+
+shared variable ram : ram_type :=
+(
 0 => x"0b0b0b0b",
 1 => x"82700b0b",
 2 => x"80cfe00c",
@@ -3055,3 +3083,40 @@
 3054 => x"00000000",
 3055 => x"ffffffff",
 3056 => x"00000000",
+	others => x"00000000"
+);
+
+begin
+
+process (clk)
+begin
+	if (clk'event and clk = '1') then
+		if (memAWriteEnable = '1') and (memBWriteEnable = '1') and (memAAddr=memBAddr) and (memAWrite/=memBWrite) then
+			report "write collision" severity failure;
+		end if;
+	
+		if (memAWriteEnable = '1') then
+			ram(to_integer(unsigned(memAAddr))) := memAWrite;
+			memARead <= memAWrite;
+		else
+			memARead <= ram(to_integer(unsigned(memAAddr)));
+		end if;
+	end if;
+end process;
+
+process (clk)
+begin
+	if (clk'event and clk = '1') then
+		if (memBWriteEnable = '1') then
+			ram(to_integer(unsigned(memBAddr))) := memBWrite;
+			memBRead <= memBWrite;
+		else
+			memBRead <= ram(to_integer(unsigned(memBAddr)));
+		end if;
+	end if;
+end process;
+
+
+
+
+end dualport_ram_arch;

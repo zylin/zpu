@@ -1,3 +1,6 @@
+2008-05-06 Øyvind Harboe
+	* Small ZPU now supports interrupts
+	* added simulation example demonstrating interrupts 
 2008-05-05 Øyvind Harboe
 	* added eCos HAL for ZPU
 	  zpu/zpu/sw/ecos/repository

@@ -81,7 +81,9 @@ State_FetchNext,
 State_AddSP,
 State_ReadIODone,
 State_Decode,
-State_Resync
+State_Resync,
+State_Interrupt
+
 );
 
 type DecodedOpcodeType is
@@ -103,7 +105,8 @@ Decoded_Load,
 Decoded_Not,
 Decoded_Flip,
 Decoded_Store,
-Decoded_PopSP
+Decoded_PopSP,
+Decoded_Interrupt
 );
 
 
@@ -125,9 +128,13 @@ signal memBAddr_stdlogic  : std_logic_vector(AddrBitBRAM_range);
 signal memBWrite_stdlogic : std_logic_vector(memBWrite'range);
 signal memBRead_stdlogic  : std_logic_vector(memBRead'range);
 
--- debug
 subtype index is integer range 0 to 3;
+
 signal tOpcode_sel : index;
+
+
+signal inInterrupt : std_logic;
+
 
 
 begin
@@ -146,8 +153,13 @@ begin
         );
 	end generate;
 
-	--<JK> not used in this design
-	mem_writeMask <= (others => '1');
+
+
+    -- not used in this design
+
+    mem_writeMask <= (others => '1');
+
+
 
 	memAAddr_stdlogic  <= std_logic_vector(memAAddr(AddrBitBRAM_range));
 	memAWrite_stdlogic <= std_logic_vector(memAWrite);
@@ -167,23 +179,31 @@ begin
 	memARead <= unsigned(memARead_stdlogic);
 	memBRead <= unsigned(memBRead_stdlogic);
 
-tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
+
+
+	tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
+
 
 
 	decodeControl:
 	process(memBRead, pc,tOpcode_sel)
 		variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
 	begin
-		--<JK> not worked with synopsys
-		--<JK> tOpcode := std_logic_vector(memBRead((wordBytes-1-to_integer(pc(minAddrBit-1 downto 0))+1)*8-1 downto (wordBytes-1-to_integer(pc(minAddrBit-1 downto 0)))*8));
-		--<JK> use full case
-		case (tOpcode_sel) is
-			when 0 => tOpcode := std_logic_vector(memBRead(31 downto 24));
-			when 1 => tOpcode := std_logic_vector(memBRead(23 downto 16));
-			when 2 => tOpcode := std_logic_vector(memBRead(15 downto 8));
-			when 3 => tOpcode := std_logic_vector(memBRead(7 downto 0));
-			when others => tOpcode := std_logic_vector(memBRead(7 downto 0));
-		end case;
+
+        -- simplify opcode selection a bit so it passes more synthesizers
+        case (tOpcode_sel) is
+
+            when 0 => tOpcode := std_logic_vector(memBRead(31 downto 24));
+
+            when 1 => tOpcode := std_logic_vector(memBRead(23 downto 16));
+
+            when 2 => tOpcode := std_logic_vector(memBRead(15 downto 8));
+
+            when 3 => tOpcode := std_logic_vector(memBRead(7 downto 0));
+
+            when others => tOpcode := std_logic_vector(memBRead(7 downto 0));
+        end case;
+
 		sampledOpcode <= tOpcode;
 
 		if (tOpcode(7 downto 7)=OpCode_Im) then
@@ -246,13 +266,12 @@ tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
 			out_mem_readEnable <= '0';
 			memAWrite <= (others => '0');
 			memBWrite <= (others => '0');
-			-- avoid Latch in synopsys
-			-- mem_writeMask <= (others => '1');
+			inInterrupt <= '0';
 		elsif (clk'event and clk = '1') then
 			memAWriteEnable <= '0';
 			memBWriteEnable <= '0';
 			-- This saves ca. 100 LUT's, by explicitly declaring that the
-			-- memAWrite can be left at whatever value if memAWriteEnable is
+            -- memAWrite can be left at whatever value if memAWriteEnable is
 			-- not set.
 			memAWrite <= (others => DontCareValue);
 			memBWrite <= (others => DontCareValue);
@@ -270,6 +289,9 @@ tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
 			
 			decodedOpcode <= sampledDecodedOpcode;
 			opcode <= sampledOpcode;
+			if interrupt='0' then
+				inInterrupt <= '0'; -- no longer in an interrupt
+			end if;
 
 			case state is
 				when State_Execute =>
@@ -295,6 +317,14 @@ tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
 	
 					idim_flag <= '0';
 					case decodedOpcode is
+						when Decoded_Interrupt =>
+							sp <= sp - 1;
+							memAAddr <= sp - 1;
+							memAWriteEnable <= '1';
+							memAWrite <= (others => DontCareValue);
+							memAWrite(maxAddrBit downto 0) <= pc;
+							pc <= to_unsigned(32, maxAddrBit+1); -- interrupt address
+			  				report "ZPU jumped to interrupt!" severity note;
 						when Decoded_Im =>
 							idim_flag <= '1';
 							memAWriteEnable <= '1';
@@ -422,6 +452,11 @@ tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
 					memBAddr <= sp + 1;
 					state <= State_Decode;
 				when State_Decode =>
+					if interrupt='1' and inInterrupt='0' and idim_flag='0' then
+						-- We got an interrupt, execute interrupt instead of next instruction
+						inInterrupt <= '1';
+						decodedOpcode <= Decoded_Interrupt;
+					end if;
 					-- during the State_Execute cycle we'll be fetching SP+1
 					memAAddr <= sp;
 					memBAddr <= sp + 1;

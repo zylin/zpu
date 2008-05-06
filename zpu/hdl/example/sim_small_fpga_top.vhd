@@ -19,6 +19,7 @@
 --------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use ieee.numeric_std.all;
 
 ---- Uncomment the following library declaration if instantiating
 ---- any Xilinx primitives in this code.
@@ -88,6 +89,9 @@ signal			  io_mem_readEnable : std_logic;
 signal			  dram_ready : std_logic;
 signal			  io_ready : std_logic;
 signal			  io_reading : std_logic;
+signal			  interruptcounter : unsigned(15 downto 0);
+signal			  interrupt : std_logic;
+
 
 
 signal break : std_logic;
@@ -108,7 +112,7 @@ begin
 		out_mem_writeEnable => mem_writeEnable,  
 		out_mem_readEnable => mem_readEnable,
  		mem_writeMask => mem_writeMask, 
- 		interrupt => '0',
+ 		interrupt => interrupt,
  		break  => break);
 
 
@@ -146,6 +150,7 @@ begin
 		end if;
 	end process;
 
+
 	
 	io_ready <= (io_reading or io_mem_readEnable) and not io_busy;
 
@@ -156,11 +161,23 @@ begin
 			enable <= '0';
 			io_reading <= '0';
 			dram_ready <= '0';
+			
+		    interruptcounter <= to_unsigned(32, 16);
+			interrupt <= '0'; 
+		    
 		elsif (clk'event and clk = '1') then
 			enable <= '1';
 			io_reading <= io_busy or io_mem_readEnable; 
 			dram_ready<=dram_mem_readEnable;
 			
+			-- keep interrupt signal high for 16 cycles
+		    interruptcounter <= interruptcounter + 1;
+			if (interruptcounter < 16) then
+  				report "Interrupt asserted!" severity note;
+				interrupt <='1';
+			else
+				interrupt <='0';
+			end if;
 		end if;
 	end process;
 
