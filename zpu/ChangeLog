@@ -4,6 +4,10 @@
 2008-05-04 Øyvind Harboe
 	* moved ZPU core files to seperate folder
 	* deleted some obsolete files
+2008-05-04 jurij kostasenko
+	* Make code synthesize on Synopsis
+	 zpu/hdl/zpu4/src/zpu_core_small.vhd  
+	 zpu/hdl/zpu4/src/io.vhd  
 2008-05-01 Øyvind Harboe
 	* zpu/hdl/zy2000 - ZPU implementation used on the zy2000 dev kit
 2008-04-17 Arnim Läuger
