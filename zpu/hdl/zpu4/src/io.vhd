@@ -37,6 +37,7 @@ signal timer_we : std_logic;
 signal serving : std_logic;
 
 file 		l_file		: TEXT open write_mode is log_file;
+constant lowAddrBits: std_logic_vector(minAddrBit-1 downto 0) := (others=>'0');
 
 begin
 
@@ -54,6 +55,9 @@ begin
 	
 	process(areset, clk)
 	begin
+		taddr := (others => '0');
+		taddr(maxAddrBit downto minAddrBit) := addr;
+
 		if (areset = '1') then
 --			timer_we <= '0';
 		elsif (clk'event and clk = '1') then
@@ -61,35 +65,40 @@ begin
 			if writeEnable = '1' then
 				-- external interface (fixed address)
 				--<JK> extend compare to avoid waring messages
-				if ("000" & addr)=x"2028003" then
+				if ("1" & addr & lowAddrBits)=x"80a000c" then
+					report "Write to UART[0]" & " :0x" & hstr(write);
 					-- Write to UART
 					-- report "" & character'image(conv_integer(memBint)) severity note;
 				    print(l_file, character'val(to_integer(unsigned(write))));
 				elsif addr(12)='1' then
+					report "Write to TIMER" & " :0x" & hstr(write);
 --				    report "xxx" severity failure;
 -- 					timer_we <= '1';
 				else
 					print(l_file, character'val(to_integer(unsigned(write))));
-					-- report "Illegal IO write" severity warning;
+					report "Illegal IO write @" & "0x" & hstr(taddr) severity warning;
 				end if;
 				
 			end if;
 			read <= (others => '0');
 			if (readEnable = '1') then
 				--<JK> extend compare to avoid waring messages
-				if ("000" & addr)=x"0001001" then
-					read <= (0=>'1', others => '0'); -- recieve empty
+				if ("1" & addr & lowAddrBits)=x"80a000c" then
+					report "Read UART[0]";
+					read(8) <= '0'; -- output fifo not full
+					read(9) <= '1'; -- receiver not empty
+				elsif ("1" & addr & lowAddrBits)=x"80a0010" then
+					report "Read UART[1]";
+					read(8) <= '1'; -- receiver not empty
+					read(7 downto 0) <= (others => '0');
  				elsif addr(12)='1' then
+					report "Read TIMER";
  					read(7 downto 0) <= timer_read;
  				elsif addr(11)='1' then
+					report "Read ZPU Freq";
  					read(7 downto 0) <= ZPU_Frequency;
-				--<JK> extend compare to avoid waring messages
-				elsif ("000" & addr)=x"2028003" then
-					read <= (others => '0');
 				else
-					read <= (others => '0');
-					read(8) <= '1';
-					-- report "Illegal IO read" severity warning;
+					report "Illegal IO read @" & "0x" & hstr(taddr) severity warning;
 				end if;
 			end if;
 		end if;

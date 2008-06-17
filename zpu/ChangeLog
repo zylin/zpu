@@ -1,3 +1,10 @@
+2008-05-06 Miguel Freitas <mfreitas@gmail.com>
+
+	* io.vhd: fix address comparsion and added numerous outputs
+	during simulation to make things a bit easier 
+	* zpu_config.vhd: do not use hardcoded startSp, allows more easily
+	tinkering w/RAM size
+
 2008-05-06 Øyvind Harboe
 	* Small ZPU now supports interrupts
 	* added simulation example demonstrating interrupts 
