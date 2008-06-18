@@ -1,4 +1,17 @@
-2008-05-06 Miguel Freitas <mfreitas@gmail.com>
+2008-05-18 Miguel Freitas <mfreitas@gmail.com>
+
+	*
+I'm also attaching another patch which removes unisim/roc dependency
+(it was used just to pulse the areset) and fixes paths for building
+the ghdl examples out of the box. I guess this is the easiest way to
+get zpu running on linux with minimum effort.
+
+You should check if the areset change doesn't break modelsim. It feels
+much simpler this way and seems to work the same, i might be missing
+something.
+	
+	
+2008-05-16 Miguel Freitas <mfreitas@gmail.com>
 
 	* io.vhd: fix address comparsion and added numerous outputs
 	during simulation to make things a bit easier 

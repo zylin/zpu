@@ -54,6 +54,7 @@ begin
 	timer_we <= writeEnable and addr(12);
 	
 	process(areset, clk)
+	variable taddr  : std_logic_vector(maxAddrBit downto 0);
 	begin
 		taddr := (others => '0');
 		taddr(maxAddrBit downto minAddrBit) := addr;

@@ -23,8 +23,8 @@ use ieee.numeric_std.all;
 
 ---- Uncomment the following library declaration if instantiating
 ---- any Xilinx primitives in this code.
-library UNISIM;
-use UNISIM.VComponents.all;
+--library UNISIM;
+--use UNISIM.VComponents.all;
 
 library work;
 use work.zpu_config.all;
@@ -38,7 +38,7 @@ architecture behave of fpga_top is
 
 signal clk : std_logic;
 
-signal	areset			: std_logic;
+signal	areset			: std_logic := '1';
 
 
 component  zpu_io is
@@ -97,9 +97,6 @@ signal			  interrupt : std_logic;
 signal break : std_logic;
 
 begin
-	poweronreset: roc port map (O => areset);
-
-
 
 	zpu: zpu_core port map (
 		clk => clk ,
@@ -188,6 +185,7 @@ begin
 		   wait for 5 ns; 
    			clk <= '1';
 		   wait for 5 ns; 
+		   areset <= '0';
 	end PROCESS clock;
 
 
