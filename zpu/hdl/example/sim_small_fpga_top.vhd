@@ -159,7 +159,7 @@ begin
 			io_reading <= '0';
 			dram_ready <= '0';
 			
-		    interruptcounter <= to_unsigned(32, 16);
+		    interruptcounter <= to_unsigned(0, 16);
 			interrupt <= '0'; 
 		    
 		elsif (clk'event and clk = '1') then
