@@ -1,0 +1,5 @@
+2008-06-18 Øyvind Harboe
+	
+	* Various ZY2000 vhdl files of more general interest made
+	available as part of the ZPU project under the same
+	license(FreeBSD). Files should have headers updated.
