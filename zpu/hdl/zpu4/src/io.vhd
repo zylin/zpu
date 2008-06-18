@@ -38,6 +38,8 @@ signal serving : std_logic;
 
 file 		l_file		: TEXT open write_mode is log_file;
 constant lowAddrBits: std_logic_vector(minAddrBit-1 downto 0) := (others=>'0');
+constant tx_full: std_logic := '0';
+constant rx_empty: std_logic := '1';
 
 begin
 
@@ -86,11 +88,11 @@ begin
 				--<JK> extend compare to avoid waring messages
 				if ("1" & addr & lowAddrBits)=x"80a000c" then
 					report "Read UART[0]";
-					read(8) <= '0'; -- output fifo not full
-					read(9) <= '1'; -- receiver not empty
+					read(8) <= not tx_full; -- output fifo not full
+					read(9) <= not rx_empty; -- receiver not empty
 				elsif ("1" & addr & lowAddrBits)=x"80a0010" then
 					report "Read UART[1]";
-					read(8) <= '1'; -- receiver not empty
+					read(8) <= not rx_empty; -- receiver not empty
 					read(7 downto 0) <= (others => '0');
  				elsif addr(12)='1' then
 					report "Read TIMER";
