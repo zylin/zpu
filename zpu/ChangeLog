@@ -1,3 +1,7 @@
+2008-06-25 Øyvind Harboe
+	* do not enable interrupts for simzpu_small.do. hello world
+	does not have an interrupt handler, so this caused a BREAK
+	instruction to be executed.
 2008-06-18 Miguel Freitas
 	* zpu_config.vhd: Fixed startSp calculation (address in bytes not words)
 2008-06-18 Miguel Freitas
