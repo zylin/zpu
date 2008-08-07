@@ -358,7 +358,7 @@ end if
 			0000 1011
 		</td>
 		<td>
-			No operation
+			No operation, clears IDIM flag as side effect
 		</td>
 		<td>
 			Fix!
@@ -366,18 +366,441 @@ end if
 	</tr>
 	<tr>
 		<td>
-			Fix! add emulated instructions! Listed in zpupkg.vhd
+			PUSHSPADD
 		</td>
 		<td>
-			001x xxxx
+			61
 		</td>
 		<td>
-			Fix!!
+            a=sp; <br>
+            b=popIntStack()*4;<br>
+            pushIntStack(a+b);<br>
 		</td>
 		<td>
 			Fix!
 		</td>
 	</tr>
+	
+	<tr>
+		<td>
+			POPPCREL
+		</td>
+		<td>
+			57
+		</td>
+		<td>
+			setPc(popIntStack()+getPc());
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			SUB
+		</td>
+		<td>
+			49
+		</td>
+		<td>
+			int a=popIntStack();<br>
+                            int b=popIntStack();<br>
+                            pushIntStack(b-a);<br>
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			XOR
+		</td>
+		<td>
+			50
+		</td>
+		<td>
+pushIntStack(popIntStack() ^ popIntStack());
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			LOADB
+		</td>
+		<td>
+			51
+		</td>
+		<td>
+			pushIntStack(cpuReadByte(popIntStack())&0xff);
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			STOREB
+		</td>
+		<td>
+			52
+		</td>
+		<td>
+			addr = popIntStack();<br>
+                            val = popIntStack();<br>
+                            cpuWriteByte(addr, val);
+</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			LOADH
+		</td>
+		<td>
+			34
+		</td>
+		<td>
+			pushIntStack(cpuReadWord(popIntStack()));
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			STOREH
+		</td>
+		<td>
+			35
+		</td>
+		<td>
+addr = popIntStack();<br>
+                            val = popIntStack();<br>
+                            cpuWriteWord(addr, val);
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			LESSTHAN
+		</td>
+		<td>
+			36
+		</td>
+		<td>
+		Signed comparison<br>
+                            a = popIntStack();<br>
+                            b = popIntStack();<br>
+                            pushIntStack((a < b) ? 1 : 0);<br>
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			LESSTHANOREQUAL
+		</td>
+		<td>
+			37
+		</td>
+		<td>
+		Signed comparison<br>
+ a = popIntStack();<br>
+                            b = popIntStack();<br>
+                            pushIntStack((a <= b) ? 1 : 0);
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			ULESSTHAN
+		</td>
+		<td>
+			37
+		</td>
+		<td>
+		Unsigned comparison<br>
+                            long a;//long is here 64 bit signed integer<br>
+                            long b;<br>
+                            a = ((long) popIntStack()) & INTMASK; // INTMASK is unsigned 0x00000000ffffffff<br>
+                            b = ((long) popIntStack()) & INTMASK;<br>
+                            pushIntStack((a < b) ? 1 : 0);
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			ULESSTHANOREQUAL
+		</td>
+		<td>
+			39
+		</td>
+		<td>
+		Unsigned comparison<br>
+                            long a;//long is here 64 bit signed integer<br>
+                            long b;<br>
+                            a = ((long) popIntStack()) & INTMASK; // INTMASK is unsigned 0x00000000ffffffff<br>
+                            b = ((long) popIntStack()) & INTMASK;<br>
+                            pushIntStack((a <= b) ? 1 : 0);
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+	<tr>
+		<td>
+			EQBRANCH
+		</td>
+		<td>
+			55
+		</td>
+		<td>
+                            int compare;<br>
+                            int target;<br>
+                            target = popIntStack() + pc;<br>
+                            compare = popIntStack();<br>
+                            if (compare == 0)<br>
+                            {<br>
+                                setPc(target);<br>
+                            } else<br>
+                            {<br>
+                                setPc(pc + 1);<br>
+                            }
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			 NEQBRANCH
+		</td>
+		<td>
+			56
+		</td>
+		<td>
+                            int compare;<br>
+                            int target;<br>
+                            target = popIntStack() + pc;<br>
+                            compare = popIntStack();<br>
+                            if (compare != 0)<br>
+                            {<br>
+                                setPc(target);<br>
+                            } else<br>
+                            {<br>
+                                setPc(pc + 1);<br>
+                            }<br>
+		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			 MULT
+		</td>
+		<td>
+			41
+		</td>
+		<td>
+			Signed 32 bit multiply <br>
+   			pushIntStack(popIntStack() * popIntStack());
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			 DIV
+		</td>
+		<td>
+			53
+		</td>
+		<td>
+		Signed 32 bit integer divide.<br>
+                            a = popIntStack();<br>
+                            b = popIntStack();<br>
+                            if (b == 0)<br>
+                            {<br>
+                            	// undefined<br> 
+                            }
+                            pushIntStack(a / b);<br>
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			 MOD
+		</td>
+		<td>
+			54
+		</td>
+		<td>
+		Signed 32 bit integer modulo.<br>
+                            a = popIntStack(); <br>
+                            b = popIntStack();<br>
+                            if (b == 0)<br>
+                            {<br>
+                            	// undefined <br> 
+                            }<br>
+                            pushIntStack(a % b); <br>
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			LSHIFTRIGHT	
+		</td>
+		<td>
+			42
+		</td>
+		<td>
+			unsigned shift right.<br>
+	        long shift;<br>
+	        long valX;<br>
+	        int t;<br>
+	        shift = ((long) popIntStack()) & INTMASK;<br>
+	        valX = ((long) popIntStack()) & INTMASK;<br>
+	        t = (int) (valX >> (shift & 0x3f));<br>
+	        pushIntStack(t);<br>
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			ASHIFTLEFT	
+		</td>
+		<td>
+			43
+		</td>
+		<td>
+			arithmetic(signed) shift left.<br>
+			
+			 long shift;<br>
+                            long valX;<br>
+                            shift = ((long) popIntStack()) & INTMASK;<br>
+                            valX = ((long) popIntStack()) & INTMASK;<br>
+                            int t = (int) (valX << (shift & 0x3f));<br>
+                            pushIntStack(t);<br>
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			ASHIFTRIGHT	
+		</td>
+		<td>
+			43
+		</td>
+		<td>
+		arithmetic(signed) shift left.<br>
+                           long shift;<br>
+                            int valX;<br>
+                            shift = ((long) popIntStack()) & INTMASK;<br>
+                            valX = popIntStack();<br>
+                            int t = valX >> (shift & 0x3f);<br>
+                            pushIntStack(t);<br>
+ 
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+    
+   	<tr>
+		<td>
+			CALL
+		</td>
+		<td>
+			45
+		</td>
+		<td>
+			call procedure.<br>
+			<br>
+				int address = pop();<br>
+                            push(pc + 1);<br>
+                            setPc(address); <br>
+   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			 CALLPCREL
+		</td>
+		<td>
+			63
+		</td>
+		<td>
+			call procedure pc relative<br>
+			<br>
+int address = pop();<br>
+                            push(pc + 1);<br>
+                            setPc(address+pc);   		</td>
+		<td>
+			Fix!
+		</td>
+	</tr>
+    
+    
+  	<tr>
+		<td>
+			 EQ
+		</td>
+		<td>
+			46
+		</td>
+		<td>
+ pushIntStack((popIntStack() == popIntStack()) ? 1 : 0);		<td>
+			Fix!
+		</td>
+	</tr>
+  	<tr>
+		<td>
+			 NEQ
+		</td>
+		<td>
+			48
+		</td>
+		<td>
+ pushIntStack((popIntStack() != popIntStack()) ? 1 : 0);		<td>
+			Fix!
+		</td>
+	</tr>
+ 	<tr>
+		<td>
+			 NEG
+		</td>
+		<td>
+			47
+		</td>
+		<td>
+ pushIntStack(-popIntStack());<td>
+			Fix!
+		</td>
+	</tr>
+    
+	
 </table>
 	
 <a name="vectors"/>
