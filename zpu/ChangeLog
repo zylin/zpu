@@ -1,3 +1,6 @@
+2008-08-08 Salvador E. Tropea
+	* zpu/hdl/zpu4/core/histogram.perl - generate opcode histogram from
+	HDL simulation output
 2008-06-25 Øyvind Harboe
 	* do not enable interrupts for simzpu_small.do. hello world
 	does not have an interrupt handler, so this caused a BREAK
