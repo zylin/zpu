@@ -6,7 +6,6 @@ library work;
 use work.wishbone_pkg.all;
 use work.zpupkg.all;
 use work.zpu_config.all;
-use work.ic300pkg.all;
 
 entity zpu_system is
 	generic(
