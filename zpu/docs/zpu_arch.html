@@ -9,6 +9,8 @@
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
+<li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
+<li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
 <li> <a href="#nextgen">Next generation ZPU</a>
 </ul>
 <a name="started"/>
@@ -1264,6 +1266,34 @@ restore them.
 <p>
 See zpu/hdl/zpu4/test/interrupt/ for C code and zpu/hdl/example/simzpu_interrupt.do
 for simulation example.
+<a name="zpu_core_small.vhd"/>
+<h1>About zpu_core_small.vhd</h1>
+The small ZPU implements the minimum instruction set. It is optimized for size and simplicity
+serving as a reference in both regards.
+<p>
+It uses a BRAM (dual port RAM w/read/write to both ports) as data & code storage and
+is implemented as a simple state machine. 
+<p>
+Essentially it has three states:
+<ol>
+<li>Fetch - starts fetch of next instruction
+<li>FetchNext - sets up operands for execute cycle
+<li>Decode - decodes instruction
+<li>Execute - well.. executes instruction
+</ol>
+The tricky bit is that there is a tiny bit of interleaving of
+states since the BRAM takes a cycle to perform a fetch/store. The above is the
+normal states the ZPU cycles through unless memory fetch, jumps, etc. take
+place.
+<a name="zpu_core.vhd"/>
+<h1>About zpu_core.vhd</h1>
+The zpu_core.vhd has a single port memory interface. All data, code and IO is
+accessed through this memory interface.
+<p>
+It performs better(despite having less memory bandwidth than zpu_core_small.vhd)
+since it implements many more instructions.
+
+
 <a name="nextgen"/>
 <h1>Next generation ZPU</h1>
 Based on feedback here is a list of a tenuous "consensus" for the next generation
