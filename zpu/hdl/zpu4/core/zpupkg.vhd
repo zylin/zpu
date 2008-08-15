@@ -114,9 +114,9 @@ package zpupkg is
 	constant	OpCode_Short	: std_logic_vector(7 downto 4) := "0000";
 	
 	constant	OpCode_Break	: std_logic_vector(3 downto 0) := "0000";
-	constant	OpCode_Shiftleft: std_logic_vector(3 downto 0) := "0001";
+	constant	OpCode_NA4      : std_logic_vector(3 downto 0) := "0001";
 	constant	OpCode_PushSP	: std_logic_vector(3 downto 0) := "0010";
-	constant	OpCode_PushInt	: std_logic_vector(3 downto 0) := "0011";
+	constant	OpCode_NA3		: std_logic_vector(3 downto 0) := "0011";
 	
 	constant	OpCode_PopPC	: std_logic_vector(3 downto 0) := "0100";
 	constant	OpCode_Add		: std_logic_vector(3 downto 0) := "0101";
@@ -130,8 +130,8 @@ package zpupkg is
 	
 	constant	OpCode_Store	: std_logic_vector(3 downto 0) := "1100";
 	constant	OpCode_PopSP	: std_logic_vector(3 downto 0) := "1101";
-	constant	OpCode_Compare	: std_logic_vector(3 downto 0) := "1110";
-	constant	OpCode_PopInt	: std_logic_vector(3 downto 0) := "1111";
+	constant	OpCode_NA2		: std_logic_vector(3 downto 0) := "1110";
+	constant	OpCode_NA		: std_logic_vector(3 downto 0) := "1111";
 	
 	constant	OpCode_Lessthan				: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(36, 6));
 	constant	OpCode_Lessthanorequal		: std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(37, 6));
