@@ -136,7 +136,6 @@ end if
 			Pop value off stack and store it in the SP+xxxxx*4 memory location, where xxxxx is a positive integer.
 		</td>
 		<td>
-			Fix!
 		</td>
 	</tr>
 	<tr>
@@ -150,7 +149,7 @@ end if
 			Push value of memory location SP+xxxxx*4, where xxxxx is a positive integer, onto stack.
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -164,7 +163,7 @@ end if
 			Add value of memory location SP+xxxx*4 to value on top of stack.
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -175,10 +174,16 @@ end if
 			001x xxxx
 		</td>
 		<td>
-			Push PC to stack and set PC to 0x0+xxxxx*32. This is used to emulate opcodes. See zpupgk.vhd for list of emulate opcode values used. zpu_core.vhd contains reference implementations of these instructions rather than letting the ZPU execute the EMULATE instruction
+			Push PC to stack and set PC to 0x0+xxxxx*32. This is used to emulate opcodes. See 
+			zpupgk.vhd for list of emulate opcode values used. zpu_core.vhd contains 
+			reference implementations of these instructions rather than letting the ZPU execute the EMULATE instruction
+			<p>
+			One way to improve performance of the ZPU is to implement some of
+			the EMULATE instructions. 
+			
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -192,7 +197,7 @@ end if
 			Pushes program counter onto the stack.
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -206,21 +211,7 @@ end if
 			Pops address off stack and sets PC
 		</td>
 		<td>
-			Fix!
-		</td>
-	</tr>
-	<tr>
-		<td>
-			LOAD
-		</td>
-		<td>
-			0000 1000
-		</td>
-		<td>
-			Pops address stored on stack and loads the value of that address onto stack.
-		</td>
-		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -233,10 +224,13 @@ end if
 		<td>
 			Pops address stored on stack and loads the value of that address onto stack.
 			<p>
-			Bit 0 and 1 of address are always 0.
+			Bit 0 and 1 of address are always treated as 0(i.e. ignored) by
+			the HDL implementations and C code is guaranteed by the programming
+			model never to use 32 bit LOAD on non-32 bit aligned addresses(i.e.
+			if a program does this, then it has a bug). 
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -249,10 +243,10 @@ end if
 		<td>
 			Pops address, then value from stack and stores the value into the memory location of the address.
 			<p>
-			Bit 0 and 1 of address are always 0
+			Bit 0 and 1 of address are always treated as 0
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -266,7 +260,7 @@ end if
 			Pushes stack pointer. 
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -277,10 +271,10 @@ end if
 			0000 1101
 		</td>
 		<td>
-			Used to allocate/deallocate space on stack for variables or when changing threads. 
+			Pops value off top of stack and sets SP to that value. Used to allocate/deallocate space on stack for variables or when changing threads. 
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -294,7 +288,7 @@ end if
 			Pops two values on stack adds them and pushes the result
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -308,7 +302,7 @@ end if
 			Pops two values off the stack and does a bitwise-and & pushes the result onto the stack
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -322,7 +316,7 @@ end if
 			Pops two integers, does a bitwise or and pushes result
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -337,7 +331,7 @@ end if
 
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -348,10 +342,12 @@ end if
 			0000 1010
 		</td>
 		<td>
-			Reverses the bit order of the value on the stack, i.e. abc->cba, 100->001, 110->011, etc. 
+			Reverses the bit order of the value on the stack, i.e. abc->cba, 100->001, 110->011, etc.
+			<p>
+			The raison d'etre for this instruction is mainly to emulate other instructions. 
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -362,10 +358,11 @@ end if
 			0000 1011
 		</td>
 		<td>
-			No operation, clears IDIM flag as side effect
+			No operation, clears IDIM flag as side effect, i.e. used between two
+			consequtive IM instructions to push two values onto the stack.
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -381,7 +378,7 @@ end if
             pushIntStack(a+b);<br>
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	
@@ -396,7 +393,7 @@ end if
 			setPc(popIntStack()+getPc());
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -412,7 +409,7 @@ end if
                             pushIntStack(b-a);<br>
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -426,7 +423,7 @@ end if
 pushIntStack(popIntStack() ^ popIntStack());
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -437,10 +434,13 @@ pushIntStack(popIntStack() ^ popIntStack());
 			51
 		</td>
 		<td>
+				8 bit load instruction. Really only here for compatibility with
+		C programming model. Also it has a big impact on DMIPS test.
+		<p>
 			pushIntStack(cpuReadByte(popIntStack())&0xff);
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -451,12 +451,15 @@ pushIntStack(popIntStack() ^ popIntStack());
 			52
 		</td>
 		<td>
+		8 bit store instruction. Really only here for compatibility with
+		C programming model. Also it has a big impact on DMIPS test.
+		<p>
 			addr = popIntStack();<br>
                             val = popIntStack();<br>
                             cpuWriteByte(addr, val);
 </td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -467,10 +470,15 @@ pushIntStack(popIntStack() ^ popIntStack());
 			34
 		</td>
 		<td>
+		
+				16 bit load instruction. Really only here for compatibility with
+		C programming model.
+		<p>
+		
 			pushIntStack(cpuReadWord(popIntStack()));
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -481,12 +489,15 @@ pushIntStack(popIntStack() ^ popIntStack());
 			35
 		</td>
 		<td>
+		16 bit store instruction. Really only here for compatibility with
+		C programming model.
+		<p>
 addr = popIntStack();<br>
                             val = popIntStack();<br>
                             cpuWriteWord(addr, val);
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -503,7 +514,7 @@ addr = popIntStack();<br>
                             pushIntStack((a < b) ? 1 : 0);<br>
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -520,7 +531,7 @@ addr = popIntStack();<br>
                             pushIntStack((a <= b) ? 1 : 0);
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -539,7 +550,7 @@ addr = popIntStack();<br>
                             pushIntStack((a < b) ? 1 : 0);
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -558,7 +569,7 @@ addr = popIntStack();<br>
                             pushIntStack((a <= b) ? 1 : 0);
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
 	<tr>
@@ -582,7 +593,7 @@ addr = popIntStack();<br>
                             }
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -606,7 +617,7 @@ addr = popIntStack();<br>
                             }<br>
 		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -621,7 +632,7 @@ addr = popIntStack();<br>
    			pushIntStack(popIntStack() * popIntStack());
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -642,7 +653,7 @@ addr = popIntStack();<br>
                             pushIntStack(a / b);<br>
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -663,7 +674,7 @@ addr = popIntStack();<br>
                             pushIntStack(a % b); <br>
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -684,7 +695,7 @@ addr = popIntStack();<br>
 	        pushIntStack(t);<br>
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -705,7 +716,7 @@ addr = popIntStack();<br>
                             pushIntStack(t);<br>
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -726,7 +737,7 @@ addr = popIntStack();<br>
  
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
     
@@ -745,7 +756,7 @@ addr = popIntStack();<br>
                             setPc(address); <br>
    		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -762,7 +773,7 @@ int address = pop();<br>
                             push(pc + 1);<br>
                             setPc(address+pc);   		</td>
 		<td>
-			Fix!
+			
 		</td>
 	</tr>
     
@@ -776,7 +787,7 @@ int address = pop();<br>
 		</td>
 		<td>
  pushIntStack((popIntStack() == popIntStack()) ? 1 : 0);		<td>
-			Fix!
+			
 		</td>
 	</tr>
   	<tr>
@@ -788,7 +799,7 @@ int address = pop();<br>
 		</td>
 		<td>
  pushIntStack((popIntStack() != popIntStack()) ? 1 : 0);		<td>
-			Fix!
+			
 		</td>
 	</tr>
  	<tr>
@@ -800,7 +811,7 @@ int address = pop();<br>
 		</td>
 		<td>
  pushIntStack(-popIntStack());<td>
-			Fix!
+			
 		</td>
 	</tr>
     
