@@ -5,6 +5,7 @@
 <li> <a href="#started">Getting started</a>
 <li> <a href="#introduction">Introduction</a>
 <li> <a href="#instructionset">Instruction set</a>
+<li> <a href="#implementing">Implementing your own ZPU</a>
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
@@ -804,6 +805,34 @@ int address = pop();<br>
 	
 </table>
 	
+<a name="implementing"/>
+<h1>Implementing your own ZPU</h1>
+One of the neat things about the ZPU is that the instruction set and architecture
+is very small and it is easy to implement a ZPU from scratch or modify the
+existing ZPU implementations.
+<p>
+Implementing a ZPU can be done without understanding the toolchain in
+detail, i.e. using exclusively HDL skills and only a rudimentary
+understanding of standard GCC/GDB usage is sufficient. 
+<p>
+A few tips:
+<ul>
+<li>Run zpu_core.vhd or zpu_core_small.vhd and generate an instruction trace
+from ModelSim or similar. To check that you own implementation is correctly
+implemented, verify that the instruction trace for the new and old
+ZPU implementations match. This gives you a simple way to do regression
+tests as you develop your ZPU.
+<li>To improve performance, you can add more instructions. The EMULATE instructions
+are optional in HDL since they will be emulated in software if they are not
+implemented in HDL. This allows you to run the ZPU executables unmodified
+regardless of which EMULATE instructions you implement.
+<li>Run the DMIPS test to measure your overall performance 
+<li>Run the histogram.perl script on the instruction trace to generate
+histograms of the instructions. Profiling is essential to making
+the right choices w.r.t. optimisation for your application. 
+</ul>
+
+
 <a name="vectors"/>
 <h1>Vectors</h1>
 <table border="1">
