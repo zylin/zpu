@@ -8,6 +8,7 @@
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
+<li> <a href="#nextgen">Next generation ZPU</a>
 </ul>
 <a name="started"/>
 <h1>Getting started</h1>
@@ -1234,5 +1235,31 @@ restore them.
 <p>
 See zpu/hdl/zpu4/test/interrupt/ for C code and zpu/hdl/example/simzpu_interrupt.do
 for simulation example.
+<a name="nextgen"/>
+<h1>Next generation ZPU</h1>
+Based on feedback here is a list of a tenuous "consensus" for the next generation
+of the ZPU with some tentative ideas on implementation.
+<p>
+The plan is to update zpu_core.vhd and zpu_core_small.vhd as examples/reference,
+and to open up for innovation in the HDL implementation.
+
+<ol>
+<li>Reduce minimum code size footprint
+<ol>
+<li>Modify GCC compiler to be able to emit function calls instead of instructions.
+E.g instead of issuing MULT, generate function call. This reduces code size overhead
+for applications that do not use MULT since the microcode does not need to be in place.
+<li>Add single entry for unknown instructions. PC and unsupported instruction is
+pushed onto stack before jumping to unkonwn instruction vector. This makes it possible
+to write denser microcode for missing instructions.
+</ol>
+<li>Add floating point add and mult. FADD & FMULT. Option to generate the instructions
+from the compiler.
+<li>Add some scheme to support custom instructions.
+<li>Add support to Zylin Embedded CDT for downloading fully functional ZPU
+toolchain. The goal is to allow new users to write and simulate simple ZPU
+programs in in less than an hour.
+</ol>
+
 </body>
 <html>
