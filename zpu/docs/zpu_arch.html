@@ -1322,14 +1322,34 @@ for applications that do not use MULT since the microcode does not need to be in
 <li>Add single entry for unknown instructions. PC and unsupported instruction is
 pushed onto stack before jumping to unkonwn instruction vector. This makes it possible
 to write denser microcode for missing instructions.
+<li>Single entry for *all* unknown instructions does not limit emulation to the
+EMULATE instructions today, but instructions such as OR, LOADSP, STORESP, ADDSP,
+etc. can also be emulated. This opens up for further reduction in logic usage.
+<li>The single entry for all unknown instructions will make it easier to
+write a compact custom crt0.s to fit an instruction subset.
+<li>The interrupt is basically an unknown instruction that is injected into
+the execution stream.
 </ol>
 <li>Add floating point add and mult. FADD & FMULT. Option to generate the instructions
 from the compiler.
-<li>Add some scheme to support custom instructions.
+<li>Add GCC support for seperate code/data bus. This may be as "simple" as
+writing a custom linker script for the current GCC compiler.
+<li>Add some scheme to support custom instructions. Can this be combined with
+single entry point for unknown instructions?
 <li>Add support to Zylin Embedded CDT for downloading fully functional ZPU
 toolchain. The goal is to allow new users to write and simulate simple ZPU
 programs in in less than an hour.
 </ol>
-
+<h2>Next generation ZPU HDL work</h2>
+<ol>
+<li>Incorporate feedback on FPGA tricks to reduce memory usage: do not
+use asynchronous reset?, use BRAMs in synchronous mode to reduce 
+complexity of state machine?, seperate code/data bus? Reduce
+instruction set further. Goal: <300 LUT's for 32 bit ZPU
+<li>Will someone be willing to contribute a heavily pipelined ZPU?
+For this to make sense, the performance must hit 20 DMIPS w/DRAM & cache.
+This ZPU could run a TCP/IP stack with relevant performance to compete
+with stripped down ARM7 type systems.
+</ol>
 </body>
 <html>
