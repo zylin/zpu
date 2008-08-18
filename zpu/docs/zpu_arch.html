@@ -1335,6 +1335,12 @@ pushed onto stack before jumping to unkonwn instruction vector. This makes it po
 to write denser microcode for missing instructions. For emulated opcodes that are 
 not in use, the microcode can more easily be disabled. Determining
 that e.g. MULT is not used, can be a bit tricky, but disabling it is easy.
+<p>
+The address of this entry will be 0x10. The reason 0x00 is not used is that 
+GCC needs 0x00-0x0b inclusive to store R0-R2(memory mapped GCC registers). 
+The reset vector remains 0x0 so the 0x00-0x0f addresses contains the
+first few instructions executed by the ZPU. Some very early work has been
+done in <a href="../sw/startup/nextgen_crt0.S"> nextgen_crt0.S</a>.
 <li>Single entry for *all* unknown instructions does not limit emulation to the
 EMULATE instructions today, but instructions such as OR, LOADSP, STORESP, ADDSP,
 etc. can also be emulated. This opens up for further reduction in logic usage.
