@@ -5,6 +5,7 @@
 <li> <a href="#started">Getting started</a>
 <li> <a href="#introduction">Introduction</a>
 <li> <a href="#instructionset">Instruction set</a>
+<li> <a href="#startup">Custom startup code (aka crt0.s)</a>
 <li> <a href="#implementing">Implementing your own ZPU</a>
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
@@ -817,7 +818,20 @@ int address = pop();<br>
     
 	
 </table>
-	
+<a name="startup"/>
+<h1>Custom startup code (aka crt0.s)</h1>
+To minimize the size of an application, one important trick is to
+strip down the startup code. The startup code contains emulation
+of instructions that may never be used by a particular application.
+<p>
+The startup code is found in the GCC source code under gcc/libgloss/zpu,
+but to make the startup code more available, it has been duplicated
+into <a href="../sw/startup">zpu/sw/startup</a> 
+<p>
+To minimize startup size, see <a href="../roadshow/roadshow/codesize/index.html">codesize</a>
+demo. This is pretty standard GCC stuff and simple enough once you've
+been over it a couple of times.
+
 <a name="implementing"/>
 <h1>Implementing your own ZPU</h1>
 One of the neat things about the ZPU is that the instruction set and architecture

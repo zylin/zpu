@@ -1,3 +1,6 @@
+2008-08-18 Øyvind Harboe
+	* duplicated crt0.s and some other stuff from libgloss into
+	sw/startup. This makes it easier to tinker w/startup code.
 2008-08-08 Salvador E. Tropea
 	* zpu/hdl/zpu4/core/histogram.perl - generate opcode histogram from
 	HDL simulation output
