@@ -10,6 +10,7 @@
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
+<li> <a href="#wishbone">Wishbone</a>
 <li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
 <li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
 <li> <a href="#nextgen">Next generation ZPU</a>
@@ -1265,6 +1266,16 @@ memory map below.
 			</TD>
 		</TR>
 	</TABLE>
+<a name="wishbone"/>
+<h1>Wishbone</h1>
+In <a href="../hdl/wishbone" target="_blank">hdl/wishbone</a> there is an implementation
+of a wishbone bridge.
+<p>
+However this wishbone bridge was used together with the <a href="../hdl/zy2000" target="_blank">hdl/zy2000</a> implementation
+of the ZPU, which differs slightly from <a href="../hdl/zpu4/core" target="_blank">hdl/zpu4/core</a>.
+<p>
+The ZY2000 is a complete implementation of the ZPU including: DRAM, soft-MAC, wishbone bridges, GPIO subsystem,
+etc. This also included an eCos HAL w/TCP/IP support.
 <a name="interrupts"/>
 <h1>Interrupts</h1>
 The ZPU supports interrupts.
