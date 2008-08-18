@@ -1316,19 +1316,20 @@ and to open up for innovation in the HDL implementation.
 <ol>
 <li>Reduce minimum code size footprint
 <ol>
-<li>Modify GCC compiler to be able to emit function calls instead of instructions.
-E.g instead of issuing MULT, generate function call. This reduces code size overhead
-for applications that do not use MULT since the microcode does not need to be in place.
 <li>Add single entry for unknown instructions. PC and unsupported instruction is
 pushed onto stack before jumping to unkonwn instruction vector. This makes it possible
-to write denser microcode for missing instructions.
+to write denser microcode for missing instructions. For emulated opcodes that are 
+not in use, the microcode can more easily be disabled. Determining
+that e.g. MULT is not used, can be a bit tricky, but disabling it is easy.
 <li>Single entry for *all* unknown instructions does not limit emulation to the
 EMULATE instructions today, but instructions such as OR, LOADSP, STORESP, ADDSP,
 etc. can also be emulated. This opens up for further reduction in logic usage.
 <li>The single entry for all unknown instructions will make it easier to
-write a compact custom crt0.s to fit an instruction subset.
+write a compact custom crt0.s to fit an instruction subset. 
 <li>The interrupt is basically an unknown instruction that is injected into
 the execution stream.
+<li>Possibly modify the java simulator to support the single entry for unknown
+instructions.
 </ol>
 <li>Add floating point add and mult. FADD & FMULT. Option to generate the instructions
 from the compiler.
@@ -1339,6 +1340,10 @@ single entry point for unknown instructions?
 <li>Add support to Zylin Embedded CDT for downloading fully functional ZPU
 toolchain. The goal is to allow new users to write and simulate simple ZPU
 programs in in less than an hour.
+<li>Strip away unused instructions from GCC and add options to GCC for not
+emitting more advanced instructions. This will e.g. convert MULT/DIV into
+function calls to libgcc and thus make it easier to determine that
+microcode is not needed.
 </ol>
 <h2>Next generation ZPU HDL work</h2>
 <ol>
