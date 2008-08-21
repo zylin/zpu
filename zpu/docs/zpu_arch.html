@@ -2,8 +2,9 @@
 <body>
 <h1>Index</h1>
 <ul>
-<li> <a href="#started">Getting started</a>
-<li> <a href="#introduction">Introduction</a>
+<li> <a href="#fpgastarted">Getting started - FPGA</a>
+<li> <a href="#swstarted">Getting started - software</a>
+<li> <a href="#introduction">Architecture introduction</a>
 <li> <a href="#instructionset">Instruction set</a>
 <li> <a href="#startup">Custom startup code (aka crt0.s)</a>
 <li> <a href="#implementing">Implementing your own ZPU</a>
@@ -15,13 +16,99 @@
 <li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
 <li> <a href="#nextgen">Next generation ZPU</a>
 </ul>
-<a name="started"/>
-<h1>Getting started</h1>
-The ZPU comes with a few simulation examples. 
+
+<a name="fpgastarted"/>
+<h1>Getting started - FPGA </h1>
+The simplest version of the ZPU uses BRAM. When getting accustomed to the ZPU, a BRAM ZPU with a UART
+is a good place to start.
 <p>
-Start with <a href="../hdl/index.html">VHDL synthesis examples</a>
+You'll find a working simulation script in hdl/example/simzpu_small.do and hdl/example_medium/simzpu_medium.do, which
+show simulation of the small(zpu_core_small.vhd) and medium sized ZPU(zpu_core.vhd). hdl/example/simzpu_interrupt.do
+shows use of interrupts.
+<p>
+When implementing the ZPU, copy the following files and modify them to your needs:
+<ol>
+    <li>hdl/example/zpu_config.vhd - set up RAM size here
+    <li>hdl/example/helloworld.vhd - dual port BRAM implementation. 
+</ol>
+Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is memory mapped(read/write) in the ZPU.
+<h2>Generating VHDL BRAM initialization </h2>
+
+<code>
+../install/bin/zpu-elf-objcopy -O binary hello.elf hello.bin<br>
+java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram<br>
+
+</code>
+<h2>Running example simulation</h2>
+The hdl/example directory has a simulation written for Xilinx WebPack ModelSim. From the ModelSim command prompt:
+<ol>
+<li>cd c:/&lt;installfolder&gt;/hdl/example
+<li>do zpusim_small.do
+</ol>
+<p>
+After running the hello world simulation (see zpusim.do), two files are written to the hdl/example directory:
+<ol>
+<li>log.txt - contains the "Hello world!" text written to the debug channel/simplified UART.
+<li>trace.txt - a trace file for the CPU. The instruction set simulator has the capability of taking
+this file as input in order to verify that the HDL implementation matches the instruction set simulator. 
+When a mismatch is found, the GDB debugger will break. Very handy for debugging custom ZPU implementations. 
+</ol>  
+<h2>HDL Directories & files </h2>
+<ul>
+<li>example - contains example files & working ZPU. Start here.
+<li>wishbone - contains wishbone interface for the ZPU
+<li>zpu3 - if you are interested in developing ZPU cores and not only using them, then this directory contains various stuff of more or less historical interest.
+<li>zpu4 -  if you are interested in developing ZPU cores and not only using them, then this is the active development version. You'll also want to copy out the
+files you need from this folder to your own project.
+</ul>
+
+The HDL files need a bit of spit and polish!
+
+<a name="swstarted"/>
+<h1>Getting started - software</h1>
+The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
+some very basic peripherals defined: counter, timer interrupt and a debug output port. 
+<h2>Installing</h2>
+<ol>
+<li>Install Cygwin. http://www.cygwin.com 
+<li>Install Java
+<li>Start Cygwin bash
+<li>cd zpu/sw
+<li>sh setup.sh
+<li>/tmp/zpu/install/bin now has the .exe files for the GCC toolchain & GDB
+<li>Optionally you may set up PATH variables to point to /tmp/zpu/install/bin<br>
+source env.sh
+</ol>
+<h1>Hello world example</h1>
+The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
+<p> 
+<code>
+cd zpu/sw/helloworld<br>
+../install/bin/zpu-elf-gcc -phi hello.c -o hello.elf <br>
+</code>
+<h2>Running the hello world example in GDB</h2>
+<ol>
+<li>cd zpu/sw/helloworld
+<li>Launch the simulator from a seperate bash shell:<p>
+java -classpath ../simulator/zpusim.jar -Xmx512m com.zylin.zpu.simulator.Phi 4444
+<p>
+<img src="images/zpusim.PNG" border=0> 
+<li>Launch GDB:<p>
+../install/bin/zpu-elf-gdb hello.elf
+<li>Connect to target, load and run application:<p>
+<code>
+(gdb) target remote localhost:4444<br>
+(gdb) load<br>
+(gdb) continue<br>
+</code>
+<p>
+<img src="images/gccgdb.PNG">
+
+</ol>
+
+
 <a name="introduction"/>
-<h1>Introduction</h1>
+<h1>Architecture introduction</h1>
 The ZPU is a zero operand, or stack based CPU. The opcodes have a fixed width of 8 bits. 
 <p>
 Example:
@@ -893,7 +980,8 @@ the right choices w.r.t. optimisation for your application.
 <a name="memorymap"/>
 <h1>Phi memory map</h1>
 The ZPU architecture does not define a memory map as such, but the GCC + libgloss + ecos hal library uses the
-memory map below.
+memory map below. "Phi" is just a three letter word for the particular memory layout below that came about
+while developing the ZPU.
 <p>
 	<TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
 		<COL WIDTH=85>
@@ -1387,5 +1475,7 @@ For this to make sense, the performance must hit 20 DMIPS w/DRAM & cache.
 This ZPU could run a TCP/IP stack with relevant performance to compete
 with stripped down ARM7 type systems.
 </ol>
+
+
 </body>
 <html>
