@@ -11,6 +11,7 @@
 <li> <a href="#vectors">Jump vectors</a>
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
+<li> <a href="#performance">Speeding up the ZPU</a>
 <li> <a href="#wishbone">Wishbone</a>
 <li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
 <li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
@@ -1409,6 +1410,46 @@ The tricky bit is that there is a tiny bit of interleaving of
 states since the BRAM takes a cycle to perform a fetch/store. The above is the
 normal states the ZPU cycles through unless memory fetch, jumps, etc. take
 place.
+<a name="performance"/>
+<h1>Speeding up the ZPU</h1>
+There are two aspects of speeding up the ZPU: making it perform better
+for a particular application and toying around with the ZPU architecture.
+<h2>Performance tips</h2>
+<ol>
+<li>Profile. Create a small sample and run in a simulator that is as close
+to the real deployment as possible. zpu4/core/histogram.perl is a script
+that will tell you which instructions take the most time.
+<li> Using the profile output, decide on which emulated instructions that
+it makes sense to implement in HDL for your particular application. Modifying
+zpu_core_small.vhd is not particularly hard. Most instructions can be
+transliterated into zpu_core_small.vhd from zpu_core.vhd without too much
+problem.
+<li>The memory subsystem may well turn out to be where you should concentrate
+your efforts.
+</ol>
+<h2>Toying around with the architecture</h2>
+Again: profile 90% of the time and spend the remaining 10% tinkering 
+with the architecture.
+<ul>
+<li>There is a DMIPS program you can use to measure the performance of
+the ZPU in lieu of profiling a real application. The latter is obviously
+a superior solution.
+<li>Again: use histogram.perl to figure out which instructions you should add
+in HDL.
+<li>Tinker a bit with Fmax to find the maximum speed rating for your design.
+<li>zpu_core_small.vhd should be ca. 1 DMIPS and zpu_core.vhd should yield
+about 5-10 DMIPS before adding instructions runs out of steam.
+</ul>
+If you need to get ca. 20-50 DMIPS out of the ZPU you will have to
+write a heavily pipelined architecture with caches(if you are running
+against DRAM). This is *tricky*, but some proof of concept work was
+done to show 20 DMIPS w/the ZPU(the actual result was discarded since
+it was not complete and contained fatal flaws).
+<p>
+Achieving above 50-100 DMIPS with the current ZPU architecture is probably
+a non-starter and a more conventional RISC design makes more sense here.
+<p>
+The unique advantages of the ZPU is size in terms of HDL & code size.
 <a name="zpu_core.vhd"/>
 <h1>About zpu_core.vhd</h1>
 The zpu_core.vhd has a single port memory interface. All data, code and IO is
