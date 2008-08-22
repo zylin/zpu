@@ -2,6 +2,10 @@
 <body>
 <h1>Index</h1>
 <ul>
+<li> <a href="#introduction">Introduction</a>
+<li> <a href="#download">Download</a>
+<li> <a href="#patch">Creating a patch</a>
+<li> <a href="#mailinglist">Getting help - mailing list</a>
 <li> <a href="#fpgastarted">Getting started - FPGA</a>
 <li> <a href="#swstarted">Getting started - software</a>
 <li> <a href="#introduction">Architecture introduction</a>
@@ -23,6 +27,105 @@
 <li> <a href="#nextgen">Next generation ZPU</a>
 
 </ul>
+
+<a name="introduction"/>
+<P><FONT SIZE=4><B>The worlds smallest 32 bit CPU with GCC toolchain</B></FONT>
+</P>
+<P>This CPU is finding a new home at www.opencores.org, please
+contact me if you are willing and able to help in shaping up the
+www.opencores.org pages. 
+</P>
+<P>The HDL, GCC toolchain and eCos HAL are actually done. Mainly I
+could need a hand with writing up docs/web pages/examples/bug
+reports.</P>
+<P>The ZPU has a BSD license for the HDL and GPL for the rest(source
+files are sadly out of date here, patches gladly accepted!). This
+allows deployments to implement any version of the ZPU they want
+without running into commercial problems, but if improvements are
+done to the architecture as such, then they need to be contributed
+back. 
+</P>
+<P>One strength of the ZPU is that it is tiny and therefore easy to
+implement from scratch to suit specialized needs and optimizations.</P>
+<P>Currently there exists some pages at <A HREF="http://www.zylin.com/zpu.htm">http://www.zylin.com/zpu.htm</A>
+that explains about the ZPU. According to OpenCores policy this
+information should be moved to www.opencores.org. Patches gratefully
+accepted to do so!</P>
+<P>Per Jan 1. 2008, Zylin has the Copyright for the ZPU, i.e. Zylin
+is free to decide that the ZPU shall have a BSD license for HDL + GPL
+for the rest.</P>
+<P>Sincerley,</P>
+<P>&Oslash;yvind Harboe <BR>Zylin AS 
+</P>
+<P><FONT SIZE=4><B>Features</B></FONT> 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">Small size: 442 LUT @ 95 MHz after
+	P&amp;R w/32 bit datapath Xilinx XC3S400 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">Wishbone 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">Code size 80% of ARM Thumb 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">GCC toolchain(GDB, newlib,
+	libstdc+) 
+	</P>
+	<LI><P>eCos embedded operating system support</P>
+</UL>
+<P><FONT SIZE=4><B>Survey</B></FONT> 
+</P>
+<P>Please take the time to fill in this short survey so we can gather
+information about where the ZPU can be the most useful:</P>
+<P><A HREF="http://www.zylin.com/zpusurvey.html">http://www.zylin.com/zpusurvey.html</A></P>
+<P><FONT SIZE=4><B>Status</B></FONT> 
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">HDL works 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">GCC toolchain works 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">eCos HAL works, but could be less
+	RAM hungry 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">The main problem at this point is
+	not usage of the CPU, but that the documentation/CVS layout needs
+	attention 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">Needs GDB stub support in eCos 
+	</P>
+	<LI><P>Could do with a Verilog implementation(ca. 600 lines to
+	translate)</P>
+</UL>
+<P><FONT SIZE=4><B>Simulator</B></FONT> 
+</P>
+<P>The ZPU simulator is integrated into the Zylin Embedded CDT plugin
+to ease debugging of ZPU applications:</P>
+<P><A HREF="http://www.zylin.com/embeddedcdt.html">http://www.zylin.com/embeddedcdt.html</A></P>
+<P>The ZPU simulator has many features besides debugging an
+application:</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">taking output from simulation(e.g.
+	ModelSim) and matching that against the Java simulator, thus making
+	it much easier to debug HDL implementations and also getting real
+	world timing information 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in">can generate gprof output 
+	</P>
+	<LI><P>generate various statistics 
+	</P>
+</UL>
+<P>The plugin is still pretty rough around the edges, and needs to
+get GUI support for enabling the ModelSim trace input feature.</P>
+<P ALIGN=CENTER><IMG SRC="images/compile.PNG" NAME="graphics7" ALIGN=BOTTOM WIDTH=669 HEIGHT=302 BORDER=0><BR><I>Compiling
+ZPU application</I></P>
+<P ALIGN=CENTER><IMG SRC="images/simulator.PNG" NAME="graphics9" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Setting
+up the simulator</I></P>
+<P ALIGN=CENTER><IMG SRC="images/simulator2.PNG" NAME="graphics11" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Choosing
+ZPU executable</I></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><IMG SRC="images/simulator3.PNG" NAME="graphics13" ALIGN=BOTTOM WIDTH=1100 HEIGHT=720 BORDER=0><BR><I>Debug
+session</I></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
 
 <a name="fpgastarted"/>
 <h1>Getting started - FPGA </h1>
@@ -1740,6 +1843,23 @@ This ZPU could run a TCP/IP stack with relevant performance to compete
 with stripped down ARM7 type systems.
 </ol>
 
+<a name="download"/>
+<h1>Download source code</h1> 
+</P>
+<P>The simplest way to get the ZPU HDL source and tools is to check
+it out from CVS:</P>
+<P>cvs -d :pserver:anonymous@cvs.opencores.org:/cvsroot/anonymous co
+zpu/zpu</P>
+<P>Start by reading zpu/zpu/hdl/index.html</P>
 
+<a name="patch"/>
+<h1>Creating a patch</h1> 
+<P><BR>If you have an changes, modify the files locally, create a
+patch and email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
+as an uncompressed .txt file:</P>
+<P>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</P>
+<a name="mailinglist"/>
+<h1>Getting help - mailing list</h1> 
+The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
 </body>
 <html>
