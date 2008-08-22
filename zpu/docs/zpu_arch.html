@@ -12,6 +12,7 @@
 <li> <a href="#memorymap">Memory map</a>
 <li> <a href="#interrupts">Interrupts</a>
 <li> <a href="#performance">Speeding up the ZPU</a>
+<li> <a href="#debuguart">Debug channel / UART</a>
 <li> <a href="#wishbone">Wishbone</a>
 <li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
 <li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
@@ -1040,7 +1041,7 @@ while developing the ZPU.
 			</TD>
 			<TD WIDTH=136>
 				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
-				UART to ARM7 TX</FONT></FONT></P>
+				Debug channel / UART to ARM7 TX</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
 				ZPU side</B></FONT></FONT></P>
 			</TD>
@@ -1066,7 +1067,7 @@ while developing the ZPU.
 			</TD>
 			<TD WIDTH=136>
 				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
-				UART to ARM7 RX</FONT></FONT></P>
+				Debug channel / UART to ARM7 RX</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
 				ZPU side</B></FONT></FONT></P>
 			</TD>
@@ -1160,7 +1161,7 @@ while developing the ZPU.
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
 				[31:1]		Not used</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		UART RX interrupt enable</FONT></FONT></P>
+				[0]		Debug channel / UART RX interrupt enable</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupt
 				disable</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
@@ -1182,7 +1183,7 @@ while developing the ZPU.
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
 				[31:1]		Not used</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		UART RX interrupt pending (Read)</FONT></FONT></P>
+				[0]		Debug channel / UART RX interrupt pending (Read)</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	No
 				interrupt pending</FONT></FONT></P>
 				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
@@ -1455,6 +1456,25 @@ Achieving above 50-100 DMIPS with the current ZPU architecture is probably
 a non-starter and a more conventional RISC design makes more sense here.
 <p>
 The unique advantages of the ZPU is size in terms of HDL & code size.
+<a name="debuguart"/>
+<h1>Debug channel / UART</h1>
+All self respecting embedded projects should have a debug channel
+to print stuff to. Typically this is a standard RS232 or UART, but
+it can also be something more exotic like a DCC JTAG channel.
+<p>
+The point is that characters(bytes) are sent to/from the ZPU
+via some terminal.
+<p>
+The ZPU defines in the memory map a UART / debug channel. This
+should be implemented by some suitable debug channel for
+the device in which the ZPU is implemented.
+<p>
+www.opencores.org has several UART implementations. This is one
+of the simpler ones:
+
+<a href="http://www.opencores.org/projects.cgi/web/uart/overview">
+http://www.opencores.org/projects.cgi/web/uart/overview</a>
+
 <a name="zpu_core.vhd"/>
 <h1>About zpu_core.vhd</h1>
 The zpu_core.vhd has a single port memory interface. All data, code and IO is
