@@ -1,5 +1,10 @@
 <html>
 <body>
+<h1>Latest version of this document</h1>
+This is a snapshot of the zpu_arch.html document in CVS. Please check out
+the latest version from CVS to get the latest version.
+<p>
+$Id: zpu_arch.html,v 1.23 2008/08/25 18:00:27 oharboe Exp $
 <h1>Index</h1>
 <ul>
 <li> <a href="#introduction">Introduction</a>
@@ -1854,10 +1859,18 @@ zpu/zpu</P>
 
 <a name="patch"/>
 <h1>Creating a patch</h1> 
-<P><BR>If you have an changes, modify the files locally, create a
-patch and email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
-as an uncompressed .txt file:</P>
-<P>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</P>
+<P><BR>Please submit changes to the <a href="#mailinglist">zylin-zpu mailing list</a> as a patch.
+</P>
+<ol>
+<li>Merge your changes with CVS HEAD.  
+<li>Update the FreeBSD or GPL copyright with your name in the case
+of non-trivial changes. If in doubt, add the copyright.
+<li>Add an entry to zpu/ChangeLog with date, your name, email, the
+files you changed and a comment. 
+<li><code>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</code>
+<li>Email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
+as an uncompressed .txt file
+</ol>
 <a name="mailinglist"/>
 <h1>Getting help - mailing list</h1> 
 The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
