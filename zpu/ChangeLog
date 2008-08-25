@@ -1,3 +1,5 @@
+2008-08-25 Salvador Eduardo Tropea <salvador@inti.gov.ar>
+	* Fix typo in zpu_arch.html w.r.t. ZPU UART/Debug channel
 2008-08-18 Øyvind Harboe
 	* duplicated crt0.s and some other stuff from libgloss into
 	sw/startup. This makes it easier to tinker w/startup code.
