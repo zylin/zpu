@@ -186,8 +186,7 @@ begin
 
 
 
-    -- not used in this design
-
+    -- mem_writeMask is not used in this design, tie it to 1
     mem_writeMask <= (others => '1');
 
 
