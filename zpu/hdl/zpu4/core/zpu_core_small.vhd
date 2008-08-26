@@ -43,7 +43,10 @@ use work.zpupkg.all;
 
 entity zpu_core is
     Port ( clk : in std_logic;
+    		  -- asynchronous reset signal
 	 		  areset : in std_logic;
+	 		  -- this particular implementation of the ZPU does not
+	 		  -- have a clocked enable signal
 	 		  enable : in std_logic; 
 	 		  in_mem_busy : in std_logic; 
 	 		  mem_read : in std_logic_vector(wordSize-1 downto 0);
@@ -51,8 +54,16 @@ entity zpu_core is
 	 		  out_mem_addr : out std_logic_vector(maxAddrBitIncIO downto 0);
 			  out_mem_writeEnable : out std_logic; 
 			  out_mem_readEnable : out std_logic;
+			  -- this implementation of the ZPU *always* reads and writes entire
+			  -- 32 bit words, so mem_writeMask is tied to (others => '1').
 	 		  mem_writeMask: out std_logic_vector(wordBytes-1 downto 0);
+	 		  -- Set to one to jump to interrupt vector
+	 		  -- The ZPU will communicate with the hardware that caused the
+	 		  -- interrupt via memory mapped IO or the interrupt flag can
+	 		  -- be cleared automatically
 	 		  interrupt : in std_logic;
+	 		  -- Signal that the break instruction is executed, normally only used
+	 		  -- in simulation to stop simulation
 	 		  break : out std_logic);
 end zpu_core;
 
@@ -76,13 +87,13 @@ signal memBRead : unsigned(wordSize-1 downto 0);
 signal	pc				: unsigned(maxAddrBit downto 0);
 signal	sp				: unsigned(maxAddrBit downto minAddrBit);
 
+-- this signal is set upon executing an IM instruction
+-- the subsequence IM instruction will then behave differently.
+-- all other instructions will clear the idim_flag.
+-- this yields highly compact immediate instructions.
 signal	idim_flag			: std_logic;
 
---signal	storeToStack		: std_logic;
---signal	fetchNextInstruction		: std_logic;
---signal	extraCycle			: std_logic;
 signal	busy 				: std_logic;
---signal	fetching			: std_logic;
 
 signal	begin_inst			: std_logic;
 
@@ -169,6 +180,15 @@ signal inInterrupt : std_logic;
 
 
 begin
+
+	-- generate a trace file.
+	-- 
+	-- This is only used in simulation to see what instructions are
+	-- executed. 
+	--
+	-- a quick & dirty regression test is then to commit trace files
+	-- to CVS and compare the latest trace file against the last known
+	-- good trace file
 	traceFileGenerate:
    if Generate_Trace generate
 	trace_file: trace port map (
@@ -236,6 +256,8 @@ begin
 
 
 
+	-- move out calculation of the opcode to a seperate process
+	-- to make things a bit easier to read
 	decodeControl:
 	process(memBRead, pc,tOpcode_sel)
 		variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
