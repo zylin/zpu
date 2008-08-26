@@ -195,6 +195,27 @@ begin
 	memAWrite_stdlogic <= std_logic_vector(memAWrite);
 	memBAddr_stdlogic  <= std_logic_vector(memBAddr(AddrBitBRAM_range));
 	memBWrite_stdlogic <= std_logic_vector(memBWrite);
+	
+	
+	-- dualport_ram must be defined by the application. 
+	-- 
+	-- How this can be implemented is highly dependent on the FPGA
+	-- and synthesis technology used. 
+	--
+	-- sometimes it can be instantiated as in the 
+	-- zpu/example/helloworld.vhd, using inference,
+	-- but oftentimes it must be instantiated directly
+	-- portmapping to part specific FPGA resources
+	-- 
+	--
+	-- DANGER!!!!!! If inference fails, then synthesis will try
+	-- to implement the memory using basic logic resources. This
+	-- will almost certainly cause the compiler to get "stuck"
+	-- since synthesising such a huge number of basic logic resources
+	-- will take more or less forever.
+	--
+	-- So: if your compiler gets "stuck" then inference is not
+	-- the way to go.
 	memory: dualport_ram port map (
        	clk => clk,
 	memAWriteEnable => memAWriteEnable,
