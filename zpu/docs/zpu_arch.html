@@ -1582,7 +1582,15 @@ of the simpler ones:
 
 <a href="http://www.opencores.org/projects.cgi/web/uart/overview">
 http://www.opencores.org/projects.cgi/web/uart/overview</a>
-
+<h2>Implementing your own UART / debug channel</h2>
+The first thing you need to do is to choose a debug channel for your
+hardware. This could be a UART, but it doesn't have to be.
+<p>
+Secondly you should write a small HDL module that interface between
+the ZPU memory map of debug channel to the UART. This should
+    be relatively simple as all you need to do is to let the ZPU
+    query the FIFO in/out for busy flag and allow the ZPU to read/write
+    data to the UART via the memory map.
 <a name="zpu_core.vhd"/>
 <h1>About zpu_core.vhd</h1>
 The zpu_core.vhd has a single port memory interface. All data, code and IO is
