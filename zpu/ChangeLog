@@ -1,3 +1,6 @@
+2008-09-08 Salvador Eduardo Tropea <salvador@inti.gov.ar>
+	* zpu/hdl/zealot: a complete ZPU implementation cleaned up and
+	with a UART. 
 2008-08-25 Salvador Eduardo Tropea <salvador@inti.gov.ar>
 	* zpu/docs/arch_html: Fix typo in zpu_arch.html w.r.t. ZPU UART/Debug channel
 2008-08-18 Øyvind Harboe
