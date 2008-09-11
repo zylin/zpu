@@ -1,4 +1,6 @@
-2008-09-08 Salvador Eduardo Tropea <salvador@inti.gov.ar>
+2008-09-11 Salvador Eduardo Tropea <salvador@inti.gob.ar>
+	* zpu/docs/zpu_arch.html: added Zealot information.
+2008-09-08 Salvador Eduardo Tropea <salvador@inti.gob.ar>
 	* zpu/hdl/zealot: a complete ZPU implementation cleaned up and
 	with a UART. 
 2008-08-25 Salvador Eduardo Tropea <salvador@inti.gov.ar>

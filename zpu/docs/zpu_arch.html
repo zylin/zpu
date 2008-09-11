@@ -25,6 +25,7 @@ $id$
 <li> <a href="#wishbone">Wishbone</a>
 <li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
 <li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
+<li> <a href="#zealot">Zealot: Implementing in FPGAs</a>
 <li> <a href="#codesize">Optimizing for code size</a>
 <li> <a href="#ecos">Installing eCos build tools</a>
 
@@ -1616,6 +1617,87 @@ The ZPU toolchain comes with newlib & libstdc++ support which means that many C/
 zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections<br>
 zpu-elf-size hello.elf<br>
 </code>
+
+<!-- Zealot -->
+<a name="zealot"/>
+<h1>Zealot: Implementing in FPGAs</h1>
+
+The Zealot version of ZPU is a ZPU medium variant ready to be used with FPGAs.
+It was tested using Xilinx Spartan 3 1500 FPGAs and was contributed by
+Salvador E. Tropea. The key features are:<p>
+
+<ul>
+<li>Includes a very basic <a href="#memorymap">PHI I/O</a> synthetizable core.
+It implements the 64 bits clocks counter (timer) and the UART. This is enough
+to run the DMIPS benchmark and a hello world application. I tested the UART
+@ 9600 bps and @ 115200 bps.</li>
+<li>The ZPU can be customized using generics. It allows the use of more
+than one core in the same project without problems.</li>
+<li>Implements the lshiftright instruction in hardware, this gives around
+10% boost in the DMIPS benchmark.</li>
+<li>You can disable various instructions groups and let them to the
+emulation soft, so you can experiment with various LUTs vs DMIPS
+configurations.</li>
+<li>Provides aprox. 2.6 DMIPS @ 50 MHz.</li>
+<li>Enhanced trace module, it includes the assembler for the executed
+instruction and can also meassure how much stack was consumed during the
+execution.</li>
+<li>Includes ready to use memory images for a hello world program and the
+DMIPS benchmark.</li>
+<li>Memory and trace blocks outside ZPU. This provides better modularity.</li>
+</ul>
+
+Simulation and implementation files are provided. You need 16 kB of BRAMs
+for the "hello world" example and 32 kB for the DMIPS benchmark. The design
+takes around 1030 slices and 3 multipliers.<p>
+
+The generics for the Zealot Medium ZPU are:<p>
+
+<ul>
+<li><b>WORD_SIZE</b> (integer:=32) Data width, only 32 bits are really
+tested/supported. Adding support for 16 bits should be simple, but the
+toolchain needs to support it.</li>
+<li><b>ADDR_W</b> (integer:=16) Address bus width memory+I/O space. The MSB
+selects the address space (1=I/O).</li>
+<li><b>MEM_W</b> (integer:=15) Memory address bus width. It includes program,
+data and stack sections.</li>
+<li><b>D_CARE_VAL</b> (std_logic:='X') Value used to fill the unsused bits.
+For simulations this should be '0', for synthesis this is a value that your
+tools interprets as "don't care". Xilinx tools could get benefit from using
+'X'. This is particularly true to assign default values and for unreached
+cases. Note that I didn't find it useful.</li>
+<li><b>MULT_PIPE</b> (boolean:=false) Enables the multiplication pipeline.
+This can allow faster clocks but will make the mult instruction slower (more
+clocks consumed).</li>
+<li><b>BINOP_PIPE</b> (integer range 0 to 2:=0) Enables the pipeline for
+the -, =, &lt; and &lt;= operations. This can allow faster clocks but will
+make these instruction slower (more clocks consumed). This value is the
+ammount of extra clocks added.</li>
+<li><b>ENA_LEVEL0</b> (boolean:=true) Enables the hardware implementation of
+eq, neqbranch, loadb and pushspadd instructions.</li>
+<li><b>ENA_LEVEL1</b> (boolean:=true) Enables the hardware implementation of
+lessthan, ulessthan, mult, storeb, callpcrel and sub instructions.</li>
+<li><b>ENA_LEVEL2</b> (boolean:=false) Enables the hardware implementation of
+lessthanorequal, ulessthanorequal, call and poppcrel instructions.</li>
+<li><b>ENA_LSHR</b> (boolean:=true) Enables the hardware implementation of
+lshiftright instruction.</li>
+<li><b>ENA_IDLE</b> (boolean:=false) Enables the enable_i usage. This signal
+can hold the CPU in an idle state if after reset this signal remains active.
+When disabled the enable_i signal isn't used and the idle state is removed.</li>
+<li><b>FAST_FETCH</b> (boolean:=true) This version of the ZPU fetches 4
+instructions at ones (32 bits), then they are decoded (2 cycles) and finally
+executed. The decoded instructions are stored in a "decode cache", the first
+instruction is immediatly moved to the "current instruction" register and a
+"special instruction" replaces the first slot. This "special instruction"
+makes the CPU go to the fetch state. When you enable this generic the FSM
+does the fetch instead of wating one clock cycle to go to the fetch state.
+This makes instructions run a little bit faster, but it can cost area and/or
+frequency.</li>
+</ul>
+
+For more information read the 0README.txt file located inside the zealot
+directory.<p>
+<!-- End of Zealot -->
 
 <a name="codesize"/>
 <h1>Optimizing for code size</h1>
