@@ -1634,11 +1634,12 @@ to run the DMIPS benchmark and a hello world application. I tested the UART
 <li>The ZPU can be customized using generics. It allows the use of more
 than one core in the same project without problems.</li>
 <li>Implements the lshiftright instruction in hardware, this gives around
-10% boost in the DMIPS benchmark.</li>
+10% boost in the DMIPS benchmark (Medium version).</li>
 <li>You can disable various instructions groups and let them to the
 emulation soft, so you can experiment with various LUTs vs DMIPS
-configurations.</li>
-<li>Provides aprox. 2.6 DMIPS @ 50 MHz.</li>
+configurations (Medium version).</li>
+<li>The medium version provides aprox. 2.6 DMIPS @ 50 MHz and the small
+0.5 DMIPS @ 50 MHz.</li>
 <li>Enhanced trace module, it includes the assembler for the executed
 instruction and can also meassure how much stack was consumed during the
 execution.</li>
@@ -1648,8 +1649,9 @@ DMIPS benchmark.</li>
 </ul>
 
 Simulation and implementation files are provided. You need 16 kB of BRAMs
-for the "hello world" example and 32 kB for the DMIPS benchmark. The design
-takes around 1030 slices and 3 multipliers.<p>
+for the "hello world" example and 32 kB for the DMIPS benchmark. The medium
+version takes around 1030 slices and 3 multipliers and the small version
+around 430 slices.<p>
 
 The generics for the Zealot Medium ZPU are:<p>
 

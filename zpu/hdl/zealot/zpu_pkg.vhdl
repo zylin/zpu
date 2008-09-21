@@ -73,26 +73,25 @@ package zpupkg is
 
    component ZPUSmallCore is
       generic(
-         WORD_SIZE    : integer:=32;  -- 16/32 (2**wordPower)
-         ADDR_W       : integer:=16;  -- maxAddrBitIncIO+1
-         BRAM_W       : integer:=15;  -- maxAddrBitBRAM+1
+         WORD_SIZE    : integer:=32;  -- Data width 16/32
+         ADDR_W       : integer:=16;  -- Total address space width (incl. I/O)
+         MEM_W        : integer:=15;  -- Memory (prog+data+stack) width
          D_CARE_VAL   : std_logic:='X'); -- Value used to fill the unsused bits
       port(
          clk_i        : in  std_logic; -- System Clock
          reset_i      : in  std_logic; -- Synchronous Reset
-         enable_i     : in  std_logic; -- Not used
          interrupt_i  : in  std_logic; -- Interrupt
          break_o      : out std_logic; -- Breakpoint opcode executed
          dbg_o        : out zpu_dbgo_t; -- Debug outputs (i.e. trace log)
          -- BRAM (text, data, bss and stack)
          a_we_o       : out std_logic; -- BRAM A port Write Enable
-         a_addr_o     : out unsigned(BRAM_W-1 downto WORD_SIZE/16):=(others => '0'); -- BRAM A Address
-         a_write_o    : out unsigned(WORD_SIZE-1 downto 0):=(others => '0'); -- Data to BRAM A port
-         a_read_i     : in  unsigned(WORD_SIZE-1 downto 0); -- Data from BRAM A port
+         a_addr_o     : out unsigned(MEM_W-1 downto WORD_SIZE/16):=(others => '0'); -- BRAM A Address
+         a_o          : out unsigned(WORD_SIZE-1 downto 0):=(others => '0'); -- Data to BRAM A port
+         a_i          : in  unsigned(WORD_SIZE-1 downto 0); -- Data from BRAM A port
          b_we_o       : out std_logic; -- BRAM B port Write Enable
-         b_addr_o     : out unsigned(BRAM_W-1 downto WORD_SIZE/16):=(others => '0'); -- BRAM B Address
-         b_write_o    : out unsigned(WORD_SIZE-1 downto 0):=(others => '0'); -- Data to BRAM B port
-         b_read_i     : in  unsigned(WORD_SIZE-1 downto 0); -- Data from BRAM B port
+         b_addr_o     : out unsigned(MEM_W-1 downto WORD_SIZE/16):=(others => '0'); -- BRAM B Address
+         b_o          : out unsigned(WORD_SIZE-1 downto 0):=(others => '0'); -- Data to BRAM B port
+         b_i          : in  unsigned(WORD_SIZE-1 downto 0); -- Data from BRAM B port
          -- Memory mapped I/O
          mem_busy_i   : in  std_logic;
          data_i       : in  unsigned(WORD_SIZE-1 downto 0);
@@ -104,7 +103,7 @@ package zpupkg is
 
    component ZPUMediumCore is
       generic(
-         WORD_SIZE    : integer:=32;  -- 16/32 (2**wordPower)
+         WORD_SIZE    : integer:=32;  -- Data width 16/32
          ADDR_W       : integer:=16;  -- Total address space width (incl. I/O)
          MEM_W        : integer:=15;  -- Memory (prog+data+stack) width
          D_CARE_VAL   : std_logic:='X'; -- Value used to fill the unsused bits

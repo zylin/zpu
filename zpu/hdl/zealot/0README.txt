@@ -19,6 +19,9 @@ What are the files?
 zpu_medium.vhdl
 ZPU CPU, medium version.
 
+zpu_small.vhdl
+ZPU CPU, small version (Dual Port RAM only!).
+
 zpu_pkg.vhdl
 Package containing the declarations for the ZPU library.
 
@@ -57,21 +60,40 @@ Version 2.1 (Language: C). This memory can be connected to the ZPU for
 simulation or hardware implementations. The code assumes a 50 MHz clock to
 compute the benchmark. The minimum size for this block should be 32 kB.
 
+roms/dmips_dbram.vhdl
+Same as roms/dmips_bram.vhdl, but dual ported. Suitable for the small ZPU.
+
 roms/hello_bram.vhdl
 A memory that maps to Xilinx BRAMs and contains a simple "Hello World!"
 program (C compiled). This memory can be connected to the ZPU for
 simulation or hardware implementations. The minimum size for this block
 should be 16 kB.
 
+roms/hello_dbram.vhdl
+Same as roms/hello_bram.vhdl, but dual ported. Suitable for the small ZPU.
 helpers/zpu_med1.vhdl
 This is a helper that connects a ZPU to its memory and the PHI I/O space.
 
 testbenches/dmips_med1_tb.vhdl
-A simple testbench to simulate the ZPU (behavior).
+A simple testbench to simulate the medium ZPU (behavior).
+
+testbenches/small1_tb.vhdl
+A simple testbench to simulate the small ZPU (behavior).
 
 fpga/dmips_med1.vhdl
-A wrapper to implement the ZPU in an FPGA. This example was designed for a
-GR-XC3S board from Pender, but should be easily adapted to other boards.
+A wrapper to implement the medium ZPU in an FPGA. This example was designed
+for a GR-XC3S board from Pender, but should be easily adapted to other
+boards.
+
+fpga/hello_med1.vhdl
+Same as fpga/dmips_med1.vhdl, but uses less memory, enough for the "Hello
+Wold!" test.
+
+fpga/dmips_small1.vhdl
+Same as fpga/dmips_med1.vhdl, but for the small ZPU.
+
+fpga/hello_small1.vhdl
+Same as fpga/hello_med1.vhdl, but for the small ZPU.
 
 
 ZPU library?
@@ -79,12 +101,12 @@ ZPU library?
 
 The following files are part of a library I called ZPU:
 
-zpu_pkg.vhdl, zpu_medium.vhdl, txt_util.vhdl, timer.vhdl, rx_unit.vhdl,
-tx_unit.vhdl, br_gen.vhdl, phi_io.vhdl and trace.vhdl.
+zpu_pkg.vhdl, zpu_medium.vhdl, zpu_small.vhdl, txt_util.vhdl, timer.vhdl,
+rx_unit.vhdl, tx_unit.vhdl, br_gen.vhdl, phi_io.vhdl and trace.vhdl.
 
-You should group them inside a library called zpu. This procedure is tool-chain
-dependent. In the ISE tool you must add a library and them move these files to
-the library.
+You should group them inside a library called zpu. This procedure is
+tool-chain dependent. In the ISE tool you must add a library and them move
+these files to the library.
 
 If you don't know how to do it with your tools you can just replace all the:
 
@@ -105,6 +127,9 @@ You need all the files that compose the zpu library plus:
 roms/rom_pkg.vhdl and roms/dmips_bram.vhdl
 2) A testbench (including the memory and I/O interconnections):
 aux/zpu_med1.vhdl and testbenches/dmips_med1_tb.vhdl
+3) Be careful to include only the medium or the small ZPU. Also note that
+the small uses dual port BRAMs, i.e. roms/dmips_dbram.vhdl The testbench
+for the small ZPU is small1_tb.vhdl
 
 
 Which files are needed for synthesis?
@@ -121,6 +146,8 @@ What resources are needed in the FPGA?
 
 The DMIPS benchmarks needs aprox (Xilinx Spartan 3):
 
+Medium ZPU:
+
 Flip Flops:   498
 LUTs:        1877
 Slices:      1032
@@ -130,10 +157,26 @@ Multipliers:    3
 The hello world example needs less memory:
 
 Flip Flops:   496
-LUTs:        1872
+LUTs:        1871
 Slices:      1027
 BRAMs:          8
 Multipliers:    3
+
+
+Small ZPU:
+
+Flip Flops:   373
+LUTs:         706
+Slices:       434
+BRAMs:         16
+
+The hello world example needs less memory:
+
+Flip Flops:   371
+LUTs:         701
+Slices:       431
+BRAMs:          8
+
 
 The board should contain an RS-232 transceiver. A push button (active when
 pressed) is also used, for reset.

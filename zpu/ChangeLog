@@ -1,3 +1,5 @@
+2008-09-16 Salvador Eduardo Tropea <salvador@inti.gob.ar>
+	* zpu/hdl/zealot: added small ZPU core, testbenches and FPGA implementation
 2008-09-11 Salvador Eduardo Tropea <salvador@inti.gob.ar>
 	* zpu/docs/zpu_arch.html: added Zealot information.
 2008-09-08 Salvador Eduardo Tropea <salvador@inti.gob.ar>
