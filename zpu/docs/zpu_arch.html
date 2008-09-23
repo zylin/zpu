@@ -28,6 +28,7 @@ $id$
 <li> <a href="#zealot">Zealot: Implementing in FPGAs</a>
 <li> <a href="#codesize">Optimizing for code size</a>
 <li> <a href="#ecos">Installing eCos build tools</a>
+<li> <a href="#spicontroller">SPI flash controller</a>
 
 
 <li> <a href="#nextgen">Next generation ZPU</a>
@@ -1617,6 +1618,83 @@ The ZPU toolchain comes with newlib & libstdc++ support which means that many C/
 zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections<br>
 zpu-elf-size hello.elf<br>
 </code>
+
+<!-- SPI controller -->
+<a name="spicontroller">
+
+<h1>SPI flash controller (read-only)</h1>
+This is a simple read-only SPI flash controller, with the following characteristics:
+
+<dl>
+ <li>Fast-READ only implementation.</h1>
+ <li>32-bit only access</h1>
+ <li>Fast sequential read access - Uses low-clock approach</li>
+</dl>
+
+<h2>Version</h2>
+The current version is 1.2. This is also the first public version available.
+
+<h2>Timing overview</h2>
+
+<p>Simple timing overview, with one nonsequential access to address 0x0, followed by a sequential access to address 0x4. 
+This simulation was done with Xilinx tools, after post-routing, and using a ZPU to access the SPI</p>
+<div>
+<img src="images/spi_timing_overview.png">
+</a>
+<p>Image 1: Timing overview</p>
+</div>
+
+On Image 2, you can see the clock almost perfectly centered on data, when we write to the SPI flash.
+
+<div>
+<img src="images/spi_readfast_timing.png">
+<p>Image 2: Issuing commands to the SPI</p>
+</div>
+
+As you can see from Image 3, I assume the worst-case read delay from SPI (which is 15ns, as you can see from the marker).
+
+<div>
+<img src="images/spi_read_timing.png">
+<p>Image 3: Reading from the SPI</p>
+</div>
+
+<h2>Usage</h2>
+
+Simple description of SPI controller interface:
+
+<table border="1">
+<tr>
+  <th>Symbol</th>
+  <th>Direction</th>
+  <th>Bit width</th>
+  <th>Purpose</th>
+</tr>
+<tr><td>adr</td><td>Input</td><td>24</td><td>Address where to read from SPI</td></tr>
+<tr><td>dat_o</td><td>Output</td><td>32</td><td>Data read from SPI</td></tr>
+<tr><td>clk</td><td>Input</td><td>1</td><td>Input clock. Used for both interface and SPI</td></tr>
+<tr><td>ce</td><td>Input</td><td>1</td><td>Chip Enable</td></tr>
+<tr><td>rst</td><td>Input</td><td>1</td><td>Asynchronous reset</td></tr>
+<tr><td>ack</td><td>Output</td><td>1</td><td>Data valid ACK</td></tr>
+<tr><td>SPI_CLK</td><td>Output</td><td>1</td><td>SPI output clock</td></tr>
+<tr><td>SPI_MOSI</td><td>Output</td><td>1</td><td>SPI output data from controller to chip</td></tr>
+<tr><td>SPI_MISO</td><td>Input</td><td>1</td><td>SPI input data from chip to controller</td></tr>
+<tr><td>SPI_SELN</td><td>Output</td><td>1</td><td>SPI nSEL (deselect, active low) signal</td></tr>
+</table>
+
+
+
+<h2>License</h2>
+The Verilog implementation is released under BSD license. See the file itself for more licensing details.
+
+<h2>Dowload</h2>
+Download the Verilog code here: <a href="/files/electronics/spi/spi_controller.v">spi_controller.v</a>
+
+<h2>Troubleshooting</h2>
+The current implementation is timed and optimized for myself. Your parameters might not be the same
+as those I defaulted, so read the code carefully. If you have any issue let me know.
+
+
+
 
 <!-- Zealot -->
 <a name="zealot"/>
