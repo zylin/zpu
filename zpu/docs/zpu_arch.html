@@ -157,6 +157,20 @@ Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is 
 java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram<br>
 
 </code>
+<h2>Build another test application for example simulation</h2>
+Here is how to build a rom image for an application using the
+zpu/example simulation files.
+<p>
+cd zpu/roadshow/roadshow/dhrystone<br>
+sh build.sh<br>
+cd zpu/hdl/example<br>
+gcc zpuromgen.c<br>
+$ ./a<br>
+Usage: ./a binary_file<br>
+./a ../../roadshow/roadshow/dhrystone/dhrystone.bin >app.txt<br>
+<p>
+Copy and paste app.txt into helloworld.vhd.
+
 <h2>Running example simulation</h2>
 The hdl/example directory has a simulation written for Xilinx WebPack ModelSim. From the ModelSim command prompt:
 <ol>
