@@ -1,6 +1,7 @@
 -- ZPU
 --
 -- Copyright 2004-2008 oharboe - Øyvind Harboe - oyvind.harboe@zylin.com
+-- Copyright 2008 alvieboy - Álvaro Lopes - alvieboy@alvie.com
 -- 
 -- The FreeBSD license
 -- 
@@ -145,7 +146,8 @@ State_Mult5,
 State_Mult4,
 State_BinaryOpResult2,
 State_BinaryOpResult,
-State_Idle
+State_Idle,
+State_Interrupt
 ); 
 
 
@@ -170,6 +172,8 @@ signal mem_readEnable : std_logic;
 signal mem_addr : std_logic_vector(maxAddrBitIncIO downto minAddrBit);
 signal mem_delayAddr : std_logic_vector(maxAddrBitIncIO downto minAddrBit);
 signal mem_delayReadEnable : std_logic;
+
+signal inInterrupt: std_logic;
 
 signal decodeWord : std_logic_vector(wordSize-1 downto 0);
 
@@ -244,6 +248,7 @@ begin
 			pc <= (others => '0');
 			idim_flag <= '0';
 			begin_inst <= '0';
+			inInterrupt <= '0';
 			mem_writeEnable <= '0'; 
 			mem_readEnable <= '0';
 			multA <= (others => '0');
@@ -288,6 +293,10 @@ begin
 			trace_topOfStackB <= std_logic_vector(stackB);
 			begin_inst <= '0';
 
+			if (interrupt='0') then
+				-- Interrupt ended, we can serve ISR again
+				inInterrupt <= '0';
+			end if;
 
 			case state is
 				when State_Idle =>
@@ -319,6 +328,27 @@ begin
 					if in_mem_busy='0' then
 						decodeWord <= mem_read;
 						state <= State_Decode2;
+						-- Do not recurse into ISR while interrupt line is active
+						if interrupt='1' and inInterrupt='0' and idim_flag='0' then
+							-- We got an interrupt, execute interrupt instead of next instruction
+							inInterrupt <= '1';
+							sp <= decSp;
+							mem_writeEnable <= '1';
+							mem_addr <= std_logic_vector(incSp);
+							mem_write <= std_logic_vector(stackB);
+							stackA <= (others => DontCareValue);
+							stackA(maxAddrBitIncIO downto 0) <= pc;
+							stackB <= stackA;
+							pc <= to_unsigned(32, maxAddrBitIncIO+1);
+							state <= State_Interrupt;
+						end if;
+					end if;
+				when State_Interrupt =>
+					if in_mem_busy='0' then
+						mem_addr <= std_logic_vector(pc(maxAddrBitIncIO downto minAddrBit));
+						mem_readEnable <= '1';
+						state <= State_Decode;
+						report "ZPU jumped to interrupt!" severity note;
 					end if;
 				when State_Decode2 =>
 					-- decode 4 instructions in parallel

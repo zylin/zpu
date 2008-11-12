@@ -1,3 +1,6 @@
+2008-11-12 Álvaro Lopes <alvieboy@alvie.com>
+	* zpu/hdl/zpu4/core/zpu_core.vhd: Basic interrupt implementation
+	for zpu4 core.
 2008-09-16 Salvador Eduardo Tropea <salvador@inti.gob.ar>
 	* zpu/hdl/zealot: added small ZPU core, testbenches and FPGA implementation
 2008-09-11 Salvador Eduardo Tropea <salvador@inti.gob.ar>
