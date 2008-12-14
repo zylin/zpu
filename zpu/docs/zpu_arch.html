@@ -2002,24 +2002,42 @@ $ arm-elf-size *<br>
 <h1>Next generation ZPU</h1>
 Based on feedback here is a list of a tenuous "consensus" for the next generation
 of the ZPU with some tentative ideas on implementation.
+<h2>Goals</h2>
+<ol>
+<li>Reduce minimum code size footprint, i.e. BRAM code overhead. Non-trivial
+usable applications in 4kBytes of BRAM (single BRAM block).
+<li>Reduce minimum FPGA logic footprint by 20% or more. Goal <300 LUT for 
+32 bit ZPU
+<li>Weed out unecessary ZPU variations 
+</ol>
+<h2>Best current ideas on how to reach these goals</h2>
+<ol>
+<li>Introduce 16 entry 32 bit LIFO for instructions that change sp today. LOADSP/STORESP/ADDSP
+refer to the normal stack but add/get values from the LIFO in addition.<p>
+<code>
+loadsp n ; load value from memory at address "sp + n" and put it into the LIFO.<br>
+im m ; put value into LIFO register<br>
+add ; get two values from LIFO register, put back result. <br>
+</code>  
 <p>
-The plan is to update zpu_core.vhd and zpu_core_small.vhd as examples/reference,
-and to open up for innovation in the HDL implementation.
+NB! none of the instructions above change sp!!!
+<p>
+If the LIFO is full, putting a value into the LIFO has no defined behaviour. Getting a value
+from an empty LIFO has no defined behaviour.
+<p>
+GCC will use 8 slots, instruction emulation and interrupts owns the remaining 8 slots.
 
-<ol>
-<li>Reduce minimum code size footprint
-<ol>
 <li>Add single entry for unknown instructions. PC and unsupported instruction is
-pushed onto stack before jumping to unkonwn instruction vector. This makes it possible
+pushed onto stack before jumping to unknown instruction vector. This makes it possible
 to write denser microcode for missing instructions. For emulated opcodes that are 
 not in use, the microcode can more easily be disabled. Determining
 that e.g. MULT is not used, can be a bit tricky, but disabling it is easy.
 <p>
-The address of this entry will be 0x10. The reason 0x00 is not used is that 
-GCC needs 0x00-0x0b inclusive to store R0-R2(memory mapped GCC registers). 
-The reset vector remains 0x0 so the 0x00-0x0f addresses contains the
-first few instructions executed by the ZPU. Some very early work has been
-done in <a href="../sw/startup/nextgen_crt0.S"> nextgen_crt0.S</a>.
+The unsupported vectory entry address is 0x10.
+<li>GCC needs 4 registers. These are today mapped to memory. What addresses to use?
+Today memory address 0x00-0x0f inclusive are used for this purpose. Introduce emulated
+instruction to load/store these registers? That would allow using either hardware or
+memory registers. 
 <li>Single entry for *all* unknown instructions does not limit emulation to the
 EMULATE instructions today, but instructions such as OR, LOADSP, STORESP, ADDSP,
 etc. can also be emulated. This opens up for further reduction in logic usage.
@@ -2027,18 +2045,8 @@ etc. can also be emulated. This opens up for further reduction in logic usage.
 write a compact custom crt0.s to fit an instruction subset. 
 <li>The interrupt is basically an unknown instruction that is injected into
 the execution stream.
-<li>Possibly modify the java simulator to support the single entry for unknown
-instructions.
-</ol>
 <li>Add floating point add and mult. FADD & FMULT. Option to generate the instructions
 from the compiler.
-<li>Add GCC support for seperate code/data bus. This may be as "simple" as
-writing a custom linker script for the current GCC compiler.
-<li>Add some scheme to support custom instructions. Can this be combined with
-single entry point for unknown instructions?
-<li>Add support to Zylin Embedded CDT for downloading fully functional ZPU
-toolchain. The goal is to allow new users to write and simulate simple ZPU
-programs in in less than an hour.
 <li>Strip away unused instructions from GCC and add options to GCC for not
 emitting more advanced instructions. This will e.g. convert MULT/DIV into
 function calls to libgcc and thus make it easier to determine that
