@@ -33,6 +33,7 @@ $id$
 
 
 <li> <a href="#nextgen">Next generation ZPU</a>
+<li> <a href="#registerstack">Register stack ZPU</a>
 
 </ul>
 
@@ -2090,5 +2091,60 @@ as an uncompressed .txt file
 <a name="mailinglist"/>
 <h1>Getting help - mailing list</h1> 
 The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
+<a name="registerstack"/>
+<h1>Register stack</h1>
+In order to reduce the size and complexity of the small ZPU, a register stack
+has been put forward. It remains an open question as to whether this can
+indeed reduce size and improve performance of the ZPU.
+<p>
+Terminology: "stack" is the normal stack in memory pointed to
+by the sp register. "register stack" is a different stack that is
+not connected to memory directly or associated with the "stack". 
+<p>
+The idea is to push and pop the register stack such that bandwidth
+is increased and complexity of memory access logic is reduced.
+<p>
+Another clever bit is to mask interrupts while this stack is
+not empty such that this stack never has to be
+saved. It's depth would be fixed to something natural
+for an FPGA, say 16 deep(doesn't that translate to a single
+LUT for a bit?).
+
+<h2>Example of internal stack</h2> 
+im 1 ; push onto register stack <br>
+loadsp N ; load from memory pointed to by sp+N, push onto register stack<br>
+add ; pop values from register stack and add, push onto register stack<br>
+
+<h2>Quick summary of instruction operation with register stack</h2>
+This is not a "formal" definition of the instruction set, but should
+give a pretty good idea of what the modified instruction looks like.
+<p>
+Read up on the current definition of instructions and consider the
+list below a guide to what changes have been made to fit a register
+stack. The list is not complete, but covers the important categories
+of instructions. If it is clear how the ADD instruction changed,
+then it should be obvious how the AND isntruction must be similarly
+modified.
+<p>
+Note also that there are lots of tiny problems  that have to be ironed
+out before the instruction set and emulation can work. Below is just
+a first stab, which hopefully is good enough to evaluate the approach.
+<table border=1>
+<tr><td>IM</td><td> push onto/modify top of register stack</td></tr>
+<tr><td>STORESP </td><td> pop register stack store to memory SP+N</td></tr>
+<tr><td>LOADSP </td><td> load memory SP+N push onto register stack</td></tr>
+<tr><td>EMULATE </td><td> push PC+1 onto register stack and jump to EMULATE vector</td></tr>
+<tr><td><tr><td>PUSHPC </td><td> push pc onto register stack</td></tr>
+<tr><td>POPPC </td><td> pop pc from register stack</td></tr>
+<tr><td>LOAD </td><td> pop address from register stack, load from memory address, push onto register stack</td></tr>
+<tr><td>STORE </td><td> pop register stack 2x store value to memory</td></tr>
+<tr><td>PUSHSP </td><td> push sp onto register stack</td></tr>
+<tr><td>POPSP </td><td> pop sp from register stack</td></tr>
+<tr><td>POPPC </td><td> pop pc from register stack</td></tr>
+<tr><td>ADD </td><td> pop 2x register stack, add, push to register stack</td></tr>
+<tr><td>NOT </td><td> pop register stack, bit inverse value, push onto register stack</td></tr>
+</table>
+Emulate instructions and calling convention may have to change substantially.
+
 </body>
 <html>
