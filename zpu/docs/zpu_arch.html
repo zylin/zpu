@@ -1,807 +1,726 @@
 <html>
 <body>
-<h1>Latest version of this document</h1>
-This is a snapshot of the zpu_arch.html document in CVS. Please check out
-the latest version from CVS to get the latest version.
+<h1>This Document</h1>
+This is a snapshot of the zpu/zpu/docs/zpu_arch.html document in CVS. 
 <p>
-$id$
+Several of the links will only work if you have checked out the zpu/zpu tree from opencores CVS.  See <a href="#download">Download</a> below. 
 <h1>Index</h1>
 <ul>
 <li> <a href="#introduction">Introduction</a>
-<li> <a href="#download">Download</a>
-<li> <a href="#patch">Creating a patch</a>
-<li> <a href="#mailinglist">Getting help - mailing list</a>
-<li> <a href="#fpgastarted">Getting started - FPGA</a>
-<li> <a href="#swstarted">Getting started - software</a>
-<li> <a href="#introduction">Architecture introduction</a>
-<li> <a href="#instructionset">Instruction set</a>
-<li> <a href="#startup">Custom startup code (aka crt0.s)</a>
-<li> <a href="#implementing">Implementing your own ZPU</a>
-<li> <a href="#vectors">Jump vectors</a>
-<li> <a href="#memorymap">Memory map</a>
-<li> <a href="#interrupts">Interrupts</a>
-<li> <a href="#performance">Speeding up the ZPU</a>
-<li> <a href="#debuguart">Debug channel / UART</a>
-<li> <a href="#wishbone">Wishbone</a>
-<li> <a href="#hwdebugger">JTAG/hardware debugger for GDB</a>
-<li> <a href="#zpu_core_small.vhd">About zpu_core_small.vhd</a>
-<li> <a href="#zpu_core.vhd">About zpu_core.vhd</a>
-<li> <a href="#zealot">Zealot: Implementing in FPGAs</a>
-<li> <a href="#codesize">Optimizing for code size</a>
-<li> <a href="#ecos">Installing eCos build tools</a>
-<li> <a href="#spicontroller">SPI flash controller</a>
-
-
-<li> <a href="#nextgen">Next generation ZPU</a>
-<li> <a href="#registerstack">Register stack ZPU</a>
-
+  <ul> 
+  <li> <a href="#license">License</a>
+  <li> <a href="#survey">Survey</a>
+  <li> <a href="#features">Features</a>
+  <li> <a href="#status">Status</a>
+  <li> <a href="#download">Download</a>
+  <li> <a href="#patch">Creating a patch</a>
+  <li> <a href="#mailinglist">Getting help - mailing list</a>
+  </ul>
+<li> <a href="#architecture">Core Architecture</a>
+  <ul> 
+  <li> <a href="#instructionset">Instruction set</a>
+  <li> <a href="#interrupts">Interrupts</a>
+  <li> <a href="#startup">Startup code (aka crt0.s)</a>
+  <li> <a href="#vectors">Jump vectors</a>
+  </ul>
+<li> <a href="#implementations">Core Implementations</a>
+  <ul> 
+  <li> <a href="#performance">Performance Summary</a>
+  <li> <a href="#zpu4_small">zpu4 small</a>
+  <li> <a href="#zpu4_medium">zpu4 medium</a>
+  <li> <a href="#alzpu_pipe">alzpu pipelined</a>
+  <li> <a href="#zealot">Zealot medium and small</a>
+  <li> <a href="#zy2000">ZY2000 SOC</a>
+  <li> <a href="#verilogwip">Un-named verilog translation</a>
+  <li> <a href="#implementing">Implementing your own ZPU</a>
+  </ul>
+<li> <a href="#refdesign">Reference Designs</a>
+  <ul> 
+  <li> <a href="#ref_min">SOC - Minimal (core+RAM)</a>
+  <li> <a href="#ref_basic">SOC - Basic (core+RAM+UART)</a>
+  <li> <a href="#ref_soc">SOC - Board (core+RAM+Wishbone+++)</a>
+  <li> <a href="#rams">Common - RAM models</a>
+  <li> <a href="#wishbone">Common - Wishbone</a>
+  <li> <a href="#uart">Common - UART</a>
+  <li> <a href="#spicontroller">Common - SPI flash controller</a>
+  </ul>
+<li> <a href="#tools">Working with tools and core</a>
+  <ul> 
+  <li> <a href="#setuplinux">Setup - Linux toolchain</a>
+  <li> <a href="#setupcygwin">Setup - Cygwin toolchain</a>
+  <li> <a href="#gcc2ram">GCC to RAM</a>
+  <li> <a href="#hdlsim">HDL simulation (ZPU4)</a>
+  <li> <a href="#gdbsim">GDB simulation (ZPU4)</a>
+  <li> <a href="#simulator">Instruction Set Simulator</a>
+  </ul>
+<li> <a href="#misc">Miscellaneous</a>
+  <ul> 
+  <li> <a href="#tuning">Speeding up the ZPU</a>
+  <li> <a href="#hwdebugger">JTAG/hardware debugger for GDB</a>
+  <li> <a href="#codesize">Optimizing for code size</a>
+  <li> <a href="#ecos">Installing eCos build tools</a>
+  <li> <a href="#memorymap">Memory map</a>
+  </ul>
+<li> <a href="#todo">TODO</a>
+  <ul> 
+  <li> <a href="#todolist">TODO list</a>
+  <li> <a href="#repository">Repository Re-org</a>
+  <li> <a href="#nextgen">Next generation ZPU</a>
+  <li> <a href="#registerstack">Register stack ZPU</a>
+  </ul>
 </ul>
 
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
 <a name="introduction"/>
-<P><FONT SIZE=4><B>The worlds smallest 32 bit CPU with GCC toolchain</B></FONT>
+<h1>Introduction</h1>
+<P>TODO a new welcome message indicating goals/direction of project.</P>
+<P>The worlds smallest 32 bit CPU with GCC toolchain.
+<P>Sincerely,</P>
+<P>&Oslash;yvind Harboe <BR>Zylin AS 
 </P>
-<P>This CPU is finding a new home at www.opencores.org, please
-contact me if you are willing and able to help in shaping up the
-www.opencores.org pages. 
+
+<a name="license"/>
+<h2>License</h2>
+<P>The project includes HDL, GCC toolchain and eCos HAL.
+
+<P>The ZPU has a BSD license for the HDL and GPL for the rest.
+This allows users to implement any version of the ZPU they want in
+commercial products, but if improvements are done to the architecture
+as such, then they need to be contributed back. 
 </P>
-<P>The HDL, GCC toolchain and eCos HAL are actually done. Mainly I
-could need a hand with writing up docs/web pages/examples/bug
-reports.</P>
-<P>The ZPU has a BSD license for the HDL and GPL for the rest(source
-files are sadly out of date here, patches gladly accepted!). This
-allows deployments to implement any version of the ZPU they want
-without running into commercial problems, but if improvements are
-done to the architecture as such, then they need to be contributed
-back. 
-</P>
-<P>One strength of the ZPU is that it is tiny and therefore easy to
-implement from scratch to suit specialized needs and optimizations.</P>
-<P>Currently there exists some pages at <A HREF="http://www.zylin.com/zpu.htm">http://www.zylin.com/zpu.htm</A>
-that explains about the ZPU. According to OpenCores policy this
-information should be moved to www.opencores.org. Patches gratefully
-accepted to do so!</P>
+
 <P>Per Jan 1. 2008, Zylin has the Copyright for the ZPU, i.e. Zylin
 is free to decide that the ZPU shall have a BSD license for HDL + GPL
 for the rest.</P>
-<P>Sincerley,</P>
-<P>&Oslash;yvind Harboe <BR>Zylin AS 
-</P>
-<P><FONT SIZE=4><B>Features</B></FONT> 
-</P>
-<UL>
-	<LI><P STYLE="margin-bottom: 0in">Small size: 442 LUT @ 95 MHz after
-	P&amp;R w/32 bit datapath Xilinx XC3S400 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">Wishbone 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">Code size 80% of ARM Thumb 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">GCC toolchain(GDB, newlib,
-	libstdc+) 
-	</P>
-	<LI><P>eCos embedded operating system support</P>
-</UL>
-<P><FONT SIZE=4><B>Survey</B></FONT> 
-</P>
+
+<a name="survey"/>
+<h2>Survey</h2> 
 <P>Please take the time to fill in this short survey so we can gather
 information about where the ZPU can be the most useful:</P>
 <P><A HREF="http://www.zylin.com/zpusurvey.html">http://www.zylin.com/zpusurvey.html</A></P>
-<P><FONT SIZE=4><B>Status</B></FONT> 
-</P>
+
+<a name="features"/>
+<h2>Features</h2> 
 <UL>
-	<LI><P STYLE="margin-bottom: 0in">HDL works 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">GCC toolchain works 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">eCos HAL works, but could be less
-	RAM hungry 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">The main problem at this point is
-	not usage of the CPU, but that the documentation/CVS layout needs
-	attention 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">Needs GDB stub support in eCos 
-	</P>
-	<LI><P>Could do with a Verilog implementation(ca. 600 lines to
-	translate)</P>
+ <LI>Small size: (See <a href="#implementations">performance summary</a>)
+ <LI>Code size 80% of ARM Thumb 
+ <LI>GCC toolchain(GDB, newlib, libstdc+) 
+ <LI>eCos embedded operating system support
 </UL>
-<P><FONT SIZE=4><B>Simulator</B></FONT> 
-</P>
-<P>The ZPU simulator is integrated into the Zylin Embedded CDT plugin
-to ease debugging of ZPU applications:</P>
-<P><A HREF="http://www.zylin.com/embeddedcdt.html">http://www.zylin.com/embeddedcdt.html</A></P>
-<P>The ZPU simulator has many features besides debugging an
-application:</P>
+
+<a name="status"/>
+<h2>Status</h2> 
 <UL>
-	<LI><P STYLE="margin-bottom: 0in">taking output from simulation(e.g.
-	ModelSim) and matching that against the Java simulator, thus making
-	it much easier to debug HDL implementations and also getting real
-	world timing information 
-	</P>
-	<LI><P STYLE="margin-bottom: 0in">can generate gprof output 
-	</P>
-	<LI><P>generate various statistics 
-	</P>
+  <LI>HDL works 
+  <LI>GCC toolchain works 
+  <LI>eCos HAL works
 </UL>
-<P>The plugin is still pretty rough around the edges, and needs to
-get GUI support for enabling the ModelSim trace input feature.</P>
-<P ALIGN=CENTER><IMG SRC="images/compile.PNG" NAME="graphics7" ALIGN=BOTTOM WIDTH=669 HEIGHT=302 BORDER=0><BR><I>Compiling
-ZPU application</I></P>
-<P ALIGN=CENTER><IMG SRC="images/simulator.PNG" NAME="graphics9" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Setting
-up the simulator</I></P>
-<P ALIGN=CENTER><IMG SRC="images/simulator2.PNG" NAME="graphics11" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Choosing
-ZPU executable</I></P>
-<P ALIGN=CENTER STYLE="margin-bottom: 0in"><IMG SRC="images/simulator3.PNG" NAME="graphics13" ALIGN=BOTTOM WIDTH=1100 HEIGHT=720 BORDER=0><BR><I>Debug
-session</I></P>
-<P STYLE="margin-bottom: 0in"><BR>
+<P>... but there is a long <a href="#todo">TODO</a> list</P>
+<P>Expect churn as we converge onto a shorter list of <a href="#implementations">implementations</a>.
+
+<a name="download"/>
+<h2>Download source code</h2> 
 </P>
+<P>To get the ZPU HDL source and tools, check it out from CVS:</P>
+<P>cvs -d :pserver:anonymous@cvs.opencores.org:/cvsroot/anonymous co
+zpu/zpu</P>
+There are more instructions 
+<a href="http://www.opencores.org/projects.cgi/web/opencores/cvs_howto">here</a>
+and
+<a href="http://www.opencores.org/faq.cgi/section/5/5.2.2">here</a>
+.
 
-<a name="fpgastarted"/>
-<h1>Getting started - FPGA </h1>
-The simplest version of the ZPU uses BRAM. When getting accustomed to the ZPU, a BRAM ZPU with a UART
-is a good place to start.
-<p>
-You'll find a working simulation script in hdl/example/simzpu_small.do and hdl/example_medium/simzpu_medium.do, which
-show simulation of the small(zpu_core_small.vhd) and medium sized ZPU(zpu_core.vhd). hdl/example/simzpu_interrupt.do
-shows use of interrupts.
-<p>
-When implementing the ZPU, copy the following files and modify them to your needs:
+<P>As of 01 JAN 2009, if you check out all of zpu it is about 200MB, and includes more than you need.  It is recommended that you only checkout zpu/zpu.
+
+<a name="patch"/>
+<h2>Creating a patch</h2> 
+<P>Please submit changes to the <a href="#mailinglist">zylin-zpu mailing list</a> as a patch.
+</P>
 <ol>
-    <li>hdl/example/zpu_config.vhd - set up RAM size here
-    <li>hdl/example/helloworld.vhd - dual port BRAM implementation. 
-</ol>
-Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is memory mapped(read/write) in the ZPU.
-<h2>Generating VHDL BRAM initialization </h2>
-
-<code>
-../install/bin/zpu-elf-objcopy -O binary hello.elf hello.bin<br>
-java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram<br>
-
-</code>
-<h2>Build another test application for example simulation</h2>
-Here is how to build a rom image for an application using the
-zpu/example simulation files.
-<p>
-cd zpu/roadshow/roadshow/dhrystone<br>
-sh build.sh<br>
-cd zpu/hdl/example<br>
-gcc zpuromgen.c<br>
-$ ./a<br>
-Usage: ./a binary_file<br>
-./a ../../roadshow/roadshow/dhrystone/dhrystone.bin >app.txt<br>
-<p>
-Copy and paste app.txt into helloworld.vhd.
-
-<h2>Running example simulation</h2>
-The hdl/example directory has a simulation written for Xilinx WebPack ModelSim. From the ModelSim command prompt:
-<ol>
-<li>cd c:/&lt;installfolder&gt;/hdl/example
-<li>do zpusim_small.do
-</ol>
-<p>
-After running the hello world simulation (see zpusim.do), two files are written to the hdl/example directory:
-<ol>
-<li>log.txt - contains the "Hello world!" text written to the debug channel/simplified UART.
-<li>trace.txt - a trace file for the CPU. The instruction set simulator has the capability of taking
-this file as input in order to verify that the HDL implementation matches the instruction set simulator. 
-When a mismatch is found, the GDB debugger will break. Very handy for debugging custom ZPU implementations. 
-</ol>  
-<h2>HDL Directories & files </h2>
-<ul>
-<li>example - contains example files & working ZPU. Start here.
-<li>wishbone - contains wishbone interface for the ZPU
-<li>zpu3 - if you are interested in developing ZPU cores and not only using them, then this directory contains various stuff of more or less historical interest.
-<li>zpu4 -  if you are interested in developing ZPU cores and not only using them, then this is the active development version. You'll also want to copy out the
-files you need from this folder to your own project.
-</ul>
-
-The HDL files need a bit of spit and polish!
-
-<a name="swstarted"/>
-<h1>Getting started - software</h1>
-The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
-some very basic peripherals defined: counter, timer interrupt and a debug output port. 
-<h2>Installing</h2>
-<ol>
-<li>Install Cygwin. http://www.cygwin.com 
-<li>Install Java
-<li>Start Cygwin bash
-<li>cd zpu/sw
-<li>sh setup.sh
-<li>/tmp/zpu/install/bin now has the .exe files for the GCC toolchain & GDB
-<li>Optionally you may set up PATH variables to point to /tmp/zpu/install/bin<br>
-source env.sh
-</ol>
-<h1>Hello world example</h1>
-The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
-<p> 
-<code>
-cd zpu/sw/helloworld<br>
-../install/bin/zpu-elf-gcc -phi hello.c -o hello.elf <br>
-</code>
-<h2>Running the hello world example in GDB</h2>
-<ol>
-<li>cd zpu/sw/helloworld
-<li>Launch the simulator from a seperate bash shell:<p>
-java -classpath ../simulator/zpusim.jar -Xmx512m com.zylin.zpu.simulator.Phi 4444
-<p>
-<img src="images/zpusim.PNG" border=0> 
-<li>Launch GDB:<p>
-../install/bin/zpu-elf-gdb hello.elf
-<li>Connect to target, load and run application:<p>
-<code>
-(gdb) target remote localhost:4444<br>
-(gdb) load<br>
-(gdb) continue<br>
-</code>
-<p>
-<img src="images/gccgdb.PNG">
-
+<li>Merge your changes with CVS HEAD.  
+<li>Update the FreeBSD or GPL copyright with your name in the case
+of non-trivial changes. If in doubt, add the copyright.
+<li>Add an entry to zpu/ChangeLog with date, your name, email, the
+files you changed and a comment. 
+<li><code>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</code>
+<li>Email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
+as an uncompressed .txt file
 </ol>
 
+<a name="mailinglist"/>
+<h2>Getting help - mailing list</h2> 
+<P>The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
 
-<a name="introduction"/>
-<h1>Architecture introduction</h1>
+<P>
+
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+
+<a name="architecture"/>
+<h1>Architecture</h1>
 The ZPU is a zero operand, or stack based CPU. The opcodes have a fixed width of 8 bits. 
 <p>
 Example:
 <p>
 <div style="white-space:pre;background-color:#dddddd;">
-	<code style="white-space:pre;background-color:#dddddd;">
-		IM 5                ; push 5 onto the stack
-		LOADSP 20           ; push value at memory location SP+20
-		ADD                 ; pop 2 values on the stack and push the result
-	</code>
+  <code style="white-space:pre;background-color:#dddddd;">
+    IM 5                ; push 5 onto the stack
+    LOADSP 20           ; push value at memory location SP+20
+    ADD                 ; pop 2 values on the stack and push the result
+  </code>
 </div>
 As can be seen, a lot of information is packed into the 8 bits, e.g. the IM instruction pushes a 7 bit signed integer onto the stack. 
 <p>
 The choice of opcodes is intimately tied to the GCC toolchain capabilities.
 <p>
 <div style="white-space:pre;background-color:#dddddd;">
-	<code style="white-space:pre;background-color:#dddddd;">
-	/* simple program showing some interesting qualities of the ZPU toolchain */
-	void bar(int);
-	int j;
-	void foo(int a, int b, int c)
-	{
-	  a++;
-	  b+=a;
-	  j=c;
-	  bar(b);
-	}
+  <code style="white-space:pre;background-color:#dddddd;">
+  /* simple program showing some interesting qualities of the ZPU toolchain */
+  void bar(int);
+  int j;
+  void foo(int a, int b, int c)
+  {
+    a++;
+    b+=a;
+    j=c;
+    bar(b);
+  }
 
 foo:
- loadsp 4	; a is at memory location SP+4
+ loadsp 4  ; a is at memory location SP+4
  im 1
  add
- loadsp 12	; b is now at memory location SP+12
+ loadsp 12  ; b is now at memory location SP+12
  add
- loadsp 16	; c is now at memory location SP+16
- im 24		; «j» is at absolute memory location 24. 
+ loadsp 16  ; c is now at memory location SP+16
+ im 24    ; «j» is at absolute memory location 24. 
 ; Notice how the ZPU toolchain is using link-time relaxation
 ; to squeeze the address into a single no-op
  store
- im 22		; the fn bar is at address 22
+ im 22    ; the fn bar is at address 22
  call
  im 12
- return	; 12 bytes of arguments + return from fn
+ return  ; 12 bytes of arguments + return from fn
 </code>
 </div>
 
 <a name="instructionset"/>
-<h1>Instruction set</h1>
-Only the base instructions are implemented in the architecture. More advanced instructions, like ASHIFTLEFT are emulated in the illegal instruction vector.
+<h2>Instruction set</h2>
+<p>A base set of instructions must be implemented in RTL, but the rest may be implemented as RTL or as microcode.  This allows a tradeoff of core size vs code size and performance.
+<p>The instructions that may be implemented in RTL or microcode are referred to as emulated instructions.  The microcode is in crt0.s.  The <a href="#implementations">implementation</a> determines which instructions run as microcode.
+<p>All operations are 32 bit wide.
+<p>TODO Is the table broken?  Fix it.
 
-All operations are 32 bit wide.
 <table border="1">
-	<tr><td>Name</td><td>Opcode</td><td>Description</td><td>Definition</td></tr>
-	<tr>
-		<td>
-			BREAKPOINT
-		</td>
-		<td>
-			00000000
-		</td>
-		<td>
-			The debugger sets a memory location to this value to set a breakpoint. Once a JTAG-like 
-			debugger interface is added, it will be convenient to be able to distinguish 
-			between a breakpoint and an illegal(possibly emulated) instruction.
-		</td>
-		<td>
-			No effect on registers
-		</td>
-	</tr>
-	<tr>
-		<td>
-			IM
-		</td>
-		<td>
-			1xxx xxxx
-		</td>
-		<td>
-			Pushes 7 bit sign extended integer and sets the a «instruction decode interrupt mask» flag(IDIM).
-			<p> 
-			If the IDIM flag is already set, this instruction shifts the value on the stack left by 7 bits and stores the 7 bit immediate value into the lower 7 bits.
-			<p> 
-			Unless an instruction is listed as treating the IDIM flag specially, it should be assumed to clear the IDIM flag.
-			<p> 
-			To push a 14 bit integer onto the stack, use two consequtive IM instructions. 
-			<p> 
-			If multiple immediate integers are to be pushed onto the stack, they must be interleaved with another instruction, typically NOP.
-		</td>
-		<td>
-			<code style="white-space:pre;">
+  <tr><td>Name</td><td>Opcode</td><td>Description</td><td>Definition</td></tr>
+  <tr>
+    <td>
+      BREAKPOINT
+    </td>
+    <td>
+      00000000
+    </td>
+    <td>
+      The debugger sets a memory location to this value to set a breakpoint. Once a JTAG-like 
+      debugger interface is added, it will be convenient to be able to distinguish 
+      between a breakpoint and an illegal(possibly emulated) instruction.
+    </td>
+    <td>
+      No effect on registers
+    </td>
+  </tr>
+  <tr>
+    <td>
+      IM
+    </td>
+    <td>
+      1xxx xxxx
+    </td>
+    <td>
+      Pushes 7 bit sign extended integer and sets the a «instruction decode interrupt mask» flag(IDIM).
+      <p> 
+      If the IDIM flag is already set, this instruction shifts the value on the stack left by 7 bits and stores the 7 bit immediate value into the lower 7 bits.
+      <p> 
+      Unless an instruction is listed as treating the IDIM flag specially, it should be assumed to clear the IDIM flag.
+      <p> 
+      To push a 14 bit integer onto the stack, use two consecutive IM instructions. 
+      <p> 
+      If multiple immediate integers are to be pushed onto the stack, they must be interleaved with another instruction, typically NOP.
+    </td>
+    <td>
+      <code style="white-space:pre;">
 pc <= pc + 1 <br>
 idim <= 1 <br>
 if (idim=0) then <br>
-	sp <= sp - 1; <br>
-	for i in wordSize-1 downto 7 loop <br>
-		mem(sp)(i) <= opcode(6) <br>
-	end loop <br>
-	mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
+  sp <= sp - 1; <br>
+  for i in wordSize-1 downto 7 loop <br>
+    mem(sp)(i) <= opcode(6) <br>
+  end loop <br>
+  mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
 else <br>
-	mem(sp)(wordSize-1 downto 7) <= mem(sp)(wordSize-8 downto 0) <br>
-	mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
+  mem(sp)(wordSize-1 downto 7) <= mem(sp)(wordSize-8 downto 0) <br>
+  mem(sp)(6 downto 0) <= opcode(6 downto 0) <br>
 end if
-			</code>
+      </code>
 
-		</td>
-	</tr>
-	<tr>
-		<td>
-			STORESP
-		</td>
-		<td>
-			010x xxxx
-		</td>
-		<td>
-			Pop value off stack and store it in the SP+xxxxx*4 memory location, where xxxxx is a positive integer.
-		</td>
-		<td>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			LOADSP
-		</td>
-		<td>
-			011x xxxx
-		</td>
-		<td>
-			Push value of memory location SP+xxxxx*4, where xxxxx is a positive integer, onto stack.
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			ADDSP
-		</td>
-		<td>
-			0001 xxxx
-		</td>
-		<td>
-			Add value of memory location SP+xxxx*4 to value on top of stack.
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			EMULATE
-		</td>
-		<td>
-			001x xxxx
-		</td>
-		<td>
-			Push PC to stack and set PC to 0x0+xxxxx*32. This is used to emulate opcodes. See 
-			zpupgk.vhd for list of emulate opcode values used. zpu_core.vhd contains 
-			reference implementations of these instructions rather than letting the ZPU execute the EMULATE instruction
-			<p>
-			One way to improve performance of the ZPU is to implement some of
-			the EMULATE instructions. 
-			
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			PUSHPC
-		</td>
-		<td>
-			emulated
-		</td>
-		<td>
-			Pushes program counter onto the stack.
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			POPPC
-		</td>
-		<td>
-			0000 0100
-		</td>
-		<td>
-			Pops address off stack and sets PC
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			LOAD
-		</td>
-		<td>
-			0000 1000
-		</td>
-		<td>
-			Pops address stored on stack and loads the value of that address onto stack.
-			<p>
-			Bit 0 and 1 of address are always treated as 0(i.e. ignored) by
-			the HDL implementations and C code is guaranteed by the programming
-			model never to use 32 bit LOAD on non-32 bit aligned addresses(i.e.
-			if a program does this, then it has a bug). 
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			STORE
-		</td>
-		<td>
-			0000 1100
-		</td>
-		<td>
-			Pops address, then value from stack and stores the value into the memory location of the address.
-			<p>
-			Bit 0 and 1 of address are always treated as 0
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			PUSHSP
-		</td>
-		<td>
-			0000 0010
-		</td>
-		<td>
-			Pushes stack pointer. 
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			POPSP
-		</td>
-		<td>
-			0000 1101
-		</td>
-		<td>
-			Pops value off top of stack and sets SP to that value. Used to allocate/deallocate space on stack for variables or when changing threads. 
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			ADD
-		</td>
-		<td>
-			0000 0101
-		</td>
-		<td>
-			Pops two values on stack adds them and pushes the result
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			AND
-		</td>
-		<td>
-			0000 0110
-		</td>
-		<td>
-			Pops two values off the stack and does a bitwise-and & pushes the result onto the stack
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			OR
-		</td>
-		<td>
-			0000 0111
-		</td>
-		<td>
-			Pops two integers, does a bitwise or and pushes result
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			NOT
-		</td>
-		<td>
-			0000 1001
-		</td>
-		<td>
-			Bitwise inverse of value on stack
+    </td>
+  </tr>
+  <tr>
+    <td>
+      STORESP
+    </td>
+    <td>
+      010x xxxx
+    </td>
+    <td>
+      Pop value off stack and store it in the SP+xxxxx*4 memory location, where xxxxx is a positive integer.
+    </td>
+    <td>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      LOADSP
+    </td>
+    <td>
+      011x xxxx
+    </td>
+    <td>
+      Push value of memory location SP+xxxxx*4, where xxxxx is a positive integer, onto stack.
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ADDSP
+    </td>
+    <td>
+      0001 xxxx
+    </td>
+    <td>
+      Add value of memory location SP+xxxx*4 to value on top of stack.
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      EMULATE
+    </td>
+    <td>
+      001x xxxx
+    </td>
+    <td>
+      Push PC to stack and set PC to 0x0+xxxxx*32. This is used to emulate opcodes. See 
+      zpupgk.vhd for list of emulate opcode values used. zpu_core.vhd contains 
+      reference implementations of these instructions rather than letting the ZPU execute the EMULATE instruction
+      <p>
+      One way to improve performance of the ZPU is to implement some of
+      the EMULATE instructions. 
+      
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      PUSHPC
+    </td>
+    <td>
+      emulated
+    </td>
+    <td>
+      Pushes program counter onto the stack.
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      POPPC
+    </td>
+    <td>
+      0000 0100
+    </td>
+    <td>
+      Pops address off stack and sets PC
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      LOAD
+    </td>
+    <td>
+      0000 1000
+    </td>
+    <td>
+      Pops address stored on stack and loads the value of that address onto stack.
+      <p>
+      Bit 0 and 1 of address are always treated as 0(i.e. ignored) by
+      the HDL implementations and C code is guaranteed by the programming
+      model never to use 32 bit LOAD on non-32 bit aligned addresses(i.e.
+      if a program does this, then it has a bug). 
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      STORE
+    </td>
+    <td>
+      0000 1100
+    </td>
+    <td>
+      Pops address, then value from stack and stores the value into the memory location of the address.
+      <p>
+      Bit 0 and 1 of address are always treated as 0
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      PUSHSP
+    </td>
+    <td>
+      0000 0010
+    </td>
+    <td>
+      Pushes stack pointer. 
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      POPSP
+    </td>
+    <td>
+      0000 1101
+    </td>
+    <td>
+      Pops value off top of stack and sets SP to that value. Used to allocate/deallocate space on stack for variables or when changing threads. 
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ADD
+    </td>
+    <td>
+      0000 0101
+    </td>
+    <td>
+      Pops two values on stack adds them and pushes the result
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      AND
+    </td>
+    <td>
+      0000 0110
+    </td>
+    <td>
+      Pops two values off the stack and does a bitwise-and & pushes the result onto the stack
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      OR
+    </td>
+    <td>
+      0000 0111
+    </td>
+    <td>
+      Pops two integers, does a bitwise or and pushes result
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      NOT
+    </td>
+    <td>
+      0000 1001
+    </td>
+    <td>
+      Bitwise inverse of value on stack
 
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			FLIP
-		</td>
-		<td>
-			0000 1010
-		</td>
-		<td>
-			Reverses the bit order of the value on the stack, i.e. abc->cba, 100->001, 110->011, etc.
-			<p>
-			The raison d'etre for this instruction is mainly to emulate other instructions. 
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			NOP
-		</td>
-		<td>
-			0000 1011
-		</td>
-		<td>
-			No operation, clears IDIM flag as side effect, i.e. used between two
-			consequtive IM instructions to push two values onto the stack.
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			PUSHSPADD
-		</td>
-		<td>
-			61
-		</td>
-		<td>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      FLIP
+    </td>
+    <td>
+      0000 1010
+    </td>
+    <td>
+      Reverses the bit order of the value on the stack, i.e. abc->cba, 100->001, 110->011, etc.
+      <p>
+      The raison d'etre for this instruction is mainly to emulate other instructions. 
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      NOP
+    </td>
+    <td>
+      0000 1011
+    </td>
+    <td>
+      No operation, clears IDIM flag as side effect, i.e. used between two
+      consecutive IM instructions to push two values onto the stack.
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      PUSHSPADD
+    </td>
+    <td>
+      61
+    </td>
+    <td>
             a=sp; <br>
             b=popIntStack()*4;<br>
             pushIntStack(a+b);<br>
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	
-	<tr>
-		<td>
-			POPPCREL
-		</td>
-		<td>
-			57
-		</td>
-		<td>
-			setPc(popIntStack()+getPc());
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			SUB
-		</td>
-		<td>
-			49
-		</td>
-		<td>
-			int a=popIntStack();<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  
+  <tr>
+    <td>
+      POPPCREL
+    </td>
+    <td>
+      57
+    </td>
+    <td>
+      setPc(popIntStack()+getPc());
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      SUB
+    </td>
+    <td>
+      49
+    </td>
+    <td>
+      int a=popIntStack();<br>
                             int b=popIntStack();<br>
                             pushIntStack(b-a);<br>
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			XOR
-		</td>
-		<td>
-			50
-		</td>
-		<td>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      XOR
+    </td>
+    <td>
+      50
+    </td>
+    <td>
 pushIntStack(popIntStack() ^ popIntStack());
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			LOADB
-		</td>
-		<td>
-			51
-		</td>
-		<td>
-				8 bit load instruction. Really only here for compatibility with
-		C programming model. Also it has a big impact on DMIPS test.
-		<p>
-			pushIntStack(cpuReadByte(popIntStack())&0xff);
-		</td>
-		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			STOREB
-		</td>
-		<td>
-			52
-		</td>
-		<td>
-		8 bit store instruction. Really only here for compatibility with
-		C programming model. Also it has a big impact on DMIPS test.
-		<p>
-			addr = popIntStack();<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      LOADB
+    </td>
+    <td>
+      51
+    </td>
+    <td>
+        8 bit load instruction. Really only here for compatibility with
+    C programming model. Also it has a big impact on DMIPS test.
+    <p>
+      pushIntStack(cpuReadByte(popIntStack())&0xff);
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+      STOREB
+    </td>
+    <td>
+      52
+    </td>
+    <td>
+    8 bit store instruction. Really only here for compatibility with
+    C programming model. Also it has a big impact on DMIPS test.
+    <p>
+      addr = popIntStack();<br>
                             val = popIntStack();<br>
                             cpuWriteByte(addr, val);
 </td>
-		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			LOADH
-		</td>
-		<td>
-			34
-		</td>
-		<td>
-		
-				16 bit load instruction. Really only here for compatibility with
-		C programming model.
-		<p>
-		
-			pushIntStack(cpuReadWord(popIntStack()));
-		</td>
-		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			STOREH
-		</td>
-		<td>
-			35
-		</td>
-		<td>
-		16 bit store instruction. Really only here for compatibility with
-		C programming model.
-		<p>
+    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+      LOADH
+    </td>
+    <td>
+      34
+    </td>
+    <td>
+    
+        16 bit load instruction. Really only here for compatibility with
+    C programming model.
+    <p>
+    
+      pushIntStack(cpuReadWord(popIntStack()));
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+      STOREH
+    </td>
+    <td>
+      35
+    </td>
+    <td>
+    16 bit store instruction. Really only here for compatibility with
+    C programming model.
+    <p>
 addr = popIntStack();<br>
                             val = popIntStack();<br>
                             cpuWriteWord(addr, val);
-		</td>
-		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			LESSTHAN
-		</td>
-		<td>
-			36
-		</td>
-		<td>
-		Signed comparison<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+      LESSTHAN
+    </td>
+    <td>
+      36
+    </td>
+    <td>
+    Signed comparison<br>
                             a = popIntStack();<br>
                             b = popIntStack();<br>
                             pushIntStack((a < b) ? 1 : 0);<br>
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			LESSTHANOREQUAL
-		</td>
-		<td>
-			37
-		</td>
-		<td>
-		Signed comparison<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      LESSTHANOREQUAL
+    </td>
+    <td>
+      37
+    </td>
+    <td>
+    Signed comparison<br>
  a = popIntStack();<br>
                             b = popIntStack();<br>
                             pushIntStack((a <= b) ? 1 : 0);
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			ULESSTHAN
-		</td>
-		<td>
-			37
-		</td>
-		<td>
-		Unsigned comparison<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ULESSTHAN
+    </td>
+    <td>
+      37
+    </td>
+    <td>
+    Unsigned comparison<br>
                             long a;//long is here 64 bit signed integer<br>
                             long b;<br>
                             a = ((long) popIntStack()) & INTMASK; // INTMASK is unsigned 0x00000000ffffffff<br>
                             b = ((long) popIntStack()) & INTMASK;<br>
                             pushIntStack((a < b) ? 1 : 0);
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			ULESSTHANOREQUAL
-		</td>
-		<td>
-			39
-		</td>
-		<td>
-		Unsigned comparison<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      ULESSTHANOREQUAL
+    </td>
+    <td>
+      39
+    </td>
+    <td>
+    Unsigned comparison<br>
                             long a;//long is here 64 bit signed integer<br>
                             long b;<br>
                             a = ((long) popIntStack()) & INTMASK; // INTMASK is unsigned 0x00000000ffffffff<br>
                             b = ((long) popIntStack()) & INTMASK;<br>
                             pushIntStack((a <= b) ? 1 : 0);
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-	<tr>
-		<td>
-			EQBRANCH
-		</td>
-		<td>
-			55
-		</td>
-		<td>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+  <tr>
+    <td>
+      EQBRANCH
+    </td>
+    <td>
+      55
+    </td>
+    <td>
                             int compare;<br>
                             int target;<br>
                             target = popIntStack() + pc;<br>
@@ -813,19 +732,19 @@ addr = popIntStack();<br>
                             {<br>
                                 setPc(pc + 1);<br>
                             }
-		</td>
-		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			 NEQBRANCH
-		</td>
-		<td>
-			56
-		</td>
-		<td>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+       NEQBRANCH
+    </td>
+    <td>
+      56
+    </td>
+    <td>
                             int compare;<br>
                             int target;<br>
                             target = popIntStack() + pc;<br>
@@ -837,119 +756,119 @@ addr = popIntStack();<br>
                             {<br>
                                 setPc(pc + 1);<br>
                             }<br>
-		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			 MULT
-		</td>
-		<td>
-			41
-		</td>
-		<td>
-			Signed 32 bit multiply <br>
-   			pushIntStack(popIntStack() * popIntStack());
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			 DIV
-		</td>
-		<td>
-			53
-		</td>
-		<td>
-		Signed 32 bit integer divide.<br>
+    </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+       MULT
+    </td>
+    <td>
+      41
+    </td>
+    <td>
+      Signed 32 bit multiply <br>
+         pushIntStack(popIntStack() * popIntStack());
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+       DIV
+    </td>
+    <td>
+      53
+    </td>
+    <td>
+    Signed 32 bit integer divide.<br>
                             a = popIntStack();<br>
                             b = popIntStack();<br>
                             if (b == 0)<br>
                             {<br>
-                            	// undefined<br> 
+                              // undefined<br> 
                             }
                             pushIntStack(a / b);<br>
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			 MOD
-		</td>
-		<td>
-			54
-		</td>
-		<td>
-		Signed 32 bit integer modulo.<br>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+       MOD
+    </td>
+    <td>
+      54
+    </td>
+    <td>
+    Signed 32 bit integer modulo.<br>
                             a = popIntStack(); <br>
                             b = popIntStack();<br>
                             if (b == 0)<br>
                             {<br>
-                            	// undefined <br> 
+                              // undefined <br> 
                             }<br>
                             pushIntStack(a % b); <br>
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			LSHIFTRIGHT	
-		</td>
-		<td>
-			42
-		</td>
-		<td>
-			unsigned shift right.<br>
-	        long shift;<br>
-	        long valX;<br>
-	        int t;<br>
-	        shift = ((long) popIntStack()) & INTMASK;<br>
-	        valX = ((long) popIntStack()) & INTMASK;<br>
-	        t = (int) (valX >> (shift & 0x3f));<br>
-	        pushIntStack(t);<br>
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			ASHIFTLEFT	
-		</td>
-		<td>
-			43
-		</td>
-		<td>
-			arithmetic(signed) shift left.<br>
-			
-			 long shift;<br>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+      LSHIFTRIGHT  
+    </td>
+    <td>
+      42
+    </td>
+    <td>
+      unsigned shift right.<br>
+          long shift;<br>
+          long valX;<br>
+          int t;<br>
+          shift = ((long) popIntStack()) & INTMASK;<br>
+          valX = ((long) popIntStack()) & INTMASK;<br>
+          t = (int) (valX >> (shift & 0x3f));<br>
+          pushIntStack(t);<br>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+      ASHIFTLEFT  
+    </td>
+    <td>
+      43
+    </td>
+    <td>
+      arithmetic(signed) shift left.<br>
+      
+       long shift;<br>
                             long valX;<br>
                             shift = ((long) popIntStack()) & INTMASK;<br>
                             valX = ((long) popIntStack()) & INTMASK;<br>
                             int t = (int) (valX << (shift & 0x3f));<br>
                             pushIntStack(t);<br>
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			ASHIFTRIGHT	
-		</td>
-		<td>
-			43
-		</td>
-		<td>
-		arithmetic(signed) shift left.<br>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+      ASHIFTRIGHT  
+    </td>
+    <td>
+      43
+    </td>
+    <td>
+    arithmetic(signed) shift left.<br>
                            long shift;<br>
                             int valX;<br>
                             shift = ((long) popIntStack()) & INTMASK;<br>
@@ -957,571 +876,91 @@ addr = popIntStack();<br>
                             int t = valX >> (shift & 0x3f);<br>
                             pushIntStack(t);<br>
  
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
     
-   	<tr>
-		<td>
-			CALL
-		</td>
-		<td>
-			45
-		</td>
-		<td>
-			call procedure.<br>
-			<br>
-				int address = pop();<br>
+     <tr>
+    <td>
+      CALL
+    </td>
+    <td>
+      45
+    </td>
+    <td>
+      call procedure.<br>
+      <br>
+        int address = pop();<br>
                             push(pc + 1);<br>
                             setPc(address); <br>
-   		</td>
-		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			 CALLPCREL
-		</td>
-		<td>
-			63
-		</td>
-		<td>
-			call procedure pc relative<br>
-			<br>
+       </td>
+    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+       CALLPCREL
+    </td>
+    <td>
+      63
+    </td>
+    <td>
+      call procedure pc relative<br>
+      <br>
 int address = pop();<br>
                             push(pc + 1);<br>
-                            setPc(address+pc);   		</td>
-		<td>
-			
-		</td>
-	</tr>
+                            setPc(address+pc);       </td>
+    <td>
+      
+    </td>
+  </tr>
     
     
-  	<tr>
-		<td>
-			 EQ
-		</td>
-		<td>
-			46
-		</td>
-		<td>
- pushIntStack((popIntStack() == popIntStack()) ? 1 : 0);		<td>
-			
-		</td>
-	</tr>
-  	<tr>
-		<td>
-			 NEQ
-		</td>
-		<td>
-			48
-		</td>
-		<td>
- pushIntStack((popIntStack() != popIntStack()) ? 1 : 0);		<td>
-			
-		</td>
-	</tr>
- 	<tr>
-		<td>
-			 NEG
-		</td>
-		<td>
-			47
-		</td>
-		<td>
+    <tr>
+    <td>
+       EQ
+    </td>
+    <td>
+      46
+    </td>
+    <td>
+ pushIntStack((popIntStack() == popIntStack()) ? 1 : 0);    <td>
+      
+    </td>
+  </tr>
+    <tr>
+    <td>
+       NEQ
+    </td>
+    <td>
+      48
+    </td>
+    <td>
+ pushIntStack((popIntStack() != popIntStack()) ? 1 : 0);    <td>
+      
+    </td>
+  </tr>
+   <tr>
+    <td>
+       NEG
+    </td>
+    <td>
+      47
+    </td>
+    <td>
  pushIntStack(-popIntStack());<td>
-			
-		</td>
-	</tr>
+      
+    </td>
+  </tr>
     
-	
+  
 </table>
-<a name="startup"/>
-<h1>Custom startup code (aka crt0.s)</h1>
-To minimize the size of an application, one important trick is to
-strip down the startup code. The startup code contains emulation
-of instructions that may never be used by a particular application.
-<p>
-The startup code is found in the GCC source code under gcc/libgloss/zpu,
-but to make the startup code more available, it has been duplicated
-into <a href="../sw/startup">zpu/sw/startup</a> 
-<p>
-To minimize startup size, see <a href="../roadshow/roadshow/codesize/index.html">codesize</a>
-demo. This is pretty standard GCC stuff and simple enough once you've
-been over it a couple of times.
-
-<a name="implementing"/>
-<h1>Implementing your own ZPU</h1>
-One of the neat things about the ZPU is that the instruction set and architecture
-is very small and it is easy to implement a ZPU from scratch or modify the
-existing ZPU implementations.
-<p>
-Implementing a ZPU can be done without understanding the toolchain in
-detail, i.e. using exclusively HDL skills and only a rudimentary
-understanding of standard GCC/GDB usage is sufficient. 
-<p>
-A few tips:
-<ul>
-<li>Run zpu_core.vhd or zpu_core_small.vhd and generate an instruction trace
-from ModelSim or similar. To check that you own implementation is correctly
-implemented, verify that the instruction trace for the new and old
-ZPU implementations match. This gives you a simple way to do regression
-tests as you develop your ZPU.
-<li>To improve performance, you can add more instructions. The EMULATE instructions
-are optional in HDL since they will be emulated in software if they are not
-implemented in HDL. This allows you to run the ZPU executables unmodified
-regardless of which EMULATE instructions you implement.
-<li>Run the DMIPS test to measure your overall performance 
-<li>Run the histogram.perl script on the instruction trace to generate
-histograms of the instructions. Profiling is essential to making
-the right choices w.r.t. optimisation for your application. 
-</ul>
-
-
-<a name="vectors"/>
-<h1>Vectors</h1>
-<table border="1">
-	<tr><td>Address</td><td>Name</td><td>Description</td></tr>
-	<tr>
-		<td>0x000</td>
-		<td>Reset</td>
-		<td>
-			1.When the ZPU boots, this is the first instruction to be executed.
-			<p>
-			2.The stack pointer is initialised to maximum RAM address
-			</td>
-	</tr>
-	<tr>
-		<td>0x020</td>
-		<td>Interrupt</td>
-		<td>
-			This is the entry point for interrupts.
-		</td>
-	</tr>
-	<tr>
-		<td>0x040-</td>
-		<td>Emulated instructions</td>
-		<td>
-			Emulated opcode 34. Note that opcode 32 and opcode 33 are not normally used to emulate instructions as these memory addresses are already used by boot vector, GCC registers and the interrupt vector.
-		</td>
-	</tr>
-</table>
-
-<a name="memorymap"/>
-<h1>Phi memory map</h1>
-The ZPU architecture does not define a memory map as such, but the GCC + libgloss + ecos hal library uses the
-memory map below. "Phi" is just a three letter word for the particular memory layout below that came about
-while developing the ZPU.
-<p>
-	<TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
-		<COL WIDTH=85>
-		<COL WIDTH=42>
-		<COL WIDTH=136>
-		<COL WIDTH=283>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Address</B></FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Type</B></FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Name</B></FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Description</B></FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0000</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
-				enable</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:1] Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]	Enable ZPU operations</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	ZPU
-				is held in Idle mode</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	ZPU
-				running</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A000C</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
-				Debug channel / UART to ARM7 TX</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
-				ZPU side</B></FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:9] Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[8]	TX buffer ready (valid on ready)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	TX
-				buffer not ready (full)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	TX
-				buffer ready</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[7:0]	TX byte (valid on write)</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0010</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
-				Debug channel / UART to ARM7 RX</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
-				ZPU side</B></FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:9] Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[8]	RX buffer data valid</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	RX
-				buffer not valid</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	RX
-				buffer valid</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[7:0]	RX byte (when valid)</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0014</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(1)</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]	Reset counter (valid for write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Reset
-				counter</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[1]	Sample counter (valid for write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Sample
-				counter</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:0]		Counter bit 31:0</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0018</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(2)</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:0]		Counter bit 63:32</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0020</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
-				/ Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Global_Interrupt_mask</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:1]		Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Global intr. Mask</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupts
-				enabled</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupts
-				disabled</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0024</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_INTERRUPT_ENABLE</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:1]		Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Debug channel / UART RX interrupt enable</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupt
-				disable</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				enable</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0028</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_interrupt</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:1]		Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Debug channel / UART RX interrupt pending (Read)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	No
-				interrupt pending</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				pending</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Clear UART interrupt (Write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				cleared</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A002C</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Interrupt_enable</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:1]		Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Timer interrupt  enable</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	Interrupt
-				disable</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				enable</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0030</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
-				/</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_interrupt</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:2]		Not used</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Timer interrupt pending (Read)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	No
-				interrupt pending</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				pending</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[1]		Reset Timer counter (Write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Timer
-				counter reset</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[0]		Clear Timer interrupt (Write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	0	N/A</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">	1	Interrupt
-				cleared</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0034</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Period</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:0]		Interrupt period (write)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">		Number
-				of clock cycles</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">		between
-				timer interrupts</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
-				</B>The timer will start at Timer_Periode value and count <B>down</B>
-				to zero, and generate an interrupt</FONT></FONT></P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">.0x080A0038</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Counter</FONT></FONT></P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
-				[31:0]		Timer counter (read)</FONT></FONT></P>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-		</TR>
-		<TR VALIGN=TOP>
-			<TD WIDTH=85>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-			<TD WIDTH=42>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=136>
-				<P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
-				</P>
-			</TD>
-			<TD WIDTH=283>
-				<P LANG="en-US" CLASS="western"><BR>
-				</P>
-			</TD>
-		</TR>
-	</TABLE>
-<a name="wishbone"/>
-<h1>Wishbone</h1>
-In <a href="../hdl/wishbone" target="_blank">hdl/wishbone</a> there is an implementation
-of a wishbone bridge.
-<p>
-However this wishbone bridge was used together with the <a href="../hdl/zy2000" target="_blank">hdl/zy2000</a> implementation
-of the ZPU, which differs slightly from <a href="../hdl/zpu4/core" target="_blank">hdl/zpu4/core</a>.
-<p>
-The ZY2000 is a complete implementation of the ZPU including: DRAM, soft-MAC, wishbone bridges, GPIO subsystem,
-etc. This also included an eCos HAL w/TCP/IP support.
-
-<a name="hwdebugger"/>
-<h1>JTAG/hardware debugger for GDB</h1>
-The Zylin <a href="http://www.zylin.com/zy1000.html">ZY1000</a> JTAG debugger supports
-the ZPU. Contact <a href="http://www.zylin.com">Zylin</a> for pricing and details.
-<p>
-There are two debug modes in which the ZY1000 can operate:
-<ul>
-<li>Classic. Here the ZY1000 controls the CPU and examines the state. The ZY1000 has a built in
-GDB server that GDB talks to.
-<li>Small footprint. If there isn't enough space on the device for the ZPU *and* the JTAG
-controller, then the ZY1000 can run the ZPU externally. The JTAG communication channel is
-then used to peek/poke peripherals and inside the FPGA instead of the ZPU there is then
-a JTAG controller that peeks and pokes the peripherals of the ZPU. There are advantages
-and disadvantages of this approach: it may be unfamiliar to embedded developers and  
-the timing is different from the "real" ZPU(interrupts are delayed, execution speed
-differse, etc.) On the other hand there are other things
-which are simpler: much more RAM can be available for the ZPU during development,
-better debug consoles(faster), additional peripheral(timers, etc.) is available. This
-approach is somewhat unique to the ZPU as the ZPU is simple enough that it can be
-implemented efficiently in this manner. 
-</ul>
 
 <a name="interrupts"/>
-<h1>Interrupts</h1>
+<h2>Interrupts</h2>
 The ZPU supports interrupts.
 <p>
 To trigger an interrupt, the interrupt signal must be asserted. The ZPU does
@@ -1529,7 +968,7 @@ not define any interrupt disabling mechanism, this must be implemented by the
 interrupt controller and controlled via memory mapped IO.
 <p>
 Interrupts are masked when the IDIM flag is set, i.e.
-with consequtive IM instructions.
+with consecutive IM instructions.
 <p>
 The ZPU has an edge triggered interrupt. As the ZPU notices that the interrupt
 is asserted, it will execute the interrupt instruction. The interrupt signal
@@ -1546,9 +985,128 @@ restore them.
 <p>
 See zpu/hdl/zpu4/test/interrupt/ for C code and zpu/hdl/example/simzpu_interrupt.do
 for simulation example.
-<a name="zpu_core_small.vhd"/>
-<h1>About zpu_core_small.vhd</h1>
-The small ZPU implements the minimum instruction set. It is optimized for size and simplicity
+
+<a name="startup"/>
+<h2>Custom startup code (aka crt0.s)</h2>
+To minimize the size of an application, one important trick is to
+strip down the startup code. The startup code contains microcode for emulation
+of instructions that may never be used by a particular application, or are made redundant because the instructions are implemented in RTL.
+<p>
+The startup code is found in the GCC source code under gcc/libgloss/zpu,
+but to make the startup code more available, it has been duplicated
+into <a href="../sw/startup">zpu/sw/startup</a> 
+<p>
+On the <a href="#todo">TODO</a> list is work to make it easier to reduce code size.
+<p>
+TODO is the following actually useful?  if not remove or elaborate.
+<p>
+To minimize startup size, see <a href="../roadshow/roadshow/codesize/">codesize</a>
+demo. This is pretty standard GCC stuff and simple enough once you've
+been over it a couple of times.
+
+
+<a name="vectors"/>
+<h3>Vectors</h3>
+<table border="1">
+  <tr><td>Address</td><td>Name</td><td>Description</td></tr>
+  <tr>
+    <td>0x000</td>
+    <td>Reset</td>
+    <td>
+      1.When the ZPU boots, this is the first instruction to be executed.
+      <br>
+      2.The stack pointer is initialised to maximum RAM address
+      </td>
+  </tr>
+  <tr>
+    <td>0x020</td>
+    <td>Interrupt</td>
+    <td>
+      This is the entry point for interrupts.
+    </td>
+  </tr>
+  <tr>
+    <td>0x040-</td>
+    <td>Emulated instructions</td>
+    <td>
+      Emulated opcode 34. Note that opcode 32 and opcode 33 are not normally used to emulate instructions as these memory addresses are already used by boot vector, GCC registers and the interrupt vector.
+    </td>
+  </tr>
+</table>
+
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<a name="implementations"/>
+<h1>Core Implementations</h1>
+zpu4 (superseding zpu3) are original work by &Oslash;yvind Harboe.  All other implementations derive from zpu4.
+<p>
+High on the <a href="#todo">TODO</a> list is to reduce the number of implementations taking the best from all.  For example interrupts are not universally implemented, IO naming is inconsistent and memory architectures differ.
+<p>
+Ultimately we should try to get closer to the opencores coding standard.  You can find the document in the opencores cvsroot/common.
+<p>
+For now if you are starting a design, zpu4 or zealot are probably the safest.  zealot offers more customization through generics, but lacks interrupts.  zpu4 gets more attention.  Take your pick.
+
+<a name="performance"/>
+<h2>Performance Summary</h2>
+
+TODO fill in performance table.
+<p>
+<TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
+    <TR VALIGN=TOP>
+      <TD WIDTH=85> <P><B>CORE/Config</B></P> </TD>
+      <TD WIDTH=85> <P><B>Spartan3e</B></P> </TD>
+      <TD WIDTH=85> <P><B>Cyclone3</B></P> </TD>
+      <TD WIDTH=85> <P><B>DMIPS @ 50MHz</B></P> </TD>
+    </TR>
+    
+<TR VALIGN=TOP>
+<TD WIDTH=85> <PRE>
+zpu4 small
+maxAddrBit=?
+...
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+? LUT
+? REG
+? MULT18x18
+? BRAM
+? fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+? LUT
+? REG
+? MULT18x18
+? M4K
+? fmax
+</PRE> </TD>
+<TD WIDTH=85> <P>???</P> </TD>
+</TR>
+
+<TR VALIGN=TOP> <TD WIDTH=85> <P>zpu4 medium</P> </TD>
+<TD WIDTH=85> <PRE>
+? LUT
+? REG
+? MULT18x18
+? BRAM
+? fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+? LUT
+? REG
+? MULT18x18
+? M4K
+? fmax
+</PRE> </TD>
+<TD WIDTH=85> <P>???</P> </TD>
+</TR>
+
+  </TABLE>
+
+<a name="zpu4_small"/>
+<h2>zpu4 small</h2>
+Found in <a href="../hdl/zpu4/core/zpu_core_small.vhd">zpu/zpu/hdl/zpu4/core/zpu_core_small.vhd</a> 
+<p>
+The small ZPU4 implements the minimum instruction set. It is optimized for size and simplicity
 serving as a reference in both regards.
 <p>
 It uses a BRAM (dual port RAM w/read/write to both ports) as data & code storage and
@@ -1565,186 +1123,36 @@ The tricky bit is that there is a tiny bit of interleaving of
 states since the BRAM takes a cycle to perform a fetch/store. The above is the
 normal states the ZPU cycles through unless memory fetch, jumps, etc. take
 place.
-<a name="performance"/>
-<h1>Speeding up the ZPU</h1>
-There are two aspects of speeding up the ZPU: making it perform better
-for a particular application and toying around with the ZPU architecture.
-<h2>Performance tips</h2>
-<ol>
-<li>Profile. Create a small sample and run in a simulator that is as close
-to the real deployment as possible. zpu4/core/histogram.perl is a script
-that will tell you which instructions take the most time.
-<li> Using the profile output, decide on which emulated instructions that
-it makes sense to implement in HDL for your particular application. Modifying
-zpu_core_small.vhd is not particularly hard. Most instructions can be
-transliterated into zpu_core_small.vhd from zpu_core.vhd without too much
-problem.
-<li>The memory subsystem may well turn out to be where you should concentrate
-your efforts.
-</ol>
-<h2>Toying around with the architecture</h2>
-Again: profile 90% of the time and spend the remaining 10% tinkering 
-with the architecture.
-<ul>
-<li>There is a DMIPS program you can use to measure the performance of
-the ZPU in lieu of profiling a real application. The latter is obviously
-a superior solution.
-<li>Again: use histogram.perl to figure out which instructions you should add
-in HDL.
-<li>Tinker a bit with Fmax to find the maximum speed rating for your design.
-<li>zpu_core_small.vhd should be ca. 1 DMIPS and zpu_core.vhd should yield
-about 5-10 DMIPS before adding instructions runs out of steam.
-</ul>
-If you need to get ca. 20-50 DMIPS out of the ZPU you will have to
-write a heavily pipelined architecture with caches(if you are running
-against DRAM). This is *tricky*, but some proof of concept work was
-done to show 20 DMIPS w/the ZPU(the actual result was discarded since
-it was not complete and contained fatal flaws).
-<p>
-Achieving above 50-100 DMIPS with the current ZPU architecture is probably
-a non-starter and a more conventional RISC design makes more sense here.
-<p>
-The unique advantages of the ZPU is size in terms of HDL & code size.
-<a name="debuguart"/>
-<h1>Debug channel / UART</h1>
-All self respecting embedded projects should have a debug channel
-to print stuff to. Typically this is a standard RS232 or UART, but
-it can also be something more exotic like a DCC JTAG channel.
-<p>
-The point is that characters(bytes) are sent to/from the ZPU
-via some terminal.
-<p>
-The ZPU defines in the memory map a UART / debug channel. This
-should be implemented by some suitable debug channel for
-the device in which the ZPU is implemented.
-<p>
-www.opencores.org has several UART implementations. This is one
-of the simpler ones:
 
-<a href="http://www.opencores.org/projects.cgi/web/uart/overview">
-http://www.opencores.org/projects.cgi/web/uart/overview</a>
-<h2>Implementing your own UART / debug channel</h2>
-The first thing you need to do is to choose a debug channel for your
-hardware. This could be a UART, but it doesn't have to be.
+<a name="zpu4_medium"/>
+<h2>zpu4 medium</h2>
+Found in <a href="../hdl/zpu4/core/zpu_core.vhd">zpu/zpu/hdl/zpu4/core/zpu_core.vhd</a> 
 <p>
-Secondly you should write a small HDL module that interface between
-the ZPU memory map of debug channel to the UART. This should
-    be relatively simple as all you need to do is to let the ZPU
-    query the FIFO in/out for busy flag and allow the ZPU to read/write
-    data to the UART via the memory map.
-<a name="zpu_core.vhd"/>
-<h1>About zpu_core.vhd</h1>
-The zpu_core.vhd has a single port memory interface. All data, code and IO is
+The medium ZPU4 has a single port memory interface. All data, code and IO is
 accessed through this memory interface.
 <p>
 It performs better(despite having less memory bandwidth than zpu_core_small.vhd)
 since it implements many more instructions.
-<h1>Compiling hello world program with the ZPU GCC toolchain</h1>
-The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
-some very basic peripherals defined: counter, timer interrupt and a debug output port. 
-<h1>Installation</h1>
-<ol>
-<li>Install Cygwin. http://www.cygwin.com 
-<li>Start Cygwin bash
-<li>unzip zputoolchain.zip
-<li>Add install/bin from zputoolchain.zip to PATH.<br>
-export PATH=$PATH:<unzipdir>/install/bin
-</ol>
-<h1>Hello world example</h1>
-The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
-<p> 
-<code>
-zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections<br>
-zpu-elf-size hello.elf<br>
-</code>
 
-<!-- SPI controller -->
-<a name="spicontroller">
+<a name="alzpu_pipe"/>
+<h2>Alvaro's pipelined ZPU</h2>
+All the rave in the mailing list.  TBA.
 
-<h1>SPI flash controller (read-only)</h1>
-This is a simple read-only SPI flash controller, with the following characteristics:
-
-<dl>
- <li>Fast-READ only implementation.</h1>
- <li>32-bit only access</h1>
- <li>Fast sequential read access - Uses low-clock approach</li>
-</dl>
-
-<h2>Version</h2>
-The current version is 1.2. This is also the first public version available.
-
-<h2>Timing overview</h2>
-
-<p>Simple timing overview, with one nonsequential access to address 0x0, followed by a sequential access to address 0x4. 
-This simulation was done with Xilinx tools, after post-routing, and using a ZPU to access the SPI</p>
-<div>
-<img src="images/spi_timing_overview.png">
-</a>
-<p>Image 1: Timing overview</p>
-</div>
-
-On Image 2, you can see the clock almost perfectly centered on data, when we write to the SPI flash.
-
-<div>
-<img src="images/spi_readfast_timing.png">
-<p>Image 2: Issuing commands to the SPI</p>
-</div>
-
-As you can see from Image 3, I assume the worst-case read delay from SPI (which is 15ns, as you can see from the marker).
-
-<div>
-<img src="images/spi_read_timing.png">
-<p>Image 3: Reading from the SPI</p>
-</div>
-
-<h2>Usage</h2>
-
-Simple description of SPI controller interface:
-
-<table border="1">
-<tr>
-  <th>Symbol</th>
-  <th>Direction</th>
-  <th>Bit width</th>
-  <th>Purpose</th>
-</tr>
-<tr><td>adr</td><td>Input</td><td>24</td><td>Address where to read from SPI</td></tr>
-<tr><td>dat_o</td><td>Output</td><td>32</td><td>Data read from SPI</td></tr>
-<tr><td>clk</td><td>Input</td><td>1</td><td>Input clock. Used for both interface and SPI</td></tr>
-<tr><td>ce</td><td>Input</td><td>1</td><td>Chip Enable</td></tr>
-<tr><td>rst</td><td>Input</td><td>1</td><td>Asynchronous reset</td></tr>
-<tr><td>ack</td><td>Output</td><td>1</td><td>Data valid ACK</td></tr>
-<tr><td>SPI_CLK</td><td>Output</td><td>1</td><td>SPI output clock</td></tr>
-<tr><td>SPI_MOSI</td><td>Output</td><td>1</td><td>SPI output data from controller to chip</td></tr>
-<tr><td>SPI_MISO</td><td>Input</td><td>1</td><td>SPI input data from chip to controller</td></tr>
-<tr><td>SPI_SELN</td><td>Output</td><td>1</td><td>SPI nSEL (deselect, active low) signal</td></tr>
-</table>
-
-
-
-<h2>License</h2>
-The Verilog implementation is released under BSD license. See the file itself for more licensing details.
-
-<h2>Dowload</h2>
-Download the Verilog code here: <a href="/files/electronics/spi/spi_controller.v">spi_controller.v</a>
-
-<h2>Troubleshooting</h2>
-The current implementation is timed and optimized for myself. Your parameters might not be the same
-as those I defaulted, so read the code carefully. If you have any issue let me know.
-
-
-
-
-<!-- Zealot -->
 <a name="zealot"/>
-<h1>Zealot: Implementing in FPGAs</h1>
+<h2>Zealot</h2>
+Small found in <a href="../hdl/zealot/zpu_small.vhdl">zpu/zpu/hdl/zealot/zpu_small.vhdl</a> 
+<p>
+Medium found in <a href="../hdl/zealot/zpu_medium.vhdl">zpu/zpu/hdl/zealot/zpu_medium.vhdl</a> 
+<p>
+README found in <a href="../hdl/zealot/0README.txt">zpu/zpu/hdl/zealot/0README.txt</a> 
+<p>
+The Zealot version of ZPU was contributed by Salvador E. Tropea.
+<p>
+The key features are:
 
-The Zealot version of ZPU is a ZPU medium variant ready to be used with FPGAs.
-It was tested using Xilinx Spartan 3 1500 FPGAs and was contributed by
-Salvador E. Tropea. The key features are:<p>
 
 <ul>
-<li>Includes a very basic <a href="#memorymap">PHI I/O</a> synthetizable core.
+<li>Includes a very basic <a href="#memorymap">PHI I/O</a> synthesizable core.
 It implements the 64 bits clocks counter (timer) and the UART. This is enough
 to run the DMIPS benchmark and a hello world application. I tested the UART
 @ 9600 bps and @ 115200 bps.</li>
@@ -1758,7 +1166,7 @@ configurations (Medium version).</li>
 <li>The medium version provides aprox. 2.6 DMIPS @ 50 MHz and the small
 0.5 DMIPS @ 50 MHz.</li>
 <li>Enhanced trace module, it includes the assembler for the executed
-instruction and can also meassure how much stack was consumed during the
+instruction and can also measure how much stack was consumed during the
 execution.</li>
 <li>Includes ready to use memory images for a hello world program and the
 DMIPS benchmark.</li>
@@ -1791,7 +1199,7 @@ clocks consumed).</li>
 <li><b>BINOP_PIPE</b> (integer range 0 to 2:=0) Enables the pipeline for
 the -, =, &lt; and &lt;= operations. This can allow faster clocks but will
 make these instruction slower (more clocks consumed). This value is the
-ammount of extra clocks added.</li>
+amount of extra clocks added.</li>
 <li><b>ENA_LEVEL0</b> (boolean:=true) Enables the hardware implementation of
 eq, neqbranch, loadb and pushspadd instructions.</li>
 <li><b>ENA_LEVEL1</b> (boolean:=true) Enables the hardware implementation of
@@ -1806,20 +1214,450 @@ When disabled the enable_i signal isn't used and the idle state is removed.</li>
 <li><b>FAST_FETCH</b> (boolean:=true) This version of the ZPU fetches 4
 instructions at ones (32 bits), then they are decoded (2 cycles) and finally
 executed. The decoded instructions are stored in a "decode cache", the first
-instruction is immediatly moved to the "current instruction" register and a
+instruction is immediately moved to the "current instruction" register and a
 "special instruction" replaces the first slot. This "special instruction"
 makes the CPU go to the fetch state. When you enable this generic the FSM
-does the fetch instead of wating one clock cycle to go to the fetch state.
+does the fetch instead of waiting one clock cycle to go to the fetch state.
 This makes instructions run a little bit faster, but it can cost area and/or
 frequency.</li>
 </ul>
 
-For more information read the 0README.txt file located inside the zealot
-directory.<p>
-<!-- End of Zealot -->
+
+<a name="zy2000"/>
+<h2>ZY2000</h2>
+Found in <a href="../hdl/zy2000/zpu_core.vhd">zpu/zpu/hdl/zy2000/zpu_core.vhd</a> 
+Modified version of zpu4 medium for use with a wishbone bridge.
+<p>
+The ZY2000 is a complete implementation including: ZPU, DRAM, soft-MAC, wishbone bridges, GPIO subsystem, etc. This also included an eCos HAL w/TCP/IP support.
+
+<a name="verilogwip"/>
+<h2>Verilog translation</h2>
+Found in <a href="../../wip/ZPU_CORE/src/zpu_core.v">zpu/wip/ZPU_CORE/src/zpu_core.v</a> 
+<p>
+The verilog version of ZPU (zpu4) was contributed by Jurij Kostasenko.  No-one appears to be maintaining it, but it should be a useful starting point for further work.  There are some useful scripts there.
+
+<a name="implementing"/>
+<h2>Implementing your own ZPU</h2>
+One of the neat things about the ZPU is that the instruction set and architecture
+is very small and it is easy to implement a ZPU from scratch or modify the
+existing ZPU implementations.
+<p>
+Implementing a ZPU can be done without understanding the toolchain in
+detail, i.e. using exclusively HDL skills and only a rudimentary
+understanding of standard GCC/GDB usage is sufficient. 
+<p>
+A few tips:
+<ul>
+<li>Run zpu_core.vhd or zpu_core_small.vhd and generate an instruction trace
+from ModelSim or similar. To check that you own implementation is correctly
+implemented, verify that the instruction trace for the new and old
+ZPU implementations match. This gives you a simple way to do regression
+tests as you develop your ZPU.
+<li>To improve performance, you can add more instructions. The EMULATE instructions
+are optional in HDL since they will be emulated in software if they are not
+implemented in HDL. This allows you to run the ZPU executables unmodified
+regardless of which EMULATE instructions you implement.
+<li>Run the DMIPS test to measure your overall performance 
+<li>Run the histogram.perl script on the instruction trace to generate
+histograms of the instructions. Profiling is essential to making
+the right choices w.r.t. optimization for your application. 
+</ul>
+
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+
+<a name="refdesign"/>
+<h1>Reference Designs</h1>
+The zpu core is independent of IO and memory architecture.  Here are three levels of reference designs a user can refer to in order to get started in their own design, regardless of chosen core.
+<p>
+TODO converge on a single IO structure for core implementations.
+<p>
+TODO re-org CVS to make it easy to keep appropriate SW, RTL(verilog and VHDL) , scripts, verification stuff together.
+<p>
+
+<a name="ref_min"/>
+<h2>Minimal (core+RAM)</h2>
+The minimum design is a zpu core with true dual port RAMs attached.  This is handy for size/fmax trial in a particular FPGA, and maybe HDL regression.  Maybe not a very useful starting point, unless you can DMA all you IO.
+<p>
+TODO provide FPGA scripts.
+<p>
+TODO provide HDL regression environment.
+
+<a name="ref_basic"/>
+<h2>Basic (core+RAM+UART+Timer)</h2>
+The minimum design required for hello_world and DMIPS applications.  Requires more RAM and a UART (or something) for stdio.  This is handy as a starting point for a new users design, and to run DMIPS evaluation, and maybe HDL regression.
+<p>
+TODO provide FPGA scripts.
+<p>
+TODO provide HDL regression environment.
+
+<a name="ref_soc"/>
+<h2>SOC (core+RAM+Wishbone+++)</h2>
+Large design(s) for one or more chosen eval board.  Features dictated by board and available IP.
+
+<a name="rams"/>
+<h2>Common - RAM models</h2>
+single (1RW), simple dual(1R+1W), true dual(1RW+1RW), and xilinx distributed dual(1RW+1R) RAM models.  Parameterized depth / width, and loadable from file.  The goal is that ROM be independent of verilog/VHDL implementation of RAM.
+<p>
+TODO RAM model contribution needed.  What is in opencore/common is not adequate.
+
+<a name="wishbone"/>
+<h2>Common - Wishbone</h2>
+In <a href="../hdl/wishbone" target="_blank">hdl/wishbone</a> there is an implementation
+of a wishbone bridge.  It was designed to work with <a href="#zy2000">ZY2000</a>
+<p>
+TODO make wishbone bridge re-usable with all cores 
+
+<a name="uart"/>
+<h2>Common - UART</h2>
+
+All self respecting embedded projects should have a debug channel
+to print stuff to. Typically this is a standard RS232 or UART, but
+it can also be something more exotic like a DCC JTAG channel.
+<p>
+The point is that characters(bytes) are sent to/from the ZPU
+via some terminal.
+<p>
+The ZPU defines in the memory map a UART / debug channel. This
+should be implemented by some suitable debug channel for
+the device in which the ZPU is implemented.
+<p>
+www.opencores.org has several UART implementations. This is one
+of the simpler ones:
+
+<a href="http://www.opencores.org/projects.cgi/web/uart/overview">
+http://www.opencores.org/projects.cgi/web/uart/overview</a>
+<h3>Implementing your own UART / debug channel</h3>
+The first thing you need to do is to choose a debug channel for your
+hardware. This could be a UART, but it doesn't have to be.
+<p>
+Secondly you should write a small HDL module that interface between
+the ZPU memory map of debug channel to the UART. This should
+    be relatively simple as all you need to do is to let the ZPU
+    query the FIFO in/out for busy flag and allow the ZPU to read/write
+    data to the UART via the memory map.
+
+<p>
+TODO explicit example with UART from opencores in the above ref designs.
+
+<!-- SPI controller -->
+<a name="spicontroller">
+<h2>SPI flash controller (read-only)</h2>
+This is a simple read-only SPI flash controller, with the following characteristics:
+
+<dl>
+ <li>Fast-READ only implementation.
+ <li>32-bit only access
+ <li>Fast sequential read access - Uses low-clock approach</li>
+</dl>
+
+<h3>Version</h3>
+The current version is 1.2. This is also the first public version available.
+
+<h3>Timing overview</h3>
+
+<p>Simple timing overview, with one nonsequential access to address 0x0, followed by a sequential access to address 0x4. 
+This simulation was done with Xilinx tools, after post-routing, and using a ZPU to access the SPI</p>
+<div>
+<img src="images/spi_timing_overview.png">
+</a>
+<p>Image 1: Timing overview</p>
+</div>
+
+On Image 2, you can see the clock almost perfectly centered on data, when we write to the SPI flash.
+
+<div>
+<img src="images/spi_readfast_timing.png">
+<p>Image 2: Issuing commands to the SPI</p>
+</div>
+
+As you can see from Image 3, I assume the worst-case read delay from SPI (which is 15ns, as you can see from the marker).
+
+<div>
+<img src="images/spi_read_timing.png">
+<p>Image 3: Reading from the SPI</p>
+</div>
+
+<h3>Usage</h3>
+
+Simple description of SPI controller interface:
+
+<table border="1">
+<tr>
+  <th>Symbol</th>
+  <th>Direction</th>
+  <th>Bit width</th>
+  <th>Purpose</th>
+</tr>
+<tr><td>adr</td><td>Input</td><td>24</td><td>Address where to read from SPI</td></tr>
+<tr><td>dat_o</td><td>Output</td><td>32</td><td>Data read from SPI</td></tr>
+<tr><td>clk</td><td>Input</td><td>1</td><td>Input clock. Used for both interface and SPI</td></tr>
+<tr><td>ce</td><td>Input</td><td>1</td><td>Chip Enable</td></tr>
+<tr><td>rst</td><td>Input</td><td>1</td><td>Asynchronous reset</td></tr>
+<tr><td>ack</td><td>Output</td><td>1</td><td>Data valid ACK</td></tr>
+<tr><td>SPI_CLK</td><td>Output</td><td>1</td><td>SPI output clock</td></tr>
+<tr><td>SPI_MOSI</td><td>Output</td><td>1</td><td>SPI output data from controller to chip</td></tr>
+<tr><td>SPI_MISO</td><td>Input</td><td>1</td><td>SPI input data from chip to controller</td></tr>
+<tr><td>SPI_SELN</td><td>Output</td><td>1</td><td>SPI nSEL (deselect, active low) signal</td></tr>
+</table>
+
+<h3>License</h3>
+The Verilog implementation is released under BSD license. See the file itself for more licensing details.
+
+<h3>Dowload</h3>
+Download the Verilog code here: <a href="/files/electronics/spi/spi_controller.v">spi_controller.v</a>
+
+<h3>Troubleshooting</h3>
+The current implementation is timed and optimized for myself. Your parameters might not be the same
+as those I defaulted, so read the code carefully. If you have any issue let me know.
+
+
+
+
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<a name="tools"/>
+<h1>Working with the tools and core</h1> 
+TODO discussion of tools needed and choose some to be supported by project.  Need to deal with cygwin vs linux, VHDL vs verilog, open vs closed.... plus language support in simulators is sometimes lacking.
+<p>
+Xilinx ISE webpack is available for windows and linux
+<br>
+Altera Quartus web edition is windows only.
+<br>
+Lattice ispLEVER starter edition is windows only.
+<p>
+None appear to come with a standalone simulator anymore.  Not sure if any built in simulators are worth looking at... never have been in the past.
+
+<p>
+Popular Simulation tools for this kind of project: Modelsim, GHDL, veriwell, cver, icarus, gtkwave... others?
+<p>
+
+<a name="setuplinux"/>
+<h2>Setup - Linux toolchain</h2>
+You will need Java installed to run the simulator and some other stuff.
+<p>
+TODO setup.sh script needs to detect linux/cygwin, and should have install path option.
+<pre>
+$ cd zpu/zpu/sw     # path as appropriate
+$ sh setup.sh       # untars the tool chain to ... TODO
+$ . env.sh          # puts the tools in you path
+</pre>
+
+<a name="setupcygwin"/>
+<h2>Setup - Cygwin toolchain</h2>
+Install <a href="http://www.cygwin.com">Cygwin</a>
+You will need Java installed to run the simulator and some other stuff.
+<pre>
+$ cd zpu/zpu/sw     # path as appropriate
+$ sh setup.sh       # unzips the tool chain to /tmp/zpu/install/bin
+$ . env.sh          # puts the tools in you path
+</pre>
+
+<a name="gcc2ram"/>
+<h2>GCC to RAM</h2>
+TODO some of this is generic, some is zpu4 specific.  Should move to refdesign section when ref designs exist.
+<p>
+The instructions are stored big endian.  That is the first instruction is stored in the most significant byte, and the forth is in the least significant byte.
+<p>
+<h3>Generating VHDL BRAM initialization </h3>
+<pre>
+$ zpu-elf-objcopy -O binary hello.elf hello.bin
+$ java -classpath ../simulator/zpusim.jar com.zylin.zpu.simulator.tools.MakeRam hello.bin &gt;hello.bram
+</pre>
+<h3>Build another test application for example simulation</h3>
+Here is how to build a rom image for an application using the
+zpu/example simulation files.
+<pre>
+$ cd zpu/roadshow/roadshow/dhrystone
+$ sh build.sh
+$ cd zpu/hdl/example
+$ gcc zpuromgen.c
+$ ./a
+Usage: ./a binary_file
+$ ./a ../../roadshow/roadshow/dhrystone/dhrystone.bin >app.txt
+</pre>
+Copy and paste app.txt into helloworld.vhd.
+
+<p>
+TODO need to merge following with above.
+<p>
+
+The ZPU comes with a standard GCC toolchain and an instruction set simulator. This allows compiling, running & debugging simple test programs. The Simulator has 
+some very basic peripherals defined: counter, timer interrupt and a debug output port. 
+
+<h3>Hello world example</h3>
+The ZPU toolchain comes with newlib & libstdc++ support which means that many C/C++ programs can be compiled without modification.
+<p> 
+<pre>
+$ cd zpu/sw/helloworld
+$ zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections
+or ? TODO which one
+$ zpu-elf-gcc -phi hello.c -o hello.elf 
+$ zpu-elf-size hello.elf
+</pre>
+
+
+<a name="hdlsim"/>
+<h2>HDL simulation (ZPU4)</h2>
+TODO some of this is generic, some is zpu4 specific.  Should move to refdesign section when ref design exists.
+<p>
+For new users you will also find scripts in the zealot area that may be useful.
+<p>
+You'll find a working simulation script in hdl/example/simzpu_small.do and hdl/example_medium/simzpu_medium.do, which
+show simulation of the small(zpu_core_small.vhd) and medium sized ZPU(zpu_core.vhd). hdl/example/simzpu_interrupt.do
+shows use of interrupts.
+<p>
+When implementing the ZPU, copy the following files and modify them to your needs:
+<ol>
+    <li>hdl/example/zpu_config.vhd - set up RAM size here
+    <li>hdl/example/helloworld.vhd - dual port BRAM implementation. 
+</ol>
+Obviously you must also connect the ZPU to the rest of your IO subsystem. IO is memory mapped(read/write) in the ZPU.
+
+<h3>Running example simulation</h3>
+The hdl/example directory has a simulation written for Xilinx WebPack ModelSim. From the ModelSim command prompt:
+<ol>
+<li>cd c:/&lt;installfolder&gt;/hdl/example
+<li>do zpusim_small.do
+</ol>
+<p>
+After running the hello world simulation (see zpusim.do), two files are written to the hdl/example directory:
+<ol>
+<li>log.txt - contains the "Hello world!" text written to the debug channel/simplified UART.
+<li>trace.txt - a trace file for the CPU. The instruction set simulator has the capability of taking
+this file as input in order to verify that the HDL implementation matches the instruction set simulator. 
+When a mismatch is found, the GDB debugger will break. Very handy for debugging custom ZPU implementations. 
+</ol>  
+
+
+<a name="gdbsim"/>
+<h2>GDB simulation</h2>
+<ol>
+<li>cd zpu/sw/helloworld
+<li>Launch the simulator from a seperate bash shell:<p>
+java -classpath ../simulator/zpusim.jar -Xmx512m com.zylin.zpu.simulator.Phi 4444
+<p>
+<img src="images/zpusim.PNG" border=0> 
+<li>Launch GDB:<p>
+../install/bin/zpu-elf-gdb hello.elf
+<li>Connect to target, load and run application:<p>
+<pre>
+(gdb) target remote localhost:4444<br>
+(gdb) load<br>
+(gdb) continue<br>
+</pre>
+<p>
+<img src="images/gccgdb.PNG">
+
+</ol>
+
+
+<a name="simulator"/>
+<h1>Simulator</h1> 
+<P>The ZPU simulator is integrated into the Zylin Embedded CDT plugin
+to ease debugging of ZPU applications:</P>
+<P><A HREF="http://www.zylin.com/embeddedcdt.html">http://www.zylin.com/embeddedcdt.html</A></P>
+<P>The ZPU simulator has many features besides debugging an
+application:</P>
+<UL>
+  <LI><P STYLE="margin-bottom: 0in">taking output from simulation(e.g.
+  ModelSim) and matching that against the Java simulator, thus making
+  it much easier to debug HDL implementations and also getting real
+  world timing information 
+  </P>
+  <LI><P STYLE="margin-bottom: 0in">can generate gprof output 
+  </P>
+  <LI><P>generate various statistics 
+  </P>
+</UL>
+<P>The plugin is still pretty rough around the edges, and needs to
+get GUI support for enabling the ModelSim trace input feature.</P>
+<P ALIGN=CENTER><IMG SRC="images/compile.PNG" NAME="graphics7" ALIGN=BOTTOM WIDTH=669 HEIGHT=302 BORDER=0><BR><I>Compiling
+ZPU application</I></P>
+<P ALIGN=CENTER><IMG SRC="images/simulator.PNG" NAME="graphics9" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Setting
+up the simulator</I></P>
+<P ALIGN=CENTER><IMG SRC="images/simulator2.PNG" NAME="graphics11" ALIGN=BOTTOM WIDTH=722 HEIGHT=583 BORDER=0><BR><I>Choosing
+ZPU executable</I></P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in"><IMG SRC="images/simulator3.PNG" NAME="graphics13" ALIGN=BOTTOM WIDTH=1100 HEIGHT=720 BORDER=0><BR><I>Debug
+session</I></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+
+
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<a name="misc"/>
+<h1>Misc</h1>
+TODO Stuff that could probably find a better home.
+
+<a name="hwdebugger"/>
+<h2>JTAG/hardware debugger for GDB</h2>
+The Zylin <a href="http://www.zylin.com/zy1000.html">ZY1000</a> JTAG debugger supports
+the ZPU. Contact <a href="http://www.zylin.com">Zylin</a> for pricing and details.
+<p>
+There are two debug modes in which the ZY1000 can operate:
+<ul>
+<li>Classic. Here the ZY1000 controls the CPU and examines the state. The ZY1000 has a built in
+GDB server that GDB talks to.
+<li>Small footprint. If there isn't enough space on the device for the ZPU *and* the JTAG
+controller, then the ZY1000 can run the ZPU externally. The JTAG communication channel is
+then used to peek/poke peripherals and inside the FPGA instead of the ZPU there is then
+a JTAG controller that peeks and pokes the peripherals of the ZPU. There are advantages
+and disadvantages of this approach: it may be unfamiliar to embedded developers and  
+the timing is different from the "real" ZPU(interrupts are delayed, execution speed
+differse, etc.) On the other hand there are other things
+which are simpler: much more RAM can be available for the ZPU during development,
+better debug consoles(faster), additional peripheral(timers, etc.) is available. This
+approach is somewhat unique to the ZPU as the ZPU is simple enough that it can be
+implemented efficiently in this manner. 
+</ul>
+
+
+<a name="tuning"/>
+<h2>Speeding up the ZPU</h2>
+There are two aspects of speeding up the ZPU: making it perform better
+for a particular application and toying around with the ZPU architecture.
+<h3>Performance tips</h3>
+<ol>
+<li>Profile. Create a small sample and run in a simulator that is as close
+to the real deployment as possible. zpu4/core/histogram.perl is a script
+that will tell you which instructions take the most time.
+<li> Using the profile output, decide on which emulated instructions that
+it makes sense to implement in HDL for your particular application. Modifying
+zpu_core_small.vhd is not particularly hard. Most instructions can be
+transliterated into zpu_core_small.vhd from zpu_core.vhd without too much
+problem.
+<li>The memory subsystem may well turn out to be where you should concentrate
+your efforts.
+</ol>
+<h3>Toying around with the architecture</h3>
+Again: profile 90% of the time and spend the remaining 10% tinkering 
+with the architecture.
+<ul>
+<li>There is a DMIPS program you can use to measure the performance of
+the ZPU in lieu of profiling a real application. The latter is obviously
+a superior solution.
+<li>Again: use histogram.perl to figure out which instructions you should add
+in HDL.
+<li>Tinker a bit with Fmax to find the maximum speed rating for your design.
+<li>zpu_core_small.vhd should be ca. 1 DMIPS and zpu_core.vhd should yield
+about 5-10 DMIPS before adding instructions runs out of steam.
+</ul>
+If you need to get ca. 20-50 DMIPS out of the ZPU you will have to
+write a heavily pipelined architecture with caches(if you are running
+against DRAM). This is *tricky*, but some proof of concept work was
+done to show 20 DMIPS w/the ZPU(the actual result was discarded since
+it was not complete and contained fatal flaws).
+<p>
+Achieving above 50-100 DMIPS with the current ZPU architecture is probably
+a non-starter and a more conventional RISC design makes more sense here.
+<p>
+The unique advantages of the ZPU is size in terms of HDL & code size.
+
+
 
 <a name="codesize"/>
-<h1>Optimizing for code size</h1>
+<h2>Optimizing for code size</h2>
 The ZPU toolchain produces highly compact code.  
 <ol>
 <li>Since the ZPU GCC toolchain supports standard ANSI C, it is easy to stumble across
@@ -1827,11 +1665,11 @@ functionality that takes up a lot of space. E.g. the standard printf() function 
 from the printf() function and thus boast a "smaller" printf() when in fact they have a non-standard printf(). newlib has a standard printf() function
 and an alternative iprintf() function that works only on integers.
 <li>The ZPU ships with default startup code that works across various configurations of the ZPU, so be warned that there is some overhead that will
-not occurr in the final application(anywhere between 1-4kBytes).
+not occur in the final application(anywhere between 1-4kBytes).
 <li>Compilation and linker options matter. The ZPU benefits greatly from the "-Wl,--relax -Wl,--gc-sections" options which is not used by
 all architectures(e.g. GCC ARM does not implement/need -Wl,--relax).  
 </ol> 
-<h2>Small code example</h2>
+<h3>Small code example</h3>
 <code>
 zpu-elf-gcc -Os -abel smallstd.c -o smallstd.elf -Wl,--relax -Wl,--gc-sections<br>
 zpu-elf-size small.elf<br>
@@ -1842,7 +1680,7 @@ $ zpu-elf-size small.elf<br>
 <br>
 </code>
 
-<h2>Even smaller code example</h2>
+<h3>Even smaller code example</h3>
 If the ZPU implements the optional instructions, the RAM overhead can be reduced significantly.
 <p>
 <code>
@@ -1855,10 +1693,8 @@ $ zpu-elf-size small.elf<br>
      <br>
 </code>
 
-
-
 <a name="ecos"/>
-<h1>Installing eCos build tools</h1>
+<h2>Installing eCos build tools</h2>
 <code>
 tar -xjvf ecossnapshot.tar.bz2<br>
 tar -xjvf repository.tar.bz2<br>
@@ -1867,7 +1703,7 @@ tar -xjvf ecostools.tar.bz2<br>
 export PATH=$PATH:`pwd`/ecos-install<br>
 export ECOS_REPOSITORY=`pwd`/ecos/packages:`pwd`/repository<br>
 </code>
-<h1>Compiling eCos tests</h1>
+<h3>Compiling eCos tests</h3>
 <code>
 ecosconfig new zeta default<br>
 ecosconfig tree<br>
@@ -1876,142 +1712,575 @@ cd kernel/current<br>
 make tests<br>
 </code>
 
-<h1>Code size ZPU</h1>
-<code>
-$ zpu-elf-size *<br>
-   text    data     bss     dec     hex filename<br>
-  15761    1504   12060   29325    728d bin_sem0<br>
-  16907    1512   14436   32855    8057 bin_sem1<br>
-  17105    1524   30032   48661    be15 bin_sem2<br>
-  17186    1512   14436   33134    816e bin_sem3<br>
-  18986    1500   12036   32522    7f0a clock0<br>
-  15812    1504   13236   30552    7758 clock1<br>
-  25095    1972   13224   40291    9d63 clockcnv<br>
-  16437    1500   13224   31161    79b9 clocktruth<br>
-  15762    1504   12060   29326    728e cnt_sem0<br>
-  17124    1512   14436   33072    8130 cnt_sem1<br>
-  35947    1564   22512   60023    ea77 dhrystone<br>
-  16428    1500   13228   31156    79b4 except1<br>
-  15751    1504   12052   29307    727b flag0<br>
-  19145    1512   15624   36281    8db9 flag1<br>
-  20053    1516  102908  124477   1e63d fptest<br>
-  15998    1496   12092   29586    7392 intr0<br>
-  16080    1496   12200   29776    7450 kalarm0<br>
-  15327    1496   12036   28859    70bb kcache1<br>
-  15549    1496   13224   30269    763d kcache2<br>
-  18291    1500   12260   32051    7d33 kclock0<br>
-  16231    1500   13232   30963    78f3 kclock1<br>
-  16572    1496   13228   31296    7a40 kexcept1<br>
-  15618    1496   12060   29174    71f6 kflag0<br>
-  19287    1500   15624   36411    8e3b kflag1<br>
-  16887    1516   15628   34031    84ef kill<br>
-  16186    1496   12128   29810    7472 kintr0<br>
-  19724    1504   14516   35744    8ba0 klock<br>
-  18283    1500   14592   34375    8647 kmbox1<br>
-  15539    1496   12064   29099    71ab kmutex0<br>
-  16524    1504   15664   33692    839c kmutex1<br>
-  18272    1712   20348   40332    9d8c kmutex3<br>
-  18682    1608   20352   40642    9ec2 kmutex4<br>
-  15619    1496   14412   31527    7b27 ksched1<br>
-  15567    1496   12060   29123    71c3 ksem0<br>
-  17063    1500   14436   32999    80e7 ksem1<br>
-  15504    1496   13228   30228    7614 kthread0<br>
-  16167    1496   14412   32075    7d4b kthread1<br>
-  18281    1512   14580   34373    8645 mbox1<br>
-  20611    1508   14940   37059    90c3 mqueue1<br>
-  15672    1504   12064   29240    7238 mutex0<br>
-  16678    1516   15664   33858    8442 mutex1<br>
-  17694    1508   16868   36070    8ce6 mutex2<br>
-  18203    1720   20344   40267    9d4b mutex3<br>
-  16352    1508   14428   32288    7e20 release<br>
-  15890    1500   14412   31802    7c3a sched1<br>
-  44196    1612  286332  332140   5116c stress_threads<br>
-  17891    1524   16864   36279    8db7 sync2<br>
-  16943    1512   15644   34099    8533 sync3<br>
-  15467    1496   13064   30027    754b thread0<br>
-  16134    1496   14420   32050    7d32 thread1<br>
-  17560    1512   15636   34708    8794 thread2<br>
-  16279    1500   24028   41807    a34f thread_gdb<br>
-  17051    1504   20376   38931    9813 timeslice<br>
-  17146    1504   21564   40214    9d16 timeslice2<br>
-  37313    1512  422380  461205   70995 tm_basic<br>
-</code>
-<h2>Code size ARM (non-thumb)</h2>
+<h2>Code size ZPU</h2>
+<pre>
+$ zpu-elf-size *
+   text    data     bss     dec     hex filename
+  15761    1504   12060   29325    728d bin_sem0
+  16907    1512   14436   32855    8057 bin_sem1
+  17105    1524   30032   48661    be15 bin_sem2
+  17186    1512   14436   33134    816e bin_sem3
+  18986    1500   12036   32522    7f0a clock0
+  15812    1504   13236   30552    7758 clock1
+  25095    1972   13224   40291    9d63 clockcnv
+  16437    1500   13224   31161    79b9 clocktruth
+  15762    1504   12060   29326    728e cnt_sem0
+  17124    1512   14436   33072    8130 cnt_sem1
+  35947    1564   22512   60023    ea77 dhrystone
+  16428    1500   13228   31156    79b4 except1
+  15751    1504   12052   29307    727b flag0
+  19145    1512   15624   36281    8db9 flag1
+  20053    1516  102908  124477   1e63d fptest
+  15998    1496   12092   29586    7392 intr0
+  16080    1496   12200   29776    7450 kalarm0
+  15327    1496   12036   28859    70bb kcache1
+  15549    1496   13224   30269    763d kcache2
+  18291    1500   12260   32051    7d33 kclock0
+  16231    1500   13232   30963    78f3 kclock1
+  16572    1496   13228   31296    7a40 kexcept1
+  15618    1496   12060   29174    71f6 kflag0
+  19287    1500   15624   36411    8e3b kflag1
+  16887    1516   15628   34031    84ef kill
+  16186    1496   12128   29810    7472 kintr0
+  19724    1504   14516   35744    8ba0 klock
+  18283    1500   14592   34375    8647 kmbox1
+  15539    1496   12064   29099    71ab kmutex0
+  16524    1504   15664   33692    839c kmutex1
+  18272    1712   20348   40332    9d8c kmutex3
+  18682    1608   20352   40642    9ec2 kmutex4
+  15619    1496   14412   31527    7b27 ksched1
+  15567    1496   12060   29123    71c3 ksem0
+  17063    1500   14436   32999    80e7 ksem1
+  15504    1496   13228   30228    7614 kthread0
+  16167    1496   14412   32075    7d4b kthread1
+  18281    1512   14580   34373    8645 mbox1
+  20611    1508   14940   37059    90c3 mqueue1
+  15672    1504   12064   29240    7238 mutex0
+  16678    1516   15664   33858    8442 mutex1
+  17694    1508   16868   36070    8ce6 mutex2
+  18203    1720   20344   40267    9d4b mutex3
+  16352    1508   14428   32288    7e20 release
+  15890    1500   14412   31802    7c3a sched1
+  44196    1612  286332  332140   5116c stress_threads
+  17891    1524   16864   36279    8db7 sync2
+  16943    1512   15644   34099    8533 sync3
+  15467    1496   13064   30027    754b thread0
+  16134    1496   14420   32050    7d32 thread1
+  17560    1512   15636   34708    8794 thread2
+  16279    1500   24028   41807    a34f thread_gdb
+  17051    1504   20376   38931    9813 timeslice
+  17146    1504   21564   40214    9d16 timeslice2
+  37313    1512  422380  461205   70995 tm_basic
+</pre>
+<h3>Code size ARM (non-thumb)</h3>
 Thumb does not compile out of the box w/AT91 EB40a for which this test was made.<p>
-<code>
-$ arm-elf-size *<br>
-   text    data     bss     dec     hex filename<br>
-  25204     692   16976   42872    a778 bin_sem0<br>
-  26644     700   22096   49440    c120 bin_sem1<br>
-  26996     712   55584   83292   1455c bin_sem2<br>
-  27008     700   22100   49808    c290 bin_sem3<br>
-  28992     688   16944   46624    b620 clock0<br>
-  25456     692   19532   45680    b270 clock1<br>
-  34572    1160   19520   55252    d7d4 clockcnv<br>
-  26224     688   19508   46420    b554 clocktruth<br>
-  25204     692   16976   42872    a778 cnt_sem0<br>
-  26888     700   22108   49696    c220 cnt_sem1<br>
-  44180     752   27416   72348   11a9c dhrystone<br>
-  26088     688   19520   46296    b4d8 except1<br>
-  25236     692   16968   42896    a790 flag0<br>
-  29532     700   24668   54900    d674 flag1<br>
-  29508     704  109652  139864   22258 fptest<br>
-  25932     684   17016   43632    aa70 intr0<br>
-  25824     684   17112   43620    aa64 kalarm0<br>
-  24728     684   16956   42368    a580 kcache1<br>
-  25168     684   19512   45364    b134 kcache2<br>
-  28112     688   17168   45968    b390 kclock0<br>
-  25976     688   19524   46188    b46c kclock1<br>
-  26372     684   19512   46568    b5e8 kexcept1<br>
-  25140     684   16968   42792    a728 kflag0<br>
-  29824     688   24660   55172    d784 kflag1<br>
-  26896     704   24656   52256    cc20 kill<br>
-  26088     684   17028   43800    ab18 kintr0<br>
-  30812     692   22176   53680    d1b0 klock<br>
-  28504     688   22260   51452    c8fc kmbox1<br>
-  24984     684   16984   42652    a69c kmutex0<br>
-  26504     692   24704   51900    cabc kmutex1<br>
-  28792     900   34892   64584    fc48 kmutex3<br>
-  29264     796   34896   64956    fdbc kmutex4<br>
-  25240     684   22084   48008    bb88 ksched1<br>
-  25044     684   16968   42696    a6c8 ksem0<br>
-  26988     688   22100   49776    c270 ksem1<br>
-  25028     684   19512   45224    b0a8 kthread0<br>
-  25996     684   22080   48760    be78 kthread1<br>
-  28552     700   22252   51504    c930 mbox1<br>
-  31324     696   22612   54632    d568 mqueue1<br>
-  25108     692   16980   42780    a71c mutex0<br>
-  26464     704   24700   51868    ca9c mutex1<br>
-  27624     696   27280   55600    d930 mutex2<br>
-  28596     908   34884   64388    fb84 mutex3<br>
-  26156     696   22100   48952    bf38 release<br>
-  25460     688   22084   48232    bc68 sched1<br>
-  56356     828   45892  103076   192a4 stress_threads<br>
-  27900     712   27288   55900    da5c sync2<br>
-  26760     700   24692   52152    cbb8 sync3<br>
-  24924     684   19356   44964    afa4 thread0<br>
-  25868     684   22084   48636    bdfc thread1<br>
-  27452     700   24680   52832    ce60 thread2<br>
-  26136     688   42704   69528   10f98 thread_gdb<br>
-  27212     692   34916   62820    f564 timeslice<br>
-  52728     700  123332  176760   2b278 tm_basic<br>
-</code>
+<pre>
+$ arm-elf-size *
+   text    data     bss     dec     hex filename
+  25204     692   16976   42872    a778 bin_sem0
+  26644     700   22096   49440    c120 bin_sem1
+  26996     712   55584   83292   1455c bin_sem2
+  27008     700   22100   49808    c290 bin_sem3
+  28992     688   16944   46624    b620 clock0
+  25456     692   19532   45680    b270 clock1
+  34572    1160   19520   55252    d7d4 clockcnv
+  26224     688   19508   46420    b554 clocktruth
+  25204     692   16976   42872    a778 cnt_sem0
+  26888     700   22108   49696    c220 cnt_sem1
+  44180     752   27416   72348   11a9c dhrystone
+  26088     688   19520   46296    b4d8 except1
+  25236     692   16968   42896    a790 flag0
+  29532     700   24668   54900    d674 flag1
+  29508     704  109652  139864   22258 fptest
+  25932     684   17016   43632    aa70 intr0
+  25824     684   17112   43620    aa64 kalarm0
+  24728     684   16956   42368    a580 kcache1
+  25168     684   19512   45364    b134 kcache2
+  28112     688   17168   45968    b390 kclock0
+  25976     688   19524   46188    b46c kclock1
+  26372     684   19512   46568    b5e8 kexcept1
+  25140     684   16968   42792    a728 kflag0
+  29824     688   24660   55172    d784 kflag1
+  26896     704   24656   52256    cc20 kill
+  26088     684   17028   43800    ab18 kintr0
+  30812     692   22176   53680    d1b0 klock
+  28504     688   22260   51452    c8fc kmbox1
+  24984     684   16984   42652    a69c kmutex0
+  26504     692   24704   51900    cabc kmutex1
+  28792     900   34892   64584    fc48 kmutex3
+  29264     796   34896   64956    fdbc kmutex4
+  25240     684   22084   48008    bb88 ksched1
+  25044     684   16968   42696    a6c8 ksem0
+  26988     688   22100   49776    c270 ksem1
+  25028     684   19512   45224    b0a8 kthread0
+  25996     684   22080   48760    be78 kthread1
+  28552     700   22252   51504    c930 mbox1
+  31324     696   22612   54632    d568 mqueue1
+  25108     692   16980   42780    a71c mutex0
+  26464     704   24700   51868    ca9c mutex1
+  27624     696   27280   55600    d930 mutex2
+  28596     908   34884   64388    fb84 mutex3
+  26156     696   22100   48952    bf38 release
+  25460     688   22084   48232    bc68 sched1
+  56356     828   45892  103076   192a4 stress_threads
+  27900     712   27288   55900    da5c sync2
+  26760     700   24692   52152    cbb8 sync3
+  24924     684   19356   44964    afa4 thread0
+  25868     684   22084   48636    bdfc thread1
+  27452     700   24680   52832    ce60 thread2
+  26136     688   42704   69528   10f98 thread_gdb
+  27212     692   34916   62820    f564 timeslice
+  52728     700  123332  176760   2b278 tm_basic
+</pre>
 
+<a name="memorymap"/>
+<h2>Phi memory map</h2>
+TODO This probably belongs in the refdesign section.  For now leaving it here because zealot refers to it.  Not sure what else uses it.
+<p>
+The ZPU architecture does not define a memory map as such, but the GCC + libgloss + ecos hal library uses the
+memory map below. "Phi" is just a three letter word for the particular memory layout below that came about
+while developing the ZPU.
+<p>
+  <TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
+    <COL WIDTH=85>
+    <COL WIDTH=42>
+    <COL WIDTH=136>
+    <COL WIDTH=283>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Address</B></FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Type</B></FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Name</B></FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Description</B></FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0000</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+        enable</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:1] Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]  Enable ZPU operations</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  ZPU
+        is held in Idle mode</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  ZPU
+        running</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A000C</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+        Debug channel / UART to ARM7 TX</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+        ZPU side</B></FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:9] Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [8]  TX buffer ready (valid on ready)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  TX
+        buffer not ready (full)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  TX
+        buffer ready</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [7:0]  TX byte (valid on write)</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0010</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">ZPU
+        Debug channel / UART to ARM7 RX</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+        ZPU side</B></FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:9] Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [8]  RX buffer data valid</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  RX
+        buffer not valid</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  RX
+        buffer valid</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [7:0]  RX byte (when valid)</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0014</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(1)</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]  Reset counter (valid for write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  N/A</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Reset
+        counter</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [1]  Sample counter (valid for write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  N/A</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Sample
+        counter</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:0]    Counter bit 31:0</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0018</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Counter(2)</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:0]    Counter bit 63:32</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0020</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
+        / Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Global_Interrupt_mask</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:1]    Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Global intr. Mask</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  Interrupts
+        enabled</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupts
+        disabled</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0024</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_INTERRUPT_ENABLE</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:1]    Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Debug channel / UART RX interrupt enable</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  Interrupt
+        disable</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        enable</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0028</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">UART_interrupt</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:1]    Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Debug channel / UART RX interrupt pending (Read)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  No
+        interrupt pending</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        pending</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Clear UART interrupt (Write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  N/A</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        cleared</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A002C</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Interrupt_enable</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:1]    Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Timer interrupt  enable</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  Interrupt
+        disable</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        enable</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0030</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read
+        /</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_interrupt</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:2]    Not used</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Timer interrupt pending (Read)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  No
+        interrupt pending</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        pending</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [1]    Reset Timer counter (Write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  N/A</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Timer
+        counter reset</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [0]    Clear Timer interrupt (Write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  0  N/A</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">  1  Interrupt
+        cleared</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0034</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Period</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:0]    Interrupt period (write)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">    Number
+        of clock cycles</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">    between
+        timer interrupts</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt"><B>NOTE!
+        </B>The timer will start at Timer_Periode value and count <B>down</B>
+        to zero, and generate an interrupt</FONT></FONT></P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">.0x080A0038</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Timer_Counter</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit
+        [31:0]    Timer counter (read)</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+    </TR>
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><BR>
+        </P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><BR>
+        </P>
+      </TD>
+    </TR>
+  </TABLE>
 
+<hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+
+<a name="todo"/>
+<h1>TODO</h1>
+
+<a name="todolist"/>
+<h2>TODO list</h2>
+<ul>
+<li>fix the TODO in this doc that are just doc fixes
+<li>organize the TODO list by priority and assign responsibility... if there are takers.
+<li>converge on a single IO for core implementations.
+<li>fill in performance table.
+<li>re-org CVS to make it easy to keep appropriate SW, RTL(verilog and VHDL) , scripts, verification stuff together.  separation of tools, core, common, and ref design
+<li>provide FPGA scripts.
+<li>provide HDL regression environment.
+<li>RAM model contribution needed.  What is in opencore/common is not adequate.
+<li>make wishbone bridge re-usable with all cores 
+<li>explicit example with UART from opencores in the above ref designs.
+<li>discussion of tools needed and choose some to be supported by project.  Need to deal with cygwin vs linux, VHDL vs verilog, open vs closed.... plus language support in simulators is sometimes lacking.
+<li>setup.sh script needs to detect linux/cygwin, and should have install path option.
+<li>shaping up the www.opencores.org pages. 
+<li>BSD and GPL licenses in the appropriate places.
+<li>Currently there exists some pages at <A HREF="http://www.zylin.com/zpu.htm">http://www.zylin.com/zpu.htm</A> that explains about the ZPU. According to OpenCores policy this information should be moved to www.opencores.org. Patches gratefully accepted to do so!
+<li>eCos HAL could be less RAM hungry 
+<li>Needs GDB stub support in eCos 
+<li>Could do with a Verilog implementation(ca. 600 lines to translate)
+<li>Make little endian throughout.  Currently instructions are stored big endian, loadb and storeb are big endian, but the data bus is treated as little endian.  Creates some problems in type conversion.
+</ul>
+
+<a name="repository"/>
+<h2>Repository Re-org</h2>
+I am proposing the following structure for the repository. It follows somewhat the way I've organized this document with seperation of core, common, and three SOC ref designs.  New users go straight to the SOC that best matches their needs.
+<pre>
+zpu/bin         # scripts and toolchain?  Want toolchain installed with project.  Tidier when working in multi user / multi project environment
+zpu/doc         # 
+zpu/core/rtl    # RTL for the various core implementations.
+zpu/core/sw     # crt0.s ?
+zpu/common/rtl  # Re-use RTL such as RAM and UART
+zpu/common/sim  # Re-use RTL and tools for regresion testing
+zpu/common/sw   # ?
+zpu/soc/minimal # Three levels of ref designs described above
+       /basic 
+       /board
+zpu/soc/*/rtl   # top level, arbiter, etc
+zpu/soc/*/sw    # helloworld, dmips, etc. makefile/ROMS
+zpu/soc/*/sim   # regression test area. makefile/scripts
+zpu/soc/*/fpga  # syn and par area. makefile/scripts
+zpu/tools       # zip/tarball of tool chains, simulator
+</pre>
+Not sure where ecos fits.
 
 <a name="nextgen"/>
-<h1>Next generation ZPU</h1>
+<h2>Next generation ZPU</h2>
 Based on feedback here is a list of a tenuous "consensus" for the next generation
 of the ZPU with some tentative ideas on implementation.
-<h2>Goals</h2>
+<h3>Goals</h3>
 <ol>
 <li>Reduce minimum code size footprint, i.e. BRAM code overhead. Non-trivial
 usable applications in 4kBytes of BRAM (single BRAM block).
-<li>Reduce minimum FPGA logic footprint by 20% or more. Goal <300 LUT for 
+<li>Reduce minimum FPGA logic footprint by 20% or more. Goal &lt;300 LUT for 
 32 bit ZPU
-<li>Weed out unecessary ZPU variations 
+<li>Weed out unnecessary ZPU variations 
+<li>Will someone be willing to contribute a heavily pipelined ZPU?
+For this to make sense, the performance must hit 20 DMIPS w/DRAM & cache.
+This ZPU could run a TCP/IP stack with relevant performance to compete
+with stripped down ARM7 type systems.
 </ol>
-<h2>Best current ideas on how to reach these goals</h2>
+<h3>Best current ideas on how to reach these goals</h3>
 <ol>
 <li>Introduce 16 entry 32 bit LIFO for instructions that change sp today. LOADSP/STORESP/ADDSP
 refer to the normal stack but add/get values from the LIFO in addition.<p>
@@ -2034,7 +2303,7 @@ to write denser microcode for missing instructions. For emulated opcodes that ar
 not in use, the microcode can more easily be disabled. Determining
 that e.g. MULT is not used, can be a bit tricky, but disabling it is easy.
 <p>
-The unsupported vectory entry address is 0x10.
+The unsupported vector entry address is 0x10.
 <li>GCC needs 4 registers. These are today mapped to memory. What addresses to use?
 Today memory address 0x00-0x0f inclusive are used for this purpose. Introduce emulated
 instruction to load/store these registers? That would allow using either hardware or
@@ -2052,47 +2321,9 @@ from the compiler.
 emitting more advanced instructions. This will e.g. convert MULT/DIV into
 function calls to libgcc and thus make it easier to determine that
 microcode is not needed.
-</ol>
-<h2>Next generation ZPU HDL work</h2>
-<ol>
-<li>Incorporate feedback on FPGA tricks to reduce memory usage: do not
-use asynchronous reset?, use BRAMs in synchronous mode to reduce 
-complexity of state machine?, seperate code/data bus? Reduce
-instruction set further. Goal: <300 LUT's for 32 bit ZPU
-<li>Will someone be willing to contribute a heavily pipelined ZPU?
-For this to make sense, the performance must hit 20 DMIPS w/DRAM & cache.
-This ZPU could run a TCP/IP stack with relevant performance to compete
-with stripped down ARM7 type systems.
-</ol>
 
-<a name="download"/>
-<h1>Download source code</h1> 
-</P>
-<P>The simplest way to get the ZPU HDL source and tools is to check
-it out from CVS:</P>
-<P>cvs -d :pserver:anonymous@cvs.opencores.org:/cvsroot/anonymous co
-zpu/zpu</P>
-<P>Start by reading zpu/zpu/hdl/index.html</P>
-
-<a name="patch"/>
-<h1>Creating a patch</h1> 
-<P><BR>Please submit changes to the <a href="#mailinglist">zylin-zpu mailing list</a> as a patch.
-</P>
-<ol>
-<li>Merge your changes with CVS HEAD.  
-<li>Update the FreeBSD or GPL copyright with your name in the case
-of non-trivial changes. If in doubt, add the copyright.
-<li>Add an entry to zpu/ChangeLog with date, your name, email, the
-files you changed and a comment. 
-<li><code>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</code>
-<li>Email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
-as an uncompressed .txt file
-</ol>
-<a name="mailinglist"/>
-<h1>Getting help - mailing list</h1> 
-The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
 <a name="registerstack"/>
-<h1>Register stack</h1>
+<h2>Register stack</h2>
 In order to reduce the size and complexity of the small ZPU, a register stack
 has been put forward. It remains an open question as to whether this can
 indeed reduce size and improve performance of the ZPU.
@@ -2110,12 +2341,12 @@ saved. It's depth would be fixed to something natural
 for an FPGA, say 16 deep(doesn't that translate to a single
 LUT for a bit?).
 
-<h2>Example of internal stack</h2> 
+<h3>Example of internal stack</h3> 
 im 1 ; push onto register stack <br>
 loadsp N ; load from memory pointed to by sp+N, push onto register stack<br>
 add ; pop values from register stack and add, push onto register stack<br>
 
-<h2>Quick summary of instruction operation with register stack</h2>
+<h3>Quick summary of instruction operation with register stack</h3>
 This is not a "formal" definition of the instruction set, but should
 give a pretty good idea of what the modified instruction looks like.
 <p>
@@ -2123,7 +2354,7 @@ Read up on the current definition of instructions and consider the
 list below a guide to what changes have been made to fit a register
 stack. The list is not complete, but covers the important categories
 of instructions. If it is clear how the ADD instruction changed,
-then it should be obvious how the AND isntruction must be similarly
+then it should be obvious how the AND instruction must be similarly
 modified.
 <p>
 Note also that there are lots of tiny problems  that have to be ironed
@@ -2145,6 +2376,8 @@ a first stab, which hopefully is good enough to evaluate the approach.
 <tr><td>NOT </td><td> pop register stack, bit inverse value, push onto register stack</td></tr>
 </table>
 Emulate instructions and calling convention may have to change substantially.
+
+
 
 </body>
 <html>
