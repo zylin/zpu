@@ -66,7 +66,6 @@ Several of the links will only work if you have checked out the zpu/zpu tree fro
   <li> <a href="#todolist">TODO list</a>
   <li> <a href="#repository">Repository Re-org</a>
   <li> <a href="#nextgen">Next generation ZPU</a>
-  <li> <a href="#registerstack">Register stack ZPU</a>
   </ul>
 </ul>
 
@@ -74,8 +73,34 @@ Several of the links will only work if you have checked out the zpu/zpu tree fro
 
 <a name="introduction"/>
 <h1>Introduction</h1>
-<P>TODO a new welcome message indicating goals/direction of project.</P>
 <P>The worlds smallest 32 bit CPU with GCC toolchain.
+<P>The ZPU is a small CPU in two ways: it takes up very little resources and
+the architecture itself is small. The latter can be important when learning
+about CPU architectures and implementing variations of the ZPU where 
+aspects of CPU design is examined. In academia students can learn VHDL,
+CPU architecture in general and complete exercises in the course of a year.</P>
+<P>
+The current ZPU instruction set and architecture has not changed for
+the last couple of years and can be considered quite stable. There is
+a lot of discussion about various modifications to the ZPU architecture
+in the zylin-zpu mailing list, but currently no actual modifications are
+planned as the improvements that have been identified are relatively
+slight(&lt;30% performance/size improvement). 
+</P>
+<P>
+There are a handful of implementations of the ZPU. Most of these usually
+have some strong points and there is some movement in the direction of
+consolidating improvements into a few officially recommended ZPU 
+implementations.
+</P>
+<P>
+For those that are interested in the Zylin ZPU, I recommend joining
+up on the zylin-zpu mailing list and participating in the discussion
+there. The zylin-zpu is a friendly place where people of different
+skills, hardware, software, tools meet to exchange ideas about the ZPU
+and microprocessor architecture in general.
+</P>
+
 <P>Sincerely,</P>
 <P>&Oslash;yvind Harboe <BR>Zylin AS 
 </P>
@@ -121,38 +146,29 @@ information about where the ZPU can be the most useful:</P>
 
 <a name="download"/>
 <h2>Download source code</h2> 
-</P>
-<P>To get the ZPU HDL source and tools, check it out from CVS:</P>
-<P>cvs -d :pserver:anonymous@cvs.opencores.org:/cvsroot/anonymous co
-zpu/zpu</P>
-There are more instructions 
-<a href="http://www.opencores.org/projects.cgi/web/opencores/cvs_howto">here</a>
-and
-<a href="http://www.opencores.org/faq.cgi/section/5/5.2.2">here</a>
-.
-
-<P>As of 01 JAN 2009, if you check out all of zpu it is about 200MB, and includes more than you need.  It is recommended that you only checkout zpu/zpu.
-
+The ZPU HDL source code is available as a GIT repository from rep.xxx.cz. 
+You can download the latest sourcecode as a snapshot withing installing GIT.
+<p>
+Previously the ZPU repository was hosted as a CVS repository at www.opencores.org,
+but that ZPU CVS repository is there only for historical reference at this point.
+Once www.opencores.org grows a GIT hosting service, the plan is to replicate
+the GIT repository there.
 <a name="patch"/>
-<h2>Creating a patch</h2> 
-<P>Please submit changes to the <a href="#mailinglist">zylin-zpu mailing list</a> as a patch.
-</P>
-<ol>
-<li>Merge your changes with CVS HEAD.  
-<li>Update the FreeBSD or GPL copyright with your name in the case
-of non-trivial changes. If in doubt, add the copyright.
-<li>Add an entry to zpu/ChangeLog with date, your name, email, the
-files you changed and a comment. 
-<li><code>cd zpu <BR>cvs diff -upN . &gt; mypatch.txt</code>
-<li>Email it to <a href="#mailinglist">zylin-zpu mailing list</a>. Attach it
-as an uncompressed .txt file
-</ol>
-
+<h2>GIT</h2> 
+For more advanced use of GIT, you will need to hit the books and read up 
+on the GIT documentation.
+<p/>
+That said, you can ask "silly" newbie questions about GIT on the <a href="#mailinglist">zylin-zpu mailing 
+list</a> and you should receive some friendly prodding in the right direction
+w.r.t. finding reading material.
 <a name="mailinglist"/>
 <h2>Getting help - mailing list</h2> 
 <P>The place to get help is the <a href="http://www.zylin.com/mailinglist.html">zylin-zpu mailing list</a>
 
 <P>
+The ZPU is an open source project and if you demonstrate that you have
+made an effort to read the documentation and googled, then you will
+normally get some help from this list if you ask clear questions. 
 
 <hr> <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
@@ -2274,110 +2290,34 @@ of the ZPU with some tentative ideas on implementation.
 usable applications in 4kBytes of BRAM (single BRAM block).
 <li>Reduce minimum FPGA logic footprint by 20% or more. Goal &lt;300 LUT for 
 32 bit ZPU
-<li>Weed out unnecessary ZPU variations 
+<li>Weed out unnecessary ZPU variations and merge in useful
+features to a few recommeneded ZPU implementations.
 <li>Will someone be willing to contribute a heavily pipelined ZPU?
-For this to make sense, the performance must hit 20 DMIPS w/DRAM & cache.
+Performance goal of 10 DMIPS w/DRAM & cache.
 This ZPU could run a TCP/IP stack with relevant performance to compete
 with stripped down ARM7 type systems.
 </ol>
-<h3>Best current ideas on how to reach these goals</h3>
+<h2>GCC changes</h2>
+The GCC changes planned are 100% backwards compatible with default
+options. However, a raft of options will be added to disable 
+functionality so as to allow study and experimentation with the
+ZPU architecture.
 <ol>
-<li>Introduce 16 entry 32 bit LIFO for instructions that change sp today. LOADSP/STORESP/ADDSP
-refer to the normal stack but add/get values from the LIFO in addition.<p>
-<code>
-loadsp n ; load value from memory at address "sp + n" and put it into the LIFO.<br>
-im m ; put value into LIFO register<br>
-add ; get two values from LIFO register, put back result. <br>
-</code>  
-<p>
-NB! none of the instructions above change sp!!!
-<p>
-If the LIFO is full, putting a value into the LIFO has no defined behaviour. Getting a value
-from an empty LIFO has no defined behaviour.
-<p>
-GCC will use 8 slots, instruction emulation and interrupts owns the remaining 8 slots.
-
-<li>Add single entry for unknown instructions. PC and unsupported instruction is
-pushed onto stack before jumping to unknown instruction vector. This makes it possible
-to write denser microcode for missing instructions. For emulated opcodes that are 
-not in use, the microcode can more easily be disabled. Determining
-that e.g. MULT is not used, can be a bit tricky, but disabling it is easy.
-<p>
-The unsupported vector entry address is 0x10.
-<li>GCC needs 4 registers. These are today mapped to memory. What addresses to use?
-Today memory address 0x00-0x0f inclusive are used for this purpose. Introduce emulated
-instruction to load/store these registers? That would allow using either hardware or
-memory registers. 
-<li>Single entry for *all* unknown instructions does not limit emulation to the
-EMULATE instructions today, but instructions such as OR, LOADSP, STORESP, ADDSP,
-etc. can also be emulated. This opens up for further reduction in logic usage.
-<li>The single entry for all unknown instructions will make it easier to
-write a compact custom crt0.s to fit an instruction subset. 
-<li>The interrupt is basically an unknown instruction that is injected into
-the execution stream.
-<li>Add floating point add and mult. FADD & FMULT. Option to generate the instructions
-from the compiler.
+<li>Add options that allow defining single entry for all unknown instructions. Precisely
+how unknown instructions are handled will be defined by the HDL implementation. 
+Currently the GCC backend places relatively strict limitations on how unknown/emulated
+instructions are handled. This will allow HDL implementations to have 
+sparser instruction set support. Also this can allow sparse implementations
+of emualted instructions. This is especially important to reduce minimal
+BRAM requirements for small applications. 
+<li>GCC needs  4 "hard" registers. These are today mapped to memory. GCC
+will allow specifying what address to use or alternatively not to use
+memory mapped hard registers at all.
 <li>Strip away unused instructions from GCC and add options to GCC for not
 emitting more advanced instructions. This will e.g. convert MULT/DIV into
 function calls to libgcc and thus make it easier to determine that
 microcode is not needed.
-
-<a name="registerstack"/>
-<h2>Register stack</h2>
-In order to reduce the size and complexity of the small ZPU, a register stack
-has been put forward. It remains an open question as to whether this can
-indeed reduce size and improve performance of the ZPU.
-<p>
-Terminology: "stack" is the normal stack in memory pointed to
-by the sp register. "register stack" is a different stack that is
-not connected to memory directly or associated with the "stack". 
-<p>
-The idea is to push and pop the register stack such that bandwidth
-is increased and complexity of memory access logic is reduced.
-<p>
-Another clever bit is to mask interrupts while this stack is
-not empty such that this stack never has to be
-saved. It's depth would be fixed to something natural
-for an FPGA, say 16 deep(doesn't that translate to a single
-LUT for a bit?).
-
-<h3>Example of internal stack</h3> 
-im 1 ; push onto register stack <br>
-loadsp N ; load from memory pointed to by sp+N, push onto register stack<br>
-add ; pop values from register stack and add, push onto register stack<br>
-
-<h3>Quick summary of instruction operation with register stack</h3>
-This is not a "formal" definition of the instruction set, but should
-give a pretty good idea of what the modified instruction looks like.
-<p>
-Read up on the current definition of instructions and consider the
-list below a guide to what changes have been made to fit a register
-stack. The list is not complete, but covers the important categories
-of instructions. If it is clear how the ADD instruction changed,
-then it should be obvious how the AND instruction must be similarly
-modified.
-<p>
-Note also that there are lots of tiny problems  that have to be ironed
-out before the instruction set and emulation can work. Below is just
-a first stab, which hopefully is good enough to evaluate the approach.
-<table border=1>
-<tr><td>IM</td><td> push onto/modify top of register stack</td></tr>
-<tr><td>STORESP </td><td> pop register stack store to memory SP+N</td></tr>
-<tr><td>LOADSP </td><td> load memory SP+N push onto register stack</td></tr>
-<tr><td>EMULATE </td><td> push PC+1 onto register stack and jump to EMULATE vector</td></tr>
-<tr><td><tr><td>PUSHPC </td><td> push pc onto register stack</td></tr>
-<tr><td>POPPC </td><td> pop pc from register stack</td></tr>
-<tr><td>LOAD </td><td> pop address from register stack, load from memory address, push onto register stack</td></tr>
-<tr><td>STORE </td><td> pop register stack 2x store value to memory</td></tr>
-<tr><td>PUSHSP </td><td> push sp onto register stack</td></tr>
-<tr><td>POPSP </td><td> pop sp from register stack</td></tr>
-<tr><td>POPPC </td><td> pop pc from register stack</td></tr>
-<tr><td>ADD </td><td> pop 2x register stack, add, push to register stack</td></tr>
-<tr><td>NOT </td><td> pop register stack, bit inverse value, push onto register stack</td></tr>
-</table>
-Emulate instructions and calling convention may have to change substantially.
-
-
+</ol>
 
 </body>
 <html>
