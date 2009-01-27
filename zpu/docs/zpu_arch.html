@@ -66,6 +66,7 @@ Several of the links will only work if you have checked out the zpu/zpu tree fro
   <li> <a href="#todolist">TODO list</a>
   <li> <a href="#repository">Repository Re-org</a>
   <li> <a href="#nextgen">Next generation ZPU</a>
+  <li> <a href="#float">Floating point support</a>
   </ul>
 </ul>
 
@@ -2318,6 +2319,56 @@ emitting more advanced instructions. This will e.g. convert MULT/DIV into
 function calls to libgcc and thus make it easier to determine that
 microcode is not needed.
 </ol>
+
+<a name="float"/>
+<h1>Floating point support</h1>
+The ZPU does not currently have floating point support. Feedback
+from users indicates that single precision floating point support for
+addition, multiplication and float-to-integer convesion would
+be useful for small ZPU programs that sit in a tight control
+loop. Essentially the ZPU is then measuring something, doing a
+few calculations and then modifying the control signal. 
+<p>
+Such control loops can be written in fixed point math, but that
+adds to the engineering effort and reduces clarity of the software
+implementation and the performance will probably be worse than
+for a hardware floating point version.
+<h2>Pipelined floating point module</h2>
+Design needs to be nailed down.
+<b>Goals:</b>
+<ul>
+<li> 32 bit single precision floating point 
+<li> FADD => add two floats
+<li> FMULT => multiply two floats
+<li> FINT => convert float to int
+</ul>
+The problem is divided into two:
+
+<ol>
+<li>One top level VHDL module for each of the operations above. 
+<li>Integration into ZPU's are a separate problem that will not be
+addressed in this project.
+<li>add a memory mapped coprocessor interface to the above. This
+yields an example of a coprocessor which can be used for any
+custom calculations and allows interest to be gauged.
+</ol>
+
+Throughput:
+
+<ol>
+<li>pipelined design where throughput is one operation per cycle
+with a fixed number of cycles delay.
+<li>there is no flow control or enable signal.
+</ol>
+
+
+
+GCC support is not hard, but modifying GCC should considered after
+interest in this feature beyond a coprocessor has been gauged.
+
+<h2>VHDL module interface</h2>
+
+Patches anyone???
 
 </body>
 <html>
