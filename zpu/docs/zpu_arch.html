@@ -1510,7 +1510,7 @@ The ZPU toolchain comes with newlib & libstdc++ support which means that many C/
 <p> 
 <pre>
 $ cd zpu/sw/helloworld
-$ zpu-elf-gcc -Os -zeta hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections
+$ zpu-elf-gcc -Os -phi hello.c -o hello.elf -Wl,--relax -Wl,--gc-sections
 or ? TODO which one
 $ zpu-elf-gcc -phi hello.c -o hello.elf 
 $ zpu-elf-size hello.elf
@@ -1725,7 +1725,7 @@ export ECOS_REPOSITORY=`pwd`/ecos/packages:`pwd`/repository<br>
 </code>
 <h3>Compiling eCos tests</h3>
 <code>
-ecosconfig new zeta default<br>
+ecosconfig new phi default<br>
 ecosconfig tree<br>
 make<br>
 cd kernel/current<br>
