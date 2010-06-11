@@ -1,0 +1,70 @@
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Parsing Package:strings_h @ line ..\..\strings_h.vhd:35
+Writing  c.sym\strings_h\prim.var
+Parsing Package Body:strings_h @ line ..\..\strings_h.vhd:65
+Writing  c.sym\strings_h\_body.var
+Elapsed Time: 00h:00m:00s:100ms
+ Kernel Time: 00h:00m:00s:130ms
+   User Time: 00h:00m:00s:080ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Library 'c'		==> c.sym
+Reading  c.sym\debugio_h\prim.var
+Reading  c.sym\strings_h\prim.var
+Parsing Entity:strings_h_test @ line ..\..\..\test\strings_h_test.vhd:30
+Writing  work.sym\strings_h_test\prim.var
+Parsing Architecture:strings_h_test(strings_h_test_arch) @ line ..\..\..\test\strings_h_test.vhd:32
+Writing  work.sym\strings_h_test\_strings_h_test_arch.var
+Parsing Configuration:strings_h_test_cfg @ line ..\..\..\test\strings_h_test.vhd:82
+Writing  work.sym\strings_h_test_cfg\prim.var
+Elapsed Time: 00h:00m:00s:070ms
+ Kernel Time: 00h:00m:00s:100ms
+   User Time: 00h:00m:00s:100ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlE, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Note: CSVHE0051: vhdle: Thank you for using the free version of  from VHDL Simili.
+Warning: CSVHE0055: vhdle: Simulator will run at reduced perfomance and with certian features disabled
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Reading  work.sym\strings_h_test_cfg\prim.var
+Reading  work.sym\strings_h_test\_strings_h_test_arch.var
+Library 'c'		==> c.sym
+Reading  c.sym\strings_h\_body.var
+Reading  c.sym\debugio_h\_body.var
+	# of Signals       = 0
+	# of Components    = 0
+	# of Processes     = 1
+	# of Drivers       = 0
+Design Load/Elaboration Elapsed Time: 00h:00m:00s:030ms
+--begin test;
+hello, world: strings_h_test
+strlen('abcde'): 5==5
+strlen('abcde'+4): 2==2
+strlen('123'): 3==3
+strcpy(s, ''): []==[]
+abcdefgh==abcdefgh
+abc1234==abc1234
+cdefgh==cdefgh
+ab_CDE==ab_CDE
+strcat: abcd123==abcd123
+strcat: abcd23==abcd23
+strcat: 123==123
+s[2..$]=ello, world
+strlen('lo, world'): 9==9
+s[2..$]='lo, world'==lo, world
+s[2..$]='wo'==wo
+s[2..$]='hexyz'==hexyz
+--end test;
+Simulation stopped at: 0 ps
+Simulation Elapsed Time: 00h:00m:00s:000ms
+Total Kernel Time: 00h:00m:00s:250ms
+  Total User Time: 00h:00m:00s:100ms

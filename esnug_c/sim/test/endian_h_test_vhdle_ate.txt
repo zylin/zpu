@@ -1,0 +1,88 @@
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\prim.var
+Parsing Package:endian_h @ line ..\..\endian_h.vhd:25
+Writing  c.sym\endian_h\prim.var
+Parsing Package Body:endian_h @ line ..\..\endian_h.vhd:49
+Writing  c.sym\endian_h\_body.var
+Elapsed Time: 00h:00m:00s:050ms
+ Kernel Time: 00h:00m:00s:130ms
+   User Time: 00h:00m:00s:100ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\prim.var
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_textio\prim.var
+Library 'c'		==> c.sym
+Reading  c.sym\endian_h\prim.var
+Parsing Entity:endian_h_test @ line ..\..\..\test\endian_h_test.vhd:30
+Writing  work.sym\endian_h_test\prim.var
+Parsing Architecture:endian_h_test(endian_h_test_arch) @ line ..\..\..\test\endian_h_test.vhd:32
+Writing  work.sym\endian_h_test\_endian_h_test_arch.var
+Parsing Configuration:endian_h_test_cfg @ line ..\..\..\test\endian_h_test.vhd:117
+Writing  work.sym\endian_h_test_cfg\prim.var
+Elapsed Time: 00h:00m:00s:060ms
+ Kernel Time: 00h:00m:00s:160ms
+   User Time: 00h:00m:00s:060ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlE, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Note: CSVHE0051: vhdle: Thank you for using the free version of  from VHDL Simili.
+Warning: CSVHE0055: vhdle: Simulator will run at reduced perfomance and with certian features disabled
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Reading  work.sym\endian_h_test_cfg\prim.var
+Reading  work.sym\endian_h_test\_endian_h_test_arch.var
+Library 'c'		==> c.sym
+Reading  c.sym\endian_h\_body.var
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\_body.var
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_textio\_body.var
+	# of Signals       = 0
+	# of Components    = 0
+	# of Processes     = 1
+	# of Drivers       = 0
+Design Load/Elaboration Elapsed Time: 00h:00m:00s:050ms
+Time: 0 ps+0--begin test;
+VARIABLE b07: BIT_VECTOR(0 TO 7):=00111111;
+write(buf, b07)=00111111==00111111
+to_littleendian_bit_vector(b07)=00111111==00111111
+to_bigendian_bit_vector(b07)=11111100==11111100
+
+VARIABLE b70: BIT_VECTOR(7 DOWNTO 0):=11000000;
+write(but, b70)=11000000==11000000
+to_littleendian_bit_vector(b70)=00000011==00000011
+to_bigendian_bit_vector(b70)=11000000==11000000
+
+VARIABLE v07: STD_LOGIC_VECTOR(0 TO 7):=0LWXUZH1;
+write(buf, v07)=0LWXUZH1==0LWXUZH1
+to_littleendian_std_logic_vector(v07)=0LWXUZH1==0LWXUZH1
+to_bigendian_std_logic_vector(v07)=1HZUXWL0==1HZUXWL0
+
+VARIABLE v70: STD_LOGIC_VECTOR(7 DOWNTO 0):=1UX-HWZ0;
+write(but, v70)=1UX-HWZ0==1UX-HWZ0
+to_littleendian_std_logic_vector(v70)=0ZWH-XU1==0ZWH-XU1
+to_bigendian_std_logic_vector(v70)=1UX-HWZ0==1UX-HWZ0
+
+to_bigendian_std_logic_vector(1945,16)=0799 == 0799
+to_littleendian_std_logic_vector(1945,16)=99E0 == 99E0
+
+to_bigendian_bit_vector_string(x'F0E8')=1111000011101000 == 1111000011101000
+to_littleendian_bit_vector_string(x'F0E8')=0001011100001111 == 0001011100001111
+
+to_bigendian_std_logic_vector_string(11110000)=11110000 == 11110000
+to_littleendian_std_logic_vector_string(11110000)=00001111 == 00001111
+
+to_bigendian_std_logic_vector_string(x'F0E8')=F0E8 == F0E8
+to_littleendian_std_logic_vector_string(x'F0E8')=170F == 170F
+
+--end test;
+Simulation stopped at: 0 ps
+Simulation Elapsed Time: 00h:00m:00s:010ms
+Total Kernel Time: 00h:00m:00s:220ms
+  Total User Time: 00h:00m:00s:170ms

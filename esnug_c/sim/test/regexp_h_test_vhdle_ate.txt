@@ -1,0 +1,173 @@
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\prim.var
+Parsing Package:ctype_h @ line ..\..\ctype_h.vhd:28
+Writing  c.sym\ctype_h\prim.var
+Parsing Package Body:ctype_h @ line ..\..\ctype_h.vhd:69
+Writing  c.sym\ctype_h\_body.var
+Elapsed Time: 00h:00m:00s:110ms
+ Kernel Time: 00h:00m:00s:150ms
+   User Time: 00h:00m:00s:090ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Parsing Package:strings_h @ line ..\..\strings_h.vhd:35
+Writing  c.sym\strings_h\prim.var
+Parsing Package Body:strings_h @ line ..\..\strings_h.vhd:65
+Writing  c.sym\strings_h\_body.var
+Elapsed Time: 00h:00m:00s:090ms
+ Kernel Time: 00h:00m:00s:090ms
+   User Time: 00h:00m:00s:080ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Parsing Package:debugio_h @ line ..\..\debugio_h.vhd:26
+Writing  c.sym\debugio_h\prim.var
+Parsing Package Body:debugio_h @ line ..\..\debugio_h.vhd:39
+Writing  c.sym\debugio_h\_body.var
+Elapsed Time: 00h:00m:00s:080ms
+ Kernel Time: 00h:00m:00s:110ms
+   User Time: 00h:00m:00s:090ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Reading  c.sym\ctype_h\prim.var
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\prim.var
+Parsing Package:stdlib_h @ line ..\..\stdlib_h.vhd:25
+Writing  c.sym\stdlib_h\prim.var
+Parsing Package Body:stdlib_h @ line ..\..\stdlib_h.vhd:48
+Writing  c.sym\stdlib_h\_body.var
+Elapsed Time: 00h:00m:00s:040ms
+ Kernel Time: 00h:00m:00s:130ms
+   User Time: 00h:00m:00s:070ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'c'		==> c.sym
+Library 'work'		==> Library 'c' ==> c.sym
+Reading  c.sym\strings_h\prim.var
+Parsing Package:regexp_h @ line ..\..\regexp_h.vhd:27
+Writing  c.sym\regexp_h\prim.var
+Parsing Package Body:regexp_h @ line ..\..\regexp_h.vhd:67
+Writing  c.sym\regexp_h\_body.var
+Elapsed Time: 00h:00m:00s:120ms
+ Kernel Time: 00h:00m:00s:140ms
+   User Time: 00h:00m:00s:080ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlP, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\prim.var
+Library 'c'		==> c.sym
+Reading  c.sym\strings_h\prim.var
+Reading  c.sym\stdlib_h\prim.var
+Reading  c.sym\ctype_h\prim.var
+Reading  c.sym\regexp_h\prim.var
+Parsing Entity:regexp_h_test @ line ..\..\..\test\regexp_h_test.vhd:36
+Writing  work.sym\regexp_h_test\prim.var
+Parsing Architecture:regexp_h_test(regexp_h_test_arch) @ line ..\..\..\test\regexp_h_test.vhd:38
+Writing  work.sym\regexp_h_test\_regexp_h_test_arch.var
+Parsing Configuration:regexp_h_test_cfg @ line ..\..\..\test\regexp_h_test.vhd:414
+Writing  work.sym\regexp_h_test_cfg\prim.var
+Elapsed Time: 00h:00m:00s:180ms
+ Kernel Time: 00h:00m:00s:120ms
+   User Time: 00h:00m:00s:150ms
+Symphony EDA (R) VHDL Compiler/Simulator Module VhdlE, Version 2.3, Build#8.
+Copyright(C) Symphony EDA 1997-2004. All rights reserved.
+Note: CSVHE0051: vhdle: Thank you for using the free version of  from VHDL Simili.
+Warning: CSVHE0055: vhdle: Simulator will run at reduced perfomance and with certian features disabled
+Reading C:\Program Files\Symphony EDA\VHDL Simili 2.3\bin\symphony.ini ...
+Library 'ieee'		==> $SYMPHONYEDA/lib/ieee/ieee.sym (readonly)
+Library 'work'		==> work.sym
+Reading  work.sym\regexp_h_test_cfg\prim.var
+Reading  work.sym\regexp_h_test\_regexp_h_test_arch.var
+Library 'c'		==> c.sym
+Reading  c.sym\regexp_h\_body.var
+Reading  c.sym\strings_h\_body.var
+Reading  c.sym\stdlib_h\_body.var
+Reading  c.sym\ctype_h\_body.var
+Reading  $SYMPHONYEDA\lib\ieee\ieee.sym\std_logic_1164\_body.var
+Warning: ****Reducing simulation speed to super slow mode!
+	# of Signals       = 0
+	# of Components    = 0
+	# of Processes     = 1
+	# of Drivers       = 0
+Design Load/Elaboration Elapsed Time: 00h:00m:00s:070ms
+--begin test;
+%+ #-0.0s    ::
+0.0s    ::
+10s     :hello, world:
+10.0s   :          :
+.10s    :hello, wor:
+0.10s   :hello, wor:
+-10s    :hello, world:
+-10.0s  :          :
+.15s    :hello, world:
+0.15s   :hello, world:
+-15s    :hello, world   :
+-15.0s  :               :
+15.10s  :     hello, wor:
+-15.10s :hello, wor     :
+-5.10s  :hello, wor     :
+true=1
+false=0
+bit=1
+b1=00110101
+b2=01010011
+vu1=0LWXU1Z-
+v1=0LWXU1Z-
+v2=0LWXU1Z-
+std_logic=1
+std_ulogic=0
+-15  =:10001:
+-1   =:11:
+-1   =:-1:
+s  -7=:1001:
+u  -7=:9:
+d  -7=:-7:
++15  =:11110:
+d    =:15:
+#3d  =:1945:
+ 3d  =: 1945:
+ +3d =:+1945:
++ 3d =:+1945:
++3d  =:+1945:
+3d   =:1945:
+3d   =:-1945:
+10x  =:       e99:
+10x  =:       16e:
+10x  =:     0xe99:
+10x  =:     0x16e:
+-1945=:111001100001:
+10d  =:      1945:
+10d  =:     -1945:
+010d =:0000001945:
+010d =:-000001945:
+ 010d=:0000001945:
+ 010d=:-000001945:
++010d=:+000001945:
++010d=:-000001945:
+s    =:10011001111:
+10s  =:10011001111:
+  d  =:-103:
+10d  =:      -103:
+--end test;
+Simulation stopped at: 0 ps
+Simulation Elapsed Time: 00h:00m:01s:923ms
+Total Kernel Time: 00h:00m:00s:260ms
+  Total User Time: 00h:00m:01s:762ms

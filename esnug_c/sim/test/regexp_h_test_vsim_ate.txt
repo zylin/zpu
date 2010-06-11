@@ -1,0 +1,83 @@
+Reading /home/mgc/modeltech/bin/../sunos5/../tcl/vsim/pref.tcl 
+
+# 5.4d
+
+# vsim -do vsim_temp_cmd.txt -lib C -l regexp_h_test_vsim_log.txt -c regexp_h_test_cfg 
+# //  ModelSim SE/EE VHDL 5.4d Sep 15 2000 SunOS 5.8
+# //
+# //  Copyright (c) Mentor Graphics Corporation, 1982-2000, All Rights Reserved.
+# //                       UNPUBLISHED, LICENSED SOFTWARE.
+# //            CONFIDENTIAL AND PROPRIETARY INFORMATION WHICH IS THE
+# //          PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS.
+# //
+# //  Copyright (c) Model Technology Incorporated 1990-2000, All Rights Reserved.
+# //
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.standard
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.textio(body)
+# Loading /home/mgc/modeltech/bin/../sunos5/../ieee.std_logic_1164(body)
+# Loading C.strings_h(body)
+# Loading C.ctype_h(body)
+# Loading C.stdlib_h(body)
+# Loading C.regexp_h(body)
+# Loading C.regexp_h_test_cfg
+# Loading C.regexp_h_test(regexp_h_test_arch)
+# do vsim_temp_cmd.txt 
+# --begin test;
+# %+ #-0.0s    ::
+# 0.0s    ::
+# 10s     :hello, world:
+# 10.0s   :          :
+# .10s    :hello, wor:
+# 0.10s   :hello, wor:
+# -10s    :hello, world:
+# -10.0s  :          :
+# .15s    :hello, world:
+# 0.15s   :hello, world:
+# -15s    :hello, world   :
+# -15.0s  :               :
+# 15.10s  :     hello, wor:
+# -15.10s :hello, wor     :
+# -5.10s  :hello, wor     :
+# true=1
+# false=0
+# bit=1
+# b1=00110101
+# b2=01010011
+# vu1=0LWXU1Z-
+# v1=0LWXU1Z-
+# v2=0LWXU1Z-
+# std_logic=1
+# std_ulogic=0
+# -15  =:10001:
+# -1   =:11:
+# -1   =:-1:
+# s  -7=:1001:
+# u  -7=:9:
+# d  -7=:-7:
+# +15  =:11110:
+# d    =:15:
+#3d  =:1945:
+#  3d  =: 1945:
+#  +3d =:+1945:
+# + 3d =:+1945:
+# +3d  =:+1945:
+# 3d   =:1945:
+# 3d   =:-1945:
+# 10x  =:       e99:
+# 10x  =:       16e:
+# 10x  =:     0xe99:
+# 10x  =:     0x16e:
+# -1945=:111001100001:
+# 10d  =:      1945:
+# 10d  =:     -1945:
+# 010d =:0000001945:
+# 010d =:-000001945:
+#  010d=:0000001945:
+#  010d=:-000001945:
+# +010d=:+000001945:
+# +010d=:-000001945:
+# s    =:10011001111:
+# 10s  =:10011001111:
+#   d  =:-103:
+# 10d  =:      -103:
+# --end test;

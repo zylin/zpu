@@ -1,0 +1,40 @@
+Reading /home/mgc/modeltech/bin/../sunos5/../tcl/vsim/pref.tcl 
+
+# 5.4d
+
+# vsim -do vsim_temp_cmd.txt -lib C -l strings_h_test_vsim_log.txt -c strings_h_test_cfg 
+# //  ModelSim SE/EE VHDL 5.4d Sep 15 2000 SunOS 5.8
+# //
+# //  Copyright (c) Mentor Graphics Corporation, 1982-2000, All Rights Reserved.
+# //                       UNPUBLISHED, LICENSED SOFTWARE.
+# //            CONFIDENTIAL AND PROPRIETARY INFORMATION WHICH IS THE
+# //          PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS.
+# //
+# //  Copyright (c) Model Technology Incorporated 1990-2000, All Rights Reserved.
+# //
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.standard
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.textio(body)
+# Loading C.debugio_h(body)
+# Loading C.strings_h(body)
+# Loading C.strings_h_test_cfg
+# Loading C.strings_h_test(strings_h_test_arch)
+# do vsim_temp_cmd.txt 
+# --begin test;
+# hello, world: strings_h_test
+# strlen('abcde'): 5==5
+# strlen('abcde'+4): 2==2
+# strlen('123'): 3==3
+# strcpy(s, ''): []==[]
+# abcdefgh==abcdefgh
+# abc1234==abc1234
+# cdefgh==cdefgh
+# ab_CDE==ab_CDE
+# strcat: abcd123==abcd123
+# strcat: abcd23==abcd23
+# strcat: 123==123
+# s[2..$]=ello, world
+# strlen('lo, world'): 9==9
+# s[2..$]='lo, world'==lo, world
+# s[2..$]='wo'==wo
+# s[2..$]='hexyz'==hexyz
+# --end test;

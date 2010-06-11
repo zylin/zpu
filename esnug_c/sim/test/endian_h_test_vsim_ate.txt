@@ -1,0 +1,56 @@
+Reading /home/mgc/modeltech/bin/../sunos5/../tcl/vsim/pref.tcl 
+
+# 5.3a
+
+# vsim -do vsim_temp_cmd.txt -lib C -l endian_h_test_vsim_log.txt -c endian_h_test_cfg 
+# //  ModelSim EE 5.3a Sep 19 1999 SunOS 5.9
+# //
+# //  Copyright (c) Mentor Graphics Corporation, 1982-1999, All Rights Reserved.
+# //                       UNPUBLISHED, LICENSED SOFTWARE.
+# //            CONFIDENTIAL AND PROPRIETARY INFORMATION WHICH IS THE
+# //          PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS.
+# //
+# //  Copyright (c) Model Technology Incorporated 1990-1999, All Rights Reserved.
+# //
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.standard
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.textio(body)
+# Loading /home/mgc/modeltech/bin/../sunos5/../ieee.std_logic_1164(body)
+# Loading /home/mgc/modeltech/bin/../sunos5/../ieee.std_logic_textio(body)
+# Loading C.endian_h(body)
+# Loading C.endian_h_test_cfg
+# Loading C.endian_h_test(endian_h_test_arch)
+# do vsim_temp_cmd.txt 
+# --begin test;
+# VARIABLE b07: BIT_VECTOR(0 TO 7):=00111111;
+# write(buf, b07)=00111111==00111111
+# to_littleendian_bit_vector(b07)=00111111==00111111
+# to_bigendian_bit_vector(b07)=11111100==11111100
+# 
+# VARIABLE b70: BIT_VECTOR(7 DOWNTO 0):=11000000;
+# write(but, b70)=11000000==11000000
+# to_littleendian_bit_vector(b70)=00000011==00000011
+# to_bigendian_bit_vector(b70)=11000000==11000000
+# 
+# VARIABLE v07: STD_LOGIC_VECTOR(0 TO 7):=0LWXUZH1;
+# write(buf, v07)=0LWXUZH1==0LWXUZH1
+# to_littleendian_std_logic_vector(v07)=0LWXUZH1==0LWXUZH1
+# to_bigendian_std_logic_vector(v07)=1HZUXWL0==1HZUXWL0
+# 
+# VARIABLE v70: STD_LOGIC_VECTOR(7 DOWNTO 0):=1UX-HWZ0;
+# write(but, v70)=1UX-HWZ0==1UX-HWZ0
+# to_littleendian_std_logic_vector(v70)=0ZWH-XU1==0ZWH-XU1
+# to_bigendian_std_logic_vector(v70)=1UX-HWZ0==1UX-HWZ0
+# 
+# to_bigendian_std_logic_vector(1945,16)=0799 == 0799
+# to_littleendian_std_logic_vector(1945,16)=99E0 == 99E0
+# 
+# to_bigendian_bit_vector_string(x'F0E8')=1111000011101000 == 1111000011101000
+# to_littleendian_bit_vector_string(x'F0E8')=0001011100001111 == 0001011100001111
+# 
+# to_bigendian_std_logic_vector_string(11110000)=11110000 == 11110000
+# to_littleendian_std_logic_vector_string(11110000)=00001111 == 00001111
+# 
+# to_bigendian_std_logic_vector_string(x'F0E8')=F0E8 == F0E8
+# to_littleendian_std_logic_vector_string(x'F0E8')=170F == 170F
+# 
+# --end test;

@@ -1,0 +1,36 @@
+Reading /home/mgc/modeltech/bin/../sunos5/../tcl/vsim/pref.tcl 
+
+# 5.4d
+
+# vsim -do vsim_temp_cmd.txt -lib C -l stdlib_h_test_vsim_log.txt -c stdlib_h_test_cfg 
+# //  ModelSim SE/EE VHDL 5.4d Sep 15 2000 SunOS 5.8
+# //
+# //  Copyright (c) Mentor Graphics Corporation, 1982-2000, All Rights Reserved.
+# //                       UNPUBLISHED, LICENSED SOFTWARE.
+# //            CONFIDENTIAL AND PROPRIETARY INFORMATION WHICH IS THE
+# //          PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS LICENSORS.
+# //
+# //  Copyright (c) Model Technology Incorporated 1990-2000, All Rights Reserved.
+# //
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.standard
+# Loading /home/mgc/modeltech/bin/../sunos5/../std.textio(body)
+# Loading /home/mgc/modeltech/bin/../sunos5/../ieee.std_logic_1164(body)
+# Loading C.ctype_h(body)
+# Loading C.stdlib_h(body)
+# Loading C.stdlib_h_test_cfg
+# Loading C.stdlib_h_test(stdlib_h_test_arch)
+# do vsim_temp_cmd.txt 
+# --begin test;
+# hello, world: stdlib_h_test
+# strtoul base=10 123=123 endptr= 4=4
+# strtoul base=8   64=83 endptr= 4=4
+# strtoul base=16 291=291 endptr= 4=4
+# strtoul base=16 291=291 endptr= 4=4
+# strtoul base=0  123=123 endptr= 4=4
+# strtoul base=0   83=83 endptr= 5=5
+# strtoul base=0  291=291 endptr= 6=6
+# strtoul base=0  291=291 endptr= 6=6
+# atoi    base=10 123=123
+# atoi    base=10 -123=-123
+# atoi    base=10 +123=123
+# --end test;
