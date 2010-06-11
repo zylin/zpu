@@ -16,3 +16,7 @@ compile:
 
 simulate:
 	vsim -gui $(library).$(top) -do run.do
+
+
+clean:
+	rm -rf tools

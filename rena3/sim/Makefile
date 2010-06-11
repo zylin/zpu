@@ -16,3 +16,10 @@ compile:
 
 simulate:
 	vsim -gui $(library).$(top) -do run.do
+
+
+clean:
+	rm -f transcript
+	rm -f *.wlf
+	rm -f wlf*
+	rm -rf rena3
