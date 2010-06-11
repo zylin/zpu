@@ -1,0 +1,15 @@
+syntax:glob
+
+#download directorys
+*/download/*
+
+# modelsim stuff
+wlf*
+*.wlf
+*.psm
+*.prw
+*.dbs
+*.dat
+glob:esnug_c/doc/snug2002_20040606_slides.pdf
+glob:esnug_c/doc/snug2002_20020313_paper.pdf
+glob:ct-lab.zip
