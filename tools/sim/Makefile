@@ -8,7 +8,7 @@ vhdlfiles    = $(rtl_tb_files) $(rtl_files)
 
 all: lib compile
 
-lib:
+lib:	$(library)/_info
 	vlib $(library)
 
 compile:
