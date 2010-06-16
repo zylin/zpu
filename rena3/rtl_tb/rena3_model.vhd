@@ -11,6 +11,9 @@ use ieee.std_logic_1164.all;
 
 package rena3_model_package is
 
+
+    type real_array is array(natural range <>) of real;
+
     component rena3_model is
 
         port (
@@ -23,7 +26,7 @@ package rena3_model_package is
             -- VSS         : in  std_ulogic; -- 0V, Digital ground
             -- VSSA1       : in  std_ulogic; -- 0V, Low noise analog ground
             -- VSSA        : in  std_ulogic; -- 0V, Analog ground
-            -- TEST        : in  std_ulogic; -- +/-720mV step input to simulate signal. This signal is for testing
+            TEST           : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
                                              -- channels.
             -- VGATE       : in  std_ulogic; -- 0V or ~1.5V for simple gate feedback operation. Must enable with
                                              -- FETSEL bit in channel to use this.
@@ -38,7 +41,7 @@ package rena3_model_package is
             -- VREFHI      : in  std_ulogic; -- 3.5V, High reference for negative going signals
             -- VREFLO      : in  std_ulogic; -- 1.5V, Low reference for positive going signals and reference for low rail
                                              -- of DAC
-            -- DETECTOR_IN : in  std_ulogic_vector(0 to 35); -- Detector inputs pins
+            DETECTOR_IN    : in  real_array(0 to 35); -- Detector inputs pins
             -- AOUTP       : in  std_ulogic; -- ?, Positive differential output
             -- AOUTN       : in  std_ulogic; -- ?, Negative differential output
             CSHIFT         : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
@@ -87,6 +90,8 @@ end package rena3_model_package;
 library ieee;
 use ieee.std_logic_1164.all;
 
+library rena3;
+use rena3.rena3_model_package.real_array;
 
 entity rena3_model is
     port (
@@ -99,7 +104,7 @@ entity rena3_model is
         -- VSS         : in  std_ulogic; -- 0V, Digital ground
         -- VSSA1       : in  std_ulogic; -- 0V, Low noise analog ground
         -- VSSA        : in  std_ulogic; -- 0V, Analog ground
-        -- TEST        : in  std_ulogic; -- +/-720mV step input to simulate signal. This signal is for testing
+        TEST           : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
                                          -- channels.
         -- VGATE       : in  std_ulogic; -- 0V or ~1.5V for simple gate feedback operation. Must enable with
                                          -- FETSEL bit in channel to use this.
@@ -114,7 +119,7 @@ entity rena3_model is
         -- VREFHI      : in  std_ulogic; -- 3.5V, High reference for negative going signals
         -- VREFLO      : in  std_ulogic; -- 1.5V, Low reference for positive going signals and reference for low rail
                                          -- of DAC
-        -- DETECTOR_IN : in  std_ulogic_vector(0 to 35); -- Detector inputs pins
+        DETECTOR_IN    : in  real_array(0 to 35); -- Detector inputs pins
         -- AOUTP       : in  std_ulogic; -- ?, Positive differential output
         -- AOUTN       : in  std_ulogic; -- ?, Negative differential output
         CSHIFT         : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge

@@ -121,9 +121,11 @@ begin
     -- dut
     rena3_model_i0: rena3_model
         port map(
-            CSHIFT => r.cshift,    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
-            CIN    => r.cin,       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
-            CS     => r.cs         --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            TEST        => 0.0,             --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
+            DETECTOR_IN => (others => 0.0), --   : in  real_array(0 to 35); -- Detector inputs pins
+            CSHIFT      => '0',             --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
+            CIN         => '0',             --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
+            CS          => '0'              --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
         );
 
     -- main
