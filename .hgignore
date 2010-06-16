@@ -3,6 +3,9 @@ syntax:glob
 #download directorys
 */download/*
 
+#vim stuff
+*.swp
+
 # modelsim stuff
 wlf*
 *.wlf
@@ -12,6 +15,10 @@ wlf*
 *.dat
 _info
 _vmake
+_temp*
+
+# docs
+glob:rena3/doc/*.pdf
 glob:esnug_c/doc/snug2002_20040606_slides.pdf
 glob:esnug_c/doc/snug2002_20020313_paper.pdf
 glob:ct-lab.zip
