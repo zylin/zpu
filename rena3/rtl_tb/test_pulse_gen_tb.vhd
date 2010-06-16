@@ -6,15 +6,12 @@ end entity test_pulse_gen_tb;
 library ieee;
 use ieee.std_logic_1164.all;
 
+library rena3;
+use rena3.test_pulse_gen_package.test_pulse_gen;
+
+
 architecture testbench of test_pulse_gen_tb is
     
-    component test_pulse_gen is
-        port (
-            trigger : in  std_ulogic;
-            pulse   : out real
-        );
-    end component test_pulse_gen;
-
     signal testbench_trigger       : std_ulogic;
     signal test_pulse_gen_i0_pulse : real;
 
