@@ -344,118 +344,126 @@ begin
         -- TODO check the config
         -- only follower mode supported
         -- only testmode supported
-        print_reg: process (channel_configuration_array)
+        -- print_reg: process (channel_configuration_array, channel_configuration)
+        print_reg: process
+            variable address_bits          : std_ulogic_vector(5 downto 0);
             variable address               : natural range 0 to 35;
             variable l                     : line;
             variable i                     : integer;
             variable s                     : line;
         begin
-            address                    := to_integer(unsigned(channel_configuration(40 downto 35)));
-            fprint( output, l, "-------------- %30s --------------\n", me_c);
-            fprint( output, l, "update internal register at address : %d\n", fo( address));
-            
-            fprint( output, l, "%20s %b    ", "fb_tc",      fo( channel_configuration_array(address).fb_tc));
-            if channel_configuration_array(address).fb_tc = '1' then 
-                fprint( output, l, "(1.2Gohm feedback resistance)\n"); 
-            else 
-                fprint( output, l, "(200Mohm feedback resistance)\n"); 
-            end if;
-            
-            fprint( output, l, "%20s %b    ", "ecal",       fo( channel_configuration_array(address).ecal));
-            if channel_configuration_array(address).ecal = '1' then 
-                fprint( output, l, "(channel calibration, TEST signal on input)\n");
-            else 
-                fprint( output, l, "\n");
-            end if;
-            
-            fprint( output, l, "%20s %b    ", "fpdwn",      fo( channel_configuration_array(address).fpdwn));
-            if channel_configuration_array(address).fpdwn = '1' then 
-                fprint( output, l, "(power down fast circuits)\n"); 
-            else 
-                fprint( output, l, "\n");
-            end if;
-            
-            fprint( output, l, "%20s %b    ", "fetsel",     fo( channel_configuration_array(address).fetsel));
-            if channel_configuration_array(address).fetsel = '1' then 
-                fprint( output, l, "(simple FET feedback)\n"); 
-            else 
-                fprint( output, l, "(resistive multipier circuit)\n"); 
-            end if;
+            wait until falling_edge(CS);
+            address_bits               := channel_configuration(40 downto 35);
+            if is_x(address_bits) then
+                fprint( output, l, me_c & ": undefined address.");
+            else
+                address                    := to_integer(unsigned(address_bits));
+                fprint( output, l, "-------------- %30s --------------\n", me_c);
+                fprint( output, l, "update internal register at address : %d\n", fo( address));
+                
+                fprint( output, l, "%20s %b    ", "fb_tc",      fo( channel_configuration_array(address).fb_tc));
+                if channel_configuration_array(address).fb_tc = '1' then 
+                    fprint( output, l, "(1.2Gohm feedback resistance)\n"); 
+                else 
+                    fprint( output, l, "(200Mohm feedback resistance)\n"); 
+                end if;
+                
+                fprint( output, l, "%20s %b    ", "ecal",       fo( channel_configuration_array(address).ecal));
+                if channel_configuration_array(address).ecal = '1' then 
+                    fprint( output, l, "(channel calibration, TEST signal on input)\n");
+                else 
+                    fprint( output, l, "\n");
+                end if;
+                
+                fprint( output, l, "%20s %b    ", "fpdwn",      fo( channel_configuration_array(address).fpdwn));
+                if channel_configuration_array(address).fpdwn = '1' then 
+                    fprint( output, l, "(power down fast circuits)\n"); 
+                else 
+                    fprint( output, l, "\n");
+                end if;
+                
+                fprint( output, l, "%20s %b    ", "fetsel",     fo( channel_configuration_array(address).fetsel));
+                if channel_configuration_array(address).fetsel = '1' then 
+                    fprint( output, l, "(simple FET feedback)\n"); 
+                else 
+                    fprint( output, l, "(resistive multipier circuit)\n"); 
+                end if;
 
-            i := integer(channel_configuration_array(address).g*10.0);
-            fprint( output, l, "%20s %d.%d  (gain)\n",  "g",          fo(i / 10), fo(i mod 10));
+                i := integer(channel_configuration_array(address).g*10.0);
+                fprint( output, l, "%20s %d.%d  (gain)\n",  "g",          fo(i / 10), fo(i mod 10));
 
-            fprint( output, l, "%20s %b    ", "pdwn",       fo( channel_configuration_array(address).pdwn));
-            if channel_configuration_array(address).pdwn = '1' then 
-                fprint( output, l, "(power down enabled)\n");
-            else 
-                fprint( output, l, "\n");
+                fprint( output, l, "%20s %b    ", "pdwn",       fo( channel_configuration_array(address).pdwn));
+                if channel_configuration_array(address).pdwn = '1' then 
+                    fprint( output, l, "(power down enabled)\n");
+                else 
+                    fprint( output, l, "\n");
+                end if;
+                
+                fprint( output, l, "%20s %b    ", "pzsel",      fo( channel_configuration_array(address).pzsel));
+                if channel_configuration_array(address).pzsel = '1' then 
+                    fprint( output, l, "(pole zero cancellation enabled)\n");
+                else 
+                    fprint( output, l, "\n");
+                end if;
+
+                fprint( output, l, "%20s %b    ", "cap_range",  fo( channel_configuration_array(address).cap_range));
+                if channel_configuration_array(address).cap_range = '1' then 
+                    fprint( output, l, "(60 fF feedback cap)\n"); 
+                else 
+                    fprint( output, l, "(15 fF feedback cap)\n"); 
+                end if;
+
+                fprint( output, l, "%20s %b    ", "rsel",       fo( channel_configuration_array(address).rsel));
+                if channel_configuration_array(address).rsel = '1' then 
+                    fprint( output, l, "(select VREFHI)\n"); 
+                else 
+                    fprint( output, l, "(select VREFLO?)\n"); 
+                end if;
+
+                i := integer(channel_configuration_array(address).sel*100.0);
+                fprint( output, l, "%20s %d.%2d (time constant in us)\n", "sel",        fo(i / 100), fo(i mod 100));
+
+                fprint( output, l, "%20s %b    ", "sizea",      fo( channel_configuration_array(address).sizea));
+                if channel_configuration_array(address).sizea = '1' then 
+                    fprint( output, l, "(1000 um input FET)\n"); 
+                else 
+                    fprint( output, l, "(450 um input FET)\n"); 
+                end if;
+
+                fprint( output, l, "%20s %d\n",     "df",         fo( channel_configuration_array(address).df));
+
+                fprint( output, l, "%20s %b    ", "pol",        fo( channel_configuration_array(address).pol));
+                if channel_configuration_array(address).pol = '1' then 
+                    fprint( output, l, "(positive polarity)\n"); 
+                else 
+                    fprint( output, l, "(negative polarity)\n"); 
+                end if;
+
+                fprint( output, l, "%20s %d\n",     "ds",         fo( channel_configuration_array(address).ds));
+
+                fprint( output, l, "%20s %b    ", "enf",        fo( channel_configuration_array(address).enf));
+                if channel_configuration_array(address).enf = '1' then 
+                    fprint( output, l, "(fast trigger enabled)\n"); 
+                else 
+                    fprint( output, l, "\n");
+                end if;
+
+                fprint( output, l, "%20s %b    ", "ens",        fo( channel_configuration_array(address).ens));
+                if channel_configuration_array(address).ens = '1' then 
+                    fprint( output, l, "(slow trigger enabled)\n");
+                else 
+                    fprint( output, l, "\n");
+                end if;
+
+                fprint( output, l, "%20s %b    ", "fm",         fo( channel_configuration_array(address).fm));
+                if channel_configuration_array(address).fm = '1' then 
+                    fprint( output, l, "(follower mode)\n");
+                else 
+                    fprint( output, l, "\n");
+                end if;
+
+                fprint( output, l, "%60{-}\n");
             end if;
-            
-            fprint( output, l, "%20s %b    ", "pzsel",      fo( channel_configuration_array(address).pzsel));
-            if channel_configuration_array(address).pzsel = '1' then 
-                fprint( output, l, "(pole zero cancellation enabled)\n");
-            else 
-                fprint( output, l, "\n");
-            end if;
-
-            fprint( output, l, "%20s %b    ", "cap_range",  fo( channel_configuration_array(address).cap_range));
-            if channel_configuration_array(address).cap_range = '1' then 
-                fprint( output, l, "(60 fF feedback cap)\n"); 
-            else 
-                fprint( output, l, "(15 fF feedback cap)\n"); 
-            end if;
-
-            fprint( output, l, "%20s %b    ", "rsel",       fo( channel_configuration_array(address).rsel));
-            if channel_configuration_array(address).rsel = '1' then 
-                fprint( output, l, "(select VREFHI)\n"); 
-            else 
-                fprint( output, l, "(select VREFLO?)\n"); 
-            end if;
-
-            i := integer(channel_configuration_array(address).sel*100.0);
-            fprint( output, l, "%20s %d.%2d (time constant in us)\n", "sel",        fo(i / 100), fo(i mod 100));
-
-            fprint( output, l, "%20s %b    ", "sizea",      fo( channel_configuration_array(address).sizea));
-            if channel_configuration_array(address).sizea = '1' then 
-                fprint( output, l, "(1000 um input FET)\n"); 
-            else 
-                fprint( output, l, "(450 um input FET)\n"); 
-            end if;
-
-            fprint( output, l, "%20s %d\n",     "df",         fo( channel_configuration_array(address).df));
-
-            fprint( output, l, "%20s %b    ", "pol",        fo( channel_configuration_array(address).pol));
-            if channel_configuration_array(address).pol = '1' then 
-                fprint( output, l, "(positive polarity)\n"); 
-            else 
-                fprint( output, l, "(negative polarity)\n"); 
-            end if;
-
-            fprint( output, l, "%20s %d\n",     "ds",         fo( channel_configuration_array(address).ds));
-
-            fprint( output, l, "%20s %b    ", "enf",        fo( channel_configuration_array(address).enf));
-            if channel_configuration_array(address).enf = '1' then 
-                fprint( output, l, "(fast trigger enabled)\n"); 
-            else 
-                fprint( output, l, "\n");
-            end if;
-
-            fprint( output, l, "%20s %b    ", "ens",        fo( channel_configuration_array(address).ens));
-            if channel_configuration_array(address).ens = '1' then 
-                fprint( output, l, "(slow trigger enabled)\n");
-            else 
-                fprint( output, l, "\n");
-            end if;
-
-            fprint( output, l, "%20s %b    ", "fm",         fo( channel_configuration_array(address).fm));
-            if channel_configuration_array(address).fm = '1' then 
-                fprint( output, l, "(follower mode)\n");
-            else 
-                fprint( output, l, "\n");
-            end if;
-
-            fprint( output, l, "%60{-}\n");
         end process;
 
         time_check_cin_setup: process
