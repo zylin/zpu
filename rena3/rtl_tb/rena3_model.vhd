@@ -289,8 +289,9 @@ begin
 
 
 
-    ----------------------------------------
+    --------------------------------------------------------------------------------
     -- channel configuration
+    --------------------------------------------------------------------------------
     channel_configuration: block
       
         -- time constants for time checker
@@ -551,6 +552,7 @@ begin
         end process;
     
     end block channel_configuration;
+    --------------------------------------------------------------------------------
 
 
 end architecture behave;

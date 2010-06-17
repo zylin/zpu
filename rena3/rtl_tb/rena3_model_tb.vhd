@@ -20,6 +20,7 @@ use tools.image_pkg.all;
 
 library rena3;
 use rena3.rena3_model_package.rena3_model;
+use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
 
@@ -31,7 +32,7 @@ architecture testbench of rena3_model_tb is
     constant test_config_channel1_c : std_ulogic_vector := "00000100000000000000000000000000000000000"; -- 000001_0_0_0_0_00_0_0_0_0_0000_0_00000000_0_00000000_0_0_0
     constant test_config_channel2_c : std_ulogic_vector := "10000000000000000000000000000000000000001";
 
-    type state_t is (IDLE, CONFIG0, WAITING, CONFIG1, CONFIG2, READY);
+    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
 
     type configuration_t is record
@@ -51,28 +52,38 @@ architecture testbench of rena3_model_tb is
 
 
     type reg_t is record
-        state       : state_t;
-        cshift      : std_ulogic;
-        cin         : std_ulogic;
-        cs          : std_ulogic;
-        config      : configuration_t;
-        waitcounter : natural;
+        state        : state_t;
+        cshift       : std_ulogic;
+        cin          : std_ulogic;
+        cs           : std_ulogic;
+        config       : configuration_t;
+        waitcounter  : natural;
+        trigger      : std_ulogic;
+        pulsecounter : natural;
     end record reg_t;
     constant default_reg_c : reg_t := (
-        state       => IDLE,
-        cshift      => '1',
-        cin         => '0',
-        cs          => '0',
-        config      => default_configuration_c,
-        waitcounter => 10
+        state        => IDLE,
+        cshift       => '1',
+        cin          => '0',
+        cs           => '0',
+        config       => default_configuration_c,
+        waitcounter  => 10,
+        trigger      => '0',
+        pulsecounter => 3
     );
 
-    signal   simulation_run : boolean    := true;
-    signal   clock          : std_ulogic := '0';
-    signal   reset          : std_ulogic;
 
-    signal   r, r_in        : reg_t;
-    signal   cshift         : std_ulogic;
+    type src_t is record
+        test_pulse_gen_i0_pulse : real;
+    end record src_t;
+
+
+    signal simulation_run          : boolean    := true;
+    signal clock                   : std_ulogic := '0';
+    signal reset                   : std_ulogic;
+                                   
+    signal r, r_in                 : reg_t;
+    signal src                     : src_t;
 
 
 
@@ -112,21 +123,32 @@ architecture testbench of rena3_model_tb is
 
     end procedure configure_rena;
 
+
+
 begin
 
     -- clock and reset
     clock <= not clock after clock_period/2 when simulation_run;
     reset <= '1', '0'  after  10 * clock_period;
+    
+    -- stimuli generator
+    test_pulse_gen_i0: test_pulse_gen
+        port map(
+            trigger => r.trigger,
+            pulse   => src.test_pulse_gen_i0_pulse 
+        );
+
 
     -- dut
     rena3_model_i0: rena3_model
         port map(
-            TEST        => 0.0,             --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
-            DETECTOR_IN => (others => 0.0), --   : in  real_array(0 to 35); -- Detector inputs pins
-            CSHIFT      => r.cshift,        --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
-            CIN         => r.cin,           --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
-            CS          => r.cs             --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            TEST        => src.test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
+            DETECTOR_IN => (others => 0.0),             --   : in  real_array(0 to 35); -- Detector inputs pins
+            CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
+            CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
+            CS          => r.cs                         --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
         );
+
 
     -- main
     comb: process(r)
@@ -139,43 +161,73 @@ begin
         case v.state is
 
             when IDLE    =>
-                v.state             := CONFIG0;
-                v.config.vector     := test_config_channel0_c;
-                v.config.start      := true;
+                v.state                 := CONFIG0;
+                v.config.vector         := test_config_channel0_c;
+                v.config.start          := true;
 
             when CONFIG0 =>
                 if v.config.ready then
-                    v.state         := WAITING;
+                    v.state             := WAIT1;
                 end if;
 
-            when WAITING =>
+            when WAIT1 =>
                 if v.waitcounter = 0 then
-                    v.state         := CONFIG1;
-                    v.config.vector := test_config_channel1_c;
-                    v.config.start  := true;
+                    v.state             := CONFIG1;
+                    v.config.vector     := test_config_channel1_c;
+                    v.config.start      := true;
                 else
-                    v.waitcounter   := v.waitcounter - 1;
+                    v.waitcounter       := v.waitcounter - 1;
                 end if;
 
             when CONFIG1 =>
                 if v.config.ready then
-                    v.state         := CONFIG2;
-                    v.config.vector := test_config_channel2_c;
-                    v.config.start  := true;
+                    v.state             := CONFIG2;
+                    v.config.vector     := test_config_channel2_c;
+                    v.config.start      := true;
                 end if;
 
             when CONFIG2 =>
                 if v.config.ready then
-                    v.state         := READY;
-                    v.waitcounter   := 10;
+                    v.state             := WAIT2;
+                    v.waitcounter       := 10;
                 end if;
 
-            when READY =>
+            when WAIT2 =>
                 if v.waitcounter = 0 then
-                    simulation_run  <= false;
+                    v.state             := PULSE;
+                    v.pulsecounter      := 3;
+                    v.waitcounter       := 100;
+                    v.trigger           := '1';
                 else
-                    v.waitcounter   := v.waitcounter - 1;
+                    v.waitcounter       := v.waitcounter - 1;
                 end if;
+    
+            when PULSE =>
+                if v.waitcounter = 0 then
+                    v.pulsecounter      := v.pulsecounter - 1;
+                    if v.pulsecounter = 0 then
+                        v.state         := WAIT3;
+                    else
+                        v.waitcounter   := 100;
+                        v.trigger       := '1';
+                    end if;
+                else
+                    if v.trigger = '1' then
+                        v.trigger       := '0';
+                    end if;
+                    v.waitcounter       := v.waitcounter - 1;
+                end if;
+                    
+            
+            when WAIT3 =>
+                if v.waitcounter = 0 then
+                    v.state             := READY;
+                else
+                    v.waitcounter       := v.waitcounter - 1;
+                end if;
+            
+            when READY =>
+                simulation_run          <= false;
 
         end case;
         
