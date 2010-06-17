@@ -35,7 +35,7 @@ architecture behave of test_pulse_gen is
     constant time_resolution : time := 100 ps;
 
     constant pulse_height    : real := 0.707;
-    constant pulse_length    : time := 10 ns;
+    constant pulse_length    : time := 50 ns;
     constant rise_time       : time := 10 ns;
     constant fall_time       : time := 10 ns;
 
