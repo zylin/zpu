@@ -19,7 +19,7 @@ use tools.image_pkg.all;
 
 
 library rena3;
-use rena3.rena3_model_package.rena3_model;
+use rena3.rena3_model_component_package.rena3_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
