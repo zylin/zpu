@@ -41,9 +41,9 @@ use ieee.numeric_std.all;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-library work;
-use work.zpu_config.all;
-use work.zpupkg.all;
+library zpu;
+use zpu.zpu_config.all;
+use zpu.zpupkg.all;
 
 entity fpga_top is
 end fpga_top;

@@ -1,5 +1,6 @@
 
 all:
+	vsim -gui -do run.do
 
 
 clean:
