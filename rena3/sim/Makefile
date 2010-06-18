@@ -4,7 +4,10 @@ top          = rena3_model_tb
 #top          = test_board
 
 #rtl_files    = ../rtl/*.vhd
-rtl_tb_files = ../rtl_tb/test_pulse_gen.vhd ../rtl_tb/rena3_model_types_package.vhd ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/test_pulse_gen.vhd \
+	       ../rtl_tb/rena3_model_types_package.vhd \
+	       ../rtl_tb/rena3_model_component_package.vhd \
+	       ../rtl_tb/*.vhd
 vhdlfiles    = $(rtl_tb_files) $(rtl_files)
 
 
