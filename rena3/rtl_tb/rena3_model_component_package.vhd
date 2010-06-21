@@ -92,6 +92,12 @@ package rena3_model_component_package is
         );
     end component rena3_channel_model;
 
+    component dds_model is
+        port (
+            vu : out real;
+            vv : out real
+        );
+    end component dds_model;
 
 end package rena3_model_component_package;
 

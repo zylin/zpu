@@ -9,6 +9,7 @@ use ieee.std_logic_1164.all;
 
 library rena3;
 use rena3.rena3_model_component_package.rena3_model;
+use rena3.rena3_model_component_package.dds_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
@@ -16,6 +17,9 @@ architecture board of test_board is
 
     signal testbench_trigger       : std_ulogic;
     signal test_pulse_gen_i0_pulse : real;
+
+    signal dds_model_i0_vu         : real;
+    signal dds_model_i0_vv         : real;
 
 begin
     
@@ -45,13 +49,19 @@ begin
             trigger => testbench_trigger,
             pulse   => test_pulse_gen_i0_pulse 
         );
+
+    dds_model_i0: dds_model
+        port map(
+            vu      => dds_model_i0_vu,
+            vv      => dds_model_i0_vv
+        );
    
     -- TODO generate C* stimuli from FPGA
     rena3_model_i0: rena3_model
         port map(
             TEST        => test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
-            VU          => 0.0,                     --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
-            VV          => 1.0,                     --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
+            VU          => dds_model_i0_vu,         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV          => dds_model_i0_vv,         --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
             CSHIFT      => '0',                     --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => '0',                     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
