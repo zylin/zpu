@@ -38,7 +38,7 @@ entity rena3_model is
         -- AOUTN       : in  std_ulogic; -- ?, Negative differential output
         CSHIFT         : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
         CIN            : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
-        CS             : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+        CS             : in  std_ulogic; -- Chip Select. After shifting 41 bits, pulse this signal high to load the
                                          -- shifted data in the proper registers
         -- TS_N        : in  std_ulogic; -- Differential out, Slow trigger output, Negative output
         -- TS_P        : in  std_ulogic; -- Differential out, Slow trigger output, positive output
@@ -64,7 +64,7 @@ entity rena3_model is
                                          -- detector when asserted (high). Also clears the token register.
         -- CLS_N       : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
                                          -- detector when asserted (low). Also clears the token register.
-        -- CLF         : in  std_ulogic; -- This signal clears the fast latch (VU and VV sample circuit) when
+        CLF            : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
                                          -- asserted, (high).
         -- TCLK        : in  std_ulogic; -- This signal shifts the token from one channel to the next on the rising
                                          -- edge
@@ -383,7 +383,7 @@ begin
     --------------------------------------------------------------------------------
     -- channel 0
     --------------------------------------------------------------------------------
-    chan0_inp <= ( input => DETECTOR_IN(0), test => TEST, clear_fast_channel => '0', vu => VU, vv => VV);
+    chan0_inp <= ( input => DETECTOR_IN(0), test => TEST, clear_fast_channel => CLF, vu => VU, vv => VV);
     rena3_channel_i0: rena3_channel_model
         generic map (
             channel_nr => 0

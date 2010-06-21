@@ -60,6 +60,7 @@ architecture testbench of rena3_model_tb is
         cshift       : std_ulogic;
         cin          : std_ulogic;
         cs           : std_ulogic;
+        clf          : std_ulogic;
         config       : configuration_t;
         waitcounter  : natural;
         trigger      : std_ulogic;
@@ -71,6 +72,7 @@ architecture testbench of rena3_model_tb is
         cshift       => '1',
         cin          => '0',
         cs           => '0',
+        clf          => '0',
         config       => default_configuration_c,
         waitcounter  => 10,
         trigger      => '0',
@@ -153,7 +155,8 @@ begin
             DETECTOR_IN => r.detector_in,               --   : in  real_array(0 to 35); -- Detector inputs pins
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
-            CS          => r.cs                         --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            CLF         => r.clf                        --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
         );
 
 
@@ -223,6 +226,12 @@ begin
                         v.trigger       := '0';
                     end if;
                     v.waitcounter       := v.waitcounter - 1;
+                end if;
+                -- clear fast section
+                if (v.waitcounter = 50) and (v.pulsecounter = 2) then
+                    v.clf               := '1';
+                else
+                    v.clf               := '0';
                 end if;
                     
             

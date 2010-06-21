@@ -57,6 +57,7 @@ begin
         );
    
     -- TODO generate C* stimuli from FPGA
+    -- TODO generate CLF stimuli from FPGA
     rena3_model_i0: rena3_model
         port map(
             TEST        => test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
@@ -65,7 +66,8 @@ begin
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
             CSHIFT      => '0',                     --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => '0',                     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
-            CS          => '0'                      --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            CS          => '0',                     --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            CLF         => '0'                      --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
         );
 
 end architecture board;
