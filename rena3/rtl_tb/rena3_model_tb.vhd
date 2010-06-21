@@ -28,9 +28,12 @@ architecture testbench of rena3_model_tb is
 
     constant clock_period   : time       := (1 sec)/(50_000_000); -- 50 MHz
 
-    constant test_config_channel0_c : std_ulogic_vector := "00000011010001100000111111111111111111110"; -- 000000_1_1_0_1_00_0_1_1_0_0000_1_11111111_1_11111111_1_1_0
-    constant test_config_channel1_c : std_ulogic_vector := "00000100000000000000000000000000000000000"; -- 000001_0_0_0_0_00_0_0_0_0_0000_0_00000000_0_00000000_0_0_0
-    constant test_config_channel2_c : std_ulogic_vector := "10000000000000000000000000000000000000001";
+    constant test_config_power_on_others_1_c : std_ulogic_vector := "11010001100000111111111111111111110"; -- 1_1_0_1_00_0_1_1_0_0000_1_11111111_1_11111111_1_1_0
+    constant test_config_power_on_others_0_c : std_ulogic_vector := "00000000000000000000000000000000000"; -- 0_0_0_0_00_0_0_0_0_0000_0_00000000_0_00000000_0_0_0
+    
+    constant test_config_channel0_c : std_ulogic_vector := "000000" & test_config_power_on_others_1_c;
+    constant test_config_channel1_c : std_ulogic_vector := "000001" & test_config_power_on_others_0_c;
+    constant test_config_channel2_c : std_ulogic_vector := "100000" & test_config_power_on_others_0_c;
 
     type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
@@ -53,6 +56,7 @@ architecture testbench of rena3_model_tb is
 
     type reg_t is record
         state        : state_t;
+        detector_in  : real_vector(0 to 35);
         cshift       : std_ulogic;
         cin          : std_ulogic;
         cs           : std_ulogic;
@@ -63,6 +67,7 @@ architecture testbench of rena3_model_tb is
     end record reg_t;
     constant default_reg_c : reg_t := (
         state        => IDLE,
+        detector_in  => (others => 0.0),
         cshift       => '1',
         cin          => '0',
         cs           => '0',
@@ -143,7 +148,9 @@ begin
     rena3_model_i0: rena3_model
         port map(
             TEST        => src.test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
-            DETECTOR_IN => (others => 0.0),             --   : in  real_array(0 to 35); -- Detector inputs pins
+            VU          => 0.0,                         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV          => 1.0,                         --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
+            DETECTOR_IN => r.detector_in,               --   : in  real_array(0 to 35); -- Detector inputs pins
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => r.cs                         --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the

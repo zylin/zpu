@@ -24,8 +24,8 @@ entity rena3_model is
                                          -- FETSEL bit in channel to use this.
         -- DACREF      : in  std_ulogic; -- 2 to 3V, DAC reference level. Sets the MAX DAC output voltage to
                                          -- VREFLO + 1.5*13/16*DACREF
-        -- VU          : in  std_ulogic; -- 2 – 3V sine wave, U timing signal for sampling by fast trigger
-        -- VV          : in  std_ulogic; -- 2 – 3V sine wave, V timing signal for sampling by fast trigger
+        VU             : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+        VV             : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
         -- ISET        : in  std_ulogic; -- 6.98Kohm to VDDA, Sets input FET bias current
         -- PBIAS       : in  std_ulogic; -- 33.2Kohm to ground. Sets bias current for most amplifiers
         -- FB_PBIAS    : in  std_ulogic; -- 47.5Kohm to ground, Sets feedback circuit bias current
@@ -86,6 +86,7 @@ use tools.fio_pkg.all;
 
 library rena3;
 use rena3.rena3_model_types_package.all;
+use rena3.rena3_model_component_package.rena3_channel_model;
 
 
 
@@ -103,8 +104,11 @@ architecture behave of rena3_model is
     -- signal definitions
 
     type   channel_configuration_array_t is array(natural range <>) of channel_configuration_t;
-    signal channel_configuration_array : channel_configuration_array_t(0 to 35);
+    signal channel_configuration_array : channel_configuration_array_t(0 to 35) := (others => default_channel_configuration_c);
 
+
+    -- TODO move to block
+    signal chan0_inp : rena3_channel_in_t;
 
 begin
 
@@ -192,7 +196,7 @@ begin
                 
                 fprint( output, l, "%20s %b    ", "ecal",       fo( channel_configuration_array(address).ecal));
                 if channel_configuration_array(address).ecal = '1' then 
-                    fprint( output, l, "(channel calibration, TEST signal on input)\n");
+                    fprint( output, l, "(TEST signal on input, channel calibration)\n");
                 else 
                     fprint( output, l, "\n");
                 end if;
@@ -376,4 +380,19 @@ begin
     --------------------------------------------------------------------------------
 
 
+    --------------------------------------------------------------------------------
+    -- channel 0
+    --------------------------------------------------------------------------------
+    chan0_inp <= ( input => DETECTOR_IN(0), test => TEST, clear_fast_channel => '0', vu => VU, vv => VV);
+    rena3_channel_i0: rena3_channel_model
+        generic map (
+            channel_nr => 0
+        )
+        port map ( -- TODO
+            inp    => chan0_inp,
+            config => channel_configuration_array(0),
+            outp   => open
+        );
+
+    --------------------------------------------------------------------------------
 end architecture behave;

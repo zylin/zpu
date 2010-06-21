@@ -59,7 +59,7 @@ package rena3_model_types_package is
         -- negative going signals)
         rsel     : std_ulogic;
         
-        -- SEL[3-0], Time constant selection. All 0’s is the shortest time constant. All
+        -- SEL[3-0], Time constant selection. All 0's is the shortest time constant. All
         -- 1's is the longest time constant. Selections are, from shortest to longest (us):
         -- 0.29, 0.31, 0.31, 0.32, 0.35, 0.37, 0.39, 0.40, 0.71, 0.81, 0.89, 1.1, 1.9, 2.8,
         -- 4.5, 38. SEL[0] is the LSB and this goes into the shift register after SEL[3-1].
@@ -69,8 +69,8 @@ package rena3_model_types_package is
         -- for a FET of size 1000um. Set to a 0 for a size of 450um.
         sizea    : std_ulogic;
         
-        -- DF[7-0], Fast DAC value. All 0’s gives the lowest output voltage (VREFLO
-        -- - 3/16*1.5*DACREF). All 1’s are largest output voltage (VREFLO +
+        -- DF[7-0], Fast DAC value. All 0's gives the lowest output voltage (VREFLO
+        -- - 3/16*1.5*DACREF). All 1's are largest output voltage (VREFLO +
         -- 13/16*1.5*DACREF). DF[0] is the LSB and goes into the shift register last.
         df       : unsigned(7 downto 0);
         
@@ -78,8 +78,8 @@ package rena3_model_types_package is
         -- signals.
         pol      : std_ulogic;
         
-        -- DS[7-0], Slow DAC value. All 0’s are smallest output voltage (VREFLO –
-        -- 13/16*1.5*DACREF). All 1’s are largest output voltage (VREFLO +
+        -- DS[7-0], Slow DAC value. All 0's are smallest output voltage (VREFLO –
+        -- 13/16*1.5*DACREF). All 1's are largest output voltage (VREFLO +
         -- 13/16*1.5*DACREF). DS[0] is the LSB and goes into the shift register last.
         ds       : unsigned(7 downto 0);
         
@@ -114,7 +114,35 @@ package rena3_model_types_package is
         fm        => '0'
     );
 
+
+
+
+    type rena3_channel_in_t is record
+        input              : real;
+        test               : real;
+        clear_fast_channel : std_ulogic;
+        vu                 : real;
+        vv                 : real;
+    end record rena3_channel_in_t;
+
+    type rena3_channel_out_t is record
+        peak_detector      : real;
+        slow_trigger       : std_ulogic;
+        fast_trigger       : std_ulogic;
+        vu                 : real;
+        vv                 : real;
+    end record rena3_channel_out_t;
+    constant default_rena3_channel_out_c : rena3_channel_out_t := (
+        peak_detector => 0.0,
+        slow_trigger  => '0',
+        fast_trigger  => '0',
+        vu            => 0.0,
+        vv            => 0.0
+    );
+
+
 end package rena3_model_types_package;
+
 
 
 package body rena3_model_types_package is

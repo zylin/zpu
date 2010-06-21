@@ -7,6 +7,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library rena3;
+use rena3.rena3_model_types_package.all;
+
 
 package rena3_model_component_package is
 
@@ -29,8 +32,8 @@ package rena3_model_component_package is
                                              -- FETSEL bit in channel to use this.
             -- DACREF      : in  std_ulogic; -- 2 to 3V, DAC reference level. Sets the MAX DAC output voltage to
                                              -- VREFLO + 1.5*13/16*DACREF
-            -- VU          : in  std_ulogic; -- 2 – 3V sine wave, U timing signal for sampling by fast trigger
-            -- VV          : in  std_ulogic; -- 2 – 3V sine wave, V timing signal for sampling by fast trigger
+            VU             : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV             : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
             -- ISET        : in  std_ulogic; -- 6.98Kohm to VDDA, Sets input FET bias current
             -- PBIAS       : in  std_ulogic; -- 33.2Kohm to ground. Sets bias current for most amplifiers
             -- FB_PBIAS    : in  std_ulogic; -- 47.5Kohm to ground, Sets feedback circuit bias current
@@ -76,6 +79,19 @@ package rena3_model_component_package is
             -- TST         : in  std_ulogic_vector(3 to 22)  -- Pull to VDD with 44Kohm resistor. Test signal outputs. AKA T[3-22]
         );
     end component rena3_model;
+
+
+    component rena3_channel_model is
+        generic (
+            channel_nr         : natural
+        );
+        port (
+            inp                : in  rena3_channel_in_t;
+            config             : in  channel_configuration_t;
+            outp               : out rena3_channel_out_t
+        );
+    end component rena3_channel_model;
+
 
 end package rena3_model_component_package;
 

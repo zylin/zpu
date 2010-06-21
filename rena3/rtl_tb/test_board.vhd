@@ -50,6 +50,8 @@ begin
     rena3_model_i0: rena3_model
         port map(
             TEST        => test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
+            VU          => 0.0,                     --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV          => 1.0,                     --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
             CSHIFT      => '0',                     --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => '0',                     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
