@@ -2,7 +2,7 @@
 -- testbench for the rena3_model
 --
 -- 1. test the timing for the SPI configuration
---
+-- 2. test response to pulsed inputs (on TEST pin)
 
 entity rena3_model_tb is
 end entity rena3_model_tb;
@@ -28,14 +28,21 @@ architecture testbench of rena3_model_tb is
 
     constant clock_period   : time       := (1 sec)/(50_000_000); -- 50 MHz
 
-    constant test_config_power_on_others_1_c : std_ulogic_vector := "11010001100000111111111111111111110"; -- 1_1_0_1_00_0_1_1_0_0000_1_11111111_1_11111111_1_1_0
-    constant test_config_power_on_others_0_c : std_ulogic_vector := "00000000000000000000000000000000000"; -- 0_0_0_0_00_0_0_0_0_0000_0_00000000_0_00000000_0_0_0
-    
+    -- 1_1_0_1_00_0_1_1_0_0000_1_11111111_1_11111111_1_1_0
+    constant test_config_power_on_others_1_c : std_ulogic_vector := "11010001100000111111111111111111110";  
+
+    -- 0_0_0_0_00_0_0_0_0_0000_0_00000000_0_00000000_0_0_0
+    constant test_config_power_on_others_0_c : std_ulogic_vector := "00000000000000000000000000000000000";     
+
+
     constant test_config_channel0_c : std_ulogic_vector := "000000" & test_config_power_on_others_1_c;
     constant test_config_channel1_c : std_ulogic_vector := "000001" & test_config_power_on_others_0_c;
     constant test_config_channel2_c : std_ulogic_vector := "100000" & test_config_power_on_others_0_c;
 
-    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, READY);
+    -- 36 bits ( one for each channel, from low to high)
+    constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
+
+    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
 
     type configuration_t is record
@@ -55,33 +62,40 @@ architecture testbench of rena3_model_tb is
 
 
     type reg_t is record
-        state        : state_t;
-        detector_in  : real_vector(0 to 35);
-        cshift       : std_ulogic;
-        cin          : std_ulogic;
-        cs           : std_ulogic;
-        clf          : std_ulogic;
-        config       : configuration_t;
-        waitcounter  : natural;
-        trigger      : std_ulogic;
-        pulsecounter : natural;
+        state              : state_t;
+        detector_in        : real_vector(0 to 35);
+        cshift             : std_ulogic;
+        cin                : std_ulogic;
+        cs                 : std_ulogic;
+        sin                : std_ulogic;
+        shrclk             : std_ulogic;
+        clf                : std_ulogic;
+        config             : configuration_t;
+        waitcounter        : natural;
+        trigger            : std_ulogic;
+        pulsecounter       : natural;
+        slow_token_counter : integer;
     end record reg_t;
     constant default_reg_c : reg_t := (
-        state        => IDLE,
-        detector_in  => (others => 0.0),
-        cshift       => '1',
-        cin          => '0',
-        cs           => '0',
-        clf          => '0',
-        config       => default_configuration_c,
-        waitcounter  => 10,
-        trigger      => '0',
-        pulsecounter => 3
+        state              => IDLE,
+        detector_in        => (others => 0.0),
+        cshift             => '1',
+        cin                => '0',
+        cs                 => '0',
+        sin                => test_slow_token_c(35),
+        shrclk             => '0',
+        clf                => '0',
+        config             => default_configuration_c,
+        waitcounter        =>  10,
+        trigger            => '0',
+        pulsecounter       =>   3,
+        slow_token_counter =>   0
     );
 
 
     type src_t is record
         test_pulse_gen_i0_pulse : real;
+        rena3_model_i0_sout     : std_ulogic;
     end record src_t;
 
 
@@ -132,6 +146,21 @@ architecture testbench of rena3_model_tb is
 
 
 
+
+    procedure rotate_slow_token_register( x: inout reg_t) is
+    begin
+        if x.shrclk = '0' then
+            -- rise
+            x.shrclk             := '1';
+            x.slow_token_counter := x.slow_token_counter - 1;
+        else                     
+            -- fall              
+            x.shrclk             := '0';
+            x.sin                := test_slow_token_c( x.slow_token_counter );
+        end if;
+    end procedure rotate_slow_token_register;
+
+
 begin
 
     -- clock and reset
@@ -147,6 +176,7 @@ begin
 
 
     -- dut
+    -- TODO look for open ports
     rena3_model_i0: rena3_model
         port map(
             TEST        => src.test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
@@ -156,6 +186,9 @@ begin
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            SOUT        => src.rena3_model_i0_sout,     --   : out std_ulogic; -- Slow token output for slow token register
+            SIN         => r.sin,                       --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
+            SHRCLK      => r.shrclk,                    --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
             CLF         => r.clf                        --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
         );
 
@@ -171,79 +204,96 @@ begin
         case v.state is
 
             when IDLE    =>
-                v.state                 := CONFIG0;
-                v.config.vector         := test_config_channel0_c;
-                v.config.start          := true;
-
-            when CONFIG0 =>
-                if v.config.ready then
-                    v.state             := WAIT1;
+                v.state                  := CONFIG0;
+                v.config.vector          := test_config_channel0_c;
+                v.config.start           := true;
+                                         
+            when CONFIG0 =>              
+                if v.config.ready then   
+                    v.state              := WAIT1;
                 end if;
 
             when WAIT1 =>
                 if v.waitcounter = 0 then
-                    v.state             := CONFIG1;
-                    v.config.vector     := test_config_channel1_c;
-                    v.config.start      := true;
-                else
-                    v.waitcounter       := v.waitcounter - 1;
+                    v.state              := CONFIG1;
+                    v.config.vector      := test_config_channel1_c;
+                    v.config.start       := true;
+                else                    
+                    v.waitcounter        := v.waitcounter - 1;
                 end if;
 
             when CONFIG1 =>
                 if v.config.ready then
-                    v.state             := CONFIG2;
-                    v.config.vector     := test_config_channel2_c;
-                    v.config.start      := true;
+                    v.state              := CONFIG2;
+                    v.config.vector      := test_config_channel2_c;
+                    v.config.start       := true;
                 end if;
 
             when CONFIG2 =>
                 if v.config.ready then
-                    v.state             := WAIT2;
-                    v.waitcounter       := 10;
+                    v.state              := WAIT2;
+                    v.waitcounter        := 10;
                 end if;
 
             when WAIT2 =>
                 if v.waitcounter = 0 then
-                    v.state             := PULSE;
-                    v.pulsecounter      := 3;
-                    v.waitcounter       := 100;
-                    v.trigger           := '1';
+                    v.state              := PULSE;
+                    v.pulsecounter       := 3;
+                    v.waitcounter        := 100;
+                    v.trigger            := '1';
                 else
-                    v.waitcounter       := v.waitcounter - 1;
+                    v.waitcounter        := v.waitcounter - 1;
                 end if;
     
             when PULSE =>
                 if v.waitcounter = 0 then
-                    v.pulsecounter      := v.pulsecounter - 1;
+                    v.pulsecounter       := v.pulsecounter - 1;
                     if v.pulsecounter = 0 then
-                        v.state         := WAIT3;
+                        v.state          := WAIT3;
                     else
-                        v.waitcounter   := 100;
-                        v.trigger       := '1';
+                        v.waitcounter    := 100;
+                        v.trigger        := '1';
                     end if;
                 else
                     if v.trigger = '1' then
-                        v.trigger       := '0';
+                        v.trigger        := '0';
                     end if;
-                    v.waitcounter       := v.waitcounter - 1;
+                    v.waitcounter        := v.waitcounter - 1;
                 end if;
                 -- clear fast section
                 if (v.waitcounter = 50) and (v.pulsecounter = 2) then
-                    v.clf               := '1';
+                    v.clf                := '1';
                 else
-                    v.clf               := '0';
+                    v.clf                := '0';
                 end if;
                     
             
             when WAIT3 =>
                 if v.waitcounter = 0 then
-                    v.state             := READY;
+                    v.slow_token_counter := test_slow_token_c'high;
+                    v.state              := SLOW_TOKEN;
+                else                  
+                    v.waitcounter        := v.waitcounter - 1;
+                end if;
+
+            when SLOW_TOKEN =>
+                if v.slow_token_counter >= 0 then
+                    rotate_slow_token_register( v);
+                else                    
+                    v.shrclk             := '0';
+                    v.waitcounter        := 20;
+                    v.state              := WAIT4;
+                end if;
+
+            when WAIT4 =>
+                if v.waitcounter = 0 then
+                    v.state              := READY;
                 else
-                    v.waitcounter       := v.waitcounter - 1;
+                    v.waitcounter        := v.waitcounter - 1;
                 end if;
             
             when READY =>
-                simulation_run          <= false;
+                simulation_run           <= false;
 
         end case;
         

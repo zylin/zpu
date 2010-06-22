@@ -44,17 +44,17 @@ entity rena3_model is
         -- TS_P        : in  std_ulogic; -- Differential out, Slow trigger output, positive output
         -- TF_N        : in  std_ulogic; -- Differential out, Fast trigger output, Negative Output
         -- TF_P        : in  std_ulogic; -- Differential out, Fast trigger output, positive output
-        -- FOUT        : in  std_ulogic; -- Fast token output for fast token register
-        -- SOUT        : in  std_ulogic; -- Slow token output for slow token register
-        -- TOUT        : in  std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+        -- FOUT        : out std_ulogic; -- Fast token output for fast token register
+        SOUT           : out std_ulogic; -- Slow token output for slow token register
+        -- TOUT        : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
                                          -- token to next chip.
         -- READ        : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
                                          -- driver for a channel when token is present. Also enables output buffer.
         -- TIN         : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
                                          -- previous chip.
-        -- SIN         : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
+        SIN            : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
         -- FIN         : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
-        -- SHRCLK      : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
+        SHRCLK         : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
         -- FHRCLK      : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
         -- ACQUIRE_P   : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is
                                          -- asserted (high).
@@ -96,7 +96,8 @@ architecture behave of rena3_model is
     ------------------------------------------
     -- definitions
 
-    constant me_c : string := behave'path_name;
+    constant me_c       : string  := behave'path_name;
+    constant channels_c : natural := 36;
 
 
 
@@ -104,11 +105,10 @@ architecture behave of rena3_model is
     -- signal definitions
 
     type   channel_configuration_array_t is array(natural range <>) of channel_configuration_t;
-    signal channel_configuration_array : channel_configuration_array_t(0 to 35) := (others => default_channel_configuration_c);
+    signal channel_configuration_array : channel_configuration_array_t(0 to channels_c-1) := (others => default_channel_configuration_c);
 
-
-    -- TODO move to block
-    signal chan0_inp : rena3_channel_in_t;
+    type   channel_inp_array_t is array(natural range <>) of rena3_channel_in_t;
+    signal channel_inp_array : channel_inp_array_t(0 to channels_c-1);
 
 begin
 
@@ -144,7 +144,7 @@ begin
         end process;
 
         update_reg: process
-            variable address               : natural range 0 to 35;
+            variable address               : natural range 0 to channels_c-1;
         begin
             wait until rising_edge(CS);
             address                    := to_integer(unsigned(channel_configuration(40 downto 35)));
@@ -173,7 +173,7 @@ begin
         -- print_reg: process (channel_configuration_array, channel_configuration)
         print_reg: process
             variable address_bits          : std_ulogic_vector(5 downto 0);
-            variable address               : natural range 0 to 35;
+            variable address               : natural range 0 to channels_c-1;
             variable l                     : line;
             variable i                     : integer;
             variable s                     : line;
@@ -379,20 +379,41 @@ begin
     end block channel_configuration;
     --------------------------------------------------------------------------------
 
+    --------------------------------------------------------------------------------
+    -- slow token register
+    --------------------------------------------------------------------------------
+    slow_token_register: block 
+        signal token_register : std_ulogic_vector(channels_c-1 downto 0);
+    begin
+
+        read_out: process
+        begin
+            wait until rising_edge(SHRCLK);
+            SOUT           <= token_register(token_register'high);
+            token_register <= token_register(token_register'high - 1 downto 0) & SIN;
+        end process read_out;
+        
+    end block slow_token_register;
 
     --------------------------------------------------------------------------------
     -- channel 0
     --------------------------------------------------------------------------------
-    chan0_inp <= ( input => DETECTOR_IN(0), test => TEST, clear_fast_channel => CLF, vu => VU, vv => VV);
-    rena3_channel_i0: rena3_channel_model
-        generic map (
-            channel_nr => 0
-        )
-        port map ( -- TODO
-            inp    => chan0_inp,
-            config => channel_configuration_array(0),
-            outp   => open
-        );
+    rena3_channels_i: for i in 0 to channels_c-1 generate 
+        channel_inp_array(i) <= ( input              => DETECTOR_IN(i), 
+                                  test               => TEST, 
+                                  clear_fast_channel => CLF, 
+                                  vu                 => VU, 
+                                  vv                 => VV);
+        rena3_channel_i: rena3_channel_model
+            generic map (
+                channel_nr => i
+            )
+            port map (
+                inp        => channel_inp_array(i),
+                config     => channel_configuration_array(i),
+                outp       => open
+            );
+    end generate rena3_channels_i;
 
     --------------------------------------------------------------------------------
 end architecture behave;

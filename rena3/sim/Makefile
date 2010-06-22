@@ -21,7 +21,7 @@ compile: lib
 
 simulate:
 	export top=$(top); \
-	vsim -gui $(library).$(top) -do run.do
+	vsim -quiet -gui $(library).$(top) -do run.do
 
 
 clean:
