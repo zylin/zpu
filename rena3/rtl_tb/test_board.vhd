@@ -60,6 +60,7 @@ begin
     -- TODO generate CLF stimuli from FPGA
     -- TODO generate slow token register stimuli from FPGA
     -- TODO generate fast token register stimuli from FPGA
+    -- TODO generate token stuff stimuli from FPGA
     rena3_model_i0: rena3_model
         port map(
             TEST        => test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
@@ -71,11 +72,14 @@ begin
             CS          => '0',                     --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
             FOUT        => open,                    --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => open,                    --   : out std_ulogic; -- Slow token output for slow token register
+            TOUT        => open,                    --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+            TIN         => '1',                     --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
             SIN         => '1',                     --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
             FIN         => '1',                     --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
             SHRCLK      => '1',                     --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
             FHRCLK      => '1',                     --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
-            CLF         => '0'                      --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            CLF         => '0',                     --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            TCLK        => '1'                      --   : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
         );
 
 end architecture board;

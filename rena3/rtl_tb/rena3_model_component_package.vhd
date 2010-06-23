@@ -54,11 +54,11 @@ package rena3_model_component_package is
             -- TF_P        : in  std_ulogic; -- Differential out, Fast trigger output, positive output
             FOUT           : out std_ulogic; -- Fast token output for fast token register
             SOUT           : out std_ulogic; -- Slow token output for slow token register
-            -- TOUT        : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+            TOUT           : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
                                              -- token to next chip.
             -- READ        : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
                                              -- driver for a channel when token is present. Also enables output buffer.
-            -- TIN         : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
+            TIN            : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
                                              -- previous chip.
             SIN            : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
             FIN            : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
@@ -72,9 +72,9 @@ package rena3_model_component_package is
                                              -- detector when asserted (high). Also clears the token register.
             -- CLS_N       : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
                                              -- detector when asserted (low). Also clears the token register.
-            CLF            : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            CLF            : in  std_ulogic; -- This signal clears the fast latch (VU and VV sample circuit) when
                                              -- asserted, (high).
-            -- TCLK        : in  std_ulogic; -- This signal shifts the token from one channel to the next on the rising
+            TCLK           : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
                                              -- edge
             -- TST         : in  std_ulogic_vector(3 to 22)  -- Pull to VDD with 44Kohm resistor. Test signal outputs. AKA T[3-22]
         );

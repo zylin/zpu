@@ -43,7 +43,7 @@ architecture testbench of rena3_model_tb is
     constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
     constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
 
-    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READY);
+    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READOUT, WAIT6, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
 
     type configuration_t is record
@@ -70,8 +70,10 @@ architecture testbench of rena3_model_tb is
         cs                 : std_ulogic;
         sin                : std_ulogic;
         fin                : std_ulogic;
+        tin                : std_ulogic;
         shrclk             : std_ulogic;
         fhrclk             : std_ulogic;
+        tclk               : std_ulogic;
         clf                : std_ulogic;
         config             : configuration_t;
         waitcounter        : natural;
@@ -88,8 +90,10 @@ architecture testbench of rena3_model_tb is
         cs                 => '0',
         sin                => test_slow_token_c(35),
         fin                => test_fast_token_c(35),
+        tin                => '0',
         shrclk             => '0',
         fhrclk             => '0',
+        tclk               => '0',
         clf                => '0',
         config             => default_configuration_c,
         waitcounter        =>  10,
@@ -104,6 +108,7 @@ architecture testbench of rena3_model_tb is
         test_pulse_gen_i0_pulse : real;
         rena3_model_i0_fout     : std_ulogic;
         rena3_model_i0_sout     : std_ulogic;
+        rena3_model_i0_tout     : std_ulogic;
     end record src_t;
 
 
@@ -214,11 +219,14 @@ begin
             CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
             FOUT        => src.rena3_model_i0_fout,     --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => src.rena3_model_i0_sout,     --   : out std_ulogic; -- Slow token output for slow token register
+            TOUT        => src.rena3_model_i0_tout,     --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+            TIN         => r.tin,                       --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
             SIN         => r.sin,                       --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
             FIN         => r.fin,                       --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
             SHRCLK      => r.shrclk,                    --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
             FHRCLK      => r.fhrclk,                    --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
-            CLF         => r.clf                        --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            CLF         => r.clf,                       --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            TCLK        => r.tclk                       --   : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
         );
 
 
@@ -328,11 +336,22 @@ begin
                     rotate_fast_token_register( v);
                 else                    
                     v.fhrclk             := '0';
-                    v.waitcounter        := 20;
+                    v.waitcounter        := 40;
                     v.state              := WAIT5;
                 end if;
             
             when WAIT5 =>
+                if v.waitcounter = 0 then
+                    v.state              := READOUT;
+                else
+                    v.waitcounter        := v.waitcounter - 1;
+                end if;
+
+            when READOUT =>
+                v.waitcounter            := 40;
+                v.state                  := WAIT6;
+            
+            when WAIT6 =>
                 if v.waitcounter = 0 then
                     v.state              := READY;
                 else
