@@ -110,6 +110,9 @@ architecture behave of rena3_model is
     type   channel_inp_array_t is array(natural range <>) of rena3_channel_in_t;
     signal channel_inp_array : channel_inp_array_t(0 to channels_c-1);
 
+    type   channel_outp_array_t is array(natural range <>) of rena3_channel_out_t;
+    signal channel_outp_array : channel_outp_array_t(0 to channels_c-1);
+
 begin
 
 
@@ -383,20 +386,27 @@ begin
     -- slow token register
     --------------------------------------------------------------------------------
     slow_token_register: block 
-        signal token_register : std_ulogic_vector(channels_c-1 downto 0);
+        signal token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
     begin
 
-        read_out: process
+        process(SHRCLK, channel_outp_array, token_register, SIN)
         begin
-            wait until rising_edge(SHRCLK);
-            SOUT           <= token_register(token_register'high);
-            token_register <= token_register(token_register'high - 1 downto 0) & SIN;
-        end process read_out;
-        
+            triggers: for i in 0 to channels_c-1 loop
+                if channel_outp_array(i).slow_trigger = '1' then
+                    token_register(i) <= '1';
+                end if;
+            end loop;
+            if rising_edge(SHRCLK) then
+                token_register        <= token_register(token_register'high - 1 downto 0) & SIN;
+            end if;
+        end process;
+        SOUT                          <= token_register(token_register'high);
+
+
     end block slow_token_register;
 
     --------------------------------------------------------------------------------
-    -- channel 0
+    -- channels
     --------------------------------------------------------------------------------
     rena3_channels_i: for i in 0 to channels_c-1 generate 
         channel_inp_array(i) <= ( input              => DETECTOR_IN(i), 
@@ -411,7 +421,7 @@ begin
             port map (
                 inp        => channel_inp_array(i),
                 config     => channel_configuration_array(i),
-                outp       => open
+                outp       => channel_outp_array(i)
             );
     end generate rena3_channels_i;
 

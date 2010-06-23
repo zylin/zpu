@@ -161,6 +161,9 @@ architecture testbench of rena3_model_tb is
     end procedure rotate_slow_token_register;
 
 
+
+
+
 begin
 
     -- clock and reset
@@ -249,6 +252,7 @@ begin
                 if v.waitcounter = 0 then
                     v.pulsecounter       := v.pulsecounter - 1;
                     if v.pulsecounter = 0 then
+                        v.waitcounter    := 40;
                         v.state          := WAIT3;
                     else
                         v.waitcounter    := 100;

@@ -11,12 +11,13 @@ add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/cin
 add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/cs
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_configuration/channel_configuration
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_configuration_array
+add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_inp_array
+add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_outp_array
 add wave -noupdate -divider debug
-add wave -noupdate -format Analog-Step -height 74 -max 0.70700000000000118 -min -1.1726730697603216e-015 /rena3_model_tb/rena3_model_i0/rena3_channel_i0/main/preamp_input
-add wave -noupdate -format Literal -expand /rena3_model_tb/rena3_model_i0/rena3_channel_i0/outp
+add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/slow_token_register/token_register
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {5816477 ps} 0}
-configure wave -namecolwidth 150
+WaveRestoreCursors {{Cursor 1} {7479920 ps} 0}
+configure wave -namecolwidth 147
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
@@ -30,4 +31,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {4401392 ps} {12503024 ps}
+WaveRestoreZoom {0 ps} {15222648 ps}
