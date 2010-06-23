@@ -106,9 +106,10 @@ begin
         fast_dac          := real(to_integer(config.df))/255.0;
         slow_dac          := real(to_integer(config.ds))/255.0;
 
+        outp.fast_trigger          <= '0';
         if (shaper_input > fast_dac) and (config.fpdwn = '0') then
             if config.enf = '1' then
-                outp.fast_trigger      <= '1';
+                outp.fast_trigger  <= '1';
             end if;
             if inp.vu > vu then
                 outp.vu            <= inp.vu;
@@ -122,6 +123,7 @@ begin
             
 
         -- slow path
+        outp.slow_trigger          <= '0';
         if (shaper_input > slow_dac) and (config.pdwn = '0') then
             if config.ens = '1' then
                 outp.slow_trigger  <= '1';

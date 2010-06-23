@@ -15,6 +15,7 @@ add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_inp_ar
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_outp_array
 add wave -noupdate -divider debug
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/slow_token_register/token_register
+add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/fast_token_register/token_register
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {7479920 ps} 0}
 configure wave -namecolwidth 147

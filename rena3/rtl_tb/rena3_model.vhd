@@ -44,7 +44,7 @@ entity rena3_model is
         -- TS_P        : in  std_ulogic; -- Differential out, Slow trigger output, positive output
         -- TF_N        : in  std_ulogic; -- Differential out, Fast trigger output, Negative Output
         -- TF_P        : in  std_ulogic; -- Differential out, Fast trigger output, positive output
-        -- FOUT        : out std_ulogic; -- Fast token output for fast token register
+        FOUT           : out std_ulogic; -- Fast token output for fast token register
         SOUT           : out std_ulogic; -- Slow token output for slow token register
         -- TOUT        : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
                                          -- token to next chip.
@@ -53,9 +53,9 @@ entity rena3_model is
         -- TIN         : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
                                          -- previous chip.
         SIN            : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
-        -- FIN         : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
+        FIN            : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
         SHRCLK         : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
-        -- FHRCLK      : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
+        FHRCLK         : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
         -- ACQUIRE_P   : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is
                                          -- asserted (high).
         -- ACQUIRE_N   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is
@@ -404,6 +404,33 @@ begin
 
 
     end block slow_token_register;
+    --------------------------------------------------------------------------------
+
+    
+    --------------------------------------------------------------------------------
+    -- fast token register
+    --------------------------------------------------------------------------------
+    fast_token_register: block
+        signal token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
+    begin
+
+        process(FHRCLK, channel_outp_array, token_register, FIN)
+        begin
+            triggers: for i in 0 to channels_c-1 loop
+                if channel_outp_array(i).fast_trigger = '1' then
+                    token_register(i) <= '1';
+                end if;
+            end loop;
+            if rising_edge(FHRCLK) then
+                token_register        <= token_register(token_register'high - 1 downto 0) & FIN;
+            end if;
+        end process;
+        FOUT                          <= token_register(token_register'high);
+
+    end block fast_token_register;
+    --------------------------------------------------------------------------------
+
+
 
     --------------------------------------------------------------------------------
     -- channels

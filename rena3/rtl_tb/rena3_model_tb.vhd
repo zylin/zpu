@@ -35,14 +35,15 @@ architecture testbench of rena3_model_tb is
     constant test_config_power_on_others_0_c : std_ulogic_vector := "00000000000000000000000000000000000";     
 
 
-    constant test_config_channel0_c : std_ulogic_vector := "000000" & test_config_power_on_others_1_c;
+    constant test_config_channel0_c : std_ulogic_vector := "001000" & test_config_power_on_others_1_c;
     constant test_config_channel1_c : std_ulogic_vector := "000001" & test_config_power_on_others_0_c;
     constant test_config_channel2_c : std_ulogic_vector := "100000" & test_config_power_on_others_0_c;
 
     -- 36 bits ( one for each channel, from low to high)
     constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
+    constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
 
-    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, READY);
+    type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
 
     type configuration_t is record
@@ -68,13 +69,16 @@ architecture testbench of rena3_model_tb is
         cin                : std_ulogic;
         cs                 : std_ulogic;
         sin                : std_ulogic;
+        fin                : std_ulogic;
         shrclk             : std_ulogic;
+        fhrclk             : std_ulogic;
         clf                : std_ulogic;
         config             : configuration_t;
         waitcounter        : natural;
         trigger            : std_ulogic;
         pulsecounter       : natural;
         slow_token_counter : integer;
+        fast_token_counter : integer;
     end record reg_t;
     constant default_reg_c : reg_t := (
         state              => IDLE,
@@ -83,18 +87,22 @@ architecture testbench of rena3_model_tb is
         cin                => '0',
         cs                 => '0',
         sin                => test_slow_token_c(35),
+        fin                => test_fast_token_c(35),
         shrclk             => '0',
+        fhrclk             => '0',
         clf                => '0',
         config             => default_configuration_c,
         waitcounter        =>  10,
         trigger            => '0',
         pulsecounter       =>   3,
-        slow_token_counter =>   0
+        slow_token_counter =>   0,
+        fast_token_counter =>   0
     );
 
 
     type src_t is record
         test_pulse_gen_i0_pulse : real;
+        rena3_model_i0_fout     : std_ulogic;
         rena3_model_i0_sout     : std_ulogic;
     end record src_t;
 
@@ -162,6 +170,21 @@ architecture testbench of rena3_model_tb is
 
 
 
+    procedure rotate_fast_token_register( x: inout reg_t) is
+    begin
+        if x.fhrclk = '0' then
+            -- rise
+            x.fhrclk             := '1';
+            x.fast_token_counter := x.fast_token_counter - 1;
+        else                     
+            -- fall              
+            x.fhrclk             := '0';
+            x.fin                := test_fast_token_c( x.fast_token_counter );
+        end if;
+    end procedure rotate_fast_token_register;
+
+
+
 
 
 begin
@@ -189,9 +212,12 @@ begin
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            FOUT        => src.rena3_model_i0_fout,     --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => src.rena3_model_i0_sout,     --   : out std_ulogic; -- Slow token output for slow token register
             SIN         => r.sin,                       --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
+            FIN         => r.fin,                       --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
             SHRCLK      => r.shrclk,                    --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
+            FHRCLK      => r.fhrclk,                    --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
             CLF         => r.clf                        --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
         );
 
@@ -291,10 +317,29 @@ begin
 
             when WAIT4 =>
                 if v.waitcounter = 0 then
+                    v.fast_token_counter := test_fast_token_c'high;
+                    v.state              := FAST_TOKEN;
+                else
+                    v.waitcounter        := v.waitcounter - 1;
+                end if;
+            
+            when FAST_TOKEN =>
+                if v.fast_token_counter >= 0 then
+                    rotate_fast_token_register( v);
+                else                    
+                    v.fhrclk             := '0';
+                    v.waitcounter        := 20;
+                    v.state              := WAIT5;
+                end if;
+            
+            when WAIT5 =>
+                if v.waitcounter = 0 then
                     v.state              := READY;
                 else
                     v.waitcounter        := v.waitcounter - 1;
                 end if;
+            
+
             
             when READY =>
                 simulation_run           <= false;
