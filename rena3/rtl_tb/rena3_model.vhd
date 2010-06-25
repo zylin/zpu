@@ -34,8 +34,8 @@ entity rena3_model is
         -- VREFLO      : in  std_ulogic; -- 1.5V, Low reference for positive going signals and reference for low rail
                                          -- of DAC
         DETECTOR_IN    : in  real_vector(0 to 35); -- Detector inputs pins
-        -- AOUTP       : in  std_ulogic; -- ?, Positive differential output
-        -- AOUTN       : in  std_ulogic; -- ?, Negative differential output
+        AOUTP          : out real;       -- ?, Positive differential output
+        AOUTN          : out real;       -- ?, Negative differential output
         CSHIFT         : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
         CIN            : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
         CS             : in  std_ulogic; -- Chip Select. After shifting 41 bits, pulse this signal high to load the
@@ -113,6 +113,8 @@ architecture behave of rena3_model is
     type   channel_outp_array_t is array(natural range <>) of rena3_channel_out_t;
     signal channel_outp_array : channel_outp_array_t(0 to channels_c-1);
 
+    signal slow_token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
+    signal fast_token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
 begin
 
 
@@ -385,51 +387,144 @@ begin
     --------------------------------------------------------------------------------
     -- slow token register
     --------------------------------------------------------------------------------
-    slow_token_register: block 
-        signal token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
+    slow_token: block 
     begin
 
-        process(SHRCLK, channel_outp_array, token_register, SIN)
+        process(SHRCLK, channel_outp_array, slow_token_register, SIN)
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).slow_trigger = '1' then
-                    token_register(i) <= '1';
+                    slow_token_register(i) <= '1';
                 end if;
             end loop;
             if rising_edge(SHRCLK) then
-                token_register        <= token_register(token_register'high - 1 downto 0) & SIN;
+                slow_token_register   <= slow_token_register(slow_token_register'high - 1 downto 0) & SIN;
             end if;
         end process;
-        SOUT                          <= token_register(token_register'high);
+        SOUT                          <= slow_token_register(slow_token_register'high);
 
 
-    end block slow_token_register;
+    end block slow_token;
     --------------------------------------------------------------------------------
 
     
     --------------------------------------------------------------------------------
     -- fast token register
     --------------------------------------------------------------------------------
-    fast_token_register: block
-        signal token_register : std_ulogic_vector(channels_c-1 downto 0) := (others => '0');
+    fast_token: block
     begin
 
-        process(FHRCLK, channel_outp_array, token_register, FIN)
+        process( FHRCLK, channel_outp_array, fast_token_register, FIN)
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).fast_trigger = '1' then
-                    token_register(i) <= '1';
+                    fast_token_register(i) <= '1';
                 end if;
             end loop;
             if rising_edge(FHRCLK) then
-                token_register        <= token_register(token_register'high - 1 downto 0) & FIN;
+                fast_token_register        <= fast_token_register(fast_token_register'high - 1 downto 0) & FIN;
             end if;
         end process;
-        FOUT                          <= token_register(token_register'high);
+        FOUT                          <= fast_token_register(fast_token_register'high);
 
-    end block fast_token_register;
+    end block fast_token;
     --------------------------------------------------------------------------------
 
+    --------------------------------------------------------------------------------
+    -- read out
+    --------------------------------------------------------------------------------
+    read_out: block
+
+        type stage_t is ( slow_path, fast_vu, fast_vv);
+
+        type reg_t is record
+            stage   : stage_t;
+            channel : natural range 0 to channels_c;
+            found   : boolean;
+        end record;
+        constant default_reg_c : reg_t := (
+            stage   => slow_path,
+            channel => 0,
+            found   => false
+        );
+        
+        signal r, r_in: reg_t := default_reg_c;
+
+    begin
+        c: process
+            variable v                      : reg_t;
+            variable l                      : line;
+        begin
+            wait until rising_edge(TCLK);
+            if TIN = '1' then
+                v                           := r;
+                        
+                TOUT                        <= '0';
+                if v.found then
+                    case v.stage is
+                        when slow_path =>
+                            v.stage         := fast_vu;
+                        when fast_vu   =>
+                            v.stage         := fast_vv;
+                        when fast_vv   =>
+                            v.stage         := slow_path;
+                    end case;
+                end if;
+                v.found                     := false;
+
+                while not v.found loop
+                    case v.stage is
+                        when slow_path =>
+                            if slow_token_register( v.channel) = '1' then
+                                v.found     := true;
+                                AOUTN       <= - channel_outp_array( v.channel).peak_detector / 2.0;
+                                AOUTP       <=   channel_outp_array( v.channel).peak_detector / 2.0;
+                            else        
+                                v.stage     := fast_vu;
+                            end if;
+
+                        when fast_vu   =>
+                            if fast_token_register( v.channel) = '1' then
+                                v.found     := true;
+                                AOUTN       <= - channel_outp_array( v.channel).vu / 2.0;
+                                AOUTP       <=   channel_outp_array( v.channel).vu / 2.0;
+                            else
+                                v.stage     := fast_vv;
+                            end if;
+
+                        when fast_vv   =>
+                            if fast_token_register( v.channel) = '1' then
+                                v.found     := true;
+                                AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
+                                AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
+                            else
+                                v.stage     := slow_path;
+                                if v.channel < (channels_c - 1) then
+                                    v.channel := v.channel + 1;
+                                else
+                                    exit;
+                                end if;
+                            end if;
+
+                    end case;
+                end loop;
+
+                if not v.found then
+                    TOUT                    <= '1';
+                    v.channel               := 0;
+                    v.stage                 := slow_path;
+                else
+                    fprint( output, l, me_c & " output channel %2d, %s\n", fo(v.channel), stage_t'image(v.stage));
+                end if;
+
+                r                           <= v;
+            end if;
+        end process c;
+
+        --TODO timing warning (333 ns on TCLK)
+
+    end block read_out;
+    --------------------------------------------------------------------------------
 
 
     --------------------------------------------------------------------------------

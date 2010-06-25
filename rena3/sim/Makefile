@@ -17,7 +17,7 @@ all: compile simulate
 lib:	$(library)/_info
 
 compile: lib
-	vcom -2008 -work $(library) $(vhdlfiles)
+	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 simulate:
 	export top=$(top); \

@@ -67,6 +67,8 @@ begin
             VU          => dds_model_i0_vu,         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
             VV          => dds_model_i0_vv,         --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
+            AOUTP       => open,                    --   : out real;       -- ?, Positive differential output
+            AOUTN       => open,                    --   : out real;       -- ?, Negative differential output
             CSHIFT      => '0',                     --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => '0',                     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => '0',                     --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the

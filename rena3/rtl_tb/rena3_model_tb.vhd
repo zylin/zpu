@@ -40,8 +40,11 @@ architecture testbench of rena3_model_tb is
     constant test_config_channel2_c : std_ulogic_vector := "100000" & test_config_power_on_others_0_c;
 
     -- 36 bits ( one for each channel, from low to high)
-    constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
-    constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
+ -- constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
+ -- constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
+    constant test_slow_token_c      : std_ulogic_vector := "011000000000001010000000000000000000";
+    constant test_fast_token_c      : std_ulogic_vector := "000000000000000000000000000000000000";
+    -- TODO --> fast token chain doesnt work
 
     type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READOUT, WAIT6, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
@@ -156,8 +159,7 @@ architecture testbench of rena3_model_tb is
         end case;
 
     end procedure configure_rena;
-
-
+    
 
 
     procedure rotate_slow_token_register( x: inout reg_t) is
@@ -189,6 +191,18 @@ architecture testbench of rena3_model_tb is
     end procedure rotate_fast_token_register;
 
 
+    procedure rotate_readout_token( x: inout reg_t) is
+    begin
+        if x.tclk = '0' then
+            -- rise
+            x.tclk             := '1';
+        else                     
+            -- fall              
+            x.tclk             := '0';
+        end if;
+    end procedure rotate_readout_token;
+
+
 
 
 
@@ -214,6 +228,8 @@ begin
             VU          => 0.0,                         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
             VV          => 1.0,                         --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
             DETECTOR_IN => r.detector_in,               --   : in  real_array(0 to 35); -- Detector inputs pins
+            AOUTP       => open,                        --   : out real;       -- ?, Positive differential output
+            AOUTN       => open,                        --   : out real;       -- ?, Negative differential output
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
@@ -231,7 +247,7 @@ begin
 
 
     -- main
-    comb: process(r)
+    comb: process( r, src)
         variable v : reg_t;
     begin
         v   := r;
@@ -343,13 +359,21 @@ begin
             when WAIT5 =>
                 if v.waitcounter = 0 then
                     v.state              := READOUT;
+                    rotate_readout_token( v);
+                    v.tin                := '1';
                 else
                     v.waitcounter        := v.waitcounter - 1;
                 end if;
 
             when READOUT =>
-                v.waitcounter            := 40;
-                v.state                  := WAIT6;
+                if src.rena3_model_i0_tout = '0' then
+                    rotate_readout_token( v);
+                else
+                    -- no more to read
+                    v.tin                := '0';
+                    v.waitcounter        := 40;
+                    v.state              := WAIT6;
+                end if;
             
             when WAIT6 =>
                 if v.waitcounter = 0 then

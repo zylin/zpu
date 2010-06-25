@@ -35,6 +35,10 @@ proc e {} {
     exit -force
 }
 
+proc x {} {
+    exit -force
+}
+
 
 
 
