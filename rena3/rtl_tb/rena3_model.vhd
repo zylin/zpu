@@ -465,11 +465,13 @@ begin
             stage   : stage_t;
             channel : natural range 0 to channels_c;
             found   : boolean;
+            ends    : boolean;
         end record;
         constant default_reg_c : reg_t := (
             stage   => slow_path,
             channel => 0,
-            found   => false
+            found   => false,
+            ends    => false
         );
         
         signal r, r_in: reg_t := default_reg_c;
@@ -493,12 +495,17 @@ begin
                         when fast_vu   =>
                             v.stage         := fast_vv;
                         when fast_vv   =>
-                            v.stage         := slow_path;
+                            if v.channel < (channels_c - 1) then
+                                v.channel := v.channel + 1;
+                                v.stage   := slow_path;
+                            else
+                                v.ends    := true;
+                            end if;
                     end case;
                 end if;
                 v.found                     := false;
 
-                while not v.found loop
+                while (not v.found) and (not v.ends) loop
                     case v.stage is
                         when slow_path =>
                             if slow_token_register( v.channel) = '1' then
@@ -524,21 +531,22 @@ begin
                                 AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
                                 AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
                             else
-                                v.stage     := slow_path;
                                 if v.channel < (channels_c - 1) then
                                     v.channel := v.channel + 1;
+                                    v.stage   := slow_path;
                                 else
-                                    exit;
+                                    v.ends    := true;
                                 end if;
                             end if;
 
                     end case;
                 end loop;
 
-                if not v.found then
+                if v.ends then
                     TOUT                    <= '1';
                     v.channel               := 0;
                     v.stage                 := slow_path;
+                    v.ends                  := false;
                 else
                     fprint( output, l, me_c & " output channel %2d, %s\n", fo(v.channel), stage_t'image(v.stage));
                 end if;

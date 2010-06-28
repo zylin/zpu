@@ -40,11 +40,8 @@ architecture testbench of rena3_model_tb is
     constant test_config_channel2_c : std_ulogic_vector := "100000" & test_config_power_on_others_0_c;
 
     -- 36 bits ( one for each channel, from low to high)
- -- constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
- -- constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
-    constant test_slow_token_c      : std_ulogic_vector := "011000000000001010000000000000000000";
-    constant test_fast_token_c      : std_ulogic_vector := "000000000000000000000000000000000000";
-    -- TODO --> fast token chain doesnt work
+    constant test_slow_token_c      : std_ulogic_vector := "110010101111111100000000100000010101";
+    constant test_fast_token_c      : std_ulogic_vector := "101111111111111111111111111111111101";
 
     --------------------
     type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READOUT, WAIT6, READY);
@@ -383,6 +380,7 @@ begin
                     rotate_readout_token( v);
                 else
                     -- no more to read
+                    v.tclk               := '0';
                     v.tin                := '0';
                     v.waitcounter        := 40;
                     v.state              := WAIT6;
