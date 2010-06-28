@@ -176,10 +176,7 @@ begin
             channel_configuration_array(address).fm        <= channel_configuration( 0);
         end process update_reg;
 
-        -- TODO check the config
-        -- only follower mode supported
-        -- only testmode supported
-        -- print_reg: process (channel_configuration_array, channel_configuration)
+
         --------------------
         print_reg: process
         --------------------
