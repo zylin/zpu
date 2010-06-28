@@ -404,6 +404,7 @@ begin
     end block channel_configuration;
     --------------------------------------------------------------------------------
 
+
     --------------------------------------------------------------------------------
     -- slow token register
     --------------------------------------------------------------------------------
@@ -453,6 +454,7 @@ begin
 
     end block fast_token;
     --------------------------------------------------------------------------------
+
 
     --------------------------------------------------------------------------------
     -- read out
@@ -574,7 +576,6 @@ begin
         --------------------
             variable change: time;
         begin
-            wait until rising_edge(TCLK);
             change := now;
             wait until rising_edge(TCLK);
 
@@ -596,6 +597,7 @@ begin
                                   clear_fast_channel => CLF, 
                                   vu                 => VU, 
                                   vv                 => VV);
+        --------------------
         rena3_channel_i: rena3_channel_model
             generic map (
                 channel_nr => i
@@ -606,6 +608,6 @@ begin
                 outp       => channel_outp_array(i)
             );
     end generate rena3_channels_i;
-
     --------------------------------------------------------------------------------
+
 end architecture behave;

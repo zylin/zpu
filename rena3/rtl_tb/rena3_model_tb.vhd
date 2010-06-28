@@ -74,6 +74,7 @@ architecture testbench of rena3_model_tb is
         sin                : std_ulogic;
         fin                : std_ulogic;
         tin                : std_ulogic;
+        read               : std_ulogic;
         shrclk             : std_ulogic;
         fhrclk             : std_ulogic;
         tclk               : std_ulogic;
@@ -94,6 +95,7 @@ architecture testbench of rena3_model_tb is
         sin                => test_slow_token_c(35),
         fin                => test_fast_token_c(35),
         tin                => '0',
+        read               => '0',
         shrclk             => '0',
         fhrclk             => '0',
         tclk               => '0',
@@ -244,7 +246,7 @@ begin
             FOUT        => src.rena3_model_i0_fout,     --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => src.rena3_model_i0_sout,     --   : out std_ulogic; -- Slow token output for slow token register
             TOUT        => src.rena3_model_i0_tout,     --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
-            READ        => '0',                         --   : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
+            READ        => r.read,                      --   : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
             TIN         => r.tin,                       --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
             SIN         => r.sin,                       --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
             FIN         => r.fin,                       --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
@@ -372,6 +374,7 @@ begin
                     v.state              := READOUT;
                     rotate_readout_token( v);
                     v.tin                := '1';
+                    v.read               := '1';
                 else
                     v.waitcounter        := v.waitcounter - 1;
                 end if;
@@ -383,6 +386,7 @@ begin
                     -- no more to read
                     v.tclk               := '0';
                     v.tin                := '0';
+                    v.read               := '0';
                     v.waitcounter        := 40;
                     v.state              := WAIT6;
                 end if;
