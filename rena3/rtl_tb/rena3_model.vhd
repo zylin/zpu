@@ -48,7 +48,7 @@ entity rena3_model is
         SOUT           : out std_ulogic; -- Slow token output for slow token register
         TOUT           : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
                                          -- token to next chip.
-        -- READ        : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
+        READ           : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
                                          -- driver for a channel when token is present. Also enables output buffer.
         TIN            : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
                                          -- previous chip.
@@ -459,6 +459,8 @@ begin
     --------------------------------------------------------------------------------
     read_out: block
 
+        constant tclk_period : time := 333 ns;
+
         type stage_t is ( slow_path, fast_vu, fast_vv);
 
         type reg_t is record
@@ -478,7 +480,7 @@ begin
 
     begin
         --------------------
-        c: process
+        token_readout_p: process
         --------------------
             variable v                      : reg_t;
             variable l                      : line;
@@ -486,7 +488,7 @@ begin
             wait until rising_edge(TCLK);
             if TIN = '1' then
                 v                           := r;
-                        
+
                 TOUT                        <= '0';
                 if v.found then
                     case v.stage is
@@ -510,8 +512,12 @@ begin
                         when slow_path =>
                             if slow_token_register( v.channel) = '1' then
                                 v.found     := true;
-                                AOUTN       <= - channel_outp_array( v.channel).peak_detector / 2.0;
-                                AOUTP       <=   channel_outp_array( v.channel).peak_detector / 2.0;
+                                if READ = '1' then
+                                    AOUTN       <= - channel_outp_array( v.channel).peak_detector / 2.0;
+                                    AOUTP       <=   channel_outp_array( v.channel).peak_detector / 2.0;
+                                else
+                                    fprint( output, l, me_c & " READ not active\n");
+                                end if;
                             else        
                                 v.stage     := fast_vu;
                             end if;
@@ -519,8 +525,12 @@ begin
                         when fast_vu   =>
                             if fast_token_register( v.channel) = '1' then
                                 v.found     := true;
-                                AOUTN       <= - channel_outp_array( v.channel).vu / 2.0;
-                                AOUTP       <=   channel_outp_array( v.channel).vu / 2.0;
+                                if READ = '1' then
+                                    AOUTN       <= - channel_outp_array( v.channel).vu / 2.0;
+                                    AOUTP       <=   channel_outp_array( v.channel).vu / 2.0;
+                                else
+                                    fprint( output, l, me_c & " READ not active\n");
+                                end if;
                             else
                                 v.stage     := fast_vv;
                             end if;
@@ -528,8 +538,12 @@ begin
                         when fast_vv   =>
                             if fast_token_register( v.channel) = '1' then
                                 v.found     := true;
-                                AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
-                                AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
+                                if READ = '1' then
+                                    AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
+                                    AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
+                                else
+                                    fprint( output, l, me_c & " READ not active\n");
+                                end if;
                             else
                                 if v.channel < (channels_c - 1) then
                                     v.channel := v.channel + 1;
@@ -553,9 +567,21 @@ begin
 
                 r                           <= v;
             end if;
-        end process c;
+        end process token_readout_p;
 
-        --TODO timing warning (333 ns on TCLK)
+        --------------------
+        time_check_tclk_period: process
+        --------------------
+            variable change: time;
+        begin
+            wait until rising_edge(TCLK);
+            change := now;
+            wait until rising_edge(TCLK);
+
+            assert (now - change) >= tclk_period 
+                report   me_c & " TCLK to fast (output cannot settle)"
+                severity warning;
+        end process;
 
     end block read_out;
     --------------------------------------------------------------------------------

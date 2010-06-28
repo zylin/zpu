@@ -81,6 +81,7 @@ begin
             FOUT        => open,                    --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => open,                    --   : out std_ulogic; -- Slow token output for slow token register
             TOUT        => open,                    --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+            READ        => '0',                     --   : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
             TIN         => '1',                     --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
             SIN         => '1',                     --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
             FIN         => '1',                     --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.

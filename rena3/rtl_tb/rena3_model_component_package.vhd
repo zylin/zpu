@@ -57,7 +57,7 @@ package rena3_model_component_package is
             SOUT           : out std_ulogic; -- Slow token output for slow token register
             TOUT           : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
                                              -- token to next chip.
-            -- READ        : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
+            READ           : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
                                              -- driver for a channel when token is present. Also enables output buffer.
             TIN            : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
                                              -- previous chip.
