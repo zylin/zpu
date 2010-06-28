@@ -89,7 +89,7 @@ use rena3.rena3_model_types_package.all;
 use rena3.rena3_model_component_package.rena3_channel_model;
 
 
-
+----------------------------------------
 architecture behave of rena3_model is
 
 
@@ -142,13 +142,17 @@ begin
 
     begin
       
+        --------------------
         shift_in: process
+        --------------------
         begin
             wait until rising_edge(CShift);
             channel_configuration <= channel_configuration(39 downto 0) & CIN;
         end process;
 
+        --------------------
         update_reg: process
+        --------------------
             variable address               : natural range 0 to channels_c-1;
         begin
             wait until rising_edge(CS);
@@ -176,7 +180,9 @@ begin
         -- only follower mode supported
         -- only testmode supported
         -- print_reg: process (channel_configuration_array, channel_configuration)
+        --------------------
         print_reg: process
+        --------------------
             variable address_bits          : std_ulogic_vector(5 downto 0);
             variable address               : natural range 0 to channels_c-1;
             variable l                     : line;
@@ -297,7 +303,9 @@ begin
             end if;
         end process;
 
+        --------------------
         time_check_cin_setup: process
+        --------------------
             variable data_change: time;
         begin
             wait until CIN'event;
@@ -309,7 +317,9 @@ begin
                 severity error;
         end process;
 
+        --------------------
         time_check_cin_hold: process
+        --------------------
             variable data_change: time;
         begin
             wait until rising_edge(CShift);
@@ -321,7 +331,9 @@ begin
                 severity error;
         end process;
 
+        --------------------
         time_check_cshift_low: process
+        --------------------
             variable change: time;
         begin
             wait until rising_edge(CShift);
@@ -333,7 +345,9 @@ begin
                 severity error;
         end process;
     
+        --------------------
         time_check_cshift_high: process
+        --------------------
             variable change: time;
         begin
             wait until falling_edge(CShift);
@@ -345,7 +359,9 @@ begin
                 severity error;
         end process;
     
+        --------------------
         time_check_cshift_to_cs_delay: process
+        --------------------
             variable change: time;
         begin
             wait until falling_edge(CShift);
@@ -357,7 +373,9 @@ begin
                 severity error;
         end process;
     
+        --------------------
         time_check_cs_high: process
+        --------------------
             variable change: time;
         begin
             wait until rising_edge(CS);
@@ -369,7 +387,9 @@ begin
                 severity error;
         end process;
     
+        --------------------
         time_check_cs_to_cshift: process
+        --------------------
             variable change: time;
         begin
             wait until falling_edge(CS);
@@ -390,7 +410,9 @@ begin
     slow_token: block 
     begin
 
+        --------------------
         process(SHRCLK, channel_outp_array, slow_token_register, SIN)
+        --------------------
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).slow_trigger = '1' then
@@ -414,7 +436,9 @@ begin
     fast_token: block
     begin
 
+        --------------------
         process( FHRCLK, channel_outp_array, fast_token_register, FIN)
+        --------------------
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).fast_trigger = '1' then
@@ -451,7 +475,9 @@ begin
         signal r, r_in: reg_t := default_reg_c;
 
     begin
+        --------------------
         c: process
+        --------------------
             variable v                      : reg_t;
             variable l                      : line;
         begin

@@ -20,6 +20,7 @@ package rena3_model_types_package is
 
 
 
+    --------------------
     type channel_configuration_t is record
         
         -- FB_TC, Feedback time constant selection. Selects the size of the feedback
@@ -117,6 +118,7 @@ package rena3_model_types_package is
 
 
 
+    --------------------
     type rena3_channel_in_t is record
         input              : real;
         test               : real;
@@ -125,6 +127,7 @@ package rena3_model_types_package is
         vv                 : real;
     end record rena3_channel_in_t;
 
+    --------------------
     type rena3_channel_out_t is record
         peak_detector      : real;
         slow_trigger       : std_ulogic;

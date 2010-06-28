@@ -13,6 +13,7 @@ use rena3.rena3_model_component_package.dds_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
+----------------------------------------
 architecture board of test_board is
 
     signal testbench_trigger       : std_ulogic;
@@ -26,7 +27,9 @@ begin
     -- stimuli
 
     -- TODO generate testpulses from FPGA
+    --------------------
     gen_trigger_events: process
+    --------------------
     begin
 
         testbench_trigger <= '0';
@@ -44,18 +47,21 @@ begin
 
     end process gen_trigger_events;
     
+    --------------------
     test_pulse_gen_i0: test_pulse_gen
         port map(
             trigger => testbench_trigger,
             pulse   => test_pulse_gen_i0_pulse 
         );
 
+    --------------------
     dds_model_i0: dds_model
         port map(
             vu      => dds_model_i0_vu,
             vv      => dds_model_i0_vv
         );
    
+    --------------------
     -- TODO generate C* stimuli from FPGA
     -- TODO generate CLF stimuli from FPGA
     -- TODO generate slow token register stimuli from FPGA

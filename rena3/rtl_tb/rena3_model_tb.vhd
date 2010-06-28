@@ -23,7 +23,7 @@ use rena3.rena3_model_component_package.rena3_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
-
+----------------------------------------
 architecture testbench of rena3_model_tb is
 
     constant clock_period   : time       := (1 sec)/(50_000_000); -- 50 MHz
@@ -46,9 +46,11 @@ architecture testbench of rena3_model_tb is
     constant test_fast_token_c      : std_ulogic_vector := "000000000000000000000000000000000000";
     -- TODO --> fast token chain doesnt work
 
+    --------------------
     type state_t is (IDLE, CONFIG0, WAIT1, CONFIG1, CONFIG2, WAIT2, PULSE, WAIT3, SLOW_TOKEN, WAIT4, FAST_TOKEN, WAIT5, READOUT, WAIT6, READY);
     type configuration_state_t is (IDLE, SHIFT, RAISE_CS);
 
+    --------------------
     type configuration_t is record
         state           : configuration_state_t;
         start           : boolean;
@@ -65,6 +67,7 @@ architecture testbench of rena3_model_tb is
     );
 
 
+    --------------------
     type reg_t is record
         state              : state_t;
         detector_in        : real_vector(0 to 35);
@@ -107,6 +110,7 @@ architecture testbench of rena3_model_tb is
     );
 
 
+    --------------------
     type src_t is record
         test_pulse_gen_i0_pulse : real;
         rena3_model_i0_fout     : std_ulogic;
@@ -124,6 +128,7 @@ architecture testbench of rena3_model_tb is
 
 
 
+    --------------------
     procedure configure_rena( x: inout reg_t) is
     begin
         x.config.ready                 := false;
@@ -162,6 +167,7 @@ architecture testbench of rena3_model_tb is
     
 
 
+    --------------------
     procedure rotate_slow_token_register( x: inout reg_t) is
     begin
         if x.shrclk = '0' then
@@ -177,6 +183,7 @@ architecture testbench of rena3_model_tb is
 
 
 
+    --------------------
     procedure rotate_fast_token_register( x: inout reg_t) is
     begin
         if x.fhrclk = '0' then
@@ -191,6 +198,7 @@ architecture testbench of rena3_model_tb is
     end procedure rotate_fast_token_register;
 
 
+    --------------------
     procedure rotate_readout_token( x: inout reg_t) is
     begin
         if x.tclk = '0' then
@@ -208,10 +216,12 @@ architecture testbench of rena3_model_tb is
 
 begin
 
+    --------------------
     -- clock and reset
     clock <= not clock after clock_period/2 when simulation_run;
     reset <= '1', '0'  after  10 * clock_period;
     
+    --------------------
     -- stimuli generator
     test_pulse_gen_i0: test_pulse_gen
         port map(
@@ -220,6 +230,7 @@ begin
         );
 
 
+    --------------------
     -- dut
     -- TODO look for open ports
     rena3_model_i0: rena3_model
@@ -246,8 +257,10 @@ begin
         );
 
 
+    --------------------
     -- main
     comb: process( r, src)
+    --------------------
         variable v : reg_t;
     begin
         v   := r;
@@ -392,7 +405,9 @@ begin
         r_in <= v;
     end process comb;
 
+    --------------------
     seq: process
+    --------------------
     begin
         wait until rising_edge(clock);
         r <= r_in;

@@ -14,6 +14,7 @@ use rena3.rena3_model_types_package.all;
 package rena3_model_component_package is
 
 
+    --------------------
     component rena3_model is
 
         port (
@@ -81,6 +82,7 @@ package rena3_model_component_package is
     end component rena3_model;
 
 
+    --------------------
     component rena3_channel_model is
         generic (
             channel_nr         : natural
@@ -92,6 +94,8 @@ package rena3_model_component_package is
         );
     end component rena3_channel_model;
 
+
+    --------------------
     component dds_model is
         port (
             vu : out real;

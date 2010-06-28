@@ -10,6 +10,7 @@ library rena3;
 use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
+----------------------------------------
 architecture testbench of test_pulse_gen_tb is
     
     signal testbench_trigger       : std_ulogic;
@@ -17,7 +18,9 @@ architecture testbench of test_pulse_gen_tb is
 
 begin
 
+    --------------------
     gen_trigger_events: process
+    --------------------
     begin
 
         testbench_trigger <= '0';
@@ -36,6 +39,7 @@ begin
     end process gen_trigger_events;
 
 
+    --------------------
     test_pulse_gen_i0: test_pulse_gen
         port map(
             trigger => testbench_trigger,

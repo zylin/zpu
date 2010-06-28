@@ -9,13 +9,16 @@ library ieee;
 use ieee.math_real.sin;
 use ieee.math_real.cos;
 
+----------------------------------------
 architecture behave of dds_model is
 
     constant time_scale : time := 1 ns;
 
 begin
 
+    -------------------- 
     gen: process
+    --------------------
         variable t : real;
     begin
         t  := real( now / time_scale);

@@ -50,6 +50,7 @@ use tools.fio_pkg.all;
 
 
 
+----------------------------------------
 architecture behave of rena3_channel_model is
 
 
@@ -67,7 +68,9 @@ architecture behave of rena3_channel_model is
 
 begin
 
+    --------------------
     main: process (inp, config, vv, vu)
+    --------------------
         variable preamp_input  : real;
         variable shaper_input  : real;
                                

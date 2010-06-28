@@ -30,6 +30,7 @@ entity test_pulse_gen is
 end entity test_pulse_gen;
 
 
+----------------------------------------
 architecture behave of test_pulse_gen is
 
     constant time_resolution : time := 100 ps;
@@ -41,7 +42,9 @@ architecture behave of test_pulse_gen is
 
 begin
 
+    --------------------
     process
+    --------------------
         variable rise : real;
         variable fall : real;
     begin
