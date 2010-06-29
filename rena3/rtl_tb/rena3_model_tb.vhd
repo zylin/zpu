@@ -243,6 +243,10 @@ begin
             CSHIFT      => r.cshift,                    --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => r.cin,                       --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => r.cs,                        --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            TS_N        => open,                        --   : out std_ulogic; -- Differential out, Slow trigger output, Negative output
+            TS_P        => open,                        --   : out std_ulogic; -- Differential out, Slow trigger output, positive output
+            TF_N        => open,                        --   : out std_ulogic; -- Differential out, Fast trigger output, Negative Output
+            TF_P        => open,                        --   : out std_ulogic; -- Differential out, Fast trigger output, positive output
             FOUT        => src.rena3_model_i0_fout,     --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => src.rena3_model_i0_sout,     --   : out std_ulogic; -- Slow token output for slow token register
             TOUT        => src.rena3_model_i0_tout,     --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
@@ -252,6 +256,9 @@ begin
             FIN         => r.fin,                       --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
             SHRCLK      => r.shrclk,                    --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
             FHRCLK      => r.fhrclk,                    --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
+            CLS_P       => '0',                         --   : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
+                                             -- detector when asserted (high). Also clears the token register.
+            CLS_N       => '1',                         --   : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
             CLF         => r.clf,                       --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
             TCLK        => r.tclk                       --   : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
         );

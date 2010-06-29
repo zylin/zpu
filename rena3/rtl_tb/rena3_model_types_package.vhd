@@ -123,6 +123,7 @@ package rena3_model_types_package is
         input              : real;
         test               : real;
         clear_fast_channel : std_ulogic;
+        clear_slow_channel : std_ulogic;
         vu                 : real;
         vv                 : real;
     end record rena3_channel_in_t;

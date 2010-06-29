@@ -49,10 +49,10 @@ package rena3_model_component_package is
             CIN            : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS             : in  std_ulogic; -- Chip Select. After shifting 41 bits, pulse this signal high to load the
                                              -- shifted data in the proper registers
-            -- TS_N        : in  std_ulogic; -- Differential out, Slow trigger output, Negative output
-            -- TS_P        : in  std_ulogic; -- Differential out, Slow trigger output, positive output
-            -- TF_N        : in  std_ulogic; -- Differential out, Fast trigger output, Negative Output
-            -- TF_P        : in  std_ulogic; -- Differential out, Fast trigger output, positive output
+            TS_N           : out std_ulogic; -- Differential out, Slow trigger output, Negative output
+            TS_P           : out std_ulogic; -- Differential out, Slow trigger output, positive output
+            TF_N           : out std_ulogic; -- Differential out, Fast trigger output, Negative Output
+            TF_P           : out std_ulogic; -- Differential out, Fast trigger output, positive output
             FOUT           : out std_ulogic; -- Fast token output for fast token register
             SOUT           : out std_ulogic; -- Slow token output for slow token register
             TOUT           : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
@@ -69,9 +69,9 @@ package rena3_model_component_package is
                                              -- asserted (high).
             -- ACQUIRE_N   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is
                                              -- asserted (low).
-            -- CLS_P       : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
+            CLS_P          : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
                                              -- detector when asserted (high). Also clears the token register.
-            -- CLS_N       : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
+            CLS_N          : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
                                              -- detector when asserted (low). Also clears the token register.
             CLF            : in  std_ulogic; -- This signal clears the fast latch (VU and VV sample circuit) when
                                              -- asserted, (high).

@@ -86,6 +86,10 @@ begin
             vu      <= default_rena3_channel_out_c.vu;
             vv      <= default_rena3_channel_out_c.vv;
         end if;
+
+        if inp.clear_slow_channel = '1' then
+            peak_detector  := 0.0; 
+        end if;
         
         -- input selection
         preamp_input := 0.0;
@@ -109,6 +113,7 @@ begin
         fast_dac          := real(to_integer(config.df))/255.0;
         slow_dac          := real(to_integer(config.ds))/255.0;
 
+        -- TODO untestet vu and vv behaviour
         outp.fast_trigger          <= '0';
         if (shaper_input > fast_dac) and (config.fpdwn = '0') then
             if config.enf = '1' then
@@ -131,7 +136,13 @@ begin
             if config.ens = '1' then
                 outp.slow_trigger  <= '1';
             end if;
-            peak_detector      := shaper_input;
+            -- peak detection
+            -- TODO untested
+            -- TODO POL dependedend?
+            if shaper_input > peak_detector then
+                peak_detector      := shaper_input;
+                outp.peak_detector <= shaper_input;
+            end if;
         end if;
 
         

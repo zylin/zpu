@@ -16,12 +16,14 @@ add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/channel_outp_a
 add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/tout
 add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/tin
 add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/tclk
+add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/ts_p
+add wave -noupdate -format Logic /rena3_model_tb/rena3_model_i0/tf_p
 add wave -noupdate -divider debug
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/fast_token_register
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/slow_token_register
 add wave -noupdate -format Literal /rena3_model_tb/rena3_model_i0/read_out/r
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {5676178 ps} 0}
+WaveRestoreCursors {{Cursor 1} {3456538 ps} 0}
 configure wave -namecolwidth 147
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -36,4 +38,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {5238615 ps} {5885223 ps}
+WaveRestoreZoom {0 ps} {21945 ns}

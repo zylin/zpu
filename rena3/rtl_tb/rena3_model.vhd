@@ -40,10 +40,10 @@ entity rena3_model is
         CIN            : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
         CS             : in  std_ulogic; -- Chip Select. After shifting 41 bits, pulse this signal high to load the
                                          -- shifted data in the proper registers
-        -- TS_N        : in  std_ulogic; -- Differential out, Slow trigger output, Negative output
-        -- TS_P        : in  std_ulogic; -- Differential out, Slow trigger output, positive output
-        -- TF_N        : in  std_ulogic; -- Differential out, Fast trigger output, Negative Output
-        -- TF_P        : in  std_ulogic; -- Differential out, Fast trigger output, positive output
+        TS_N           : out std_ulogic; -- Differential out, Slow trigger output, Negative output
+        TS_P           : out std_ulogic; -- Differential out, Slow trigger output, positive output
+        TF_N           : out std_ulogic; -- Differential out, Fast trigger output, Negative Output
+        TF_P           : out std_ulogic; -- Differential out, Fast trigger output, positive output
         FOUT           : out std_ulogic; -- Fast token output for fast token register
         SOUT           : out std_ulogic; -- Slow token output for slow token register
         TOUT           : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
@@ -60,9 +60,9 @@ entity rena3_model is
                                          -- asserted (high).
         -- ACQUIRE_N   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is
                                          -- asserted (low).
-        -- CLS_P       : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
+        CLS_P          : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
                                          -- detector when asserted (high). Also clears the token register.
-        -- CLS_N       : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
+        CLS_N          : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
                                          -- detector when asserted (low). Also clears the token register.
         CLF            : in  std_ulogic; -- This signal clears the fast latch (VU and VV sample circuit) when
                                          -- asserted, (high).
@@ -409,17 +409,25 @@ begin
     begin
 
         --------------------
-        process(SHRCLK, channel_outp_array, slow_token_register, SIN)
+        process(SHRCLK, channel_outp_array, slow_token_register, SIN, CLS_P, CLS_N)
         --------------------
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).slow_trigger = '1' then
                     slow_token_register(i) <= '1';
+                    TS_P                   <= '1';
+                    TS_N                   <= '0';
                 end if;
             end loop;
             if rising_edge(SHRCLK) then
                 slow_token_register   <= slow_token_register(slow_token_register'high - 1 downto 0) & SIN;
             end if;
+            if (CLS_P = '1') and (CLS_N = '0') then
+                slow_token_register   <= (others => '0');
+                TS_P                  <= '0';
+                TS_N                  <= '1';
+            end if;
+
         end process;
         SOUT                          <= slow_token_register(slow_token_register'high);
 
@@ -435,16 +443,22 @@ begin
     begin
 
         --------------------
-        process( FHRCLK, channel_outp_array, fast_token_register, FIN)
+        process( FHRCLK, channel_outp_array, fast_token_register, FIN, CLF)
         --------------------
         begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).fast_trigger = '1' then
                     fast_token_register(i) <= '1';
+                    TF_P                   <= '1';
+                    TF_N                   <= '0';
                 end if;
             end loop;
             if rising_edge(FHRCLK) then
                 fast_token_register        <= fast_token_register(fast_token_register'high - 1 downto 0) & FIN;
+            end if;
+            if CLF = '1' then
+                TF_P                       <= '0';
+                TF_N                       <= '1';
             end if;
         end process;
         FOUT                          <= fast_token_register(fast_token_register'high);
@@ -592,6 +606,7 @@ begin
         channel_inp_array(i) <= ( input              => DETECTOR_IN(i), 
                                   test               => TEST, 
                                   clear_fast_channel => CLF, 
+                                  clear_slow_channel => CLS_P,
                                   vu                 => VU, 
                                   vv                 => VV);
         --------------------
