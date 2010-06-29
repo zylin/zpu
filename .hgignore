@@ -22,3 +22,4 @@ glob:rena3/doc/*.pdf
 glob:esnug_c/doc/snug2002_20040606_slides.pdf
 glob:esnug_c/doc/snug2002_20020313_paper.pdf
 glob:ct-lab.zip
+glob:sr/syn

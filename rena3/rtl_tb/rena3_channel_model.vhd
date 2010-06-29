@@ -139,7 +139,7 @@ begin
             -- peak detection
             -- TODO untested
             -- TODO POL dependedend?
-            if shaper_input > peak_detector then
+            if (shaper_input > peak_detector) and (inp.acquire = '1') then
                 peak_detector      := shaper_input;
                 outp.peak_detector <= shaper_input;
             end if;

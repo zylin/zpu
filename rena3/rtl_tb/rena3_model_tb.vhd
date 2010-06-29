@@ -256,6 +256,8 @@ begin
             FIN         => r.fin,                       --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
             SHRCLK      => r.shrclk,                    --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
             FHRCLK      => r.fhrclk,                    --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
+            ACQUIRE_P   => '1',                         --   : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is asserted (high).
+            ACQUIRE_N   => '0',                         --   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is asserted (low)
             CLS_P       => '0',                         --   : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
                                              -- detector when asserted (high). Also clears the token register.
             CLS_N       => '1',                         --   : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak

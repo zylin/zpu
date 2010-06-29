@@ -56,9 +56,9 @@ entity rena3_model is
         FIN            : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
         SHRCLK         : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
         FHRCLK         : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
-        -- ACQUIRE_P   : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is
+        ACQUIRE_P      : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is
                                          -- asserted (high).
-        -- ACQUIRE_N   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is
+        ACQUIRE_N      : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is
                                          -- asserted (low).
         CLS_P          : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
                                          -- detector when asserted (high). Also clears the token register.
@@ -607,6 +607,7 @@ begin
                                   test               => TEST, 
                                   clear_fast_channel => CLF, 
                                   clear_slow_channel => CLS_P,
+                                  acquire            => ACQUIRE_N,
                                   vu                 => VU, 
                                   vv                 => VV);
         --------------------
