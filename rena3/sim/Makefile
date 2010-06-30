@@ -1,13 +1,14 @@
 library      = rena3
-top          = rena3_model_tb
+#top          = rena3_model_tb
 #top          = test_pulse_gen_tb
-#top          = test_board
+top          = test_board
 
 #rtl_files    = ../rtl/*.vhd
 rtl_tb_files =  ../rtl_tb/test_pulse_gen.vhd \
 		../rtl_tb/dds_model.vhd \
 	       ../rtl_tb/rena3_model_types_package.vhd \
 	       ../rtl_tb/rena3_model_component_package.vhd \
+	       ../rtl_tb/types_package.vhd \
 	       ../rtl_tb/*.vhd
 vhdlfiles    = $(rtl_tb_files) $(rtl_files)
 
