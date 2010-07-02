@@ -3,7 +3,7 @@ library      = rena3
 #top          = test_pulse_gen_tb
 top          = test_board
 
-#rtl_files    = ../rtl/*.vhd
+rtl_files    = ../rtl/*.vhd
 rtl_tb_files =  ../rtl_tb/test_pulse_gen.vhd \
 		../rtl_tb/dds_model.vhd \
 	       ../rtl_tb/rena3_model_types_package.vhd \

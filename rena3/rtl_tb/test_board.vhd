@@ -8,6 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library rena3;
+use rena3.component_package.controller_top;
 use rena3.rena3_model_component_package.rena3_model;
 use rena3.rena3_model_component_package.dds_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
@@ -15,6 +16,12 @@ use rena3.test_pulse_gen_package.test_pulse_gen;
 
 ----------------------------------------
 architecture board of test_board is
+    
+    constant clk_period            : time       := ( 1 sec/ 50_000_000); -- 50 MHz
+
+    signal simulation_run          : boolean    := true;
+    signal clk                     : std_ulogic := '1';
+    signal reset                   : std_ulogic;
 
     signal testbench_trigger       : std_ulogic;
     signal test_pulse_gen_i0_pulse : real;
@@ -23,8 +30,10 @@ architecture board of test_board is
     signal dds_model_i0_vv         : real;
 
 begin
-    
-    -- stimuli
+   
+    -- clock and reset generator 
+    clk   <= not clk after clk_period/2 when simulation_run;
+    reset <= '1', '0' after 10 * clk_period;
 
     -- TODO generate testpulses from FPGA
     --------------------
@@ -43,6 +52,7 @@ begin
 
         wait for 500 us;
         report "End simulation." severity note;
+        simulation_run        <= false;
         wait;
 
     end process gen_trigger_events;
@@ -99,5 +109,11 @@ begin
             CLF         => '0',                     --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
             TCLK        => '1'                      --   : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
         );
+
+    controller_top_i0: controller_top
+        port map (
+        clk            => clk,                      --   : in std_ulogic;
+        reset          => reset                     --   : in std_ulogic
+    ); -- TODO add ports for rena chip
 
 end architecture board;

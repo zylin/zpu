@@ -1,7 +1,6 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -format Analog-Step -height 74 -max 0.70700000000000118 -min -1.1726730697603216e-015 /test_board/test_pulse_gen_i0_pulse
-TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {779100000 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100

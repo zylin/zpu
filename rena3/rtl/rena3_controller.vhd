@@ -5,25 +5,20 @@ use ieee.std_logic_1164.all;
 library rena3;
 use rena3.types_package.all;
 
-library grlib;
-use grlib.amba.all;
-
+library zpu;
+use zpu.zpu_wrapper_package.all; -- type definitions
 
 
 entity rena3_controller is
-    generic (
-        hindex    : natural := 0   -- slave bus index
-        hirq      : integer := 0   -- interrupt index
-    );
     port (
         -- system
         clock     : std_ulogic;
         -- rena3 (connection to chip)
         rena3_in  : in  rena3_controller_in_t;
-        rena3_out : out rena3_controller_out_t
+        rena3_out : out rena3_controller_out_t;
         -- connection to soc
-        hslvi     : in  ahb_slv_in_type; -- AHB slave inputs
-        hslvo     : out ahb_slv_out_type -- AHB slave outputs
+        zpu_in    : in  zpu_out_t;
+        zpu_out   : out zpu_in_t
     );
 end entity rena3_controller;
 
