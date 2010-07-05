@@ -26,9 +26,29 @@ package component_package is
 
     component controller_top is
         port (
-            clk       : in  std_ulogic;
-            reset     : in  std_ulogic 
-        );
+            clk               : in  std_ulogic;
+            reset             : in  std_ulogic;
+            -- rena 3 
+            rena3_ts          : in  std_ulogic;
+            rena3_tf          : in  std_ulogic;
+            rena3_fout        : in  std_ulogic;
+            rena3_sout        : in  std_ulogic;
+            rena3_tout        : in  std_ulogic;
+            --
+            rena3_chsift      : out std_ulogic;
+            rena3_cin         : out std_ulogic; 
+            rena3_cs          : out std_ulogic;
+            rena3_read        : out std_ulogic;
+            rena3_tin         : out std_ulogic;
+            rena3_sin         : out std_ulogic;
+            rena3_fin         : out std_ulogic;
+            rena3_shrclk      : out std_ulogic;
+            rena3_fhrclk      : out std_ulogic;
+            rena3_acquire     : out std_ulogic;
+            rena3_cls         : out std_ulogic;
+            rena3_clf         : out std_ulogic;
+            rena3_tclk        : out std_ulogic
+          );
     end component controller_top;
 
 end package component_package;
