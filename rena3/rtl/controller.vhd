@@ -53,7 +53,11 @@ architecture rtl of controller_top is
 begin
 
     -- in mapping
-    rena3_out.ts <= rena3_ts;
+    rena3_out.ts   <= rena3_ts;
+    rena3_out.tf   <= rena3_tf;
+    rena3_out.fout <= rena3_fout;
+    rena3_out.sout <= rena3_sout;
+    rena3_out.tout <= rena3_tout;
         
     rena3_controller_i0: rena3_controller
         port map (
@@ -68,8 +72,19 @@ begin
         );
    
     -- out mapping 
-    rena3_chsift <= rena3_controller_io_rena3_out.cshift;
-    rena3_cin    <= rena3_controller_io_rena3_out.cin;
+    rena3_chsift  <= rena3_controller_io_rena3_out.cshift;
+    rena3_cin     <= rena3_controller_io_rena3_out.cin;
+    rena3_cs      <= rena3_controller_io_rena3_out.cs;
+    rena3_read    <= rena3_controller_io_rena3_out.read;
+    rena3_tin     <= rena3_controller_io_rena3_out.tin;
+    rena3_sin     <= rena3_controller_io_rena3_out.sin;
+    rena3_fin     <= rena3_controller_io_rena3_out.fin;
+    rena3_shrclk  <= rena3_controller_io_rena3_out.shrclk;
+    rena3_fhrclk  <= rena3_controller_io_rena3_out.fhrclk;
+    rena3_acquire <= rena3_controller_io_rena3_out.acquire;
+    rena3_cls     <= rena3_controller_io_rena3_out.cls;
+    rena3_clf     <= rena3_controller_io_rena3_out.clf;
+    rena3_tclk    <= rena3_controller_io_rena3_out.tclk;
         
     zpu_i0: zpu_wrapper
         port map ( 
@@ -80,4 +95,5 @@ begin
             zpu_in  => rena3_controller_i0_zpu_out,   -- : in  zpu_in_t;
             zpu_out => zpu_i0_zpu_out                 -- : out zpu_out_t
             );
+
 end architecture rtl;
