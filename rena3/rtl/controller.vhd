@@ -39,7 +39,10 @@ use rena3.types_package.all;
 
 library zpu;
 use zpu.zpu_wrapper_package.zpu_wrapper;
+use zpu.zpu_wrapper_package.zpu_io;
 use zpu.zpu_wrapper_package.all; -- types
+use zpu.zpu_config.all;
+use zpu.zpupkg.all;
 
 
 
@@ -49,6 +52,16 @@ architecture rtl of controller_top is
     signal rena3_controller_io_rena3_out : rena3_controller_out_t;
     signal rena3_controller_i0_zpu_out   : zpu_in_t;
     signal zpu_i0_zpu_out                : zpu_out_t;
+    
+    -- zpu related signals
+    signal io_busy                       : std_ulogic;
+    signal io_writeEnable                : std_ulogic;
+    signal io_readEnable                 : std_ulogic;
+    signal io_ready                      : std_ulogic;
+    signal io_read                       : std_logic_vector(wordSize-1 downto 0);
+    signal io_reading                    : std_ulogic;
+    signal dram_ready                    : std_ulogic;
+    signal dram_read                     : std_logic_vector(wordSize-1 downto 0);
 
 begin
 
@@ -68,7 +81,7 @@ begin
             rena3_out => rena3_controller_io_rena3_out, -- : out rena3_controller_out_t;
             -- connection to soc
             zpu_in    => zpu_i0_zpu_out,                -- : in  zpu_out_t;
-            zpu_out   => rena3_controller_i0_zpu_out    -- : out zpu_in_t
+            zpu_out   => open --rena3_controller_i0_zpu_out    -- : out zpu_in_t
         );
    
     -- out mapping 
@@ -85,8 +98,15 @@ begin
     rena3_cls     <= rena3_controller_io_rena3_out.cls;
     rena3_clf     <= rena3_controller_io_rena3_out.clf;
     rena3_tclk    <= rena3_controller_io_rena3_out.tclk;
-        
-    zpu_i0: zpu_wrapper
+
+
+    rena3_controller_i0_zpu_out.enable      <= io_busy; -- TODO
+    rena3_controller_i0_zpu_out.in_mem_busy <= io_busy; -- TODO
+    rena3_controller_i0_zpu_out.mem_read    <= std_ulogic_vector(dram_read) when dram_ready = '1' else
+                                               std_ulogic_vector(io_read)   when io_ready   = '1' else (others => 'U');
+    rena3_controller_i0_zpu_out.interrupt   <= '0'; -- TODO
+
+    zpu_wrapper_i0: zpu_wrapper
         port map ( 
             clk     => clk,                           -- : in  std_logic;
             -- asynchronous reset signal             
@@ -95,5 +115,31 @@ begin
             zpu_in  => rena3_controller_i0_zpu_out,   -- : in  zpu_in_t;
             zpu_out => zpu_i0_zpu_out                 -- : out zpu_out_t
             );
+
+    zpu_io_i0 : zpu_io
+        port map (
+            clk         => clk,
+            areset      => reset,
+            busy        => io_busy,
+            writeEnable => io_writeEnable,
+            readEnable  => io_readEnable,
+            write       => std_logic_vector(zpu_i0_zpu_out.mem_write),
+            read        => io_read,
+            addr        => std_logic_vector(zpu_i0_zpu_out.out_mem_addr(maxAddrBit downto minAddrBit))
+        );
+
+    memyory_control_sync: process
+    begin
+        wait until rising_edge(clk);
+        io_reading     <= io_busy or zpu_i0_zpu_out.out_mem_readEnable;
+        if reset = '1' then
+            io_reading <= '0';
+        end if;
+    end process;
+
+    io_ready       <= (io_reading or zpu_i0_zpu_out.out_mem_readEnable) and not io_busy; 
+
+    io_writeEnable <= zpu_i0_zpu_out.out_mem_writeEnable and zpu_i0_zpu_out.out_mem_addr(ioBit);
+    io_readEnable  <= zpu_i0_zpu_out.out_mem_readEnable  and zpu_i0_zpu_out.out_mem_addr(ioBit);
 
 end architecture rtl;

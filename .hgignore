@@ -23,3 +23,7 @@ glob:esnug_c/doc/snug2002_20040606_slides.pdf
 glob:esnug_c/doc/snug2002_20020313_paper.pdf
 glob:ct-lab.zip
 glob:sr/syn
+glob:grlib/doc/*.pdf
+glob:rena3/software/devel/zpuromgen.exe
+glob:tdc/paper/list.txt
+glob:zpu/doc/*.pdf

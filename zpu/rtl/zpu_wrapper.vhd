@@ -40,16 +40,37 @@ package zpu_wrapper_package is
 
     component zpu_wrapper is
         Port ( 
-            clk     : in  std_logic;
+            clk     : in  std_ulogic;
             -- asynchronous reset signal
-            areset  : in  std_logic;
+            areset  : in  std_ulogic;
 
             zpu_in  : in  zpu_in_t;
             zpu_out : out zpu_out_t
             );
     end component zpu_wrapper;
 
+    component  zpu_io is
+        generic (
+            log_file    : string  := "log.txt"
+        );
+        port(
+            clk         : in  std_logic;
+            areset      : in  std_logic; 
+            busy        : out std_logic; 
+            writeEnable : in  std_logic; 
+            readEnable  : in  std_logic; 
+            write       : in  std_logic_vector(wordSize-1 downto 0); 
+            read        : out std_logic_vector(wordSize-1 downto 0); 
+            addr        : in  std_logic_vector(maxAddrBit downto minAddrBit) 
+        ); 
+    end component;
+
 end package zpu_wrapper_package;
+
+
+
+
+
 
 
 
@@ -64,9 +85,9 @@ use zpu.zpupkg.zpu_core;
 
 entity zpu_wrapper is
     Port ( 
-        clk     : in  std_logic;
+        clk     : in  std_ulogic;
     	-- asynchronous reset signal
-	 	areset  : in  std_logic;
+	 	areset  : in  std_ulogic;
 
         zpu_in  : in  zpu_in_t;
         zpu_out : out zpu_out_t
@@ -75,6 +96,37 @@ end zpu_wrapper;
 
 
 architecture rtl of zpu_wrapper is
+
+    signal mem_write           : std_logic_vector(zpu_out.mem_write'range);
+    signal out_mem_addr        : std_logic_vector(zpu_out.out_mem_addr'range);
+    signal out_mem_writeEnable : std_logic;
+    signal out_mem_readEnable  : std_logic;
+    signal mem_writeMask       : std_logic_vector(zpu_out.mem_writeMask'range);
+
 begin
+
+    zpu_i0: zpu_core 
+        port map (
+            clk                 => clk,
+            areset              => areset,
+            --
+            enable              => zpu_in.enable,
+            in_mem_busy         => zpu_in.in_mem_busy,
+            mem_read            => std_logic_vector(zpu_in.mem_read),
+            interrupt           => zpu_in.interrupt,
+            --
+            mem_write           => mem_write,
+            out_mem_addr        => out_mem_addr,
+            out_mem_writeEnable => out_mem_writeEnable,
+            out_mem_readEnable  => out_mem_readEnable,
+            mem_writeMask       => mem_writeMask,
+            break               => zpu_out.break
+        );
+
+    zpu_out.mem_write           <= std_ulogic_vector(mem_write);
+    zpu_out.out_mem_addr        <= std_ulogic_vector(out_mem_addr);
+    zpu_out.out_mem_writeEnable <= std_ulogic(out_mem_writeEnable);
+    zpu_out.out_mem_readEnable  <= std_ulogic(out_mem_readEnable);
+    zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
 end architecture;
