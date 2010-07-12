@@ -48,6 +48,7 @@ architecture board of test_board is
     signal controller_top_i0_rena3_cls     : std_ulogic;
     signal controller_top_i0_rena3_clf     : std_ulogic;
     signal controller_top_i0_rena3_tclk    : std_ulogic;
+    signal controller_top_i0_break         : std_ulogic;
 
 
 
@@ -66,16 +67,16 @@ begin
     begin
 
         testbench_trigger <= '0';
+        wait until reset = '0';
     
-        for i in 1 to 3 loop
-            wait for 999 us;
+        while controller_top_i0_break = '0' loop
+            wait for  99 us;
             testbench_trigger <= '1';
             wait for   1 us;
             testbench_trigger <= '0';
         end loop;
 
-        wait for 500 us;
-        report "End simulation." severity note;
+        report "---" & LF & "ZPU sends break" & LF & "End simulation." severity note;
         simulation_run        <= false;
         wait;
 
@@ -91,6 +92,7 @@ begin
     --------------------
     dds_model_i0: dds_model
         port map(
+            run     => simulation_run,
             vu      => dds_model_i0_vu,
             vv      => dds_model_i0_vv
         );
@@ -158,7 +160,9 @@ begin
         rena3_acquire  => controller_top_i0_rena3_acquire, --   : out std_ulogic;
         rena3_cls      => controller_top_i0_rena3_cls,     --   : out std_ulogic;
         rena3_clf      => controller_top_i0_rena3_clf,     --   : out std_ulogic;
-        rena3_tclk     => controller_top_i0_rena3_tclk     --   : out std_ulogic
+        rena3_tclk     => controller_top_i0_rena3_tclk,    --   : out std_ulogic;
+        --
+        break          => controller_top_i0_break          --   : out std_ulogic
     );
 
 end architecture board;

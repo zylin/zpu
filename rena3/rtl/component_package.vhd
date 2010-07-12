@@ -47,7 +47,9 @@ package component_package is
             rena3_acquire     : out std_ulogic;
             rena3_cls         : out std_ulogic;
             rena3_clf         : out std_ulogic;
-            rena3_tclk        : out std_ulogic
+            rena3_tclk        : out std_ulogic;
+            --
+            break             : out std_ulogic
           );
     end component controller_top;
 

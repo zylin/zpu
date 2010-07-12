@@ -438,7 +438,7 @@ begin
 							memBAddr <= sp+spOffset;
 							state <= State_AddSP;
 						when Decoded_Break =>
-							report "Break instruction encountered" severity failure;
+							report "Break instruction encountered" severity note;
 							break <= '1';
 						when Decoded_PushSP =>
 							memAWriteEnable <= '1';

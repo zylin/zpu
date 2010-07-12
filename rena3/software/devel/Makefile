@@ -17,10 +17,10 @@ hello:
 	./zpuromgen hello.bin >>../helloworld.vhd
 	cat >>../helloworld.vhd helloworld.vhd_footer
 
-test_vhdl = ../../rtl/dualport_ram.vhd
+test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
 
 test:
-	zpu-elf-gcc -O3 -phi "`pwd`/test.c" -o test.elf -Wl,--relax -Wl,--gc-sections  -g
+	zpu-elf-gcc -O3 -phi "`pwd`/test.c" -o test.elf -Wl,--relax -Wl,--gc-sections -Wa,-adhls=test.lst -g
 	zpu-elf-objcopy -O binary test.elf test.bin
 
 	cat > $(test_vhdl) dualport_ram.vhd_header

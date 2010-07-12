@@ -1,7 +1,8 @@
 entity dds_model is
     port (
-        vu : out real;
-        vv : out real
+        run : in  boolean;
+        vu  : out real;
+        vv  : out real
     );
 end entity dds_model;
 
@@ -25,6 +26,9 @@ begin
         vu <= sin(t);
         vv <= cos(t);
         wait for time_scale;
+        if not run then
+            wait; --forever
+        end if;
     end process;
 
 end architecture behave;

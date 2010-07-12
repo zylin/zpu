@@ -26,7 +26,9 @@ entity controller_top is
         rena3_acquire     : out std_ulogic; 
         rena3_cls         : out std_ulogic; 
         rena3_clf         : out std_ulogic; 
-        rena3_tclk        : out std_ulogic 
+        rena3_tclk        : out std_ulogic;
+        -- simulation
+        break             : out std_ulogic
     );
 end entity controller_top;
 
@@ -114,7 +116,8 @@ begin
                                                      
             zpu_in  => rena3_controller_i0_zpu_out,   -- : in  zpu_in_t;
             zpu_out => zpu_i0_zpu_out                 -- : out zpu_out_t
-            );
+        );
+    break <= zpu_i0_zpu_out.break;
 
     zpu_io_i0 : zpu_io
         port map (

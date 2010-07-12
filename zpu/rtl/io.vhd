@@ -56,7 +56,9 @@ begin
 	timer_we <= writeEnable and addr(12);
 	
 	process(areset, clk)
-	variable taddr  : std_logic_vector(maxAddrBit downto 0);
+	variable taddr         : std_logic_vector(maxAddrBit downto 0);
+    variable outstr        : string(1 to 200);
+    variable outstr_length : natural := 0;
 	begin
 		taddr := (others => '0');
 		taddr(maxAddrBit downto minAddrBit) := addr;
@@ -69,9 +71,19 @@ begin
 				-- external interface (fixed address)
 				--<JK> extend compare to avoid waring messages
 				if ("1" & addr & lowAddrBits)=x"80a000c" then
-					report "Write to UART[0]" & " :0x" & hstr(write);
+					--report "Write to UART[0]" & " :0x" & hstr(write);
 					-- Write to UART
-					-- report "" & character'image(conv_integer(memBint)) severity note;
+				    --report "" & character'val(to_integer(unsigned(write))) severity note;
+                    -- collect to complete string until 0x0A
+                    outstr_length         := outstr_length + 1;
+                    outstr(outstr_length) := character'val(to_integer(unsigned(write)));
+                    if unsigned(write) = 10 then
+                        if outstr_length > 1 then
+                            report "UART[0]: " & outstr(1 to outstr_length-1) severity note;
+                        end if;
+                        outstr_length := 0;
+                    end if;
+                    --
 				    print(l_file, character'val(to_integer(unsigned(write))));
 				elsif addr(12)='1' then
 					report "Write to TIMER" & " :0x" & hstr(write);
@@ -87,7 +99,7 @@ begin
 			if (readEnable = '1') then
 				--<JK> extend compare to avoid waring messages
 				if ("1" & addr & lowAddrBits)=x"80a000c" then
-					report "Read UART[0]";
+					--report "Read UART[0]";
 					read(8) <= not tx_full; -- output fifo not full
 					read(9) <= not rx_empty; -- receiver not empty
 				elsif ("1" & addr & lowAddrBits)=x"80a0010" then

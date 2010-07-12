@@ -98,8 +98,9 @@ package rena3_model_component_package is
     --------------------
     component dds_model is
         port (
-            vu : out real;
-            vv : out real
+            run : in  boolean;
+            vu  : out real;
+            vv  : out real
         );
     end component dds_model;
 

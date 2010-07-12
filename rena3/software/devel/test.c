@@ -2,13 +2,13 @@
 
 int main(void)
 {
-	int a;
+	volatile int a;
 
-	int *ptr = (int *) 0x1234;
+	int *ptr = (int *) 0x8001234;
 
-	puts("read from adress 0x1234\n");
+	puts("read from adress 0x1234");
 	a = *ptr;
 
-	puts("end simulation.\n");
+	puts("end.");
 	abort();
 }
