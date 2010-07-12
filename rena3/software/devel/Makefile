@@ -31,3 +31,4 @@ test:
 clean:
 	rm -f *.bin
 	rm -f *.elf
+	rm -f *.lst
