@@ -103,7 +103,7 @@ begin
 
 
     rena3_controller_i0_zpu_out.enable      <= io_busy; -- TODO
-    rena3_controller_i0_zpu_out.in_mem_busy <= io_busy; -- TODO
+    rena3_controller_i0_zpu_out.mem_busy    <= io_busy; -- TODO
     rena3_controller_i0_zpu_out.mem_read    <= std_ulogic_vector(dram_read) when dram_ready = '1' else
                                                std_ulogic_vector(io_read)   when io_ready   = '1' else (others => 'U');
     rena3_controller_i0_zpu_out.interrupt   <= '0'; -- TODO
@@ -128,21 +128,21 @@ begin
             readEnable  => io_readEnable,
             write       => std_logic_vector(zpu_i0_zpu_out.mem_write),
             read        => io_read,
-            addr        => std_logic_vector(zpu_i0_zpu_out.out_mem_addr(maxAddrBit downto minAddrBit))
+            addr        => std_logic_vector(zpu_i0_zpu_out.mem_addr(maxAddrBit downto minAddrBit))
         );
 
     memyory_control_sync: process
     begin
         wait until rising_edge(clk);
-        io_reading     <= io_busy or zpu_i0_zpu_out.out_mem_readEnable;
+        io_reading     <= io_busy or zpu_i0_zpu_out.mem_readEnable;
         if reset = '1' then
             io_reading <= '0';
         end if;
     end process;
 
-    io_ready       <= (io_reading or zpu_i0_zpu_out.out_mem_readEnable) and not io_busy; 
+    io_ready       <= (io_reading or zpu_i0_zpu_out.mem_readEnable) and not io_busy; 
 
-    io_writeEnable <= zpu_i0_zpu_out.out_mem_writeEnable and zpu_i0_zpu_out.out_mem_addr(ioBit);
-    io_readEnable  <= zpu_i0_zpu_out.out_mem_readEnable  and zpu_i0_zpu_out.out_mem_addr(ioBit);
+    io_writeEnable <= zpu_i0_zpu_out.mem_writeEnable and zpu_i0_zpu_out.mem_addr(ioBit);
+    io_readEnable  <= zpu_i0_zpu_out.mem_readEnable  and zpu_i0_zpu_out.mem_addr(ioBit);
 
 end architecture rtl;

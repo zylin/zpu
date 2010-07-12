@@ -13,7 +13,7 @@ package zpu_wrapper_package is
         -- have a clocked enable signal
         enable      : std_ulogic; 
 
-        in_mem_busy : std_ulogic; 
+        mem_busy    : std_ulogic; 
         mem_read    : std_ulogic_vector(wordSize-1 downto 0);
                   
         -- Set to one to jump to interrupt vector
@@ -25,9 +25,9 @@ package zpu_wrapper_package is
 
     type zpu_out_t is record
         mem_write           : std_ulogic_vector(wordSize-1 downto 0);			  
-        out_mem_addr        : std_ulogic_vector(maxAddrBitIncIO downto 0);
-        out_mem_writeEnable : std_ulogic; 
-        out_mem_readEnable  : std_ulogic;
+        mem_addr            : std_ulogic_vector(maxAddrBitIncIO downto 0);
+        mem_writeEnable     : std_ulogic; 
+        mem_readEnable      : std_ulogic;
                   
         -- this implementation of the ZPU *always* reads and writes entire
         -- 32 bit words, so mem_writeMask is tied to (others => '1').
@@ -98,7 +98,7 @@ end zpu_wrapper;
 architecture rtl of zpu_wrapper is
 
     signal mem_write           : std_logic_vector(zpu_out.mem_write'range);
-    signal out_mem_addr        : std_logic_vector(zpu_out.out_mem_addr'range);
+    signal out_mem_addr        : std_logic_vector(zpu_out.mem_addr'range);
     signal out_mem_writeEnable : std_logic;
     signal out_mem_readEnable  : std_logic;
     signal mem_writeMask       : std_logic_vector(zpu_out.mem_writeMask'range);
@@ -111,7 +111,7 @@ begin
             areset              => areset,
             --
             enable              => zpu_in.enable,
-            in_mem_busy         => zpu_in.in_mem_busy,
+            in_mem_busy         => zpu_in.mem_busy,
             mem_read            => std_logic_vector(zpu_in.mem_read),
             interrupt           => zpu_in.interrupt,
             --
@@ -124,9 +124,9 @@ begin
         );
 
     zpu_out.mem_write           <= std_ulogic_vector(mem_write);
-    zpu_out.out_mem_addr        <= std_ulogic_vector(out_mem_addr);
-    zpu_out.out_mem_writeEnable <= std_ulogic(out_mem_writeEnable);
-    zpu_out.out_mem_readEnable  <= std_ulogic(out_mem_readEnable);
+    zpu_out.mem_addr            <= std_ulogic_vector(out_mem_addr);
+    zpu_out.mem_writeEnable     <= std_ulogic(out_mem_writeEnable);
+    zpu_out.mem_readEnable      <= std_ulogic(out_mem_readEnable);
     zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
 end architecture;
