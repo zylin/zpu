@@ -70,9 +70,9 @@ end package zpu_wrapper_package;
 
 
 
-
-
-
+------------------------------------------------------------
+--
+------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -80,7 +80,6 @@ use ieee.std_logic_1164.all;
 library zpu;
 use zpu.zpu_wrapper_package.all;
 use zpu.zpupkg.zpu_core;
-
 
 
 entity zpu_wrapper is
@@ -128,5 +127,112 @@ begin
     zpu_out.mem_writeEnable     <= std_ulogic(out_mem_writeEnable);
     zpu_out.mem_readEnable      <= std_ulogic(out_mem_readEnable);
     zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
+
+end architecture;
+
+
+
+------------------------------------------------------------
+--
+------------------------------------------------------------
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_misc.or_reduce; -- synopsys stuff
+
+library zpu;
+use zpu.zpu_wrapper_package.all;
+use zpu.zpupkg.zpu_core;
+
+library grlib;
+use grlib.amba.all;
+
+
+entity zpu_ahb is
+    Port ( 
+        clk     : in  std_ulogic;
+    	-- asynchronous reset signal
+	 	areset  : in  std_ulogic;
+
+        -- ahb
+        ahbi   : in  ahb_mst_in_type; 
+        ahbo   : out ahb_mst_out_type;
+        -- system
+        break  : out std_ulogic
+        );
+end zpu_ahb;
+
+
+architecture rtl of zpu_ahb is
+
+    constant me_c              : string  := rtl'path_name;
+
+    signal mem_write           : std_logic_vector(31 downto 0);
+    signal out_mem_addr        : std_logic_vector(27 downto 0);
+    signal out_mem_writeEnable : std_logic;
+    signal out_mem_readEnable  : std_logic;
+    signal mem_writeMask       : std_logic_vector(3 downto 0);
+
+begin
+
+    -- TODO ahbi.hgrant
+    -- TODO ahbi.hready
+    -- TODO ahbi.hresp
+    -- TODO ahbi.cache
+    -- TODO ahbi.hirq
+    -- TODO ahbi.testen
+    -- TODO ahbi.testrst
+    -- TODO ahbi.scanen
+    -- TODO ahbi.testoen
+
+    check: process( ahbi)
+    begin
+        case ahbi.hresp is
+            when HRESP_OKAY =>
+                 null;
+            when HRESP_ERROR =>
+                report me_c & "HRESP_ERROR" severity error;
+            when HRESP_SPLIT =>
+                report me_c & "HRESP_SPLIT";
+            when HRESP_RETRY =>
+                report me_c & "HRESP_RETRY"; 
+            when others =>
+                report me_c & "unknown ahbi.hresp" severity warning;
+        end case;
+    end process check;
+
+    zpu_i0: zpu_core 
+        port map (
+            clk                 => clk,
+            areset              => areset,
+            --
+            enable              => ahbi.hready,
+            in_mem_busy         => ahbi.hready,
+            mem_read            => ahbi.hrdata,
+            interrupt           => or_reduce(ahbi.hirq),
+            --
+            mem_write           => mem_write,
+            out_mem_addr        => out_mem_addr,
+            out_mem_writeEnable => out_mem_writeEnable,
+            out_mem_readEnable  => out_mem_readEnable,
+            mem_writeMask       => mem_writeMask,
+            break               => break
+        );
+
+    ahbo.hbusreq <= '1';
+    ahbo.hlock   <= '1';
+    ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
+    ahbo.haddr   <= out_mem_addr & "0000";
+    ahbo.hwrite  <= out_mem_writeEnable;
+    ahbo.hsize   <= HSIZE_WORD;
+    ahbo.hburst  <= HBURST_SINGLE;
+    ahbo.hprot   <= (others => '0');
+    ahbo.hwdata  <= mem_write;
+    ahbo.hirq    <= (others => '0');
+    ahbo.hconfig <= (others => (others => '0')); 
+    ahbo.hindex  <= 0;
+
+    --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
 end architecture;

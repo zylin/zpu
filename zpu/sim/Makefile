@@ -24,7 +24,8 @@ sim:
 lib:	$(library)/_info
 
 compile: lib
-	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+	make compile --directory ../../grlib/sim
+	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 clean:
 	rm -rf zpu
