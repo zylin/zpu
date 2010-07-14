@@ -20,6 +20,8 @@ all: compile simulate
 lib:	$(library)/_info
 
 compile: lib
+	make compile --directory ../../gaisler/sim
+	make compile --directory ../../grlib/sim
 	make compile --directory ../../tools/sim
 	make compile --directory ../../zpu/sim
 	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A

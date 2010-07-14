@@ -6,6 +6,9 @@ library zpu;
 use zpu.zpupkg.all;
 use zpu.zpu_config.all;
 
+library grlib;
+use grlib.amba.all;
+
 package zpu_wrapper_package is
 
     type zpu_in_t is record
@@ -64,6 +67,21 @@ package zpu_wrapper_package is
             addr        : in  std_logic_vector(maxAddrBit downto minAddrBit) 
         ); 
     end component;
+
+    component zpu_ahb is
+        port ( 
+            clk     : in  std_ulogic;
+            -- asynchronous reset signal
+            areset  : in  std_ulogic;
+
+            -- ahb
+            ahbi   : in  ahb_mst_in_type; 
+            ahbo   : out ahb_mst_out_type;
+            -- system
+            break  : out std_ulogic
+        );
+    end component zpu_ahb;
+
 
 end package zpu_wrapper_package;
 
@@ -169,10 +187,12 @@ architecture rtl of zpu_ahb is
     constant me_c              : string  := rtl'path_name;
 
     signal mem_write           : std_logic_vector(31 downto 0);
-    signal out_mem_addr        : std_logic_vector(27 downto 0);
+    signal out_mem_addr        : std_logic_vector(31 downto 0);
     signal out_mem_writeEnable : std_logic;
     signal out_mem_readEnable  : std_logic;
     signal mem_writeMask       : std_logic_vector(3 downto 0);
+
+    signal enable              : std_logic;
 
 begin
 
@@ -223,7 +243,7 @@ begin
     ahbo.hbusreq <= '1';
     ahbo.hlock   <= '1';
     ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
-    ahbo.haddr   <= out_mem_addr & "0000";
+    ahbo.haddr   <= out_mem_addr;-- & "0000";
     ahbo.hwrite  <= out_mem_writeEnable;
     ahbo.hsize   <= HSIZE_WORD;
     ahbo.hburst  <= HBURST_SINGLE;

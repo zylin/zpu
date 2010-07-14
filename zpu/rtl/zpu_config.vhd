@@ -45,7 +45,7 @@ package zpu_config is
 	-- Clock frequency in MHz.
 	constant	ZPU_Frequency		: std_logic_vector(7 downto 0) := x"64";
 	-- This is the msb address bit. bytes=2^(maxAddrBitIncIO+1)
-	constant 	maxAddrBitIncIO		: integer := 27;
+	constant 	maxAddrBitIncIO		: integer := 31; -- was: 27
 	constant 	maxAddrBitBRAM		: integer := 16;
 		
 	-- start byte address of stack. 

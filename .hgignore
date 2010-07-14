@@ -19,11 +19,11 @@ _temp*
 
 # docs
 glob:rena3/doc/*.pdf
-glob:esnug_c/doc/snug2002_20040606_slides.pdf
-glob:esnug_c/doc/snug2002_20020313_paper.pdf
-glob:ct-lab.zip
-glob:sr/syn
+glob:esnug_c/doc/*.pdf
 glob:grlib/doc/*.pdf
-glob:rena3/software/devel/zpuromgen.exe
-glob:tdc/paper/list.txt
 glob:zpu/doc/*.pdf
+glob:tdc/paper/list.txt
+
+glob:ct-lab.zip
+glob:rena3/software/devel/zpuromgen.exe
+glob:sr/syn
