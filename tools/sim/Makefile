@@ -12,7 +12,7 @@ lib:	$(library)/_info
 	vlib $(library)
 
 compile:
-	vcom -work $(library) $(vhdlfiles)
+	vcom -quiet -work $(library) $(vhdlfiles) | ccze -A
 
 simulate:
 	vsim -gui $(library).$(top) -do run.do
