@@ -259,7 +259,7 @@ begin
 	-- move out calculation of the opcode to a seperate process
 	-- to make things a bit easier to read
 	decodeControl:
-	process(memBRead, pc,tOpcode_sel)
+	process(memBRead, tOpcode_sel)
 		variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
 	begin
 
