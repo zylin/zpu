@@ -18,12 +18,17 @@ _vmake
 _temp*
 
 # docs
-glob:rena3/doc/*.pdf
 glob:esnug_c/doc/*.pdf
 glob:grlib/doc/*.pdf
+glob:pacoblaze/doc/*.pdf
+glob:rena3/doc/*.pdf
+glob:s3estarter/doc/*.pdf
 glob:zpu/doc/*.pdf
 glob:tdc/paper/list.txt
 
 glob:ct-lab.zip
 glob:rena3/software/devel/zpuromgen.exe
+
+# syn stuff
+glob:pacoblaze/syn
 glob:sr/syn
