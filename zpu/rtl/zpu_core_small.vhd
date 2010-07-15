@@ -252,7 +252,7 @@ begin
 
 
 
-	tOpcode_sel <= to_integer(pc(minAddrBit-1 downto 0));
+	tOpcode_sel <= to_integer( to_01( pc(minAddrBit-1 downto 0)));
 
 
 
