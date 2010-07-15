@@ -183,7 +183,7 @@ begin
         clk    => clk,             -- : in  std_ulogic;
 	 	areset => reset,           -- : in  std_ulogic;
         ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
-        ahbo   => ahbmo(1),        -- : out ahb_mst_out_type;
+        ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic
     );
     
@@ -193,11 +193,13 @@ begin
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
-            defmast => 0,
-            split   => 0,
-            ioaddr  => 16#FFF#, 
-            nahbm   => 1, 
-            nahbs   => 2
+            timeout    => 11,
+            nahbm      => 1, 
+            nahbs      => 2,
+            disirq     => 1,    -- disable interrupt routing
+            enbusmon   => 0,    -- enable bus monitor
+            assertwarn => 1,    -- enable assertions for warnings
+            asserterr  => 1     -- enable assertions for errors
         )
         port map (
             rst  => reset_n,          -- : in  std_ulogic;
