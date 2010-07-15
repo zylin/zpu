@@ -218,7 +218,9 @@ begin
             when HRESP_RETRY =>
                 report me_c & "HRESP_RETRY"; 
             when others =>
-                report me_c & "unknown ahbi.hresp" severity warning;
+                if now /= (0 ps) then
+                    report me_c & "unknown ahbi.hresp" severity warning;
+                end if;
         end case;
     end process check;
 
