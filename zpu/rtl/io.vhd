@@ -60,13 +60,14 @@ begin
     variable outstr        : string(1 to 200);
     variable outstr_length : natural := 0;
 	begin
-		taddr := (others => '0');
-		taddr(maxAddrBit downto minAddrBit) := addr;
 
 		if (areset = '1') then
 --			timer_we <= '0';
-		elsif (clk'event and clk = '1') then
+		elsif rising_edge(clk) then
 --			timer_we <= '0';
+		    taddr := (others => '0');
+    		taddr(maxAddrBit downto minAddrBit) := addr;
+
 			if writeEnable = '1' then
 				-- external interface (fixed address)
 				--<JK> extend compare to avoid waring messages
