@@ -30,5 +30,4 @@ glob:ct-lab.zip
 glob:rena3/software/devel/zpuromgen.exe
 
 # syn stuff
-glob:pacoblaze/syn
-glob:sr/syn
+glob:*/syn/xst/*
