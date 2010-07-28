@@ -15,7 +15,10 @@ entity ibox is
 
         fpga_button     : in    fpga_button_in_t;
         fpga_led        : out   fpga_led_out_t; 
-        fpga_rotary_sw  : in    fpga_rotary_sw_in_t
+        fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
+        -- to stop simulation
+        break           : out   std_ulogic
+
     );
 end entity ibox;
 
@@ -25,74 +28,171 @@ library ieee;
 use ieee.numeric_std.all;
 
 
+library zpu;
+use zpu.zpu_wrapper_package.zpu_wrapper;
+use zpu.zpu_wrapper_package.zpu_io;
+use zpu.zpu_wrapper_package.zpu_ahb;
+use zpu.zpu_wrapper_package.all; -- types
+use zpu.zpu_config.all;
+use zpu.zpupkg.all;
+
+
+library grlib;
+use grlib.amba.all;
+
+library gaisler;
+use gaisler.misc.gptimer;
+use gaisler.misc.grgpio;
+use gaisler.misc.all; -- types
+use gaisler.uart.apbuart;
+use gaisler.uart.all; -- types
+
+
 architecture rtl of ibox is
     
-    function gen_counter_max return positive is
-        variable result : positive;
-    begin
-        result := 5_000_000; 
-        -- pragma translate_off
-        result := 10;
-        -- pragma translate_on
-        return result;
-    end function gen_counter_max;
+    signal reset_n                       : std_ulogic;
 
-    constant counter_width : positive := integer( ieee.math_real.ceil( ieee.math_real.log2( real( gen_counter_max+1))));
-    constant counter_max   : unsigned(counter_width-1 downto 0) := to_unsigned( gen_counter_max, counter_width);
-                           
-                           
-    signal leds            : std_ulogic_vector(7 downto 0);
-    signal leds_en         : std_ulogic;
-                           
-    signal counter         : unsigned(counter_width-1 downto 0);
-
-    type reg_t is record
-        counter            : unsigned(counter_width-1 downto 0);
-        leds_en            : std_ulogic;
-        leds               : std_ulogic_vector(7 downto 0);
-    end record reg_t;
-    constant default_reg_c : reg_t := (
-        counter  => (others => '0'),
-        leds_en  => '0',
-        leds     => "00000001"
-    );
-
-    signal r, r_in         : reg_t;
+    signal ahbctrl_i0_msti               : ahb_mst_in_type;
+    signal ahbmo                         : ahb_mst_out_vector := (others => ahbm_none);
+    signal ahbctrl_i0_slvi               : ahb_slv_in_type;
+    signal ahbso                         : ahb_slv_out_vector := (others => ahbs_none);
+    signal apbctrl_i0_apbi               : apb_slv_in_type;
+    signal apbo                          : apb_slv_out_vector := (others => apb_none);
+    
+    signal uarti                         : uart_in_type;
+    signal uarto                         : uart_out_type;
+                                         
+    signal gpti                          : gptimer_in_type;
+    signal gpto                          : gptimer_out_type;
+                                         
+    signal gpioi                         : gpio_in_type;
+    signal gpioo                         : gpio_out_type;
+                                         
+    signal stati                         : ahbstat_in_type;
 
 begin
     
-    comb: process( r)
-        variable v : reg_t;
-    begin
-        v             := r;
-        fpga_led.data <= v.leds;
+    reset_n        <= not reset;
+    
+    zpu_ahb_i0: zpu_ahb
+    port map (
+        clk    => clk,             -- : in  std_ulogic;
+	 	areset => reset,           -- : in  std_ulogic;
+        ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
+        ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
+        break  => break            -- : out std_ulogic
+    );
+    
+    ---------------------------------------------------------------------
+    --  AHB CONTROLLER
+    ----------------------------------------------------------------------
 
-        if v.leds_en = '1' then
-            v.leds    := v.leds( v.leds'high-1 downto 0) & v.leds( v.leds'high);
-        end if;
+    ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
+        generic map (
+            timeout    => 11,
+            nahbm      => 1, 
+            nahbs      => 2,
+            disirq     => 1,    -- disable interrupt routing
+            enbusmon   => 0,    -- enable bus monitor
+            assertwarn => 1,    -- enable assertions for warnings
+            asserterr  => 1     -- enable assertions for errors
+        )
+        port map (
+            rst  => reset_n,          -- : in  std_ulogic;
+            clk  => clk,              -- : in  std_ulogic;
+            msti => ahbctrl_i0_msti,  -- : out ahb_mst_in_type;
+            msto => ahbmo,            -- : in  ahb_mst_out_vector;
+            slvi => ahbctrl_i0_slvi,  -- : out ahb_slv_in_type;
+            slvo => ahbso             -- : in  ahb_slv_out_vector;
+        );
 
-       
-        v.leds_en     := '0'; 
-        v.counter     := v.counter + 1;
+    ---------------------------------------------------------------------
+    --  AHB/APB bridge
+    ----------------------------------------------------------------------
+    apbctrl_i0: apbctrl
+        generic map (
+            hindex      => 1,            -- : integer := 0;
+            haddr       => 16#800#,      -- : integer := 0;
+            nslaves     => 16            -- : integer range 1 to NAPBSLV := NAPBSLV;
+        )                                
+        port map (                       
+            rst   => reset_n,            -- : in  std_ulogic;
+            clk   => clk,                -- : in  std_ulogic;
+            ahbi  => ahbctrl_i0_slvi,    -- : in  ahb_slv_in_type;
+            ahbo  => ahbso(1),           -- : out ahb_slv_out_type;
+            apbi  => apbctrl_i0_apbi,    -- : out apb_slv_in_type;
+            apbo  => apbo                -- : in  apb_slv_out_vector                
+        );
+    
+    -- uart
+    apbuart_i0: apbuart
+        generic map (
+            pindex     => 1,
+            paddr      => 1
+        )
+        port map (
+            rst   => reset_n,
+            clk   => clk,
+            apbi  => apbctrl_i0_apbi,
+            apbo  => apbo(1),
+            uarti => uarti,
+            uarto => uarto
+        );
 
-        if v.counter = counter_max then
-            v.leds_en := '1';
-            v.counter := (others => '0');
-        end if;
 
-        r_in          <= v;
-    end process;
+    -- GP timer
+    gptimer_i0: gptimer
+        generic map (
+            pindex  => 2,
+            paddr   => 2,
+            pirq    => 3,
+            sepirq  => 0, -- use separate interupts for each timer
+            ntimers => 1, -- number of timers
+            nbits   => 32 -- timer bits
+        )
+        port map (
+            rst     => reset_n,
+            clk     => clk,
+            apbi    => apbctrl_i0_apbi,
+            apbo    => apbo(2),
+            gpti    => gpti,
+            gpto    => gpto
+        );
 
-    seq: process
-    begin
-        wait until rising_edge(clk);
+    -- GPIO
+    grgpio_i0: grgpio
+        generic map (
+            pindex => 8, 
+            paddr  => 8, 
+            imask  => 16#00F0#, 
+            nbits  => 14
+        )
+        port map (
+            rst    => reset_n, 
+            clk    => clk, 
+            apbi   => apbctrl_i0_apbi, 
+            apbo   => apbo(8),
+            gpioi  => gpioi, 
+            gpioo  => gpioo
+        );
 
-        r     <= r_in;
+    -- AHB status register
+    ahbstat_i0: ahbstat
+        generic map (
+            pindex => 15, 
+            paddr  => 15, 
+            pirq   => 7 
+        ) 
+        port map (
+            rst   => reset_n,
+            clk   => clk, 
+            ahbmi => ahbctrl_i0_msti, 
+            ahbsi => ahbctrl_i0_slvi, 
+            stati => stati, 
+            apbi  => apbctrl_i0_apbi, 
+            apbo  => apbo(15)
+        );
 
-        if reset = '1' then
-            r <= default_reg_c;
-        end if;
-    end process;
     
 
 end architecture rtl;

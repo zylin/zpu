@@ -5,6 +5,9 @@
 -- contains drivers for board hardware (ddr-ram e.g.)
 -----------------------------------------------------
 
+library ieee;
+use ieee.std_logic_1164.all;
+
 library s3estarter;
 use s3estarter.types.all;
 
@@ -102,7 +105,7 @@ entity obox is
 --      PS2_DATA        : inout std_ulogic;
 
 --      -- ==== Rotary Pushbutton Switch (ROT) ====
-        fpga_rotary_sw  : in    fpga_rotary_sw_in_t
+        fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
 
 --      -- ==== RS-232 Serial Ports (RS232) ====
 --      RS232_DCE_RXD   : inout std_ulogic;
@@ -163,6 +166,8 @@ entity obox is
 --      XC_TRIG         : inout std_ulogic;
 --      XC_GCK0         : inout std_ulogic;
 --      GCLK10          : inout std_ulogic
+        -- to stop simulation
+        break           : out   std_ulogic
     );
 end entity obox;
 
@@ -174,6 +179,13 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.fpga_components.ibox;
 
+library rena3;
+use rena3.component_package.rena3_controller;
+use rena3.types_package.all;
+
+library zpu;
+use zpu.zpu_wrapper_package.all; -- types
+
 
 architecture rtl of obox is
     
@@ -183,6 +195,11 @@ architecture rtl of obox is
     signal reset_async    : std_ulogic;
 
     signal reset_shiftreg : std_ulogic_vector(3 downto 0) := (others => '1');
+
+    signal rena3_out                     : rena3_controller_in_t;
+    signal rena3_controller_io_rena3_out : rena3_controller_out_t;
+    signal rena3_controller_i0_zpu_out   : zpu_in_t;
+    signal zpu_i0_zpu_out                : zpu_out_t;
 
 begin
    
@@ -209,6 +226,18 @@ begin
             fpga_button    => fpga_button,    -- : in    fpga_button_in_t;
             fpga_led       => fpga_led,       -- : out   fpga_led_out_t 
             fpga_rotary_sw => fpga_rotary_sw  -- : in    fpga_rotary_sw_in_t
+        );
+    
+    rena3_controller_i0: rena3_controller
+        port map (
+            -- system
+            clock          => clk,                           -- : std_ulogic;
+            -- rena3 (connection to chip)
+            rena3_in       => rena3_out,                     -- : in  rena3_controller_in_t;
+            rena3_out      => rena3_controller_io_rena3_out, -- : out rena3_controller_out_t;
+            -- connection to soc
+            zpu_in         => zpu_i0_zpu_out,                -- : in  zpu_out_t;
+            zpu_out        => rena3_controller_i0_zpu_out    -- : out zpu_in_t
         );
 
 end architecture rtl;

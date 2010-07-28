@@ -16,7 +16,9 @@ package fpga_components is
 
             fpga_button     : in    fpga_button_in_t;
             fpga_led        : out   fpga_led_out_t;
-            fpga_rotary_sw  : in    fpga_rotary_sw_in_t
+            fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
+            -- to stop simulation
+            break           : out   std_ulogic
         );
     end component ibox;
 
@@ -25,7 +27,9 @@ package fpga_components is
             fpga_button     : in    fpga_button_in_t;
             fpga_clk        : in    fpga_clk_in_t;
             fpga_led        : out   fpga_led_out_t;
-            fpga_rotary_sw  : in    fpga_rotary_sw_in_t
+            fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
+            -- to stop simulation
+            break           : out   std_ulogic
         );
     end component obox;
 

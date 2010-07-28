@@ -12,6 +12,7 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 all: compile simulate
 
 compile: lib
+	make compile --directory ../../rena3/sim
 	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 simulate:
