@@ -16,6 +16,8 @@ wlf*
 _info
 _vmake
 _temp*
+transcript
+
 
 # docs
 glob:esnug_c/doc/*.pdf
@@ -31,3 +33,10 @@ glob:rena3/software/devel/zpuromgen.exe
 
 # syn stuff
 glob:*/syn/xst/*
+
+# esnug simulation special
+glob:esnug_c/sim/test/*_diff.txt
+glob:esnug_c/sim/test/*_dut.txt
+glob:esnug_c/sim/test/*_log.txt
+glob:esnug_c/sim/test/pipe1xx
+glob:esnug_c/sim/test/xxx_*.txt
