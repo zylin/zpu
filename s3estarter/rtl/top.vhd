@@ -1,13 +1,13 @@
 -----------------------------------------------------
 --- SPARTAN-3E STARTER KIT BOARD
---- top-design 
+--- top
 -----------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
 
 
-entity s3estarter is
+entity top is
     port (
         -- ==== Analog-to-Digital Converter (ADC) ====
         -- some connections shared with SPI Flash, DAC, ADC, and AMP
@@ -76,8 +76,6 @@ entity s3estarter is
         -- The discrete LEDs are shared with the following 8 FX2 connections
         --FX2_IO        : inout std_ulogic_vector(20 downto 13);
         --FX2_IO          : inout std_ulogic_vector(40 downto 21);
-        
-        -- modified BLa
         FX2_IO          : inout std_ulogic_vector(40 downto 0);
 
         -- ==== 6-pin header J1 ====
@@ -173,5 +171,47 @@ entity s3estarter is
         XC_GCK0         : inout std_ulogic;
         GCLK10          : inout std_ulogic
     );
-end s3estarter;
+end entity top;
 
+
+
+library s3estarter;
+use s3estarter.types.all;
+
+
+architecture rtl of top is
+
+    component obox is
+        port (
+            fpga_button     : in    fpga_button_in_t;
+            fpga_clk        : in    fpga_clk_in_t;
+            fpga_led        : out   fpga_led_out_t 
+        );
+    end component obox;
+
+    signal top_fpga_button     : fpga_button_in_t;
+    signal top_fpga_clk        : fpga_clk_in_t;
+    
+    signal obox_i0_fpga_led    : fpga_led_out_t;
+
+begin
+
+    top_fpga_button.east  <= BTN_EAST;
+    top_fpga_button.north <= BTN_NORTH;
+    top_fpga_button.south <= BTN_SOUTH;
+    top_fpga_button.west  <= BTN_WEST;
+
+    top_fpga_clk.clk50    <= CLK_50MHZ;
+    top_fpga_clk.aux      <= CLK_AUX;
+    top_fpga_clk.sma      <= CLK_SMA;
+
+    obox_i0: obox
+        port map (
+            fpga_button => top_fpga_button,         -- : in    fpga_button_in_t;
+            fpga_clk    => top_fpga_clk,            -- : in    fpga_clk_in_t;
+            fpga_led    => obox_i0_fpga_led         -- : out   fpga_led_out_t 
+        );
+
+    LED                   <= obox_i0_fpga_led.data;
+
+end architecture rtl;
