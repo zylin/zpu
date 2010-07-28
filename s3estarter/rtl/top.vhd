@@ -178,18 +178,11 @@ end entity top;
 
 library s3estarter;
 use s3estarter.types.all;
+use s3estarter.fpga_components.obox;
 
 
 architecture rtl of top is
 
-    component obox is
-        port (
-            fpga_button     : in    fpga_button_in_t;
-            fpga_clk        : in    fpga_clk_in_t;
-            fpga_led        : out   fpga_led_out_t;
-            fpga_rotary_sw  : in    fpga_rotary_sw_in_t
-        );
-    end component obox;
 
     signal top_fpga_button     : fpga_button_in_t;
     signal top_fpga_clk        : fpga_clk_in_t;

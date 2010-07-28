@@ -171,20 +171,12 @@ end entity obox;
 library ieee;
 use ieee.std_logic_1164.all;
 
+library s3estarter;
+use s3estarter.fpga_components.ibox;
+
 
 architecture rtl of obox is
     
-    component ibox is
-        port (
-            clk             : in    std_ulogic;
-            reset           : in    std_ulogic;
-
-            fpga_button     : in    fpga_button_in_t;
-            fpga_led        : out   fpga_led_out_t;
-            fpga_rotary_sw  : in    fpga_rotary_sw_in_t
-        );
-    end component ibox;
-
 
     signal clk            : std_ulogic;
     signal reset          : std_ulogic;
