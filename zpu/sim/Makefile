@@ -20,15 +20,12 @@ help:
 sim:
 	vsim -gui -do run.do
 
-
-lib:	$(library)/_info
-
 compile: lib
 	make compile --directory ../../grlib/sim
 	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 clean:
-	rm -rf zpu
+	rm -rf $(library) 
 	rm -f transcript
 	rm -f *.wlf
 	rm -f trace.txt
@@ -37,5 +34,8 @@ clean:
 
 # default patterns
 
-$(library)/_info:
+lib:	$(library)
+
+
+$(library):
 	vlib $(library)

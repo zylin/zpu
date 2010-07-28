@@ -8,10 +8,12 @@ vhdlfiles    = $(rtl_tb_files) $(rtl_files)
 
 all: lib compile
 
-lib:	$(library)/_info
+lib:    $(library)
+
+$(library):
 	vlib $(library)
 
-compile:
+compile: lib
 	vcom -quiet -work $(library) $(vhdlfiles) | ccze -A
 
 simulate:

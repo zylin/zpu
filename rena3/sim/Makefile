@@ -17,8 +17,6 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 
 all: compile simulate
 
-lib:	$(library)/_info
-
 compile: lib
 	make compile --directory ../../gaisler/sim
 	make compile --directory ../../grlib/sim
@@ -35,10 +33,12 @@ clean:
 	rm -f transcript
 	rm -f *.wlf
 	rm -f wlf*
-	rm -rf rena3
+	rm -rf $(library) 
 
 
 # default patterns
 
-$(library)/_info:
+lib:	$(library)
+
+$(library):
 	vlib $(library)
