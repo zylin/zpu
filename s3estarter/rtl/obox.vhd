@@ -1,6 +1,8 @@
 -----------------------------------------------------
---- SPARTAN-3E STARTER KIT BOARD
---- obox-design 
+-- SPARTAN-3E STARTER KIT BOARD
+--
+-- obox-design 
+-- contains drivers for board hardware (ddr-ram e.g.)
 -----------------------------------------------------
 
 library s3estarter;
@@ -93,16 +95,14 @@ entity obox is
 
 --      -- ==== Discrete LEDs (LED) ====
 --      -- These are shared connections with the FX2 connector
-        fpga_led        : out   fpga_led_out_t 
+        fpga_led        : out   fpga_led_out_t;
 
 --      -- ==== PS/2 Mouse/Keyboard Port (PS2) ====
 --      PS2_CLK         : inout std_ulogic;
 --      PS2_DATA        : inout std_ulogic;
 
 --      -- ==== Rotary Pushbutton Switch (ROT) ====
---      ROT_A           : inout std_ulogic;
---      ROT_B           : inout std_ulogic;
---      ROT_CENTER      : inout std_ulogic;
+        fpga_rotary_sw  : in    fpga_rotary_sw_in_t
 
 --      -- ==== RS-232 Serial Ports (RS232) ====
 --      RS232_DCE_RXD   : inout std_ulogic;
@@ -167,8 +167,57 @@ entity obox is
 end entity obox;
 
 
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+
 architecture rtl of obox is
+    
+    component ibox is
+        port (
+            clk             : in    std_ulogic;
+            reset           : in    std_ulogic;
+
+            fpga_button     : in    fpga_button_in_t;
+            fpga_led        : out   fpga_led_out_t;
+            fpga_rotary_sw  : in    fpga_rotary_sw_in_t
+        );
+    end component ibox;
+
+
+    signal clk            : std_ulogic;
+    signal reset          : std_ulogic;
+    signal reset_async    : std_ulogic;
+
+    signal reset_shiftreg : std_ulogic_vector(3 downto 0) := (others => '1');
+
 begin
+   
+    -- select clk and reset source 
+    clk         <= fpga_clk.clk50;
+    reset_async <= fpga_rotary_sw.center; 
+
+
+    -- generate synchronous reset
+    reset_synchronizer : process
+    begin
+        wait until rising_edge( clk);
+        reset_shiftreg <= reset_shiftreg( reset_shiftreg'high-1 downto 0) & reset_async;
+    end process;
+
+    reset <= reset_shiftreg( reset_shiftreg'high);
+
+
+    ibox_i0: ibox
+        port map (
+            clk            => clk,            -- : in    std_ulogic;
+            reset          => reset,          -- : in    std_ulogic;
+            
+            fpga_button    => fpga_button,    -- : in    fpga_button_in_t;
+            fpga_led       => fpga_led,       -- : out   fpga_led_out_t 
+            fpga_rotary_sw => fpga_rotary_sw  -- : in    fpga_rotary_sw_in_t
+        );
 
 end architecture rtl;
 
