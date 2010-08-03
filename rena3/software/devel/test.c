@@ -2,18 +2,15 @@
 
 int main(void)
 {
-	volatile int a = 10;
-	volatile int b;
+	unsigned int pattern = 0x01800180;
+	volatile int *gpio = (unsigned int *) 0x80000804;
 
-	volatile int *ptra = (int *) 0x80000800;
-	volatile int *ptrb = (int *) 0x80000804;
+    while (1)
+    {
+        *gpio = pattern;
+        pattern = (pattern << 1) | (pattern >> 31);
+    }
 
-	//puts("read from adress 0x1234");
-    *ptra = 10;    // write
-    *ptrb = 16;    // write
-    *ptra = 16;    // write
-	b     = *ptrb; // read
-
-	//puts("end.");
-	abort();
+    //puts("end.");
+    abort();
 }
