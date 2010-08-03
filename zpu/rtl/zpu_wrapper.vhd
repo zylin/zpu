@@ -25,6 +25,12 @@ package zpu_wrapper_package is
         -- be cleared automatically
         interrupt   : std_ulogic;
     end record;
+    constant default_zpu_in_c: zpu_in_t := (
+        enable    => '0',
+        mem_busy  => '0',
+        mem_read  => (others => '0'),
+        interrupt => '0'
+    );
 
     type zpu_out_t is record
         mem_write           : std_ulogic_vector(wordSize-1 downto 0);			  
@@ -40,12 +46,20 @@ package zpu_wrapper_package is
         -- in simulation to stop simulation
         break               : std_ulogic;
     end record;
+    constant default_zpu_out_c : zpu_out_t := (
+        mem_write       => (others => '0'), 
+        mem_addr        => (others => '0'),
+        mem_writeEnable => '0',
+        mem_readEnable  => '0',
+        mem_writeMask   => (others => '0'),
+        break           => '0'
+    );
 
     component zpu_wrapper is
         Port ( 
             clk     : in  std_ulogic;
             -- asynchronous reset signal
-            areset  : in  std_ulogic;
+            reset   : in  std_ulogic;
 
             zpu_in  : in  zpu_in_t;
             zpu_out : out zpu_out_t
@@ -72,7 +86,7 @@ package zpu_wrapper_package is
         port ( 
             clk     : in  std_ulogic;
             -- asynchronous reset signal
-            areset  : in  std_ulogic;
+            reset   : in  std_ulogic;
 
             -- ahb
             ahbi   : in  ahb_mst_in_type; 
@@ -103,8 +117,8 @@ use zpu.zpupkg.zpu_core;
 entity zpu_wrapper is
     Port ( 
         clk     : in  std_ulogic;
-    	-- asynchronous reset signal
-	 	areset  : in  std_ulogic;
+    	-- reset signal
+	 	reset   : in  std_ulogic;
 
         zpu_in  : in  zpu_in_t;
         zpu_out : out zpu_out_t
@@ -125,7 +139,7 @@ begin
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
-            areset              => areset,
+            reset               => reset,
             --
             enable              => zpu_in.enable,
             in_mem_busy         => zpu_in.mem_busy,
@@ -171,7 +185,7 @@ entity zpu_ahb is
     Port ( 
         clk     : in  std_ulogic;
     	-- asynchronous reset signal
-	 	areset  : in  std_ulogic;
+	 	reset   : in  std_ulogic;
 
         -- ahb
         ahbi   : in  ahb_mst_in_type; 
@@ -184,7 +198,11 @@ end zpu_ahb;
 
 architecture rtl of zpu_ahb is
 
-    constant me_c              : string  := rtl'path_name;
+    constant me_c              : string  :=
+    -- pragma translate_off
+   	 rtl'path_name &
+    -- pragma translate_on
+	 "";
 
     signal mem_write           : std_logic_vector(31 downto 0);
     signal out_mem_addr        : std_logic_vector(31 downto 0);
@@ -227,7 +245,7 @@ begin
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
-            areset              => areset,
+            reset               => reset,
             --
             enable              => ahbi.hready,
             in_mem_busy         => ahbi.hready,
