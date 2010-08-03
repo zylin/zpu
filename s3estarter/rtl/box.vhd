@@ -1,4 +1,4 @@
--- ibox design
+-- box design
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -6,21 +6,27 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.types.all;
 
+library gaisler;
+use gaisler.misc.all; -- types
+use gaisler.uart.all; -- types
 
 
-entity ibox is
+entity box is
     port (
-        clk             : in    std_ulogic;
-        reset           : in    std_ulogic;
-
-        fpga_button     : in    fpga_button_in_t;
-        fpga_led        : out   fpga_led_out_t; 
+        fpga_clk        : in    fpga_clk_in_t;
         fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
+    
+        uarti           : in    uart_in_type;
+        uarto           : out   uart_out_type;
+
+        gpioi           : in    gpio_in_type;
+        gpioo           : out   gpio_out_type;
+                                         
         -- to stop simulation
         break           : out   std_ulogic
 
     );
-end entity ibox;
+end entity box;
 
 
 
@@ -41,15 +47,25 @@ library grlib;
 use grlib.amba.all;
 
 library gaisler;
+use gaisler.misc.all; -- types
+use gaisler.uart.all; -- types
 use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
-use gaisler.misc.all; -- types
 use gaisler.uart.apbuart;
-use gaisler.uart.all; -- types
 
 
-architecture rtl of ibox is
+architecture rtl of box is
     
+    signal clk                           : std_ulogic;
+    signal reset                         : std_ulogic;
+    signal reset_async                   : std_ulogic;
+                                         
+    signal reset_shiftreg                : std_ulogic_vector(3 downto 0) := (others => '1');
+
+--  signal rena3_out                     : rena3_controller_in_t;
+--  signal rena3_controller_io_rena3_out : rena3_controller_out_t;
+    signal rena3_controller_i0_zpu_out   : zpu_in_t;
+    signal zpu_i0_zpu_out                : zpu_out_t;
     signal reset_n                       : std_ulogic;
 
     signal ahbctrl_i0_msti               : ahb_mst_in_type;
@@ -59,25 +75,46 @@ architecture rtl of ibox is
     signal apbctrl_i0_apbi               : apb_slv_in_type;
     signal apbo                          : apb_slv_out_vector := (others => apb_none);
     
-    signal uarti                         : uart_in_type;
-    signal uarto                         : uart_out_type;
-                                         
     signal gpti                          : gptimer_in_type;
     signal gpto                          : gptimer_out_type;
-                                         
-    signal gpioi                         : gpio_in_type;
-    signal gpioo                         : gpio_out_type;
                                          
     signal stati                         : ahbstat_in_type;
 
 begin
     
-    reset_n        <= not reset;
+    -- select clk and reset source 
+    clk             <= fpga_clk.clk50;
+    reset_async     <= fpga_rotary_sw.center; 
+
+
+    -- generate synchronous reset
+    reset_synchronizer : process
+    begin
+        wait until rising_edge( clk);
+        reset_shiftreg <= reset_shiftreg( reset_shiftreg'high-1 downto 0) & reset_async;
+    end process;
+
+    reset           <= reset_shiftreg( reset_shiftreg'high);
+    reset_n         <= not reset;
+    
+--  zpu_i0_zpu_out <= default_zpu_out_c;
+--  rena3_out      <= default_rena3_controller_in_c; 
+--  rena3_controller_i0: rena3_controller
+--      port map (
+--          -- system
+--          clock          => clk,                           -- : std_ulogic;
+--          -- rena3 (connection to chip)
+--          rena3_in       => rena3_out,                     -- : in  rena3_controller_in_t;
+--          rena3_out      => rena3_controller_io_rena3_out, -- : out rena3_controller_out_t;
+--          -- connection to soc
+--          zpu_in         => zpu_i0_zpu_out,                -- : in  zpu_out_t;
+--          zpu_out        => rena3_controller_i0_zpu_out    -- : out zpu_in_t
+--      );
     
     zpu_ahb_i0: zpu_ahb
     port map (
         clk    => clk,             -- : in  std_ulogic;
-	 	areset => reset,           -- : in  std_ulogic;
+     	reset  => reset,           -- : in  std_ulogic;
         ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
         ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic
@@ -86,6 +123,37 @@ begin
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
+
+--  ahbmo( 1) <= ahbm_none;
+--  ahbmo( 2) <= ahbm_none;
+--  ahbmo( 3) <= ahbm_none;
+--  ahbmo( 4) <= ahbm_none;
+--  ahbmo( 5) <= ahbm_none;
+--  ahbmo( 6) <= ahbm_none;
+--  ahbmo( 7) <= ahbm_none;
+--  ahbmo( 8) <= ahbm_none;
+--  ahbmo( 9) <= ahbm_none;
+--  ahbmo(10) <= ahbm_none;
+--  ahbmo(11) <= ahbm_none;
+--  ahbmo(12) <= ahbm_none;
+--  ahbmo(13) <= ahbm_none;
+--  ahbmo(14) <= ahbm_none;
+--  ahbmo(15) <= ahbm_none;
+--  ahbso( 0) <= ahbs_none;
+--  ahbso( 2) <= ahbs_none;
+--  ahbso( 3) <= ahbs_none;
+--  ahbso( 4) <= ahbs_none;
+--  ahbso( 5) <= ahbs_none;
+--  ahbso( 6) <= ahbs_none;
+--  ahbso( 7) <= ahbs_none;
+--  ahbso( 8) <= ahbs_none;
+--  ahbso( 9) <= ahbs_none;
+--  ahbso(10) <= ahbs_none;
+--  ahbso(11) <= ahbs_none;
+--  ahbso(12) <= ahbs_none;
+--  ahbso(13) <= ahbs_none;
+--  ahbso(14) <= ahbs_none;
+--  ahbso(15) <= ahbs_none;
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
@@ -98,17 +166,33 @@ begin
             asserterr  => 1     -- enable assertions for errors
         )
         port map (
-            rst  => reset_n,          -- : in  std_ulogic;
-            clk  => clk,              -- : in  std_ulogic;
-            msti => ahbctrl_i0_msti,  -- : out ahb_mst_in_type;
-            msto => ahbmo,            -- : in  ahb_mst_out_vector;
-            slvi => ahbctrl_i0_slvi,  -- : out ahb_slv_in_type;
-            slvo => ahbso             -- : in  ahb_slv_out_vector;
+            rst     => reset_n,          -- : in  std_ulogic;
+            clk     => clk,              -- : in  std_ulogic;
+            msti    => ahbctrl_i0_msti,  -- : out ahb_mst_in_type;
+            msto    => ahbmo,            -- : in  ahb_mst_out_vector;
+            slvi    => ahbctrl_i0_slvi,  -- : out ahb_slv_in_type;
+            slvo    => ahbso,            -- : in  ahb_slv_out_vector;
+            testen  => '0',
+            testrst => '1',
+            scanen  => '0',
+            testoen => '1'
         );
 
     ---------------------------------------------------------------------
     --  AHB/APB bridge
     ----------------------------------------------------------------------
+--  apbo( 0) <= apb_none;
+--  apbo( 3) <= apb_none;
+--  apbo( 4) <= apb_none;
+--  apbo( 5) <= apb_none;
+--  apbo( 6) <= apb_none;
+--  apbo( 7) <= apb_none;
+--  apbo( 9) <= apb_none;
+--  apbo(10) <= apb_none;
+--  apbo(11) <= apb_none;
+--  apbo(12) <= apb_none;
+--  apbo(13) <= apb_none;
+--  apbo(14) <= apb_none;
     apbctrl_i0: apbctrl
         generic map (
             hindex      => 1,            -- : integer := 0;
@@ -140,6 +224,8 @@ begin
         );
 
 
+    gpti.extclk <= '0';
+    gpti.dhalt  <= '0'; -- debug halt
     -- GP timer
     gptimer_i0: gptimer
         generic map (
@@ -165,7 +251,7 @@ begin
             pindex => 8, 
             paddr  => 8, 
             imask  => 16#00F0#, 
-            nbits  => 14
+            nbits  => 8
         )
         port map (
             rst    => reset_n, 
@@ -176,6 +262,7 @@ begin
             gpioo  => gpioo
         );
 
+    stati.cerror <= (others => '0');
     -- AHB status register
     ahbstat_i0: ahbstat
         generic map (

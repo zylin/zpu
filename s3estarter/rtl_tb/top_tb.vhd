@@ -234,7 +234,7 @@ begin
             FX2_CLKIO       => tb_FX2_CLKIO       , -- : inout std_ulogic;
             FX2_CLKOUT      => tb_FX2_CLKOUT      , -- : inout std_ulogic;
 
-            FX2_IO          => tb_FX2_IO          , -- : inout std_ulogic_vector(40 downto 0);
+            --FX2_IO          => tb_FX2_IO          , -- : inout std_ulogic_vector(40 downto 0);
 
             LCD_E           => tb_LCD_E           , -- : inout std_ulogic;
             LCD_RS          => tb_LCD_RS          , -- : inout std_ulogic;
@@ -306,7 +306,7 @@ begin
     begin
         report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
         report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
-        wait for 50 us;
+        wait for 1 ms;
         simulation_run <= false;
         wait;
     end process;

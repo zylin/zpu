@@ -5,78 +5,73 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.types.all;
 
+library gaisler;
+use gaisler.misc.all; -- types
+use gaisler.uart.all; -- types
 
 package fpga_components is
 
     
-    component ibox is
+    component box is
         port (
-            clk             : in    std_ulogic;
-            reset           : in    std_ulogic;
-
-            fpga_button     : in    fpga_button_in_t;
-            fpga_led        : out   fpga_led_out_t;
-            fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
-            -- to stop simulation
-            break           : out   std_ulogic
-        );
-    end component ibox;
-
-    component obox is
-        port (
-            fpga_button     : in    fpga_button_in_t;
             fpga_clk        : in    fpga_clk_in_t;
-            fpga_led        : out   fpga_led_out_t;
             fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
+            
+            uarti           : in    uart_in_type;
+            uarto           : out   uart_out_type;
+    
+            gpioi           : in    gpio_in_type;
+            gpioo           : out   gpio_out_type;
+
             -- to stop simulation
             break           : out   std_ulogic
         );
-    end component obox;
+    end component box;
 
     
     component top is
         port (
             -- ==== Analog-to-Digital Converter (ADC) ====
             -- some connections shared with SPI Flash, DAC, ADC, and AMP
-            AD_CONV         : inout std_logic;
+            AD_CONV         : out   std_logic;
 
             -- ==== Programmable Gain Amplifier (AMP) ====
             -- some connections shared with SPI Flash, DAC, ADC, and AMP
-            AMP_CS          : inout std_logic;
-            AMP_DOUT        : inout std_logic;
-            AMP_SHDN        : inout std_logic;
+            AMP_CS          : out   std_logic; -- active low chip select
+            AMP_DOUT        : in    std_logic;
+            AMP_SHDN        : out   std_logic; -- active high shutdown, reset
 
             -- ==== Pushbuttons (BTN) ====
-            BTN_EAST        : inout std_logic;
-            BTN_NORTH       : inout std_logic;
-            BTN_SOUTH       : inout std_logic;
-            BTN_WEST        : inout std_logic;
+            BTN_EAST        : in    std_logic;
+            BTN_NORTH       : in    std_logic;
+            BTN_SOUTH       : in    std_logic;
+            BTN_WEST        : in    std_logic;
 
             -- ==== Clock inputs (CLK) ====
-            CLK_50MHZ       : in std_logic;
-                          
-            CLK_AUX         : in std_logic;
-            CLK_SMA         : in std_logic;
+            CLK_50MHZ       : in    std_logic;
+                                    
+            CLK_AUX         : in    std_logic;
+            CLK_SMA         : in    std_logic;
 
             -- ==== Digital-to-Analog Converter (DAC) ====
             -- some connections shared with SPI Flash, DAC, ADC, and AMP
-            DAC_CLR         : inout std_logic;
-            DAC_CS          : inout std_logic;
+            DAC_CLR         : out   std_logic; -- async, active low reset input
+            DAC_CS          : out   std_logic; -- active low chip select, conv start with rising edge
 
             -- ==== 1-Wire Secure EEPROM (DS)
             DS_WIRE         : inout std_logic;
 
             -- ==== Ethernet PHY (E) ====
-            E_COL           : inout std_logic;
-            E_CRS           : inout std_logic;
-            E_MDC           : inout std_logic;
-            E_MDIO          : inout std_logic;
-            E_RX_CLK        : inout std_logic;
-            E_RX_DV         : inout std_logic;
-            E_RXD           : inout std_logic_vector(4 downto 0);
-            E_TX_CLK        : inout std_logic;
-            E_TX_EN         : inout std_logic;
-            E_TXD           : inout std_logic_vector(4 downto 0);
+            E_COL           : in    std_logic; -- MII collision detect
+            E_CRS           : in    std_logic; -- carrier sense
+            E_MDC           : out   std_logic; -- management clock
+            E_MDIO          : inout std_logic; -- management data IO
+            E_RX_CLK        : in    std_logic; -- receive clock 25MHz@100BaseTx or 2.5MHz@10Base-T
+            E_RX_DV         : in    std_logic; -- receive data valid
+            E_RXD           : in    std_logic_vector(4 downto 0);
+            E_TX_CLK        : in    std_logic; -- transmit clock 25MHz@100BaseTx or 2.5MHz@10Base-T
+            E_TX_EN         : out   std_logic; -- transmit enable
+            E_TXD           : out   std_logic_vector(4 downto 0);
 
             -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
             FPGA_M0         : inout std_logic;
@@ -92,42 +87,45 @@ package fpga_components is
             FX2_CLKOUT      : inout std_logic;
 
             -- These four connections are shared with the J1 6-pin accessory header
-            --FX2_IO          : inout std_logic_vector(4 downto 1);
+            --FX2_IO          : inout std_ulogic_vector(4 downto 1);
 
             -- These four connections are shared with the J2 6-pin accessory header
-            --FX2_IO          : inout std_logic_vector(8 downto 5);
+            --FX2_IO          : inout std_ulogic_vector(8 downto 5);
 
             -- These four connections are shared with the J4 6-pin accessory header
-            --FX2_IO          : inout std_logic_vector(12 downto 9);
+            --FX2_IO          : inout std_ulogic_vector(12 downto 9);
 
             -- The discrete LEDs are shared with the following 8 FX2 connections
-            --FX2_IO        : inout std_logic_vector(20 downto 13);
-            --FX2_IO          : inout std_logic_vector(40 downto 21);
-            FX2_IO          : inout std_logic_vector(40 downto 0);
+            --FX2_IO          : inout std_ulogic_vector(20 downto 13);
+
+            --FX2_IO            : inout std_ulogic_vector(34 downto 21);
+            --FX2_IO            : in    std_ulogic_vector(38 downto 35);
+            --FX2_IO            : inout std_ulogic_vector(39 downto 39);
+            --FX2_IO            : in    std_ulogic_vector(40 downto 40);
 
             -- ==== 6-pin header J1 ====
             -- These are shared connections with the FX2 connector
-            --J1            : inout std_logic_vector(3 downto 0);
+            J1              : inout std_logic_vector(3 downto 0);
 
             -- ==== 6-pin header J2 ====
             -- These are shared connections with the FX2 connector
-            --J2            : inout std_logic_vector(3 downto 0);
+            J2              : inout std_logic_vector(3 downto 0);
 
             -- ==== 6-pin header J4 ====
             -- These are shared connections with the FX2 connector
-            --J4            : inout std_logic_vector(3 downto 0);
+            J4              : inout std_logic_vector(3 downto 0);
 
             -- ==== Character LCD (LCD) ====
-            LCD_E           : inout std_logic;
-            LCD_RS          : inout std_logic;
-            LCD_RW          : inout std_logic;
+            LCD_E           : out   std_logic;
+            LCD_RS          : out   std_logic;
+            LCD_RW          : out   std_logic;
 
             -- LCD data connections are shared with StrataFlash connections SF_D<11:8>
-            --SF_D          : inout std_logic_vector(11 downto 8);
+            --SF_D          : inout std_ulogic_vector(11 downto 8);
 
             -- ==== Discrete LEDs (LED) ====
             -- These are shared connections with the FX2 connector
-            LED             : inout std_logic_vector(7 downto 0);
+            LED             : out   std_logic_vector(7 downto 0);
 
             -- ==== PS/2 Mouse/Keyboard Port (PS2) ====
             PS2_CLK         : inout std_logic;
@@ -139,62 +137,63 @@ package fpga_components is
             ROT_CENTER      : in    std_logic;
 
             -- ==== RS-232 Serial Ports (RS232) ====
-            RS232_DCE_RXD   : inout std_logic;
-            RS232_DCE_TXD   : inout std_logic;
-            RS232_DTE_RXD   : inout std_logic;
-            RS232_DTE_TXD   : inout std_logic;
+            RS232_DCE_RXD   : in    std_logic;
+            RS232_DCE_TXD   : out   std_logic;
+            RS232_DTE_RXD   : in    std_logic;
+            RS232_DTE_TXD   : out   std_logic;
 
             -- ==== DDR SDRAM (SD) ==== (I/O Bank 3, VCCO=2.5V)
-            SD_A            : inout std_logic_vector(12 downto 0);
-            SD_BA           : inout std_logic_vector(1 downto 0);
-            SD_CAS          : inout std_logic;
-            SD_CK_N         : inout std_logic;
-            SD_CK_P         : inout std_logic;
-            SD_CKE          : inout std_logic;
-            SD_CS           : inout std_logic;
-            SD_DQ           : inout std_logic_vector(15 downto 0);
-            SD_LDM          : inout std_logic;
-            SD_LDQS         : inout std_logic;
-            SD_RAS          : inout std_logic;
-            SD_UDM          : inout std_logic;
-            SD_UDQS         : inout std_logic;
-            SD_WE           : inout std_logic;
+            SD_A            : inout std_logic_vector(12 downto 0); -- address inputs
+            SD_DQ           : inout std_logic_vector(15 downto 0); -- data IO
+            SD_BA           : out   std_logic_vector(1 downto 0);  -- bank address inputs
+            SD_RAS          : out   std_logic;                     -- command output
+            SD_CAS          : out   std_logic;                     -- command output
+            SD_WE           : out   std_logic;                     -- command output 
+            SD_UDM          : out   std_logic;                     -- data mask
+            SD_LDM          : out   std_logic;                     -- data mask
+            SD_UDQS         : in    std_logic;                     -- data strobe
+            SD_LDQS         : in    std_logic;                     -- data strobe
+            SD_CS           : out   std_logic;                     -- active low chip select
+            SD_CKE          : out   std_logic;                     -- active high clock enable
+            SD_CK_N         : out   std_logic;                     -- differential clock
+            SD_CK_P         : out   std_logic;                     -- differential clock
 
             -- Path to allow connection to top DCM connection
-            SD_CK_FB        : inout std_logic;
+            SD_CK_FB        : in    std_logic;
 
             -- ==== Intel StrataFlash Parallel NOR Flash (SF) ====
-            SF_A            : inout std_logic_vector(24 downto 0);
-            SF_BYTE         : inout std_logic;
-            SF_CE0          : inout std_logic;
+            SF_A            : out   std_logic_vector(24 downto 0);
+            SF_BYTE         : out   std_logic;
+            SF_CE0          : out   std_logic;
             SF_D            : inout std_logic_vector(15 downto 1);
-            SF_OE           : inout std_logic;
-            SF_STS          : inout std_logic;
-            SF_WE           : inout std_logic;
+            SF_OE           : out   std_logic;
+            SF_STS          : in    std_logic;
+            SF_WE           : out   std_logic;
 
             -- ==== STMicro SPI serial Flash (SPI) ====
             -- some connections shared with SPI Flash, DAC, ADC, and AMP
-            SPI_MISO        : inout std_logic;
-            SPI_MOSI        : inout std_logic;
-            SPI_SCK         : inout std_logic;
-            SPI_SS_B        : inout std_logic;
-            SPI_ALT_CS_JP11 : inout std_logic;
+            SPI_MOSI        : out   std_logic; -- master out slave in
+            SPI_MISO        : in    std_logic; -- master in  slave out
+            SPI_SCK         : out   std_logic; -- clock
+            SPI_SS_B        : out   std_logic; -- active low slave select
+
+            SPI_ALT_CS_JP11 : out   std_logic;
 
             -- ==== Slide Switches (SW) ====
-            SW              : inout std_logic_vector(3 downto 0);
+            SW              : in    std_logic_vector(3 downto 0);
 
             -- ==== VGA Port (VGA) ====
-            VGA_BLUE        : inout std_logic;
-            VGA_GREEN       : inout std_logic;
-            VGA_HSYNC       : inout std_logic;
-            VGA_RED         : inout std_logic;
-            VGA_VSYNC       : inout std_logic;
+            VGA_BLUE        : out   std_logic;
+            VGA_GREEN       : out   std_logic;
+            VGA_HSYNC       : out   std_logic;
+            VGA_RED         : out   std_logic;
+            VGA_VSYNC       : out   std_logic;
 
             -- ==== Xilinx CPLD (XC) ====
-            XC_CMD          : inout std_logic_vector(1 downto 0);
-            XC_CPLD_EN      : inout std_logic;
+            XC_CMD          : out   std_logic_vector(1 downto 0);
+            XC_CPLD_EN      : out   std_logic;
             XC_D            : inout std_logic_vector(2 downto 0);
-            XC_TRIG         : inout std_logic;
+            XC_TRIG         : in    std_logic;
             XC_GCK0         : inout std_logic;
             GCLK10          : inout std_logic
         );
