@@ -76,7 +76,6 @@ architecture rtl of box is
     signal apbo                          : apb_slv_out_vector := (others => apb_none);
     
     signal gpti                          : gptimer_in_type;
-    signal gpto                          : gptimer_out_type;
                                          
     signal stati                         : ahbstat_in_type;
 
@@ -224,16 +223,17 @@ begin
         );
 
 
-    gpti.extclk <= '0';
+    gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
-    -- GP timer
+    -- GP timer (grip.pdf p. 279)
     gptimer_i0: gptimer
         generic map (
             pindex  => 2,
             paddr   => 2,
             pirq    => 3,
             sepirq  => 0, -- use separate interupts for each timer
-            ntimers => 1, -- number of timers
+            sbits   => 8, -- prescaler bits
+            ntimers => 2, -- number of timers
             nbits   => 32 -- timer bits
         )
         port map (
@@ -242,16 +242,17 @@ begin
             apbi    => apbctrl_i0_apbi,
             apbo    => apbo(2),
             gpti    => gpti,
-            gpto    => gpto
+            gpto    => open
         );
 
     -- GPIO
     grgpio_i0: grgpio
         generic map (
-            pindex => 8, 
-            paddr  => 8, 
-            imask  => 16#00F0#, 
-            nbits  => 8
+            pindex  => 8, 
+            paddr   => 8, 
+            imask   => 16#0000#, -- interrupt mask (+ enable per software)
+            syncrst => 1,        -- only synchronous reset
+            nbits   => 8         -- number of port bits
         )
         port map (
             rst    => reset_n, 

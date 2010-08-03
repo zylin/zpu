@@ -7,10 +7,10 @@ all:
 	@echo "clean     - clean up"
 
 romgen:
-	gcc zpuromgen.c -o zpuromgen
-
+	gcc zpuromgen.c -o zpuromgen 
 hello:
 	zpu-elf-gcc -O3 -phi "`pwd`/hello.c" -o hello.elf -Wl,--relax -Wl,--gc-sections  -g
+
 	zpu-elf-objcopy -O binary hello.elf hello.bin
 
 	cat >../helloworld.vhd helloworld.vhd_header
