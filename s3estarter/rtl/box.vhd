@@ -123,37 +123,6 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
---  ahbmo( 1) <= ahbm_none;
---  ahbmo( 2) <= ahbm_none;
---  ahbmo( 3) <= ahbm_none;
---  ahbmo( 4) <= ahbm_none;
---  ahbmo( 5) <= ahbm_none;
---  ahbmo( 6) <= ahbm_none;
---  ahbmo( 7) <= ahbm_none;
---  ahbmo( 8) <= ahbm_none;
---  ahbmo( 9) <= ahbm_none;
---  ahbmo(10) <= ahbm_none;
---  ahbmo(11) <= ahbm_none;
---  ahbmo(12) <= ahbm_none;
---  ahbmo(13) <= ahbm_none;
---  ahbmo(14) <= ahbm_none;
---  ahbmo(15) <= ahbm_none;
---  ahbso( 0) <= ahbs_none;
---  ahbso( 2) <= ahbs_none;
---  ahbso( 3) <= ahbs_none;
---  ahbso( 4) <= ahbs_none;
---  ahbso( 5) <= ahbs_none;
---  ahbso( 6) <= ahbs_none;
---  ahbso( 7) <= ahbs_none;
---  ahbso( 8) <= ahbs_none;
---  ahbso( 9) <= ahbs_none;
---  ahbso(10) <= ahbs_none;
---  ahbso(11) <= ahbs_none;
---  ahbso(12) <= ahbs_none;
---  ahbso(13) <= ahbs_none;
---  ahbso(14) <= ahbs_none;
---  ahbso(15) <= ahbs_none;
-
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             timeout    => 11,
@@ -180,23 +149,13 @@ begin
     ---------------------------------------------------------------------
     --  AHB/APB bridge
     ----------------------------------------------------------------------
---  apbo( 0) <= apb_none;
---  apbo( 3) <= apb_none;
---  apbo( 4) <= apb_none;
---  apbo( 5) <= apb_none;
---  apbo( 6) <= apb_none;
---  apbo( 7) <= apb_none;
---  apbo( 9) <= apb_none;
---  apbo(10) <= apb_none;
---  apbo(11) <= apb_none;
---  apbo(12) <= apb_none;
---  apbo(13) <= apb_none;
---  apbo(14) <= apb_none;
     apbctrl_i0: apbctrl
         generic map (
             hindex      => 1,            -- : integer := 0;
             haddr       => 16#800#,      -- : integer := 0;
-            nslaves     => 16            -- : integer range 1 to NAPBSLV := NAPBSLV;
+            nslaves     => 16,           -- : integer range 1 to NAPBSLV := NAPBSLV;
+            asserterr   => 1,    
+            assertwarn  => 1    
         )                                
         port map (                       
             rst   => reset_n,            -- : in  std_ulogic;
@@ -211,7 +170,11 @@ begin
     apbuart_i0: apbuart
         generic map (
             pindex     => 1,
-            paddr      => 1
+            paddr      => 1,
+            console    => 1, -- fast simulation output
+            parity     => 0, -- no parity
+            flow       => 0, -- no hardware handshake
+            fifosize   => 1  -- more than 1 seems not to work (seen in simulation)
         )
         port map (
             rst   => reset_n,
