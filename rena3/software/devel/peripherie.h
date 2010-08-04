@@ -22,28 +22,56 @@ typedef unsigned long long  uint64_t;
 
 // gpio
 typedef struct {
-    volatile uint32_t in;       // 000
-    volatile uint32_t out;      // 001
-    volatile uint32_t dir;      // 010, for bidir port bits
-    volatile uint32_t imask;    // 011
-    volatile uint32_t level;    // 100
-    volatile uint32_t edge;     // 101
+    volatile uint32_t iodata;   // 000
+    volatile uint32_t ioout;    // 001
+    volatile uint32_t iodir;    // 010, for bidir port bits
+    volatile uint32_t irqmask;  // 011
+    volatile uint32_t irqpol;   // 100
+    volatile uint32_t irqedge;  // 101
     volatile uint32_t bypass;   // 110
 } grgpio_t;
 
 
 // uart
+#define UART_STATUS_DATA_READY               (1<< 0)
+#define UART_STATUS_TX_REG_EMPTY             (1<< 1)
+#define UART_STATUS_TX_FIFO_EMPTY            (1<< 2)
+#define UART_STATUS_BREAK_RECEIVED           (1<< 3)
+#define UART_STATUS_OVERRUN                  (1<< 4)
+#define UART_STATUS_PARITY_ERROR             (1<< 5)
+#define UART_STATUS_FRAMING_ERROR            (1<< 6)
+#define UART_STATUS_TX_FIFO_HALF_FULL        (1<< 7)
+#define UART_STATUS_RX_FIFO_HALF_FULL        (1<< 8)
+#define UART_STATUS_TX_FIFO_FULL             (1<< 9)
+#define UART_STATUS_RX_FIFO_FULL             (1<<10)
+
+#define UART_CONTROL_RX_ENABLE               (1<< 0)
+#define UART_CONTROL_TX_ENABLE               (1<< 1)
+#define UART_CONTROL_RX_INT_ENABLE           (1<< 2)
+#define UART_CONTROL_TX_INT_ENABLE           (1<< 3)
+#define UART_CONTROL_PARITY_SELECT           (1<< 4)
+#define UART_CONTROL_PARITY_ENABLE           (1<< 5)
+#define UART_CONTROL_FLOW_CONTROL            (1<< 6)
+#define UART_CONTROL_LOOP_BACK               (1<< 7)
+#define UART_CONTROL_EXTERNAL_CLOCK          (1<< 8)
+#define UART_CONTROL_TX_FIFO_INT_ENABLE      (1<< 9)
+#define UART_CONTROL_RX_FIFO_INT_ENABLE      (1<<10)
+#define UART_CONTROL_FIFO_DEBUG_MODE         (1<<11)
+#define UART_CONTROL_BREAK_INT_ENABLE        (1<<12)
+#define UART_CONTROL_DELAYED_INT_ENABLE      (1<<13)
+#define UART_CONTROL_TX_REG_EMPTY_INT_ENABLE (1<<14)
+#define UART_CONTROL_FIFO_AVAILIBLE          (1<<31)
+
 typedef struct {
-    volatile uint32_t data;     // 000000
-    volatile uint32_t status;   // 000001 rxfifo, txfifo, rxfull, txfull, rxhalffull, txhalffull, frame, parerr, ovf, break, thempty, tsempty, dready
-    volatile uint32_t ctrl;     // 000010 
-    volatile uint32_t scaler;   // 000011
-//  volatile uint32_t txfifo;   // 000100
+    volatile uint32_t data;         // 000000
+    volatile uint32_t status;       // 000001 
+    volatile uint32_t ctrl;         // 000010 
+    volatile uint32_t scaler;       // 000011
+    volatile uint32_t fifo_debug;   // 000100
 } apbuart_t;
 
 
 // timer (grip.pdf p. 279)
-
 #define TIMER_ENABLE                (1<<0)
 #define TIMER_RESTART               (1<<1)
 #define TIMER_LOAD                  (1<<2)
@@ -75,9 +103,16 @@ void init_timer_prescaler();
 ////////////////////
 // hardware units
 
-#define F_CPU (50000000)
+// ZPU frequency
+#define F_CPU           (50000000)
+
 // set min prescaler to ntimers+1
 #define TIMER_PRESCALER (8)
+
+// scaler for uart
+#define UART_BAUD_RATE  (115200)
+//#define UART_BAUD_RATE  (9600)
+#define UART_SCALER     (F_CPU/(8*UART_BAUD_RATE))
 
 apbuart_t *uart0  = (apbuart_t *) 0x80000100;
 gptimer_t *timer0 = (gptimer_t *) 0x80000200;
