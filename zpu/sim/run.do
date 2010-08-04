@@ -19,6 +19,7 @@ vcom -work $vcom_lib $vcom_options ../rtl/zpu_config.vhd
 vcom -work $vcom_lib $vcom_options ../rtl/zpupkg.vhd
 vcom -work $vcom_lib $vcom_options ../rtl/*.vhd
 
+vcom -work $vcom_lib $vcom_options ../rtl_tb/sim_small_fpga_top_noint.vhd
 
 #
 # helper functions
@@ -56,6 +57,10 @@ proc e {} {
     exit -force
 }
 
+proc x {} {
+    exit -force
+}
+
 
 #
 # run ZPU simulation
@@ -68,8 +73,8 @@ source wave.do
 set StdArithNoWarnings 1
 set NumericStdNoWarnings  1
 
-when -label enable_StdWarn {areset == '0'} {echo "Enable StdArithWarnings" ; set StdArithNoWarnings 0 ;}
-when -label enable_StdWarn {areset == '0'} {echo "Enable NumericStdWarnings" ; set NumericStdNoWarnings 0 ;}
+when -label enable_StdWarn {reset == '0'} {echo "Enable StdArithWarnings" ; set StdArithNoWarnings 0 ;}
+when -label enable_StdWarn {reset == '0'} {echo "Enable NumericStdWarnings" ; set NumericStdNoWarnings 0 ;}
 
 
 run 5 ms

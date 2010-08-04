@@ -50,7 +50,6 @@ entity zpu_core is
 
         -- this particular implementation of the ZPU does not
         -- have a clocked enable signal
-        enable              : in std_logic; 
         in_mem_busy         : in std_logic; 
         mem_read            : in std_logic_vector(wordSize-1 downto 0);
         mem_write           : out std_logic_vector(wordSize-1 downto 0);              

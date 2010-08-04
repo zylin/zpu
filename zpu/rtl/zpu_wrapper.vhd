@@ -141,7 +141,6 @@ begin
             clk                 => clk,
             reset               => reset,
             --
-            enable              => zpu_in.enable,
             in_mem_busy         => zpu_in.mem_busy,
             mem_read            => std_logic_vector(zpu_in.mem_read),
             interrupt           => zpu_in.interrupt,
@@ -160,7 +159,7 @@ begin
     zpu_out.mem_readEnable      <= std_ulogic(out_mem_readEnable);
     zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
-end architecture;
+end architecture rtl;
 
 
 
@@ -210,7 +209,7 @@ architecture rtl of zpu_ahb is
     signal out_mem_readEnable  : std_logic;
     signal mem_writeMask       : std_logic_vector(3 downto 0);
 
-    signal enable              : std_logic;
+    signal busy                : std_logic;
 
 begin
 
@@ -242,13 +241,14 @@ begin
         end case;
     end process check;
 
+    busy <= out_mem_readEnable or not ahbi.hready;
+
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
             reset               => reset,
             --
-            enable              => ahbi.hready,
-            in_mem_busy         => ahbi.hready,
+            in_mem_busy         => busy,
             mem_read            => ahbi.hrdata,
             interrupt           => or_reduce(ahbi.hirq),
             --
@@ -275,4 +275,4 @@ begin
 
     --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
-end architecture;
+end architecture rtl;

@@ -1,8 +1,8 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/clk
-add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/areset
-add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/enable
+add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/reset
+add wave -noupdate -divider {ZPU ports}
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/in_mem_busy
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/mem_read
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/mem_write
@@ -12,7 +12,7 @@ add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/out_mem_readen
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/mem_writemask
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/interrupt
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/break
-add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/readio
+add wave -noupdate -divider {internal DP ram}
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/memawriteenable
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/memaaddr
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/memawrite
@@ -21,6 +21,7 @@ add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/membwriteenabl
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/membaddr
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/membwrite
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/membread
+add wave -noupdate -divider internals
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/pc
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/sp
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/idim_flag
@@ -44,8 +45,9 @@ add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/membwrite_st
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/membread_stdlogic
 add wave -noupdate -format Literal -radix hexadecimal /fpga_top/zpu/topcode_sel
 add wave -noupdate -format Logic -radix hexadecimal /fpga_top/zpu/ininterrupt
+add wave -noupdate -divider {*** end ***}
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {894201 ps} 0}
+WaveRestoreCursors {{Cursor 1} {32445000 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -60,4 +62,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {939750 ps}
+WaveRestoreZoom {32412885 ps} {32505929 ps}

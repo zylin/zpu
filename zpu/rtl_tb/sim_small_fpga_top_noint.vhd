@@ -84,8 +84,6 @@ signal			  mem_writeEnable : std_logic;
 signal			  mem_readEnable : std_logic;
 signal			  mem_writeMask: std_logic_vector(wordBytes-1 downto 0);
 
-signal			  enable : std_logic;
-
 signal			  dram_mem_busy : std_logic;
 signal			  dram_mem_read : std_logic_vector(wordSize-1 downto 0);
 signal			  dram_mem_write : std_logic_vector(wordSize-1 downto 0);
@@ -114,7 +112,6 @@ begin
 	zpu: zpu_core port map (
 		clk => clk ,
 	 	reset => reset,
-	 	enable => enable,
  		in_mem_busy => mem_busy, 
  		mem_read => mem_read,
  		mem_write => mem_write, 
@@ -168,12 +165,10 @@ begin
 	process
 	begin
 		wait until rising_edge(clk);
-		enable      	<= '1';
 		io_reading  	<= io_busy or io_mem_readEnable; 
 		dram_ready  	<= dram_mem_readEnable;
 
 		if reset = '1' then
-			enable      <= '0';
 			io_reading  <= '0';
 			dram_ready  <= '0';
 		end if;
