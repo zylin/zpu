@@ -4,6 +4,7 @@ end entity top_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library s3estarter;
 use s3estarter.fpga_components.top;
@@ -188,6 +189,11 @@ begin
 
     tb_CLK_50MHZ  <= not tb_CLK_50MHZ after tb_clk_period/2 when simulation_run;
     tb_ROT_CENTER <= '1', '0' after 10 * tb_clk_period;
+    
+    tb_BTN_EAST   <= '0';
+    tb_BTN_NORTH  <= '0';
+    tb_BTN_SOUTH  <= '0';
+    tb_BTN_WEST   <= '0';
 
     top_i0: top
         port map (
@@ -304,11 +310,19 @@ begin
 
     main: process
     begin
-        report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
-        report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
-        wait for 1 ms;
+        -- report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
+        -- report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
+        wait for 2 ms;
         simulation_run <= false;
         wait;
+    end process;
+
+    gen_sw_pattern: process
+        variable count : unsigned( tb_SW'range) := (others => '0');
+    begin
+        wait until rising_edge( tb_CLK_50MHZ);
+        tb_SW <= std_logic_vector( count);
+        count := count + 1;
     end process;
 
 end architecture testbench;

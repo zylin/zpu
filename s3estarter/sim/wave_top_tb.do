@@ -16,6 +16,8 @@ add wave -noupdate -format Literal -radix unsigned /top_tb/top_i0/box_i0/gpioi
 add wave -noupdate -format Literal -radix unsigned /top_tb/top_i0/box_i0/gpioo
 add wave -noupdate -divider LEDs
 add wave -noupdate -format Literal /top_tb/tb_led
+add wave -noupdate -divider Switches
+add wave -noupdate -format Literal -expand /top_tb/tb_sw
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {950000 ps} 0} {{Cursor 2} {510000 ps} 0}
 configure wave -namecolwidth 161
