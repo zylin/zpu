@@ -186,6 +186,7 @@ use s3estarter.fpga_components.box;
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
+use gaisler.net.all;  -- types
 
 
 architecture rtl of top is
@@ -212,6 +213,9 @@ architecture rtl of top is
     
     signal top_fpga_gpioi      : gpio_in_type;
     signal box_i0_gpioo        : gpio_out_type;
+            
+    signal top_fpga_ethi       : eth_in_type;
+    signal box_io_etho         : eth_out_type;
 
     signal break               : std_ulogic;
 
@@ -236,11 +240,6 @@ begin
     DAC_CS          <= dac_cs_disable;
                     
     DS_WIRE         <= 'Z';
-                    
-    E_MDC           <= '0';
-    E_MDIO          <= 'Z';
-    E_TX_EN         <= '0';
-    E_TXD           <= (others => '0');
                     
     LCD_E           <= '0';
     LCD_RS          <= '0';
@@ -302,6 +301,27 @@ begin
     top_fpga_gpioi.din(30 downto 8) <= (others => '0');
     top_fpga_gpioi.din(31)          <= simulation_active;
 
+
+    -- connections for ethernet
+    top_fpga_ethi.gtx_clk     <= '0';
+    top_fpga_ethi.rmii_clk    <= '0';
+    top_fpga_ethi.tx_clk      <= E_TX_CLK;
+    top_fpga_ethi.rx_clk      <= E_RX_CLK;
+    top_fpga_ethi.rxd         <= "0000" & E_RXD(3 downto 0);
+    top_fpga_ethi.rx_dv       <= E_RX_DV;
+    top_fpga_ethi.rx_er       <= E_RXD(4);
+    top_fpga_ethi.rx_col      <= E_COL;
+    top_fpga_ethi.rx_crs      <= E_CRS;
+    top_fpga_ethi.mdio_i      <= E_MDIO;
+    top_fpga_ethi.phyrstaddr  <= (others => '0');
+    top_fpga_ethi.edcladdr    <= (others => '0');
+    E_TXD(3 downto 0)         <= box_io_etho.txd(3 downto 0);
+    E_TX_EN                   <= box_io_etho.tx_en;
+    E_TXD(4)                  <= box_io_etho.tx_er;
+    E_MDC                     <= box_io_etho.mdc;
+    E_MDIO                    <= box_io_etho.mdio_o when box_io_etho.mdio_oe = '1' else 'Z';
+
+
     box_i0: box
         port map (
             fpga_clk        => top_fpga_clk,        -- : in    fpga_clk_in_t;
@@ -312,6 +332,9 @@ begin
 
             gpioi           => top_fpga_gpioi,      -- : in    gpio_in_type;
             gpioo           => box_i0_gpioo,        -- : out   gpio_out_type;
+            
+            ethi            => top_fpga_ethi,       -- : in    eth_in_type;
+            etho            => box_io_etho,         -- : out   eth_out_type;
 
             break           => break                -- : out   cpu break command
         );

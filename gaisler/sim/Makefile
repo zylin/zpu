@@ -14,6 +14,7 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 all: compile
 
 compile: lib
+	make compile --directory ../../techmap/sim
 	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 

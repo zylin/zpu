@@ -9,6 +9,7 @@ use s3estarter.types.all;
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
+use gaisler.net.all;  -- types
 
 
 entity box is
@@ -21,6 +22,9 @@ entity box is
 
         gpioi           : in    gpio_in_type;
         gpioo           : out   gpio_out_type;
+
+        ethi            : in    eth_in_type;
+        etho            : out   eth_out_type;
                                          
         -- to stop simulation
         break           : out   std_ulogic
@@ -49,9 +53,11 @@ use grlib.amba.all;
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
+use gaisler.net.all;  -- types
 use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
 use gaisler.uart.apbuart;
+use gaisler.net.greth;
 
 
 architecture rtl of box is
@@ -123,13 +129,13 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
-    ahbmo(15 downto 1) <= (others => ahbm_none);
-    ahbso(15 downto 1) <= (others => ahbs_none);
+    --ahbmo(15 downto 1) <= (others => ahbm_none);
+    --ahbso(15 downto 1) <= (others => ahbs_none);
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             timeout    => 11,
-            nahbm      => 1, 
+            nahbm      => 2, 
             nahbs      => 2,
             disirq     => 1,    -- disable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
@@ -153,7 +159,7 @@ begin
     --  AHB/APB bridge
     ----------------------------------------------------------------------
 
-    apbo(5 to 15) <= (others => apb_none);
+    --apbo(5 to 15) <= (others => apb_none);
 
     apbctrl_i0: apbctrl
         generic map (
@@ -217,7 +223,7 @@ begin
     -- GPIO
     grgpio_i0: grgpio
         generic map (
-            pindex  => 3, 
+            pindex  => 8, 
             paddr   => 8, 
             imask   => 16#0000#, -- interrupt mask (+ enable per software)
             syncrst => 1,        -- only synchronous reset
@@ -227,16 +233,46 @@ begin
             rst    => reset_n, 
             clk    => clk, 
             apbi   => apbctrl_i0_apbi, 
-            apbo   => apbo(3),
+            apbo   => apbo(8),
             gpioi  => gpioi, 
             gpioo  => gpioo
+        );
+
+    -- ethernet
+    greth_i0: greth
+        generic map (
+            hindex      => 1, 
+            pindex      => 12,
+            paddr       => 12,
+            pirq        => 12,
+--          memtech     => inferred,
+            mdcscaler   => 50,
+            enable_mdio => 1,
+            fifosize    => 32,
+            nsync       => 1,
+            edcl        => 0,
+            edclbufsz   => 8,
+            macaddrh    => 16#00005E#,
+            macaddrl    => 16#00005D#,
+            ipaddrh     => 16#c0a8#,
+            ipaddrl     => 16#0035#
+        )
+        port map (
+            rst         => reset_n,
+            clk         => clk,
+            ahbmi       => ahbctrl_i0_msti,
+            ahbmo       => ahbmo(1),
+            apbi        => apbctrl_i0_apbi,
+            apbo        => apbo(12),
+            ethi        => ethi,
+            etho        => etho
         );
 
     stati.cerror <= (others => '0');
     -- AHB status register
     ahbstat_i0: ahbstat
         generic map (
-            pindex => 4, 
+            pindex => 15, 
             paddr  => 15, 
             pirq   => 7 
         ) 
@@ -247,7 +283,7 @@ begin
             ahbsi => ahbctrl_i0_slvi, 
             stati => stati, 
             apbi  => apbctrl_i0_apbi, 
-            apbo  => apbo(4)
+            apbo  => apbo(15)
         );
 
     

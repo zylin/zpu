@@ -102,6 +102,19 @@ void msleep(uint32_t msec);
 void nsleep(uint32_t nsec);
 void init_timer_prescaler();
 
+// ethernet
+typedef struct {
+    volatile uint32_t control;
+    volatile uint32_t status;
+    volatile uint32_t mac_msb;
+    volatile uint32_t mac_lsb;
+    volatile uint32_t mdio_control;
+    volatile uint32_t tx_pointer;
+    volatile uint32_t rx_pointer;
+    volatile uint32_t edcl_ip;
+    volatile uint32_t hash_msb;
+    volatile uint32_t hash_lsb;
+} greth_t;
 
 ////////////////////
 // hardware units
@@ -121,5 +134,6 @@ void init_timer_prescaler();
 apbuart_t *uart0  = (apbuart_t *) 0x80000100;
 gptimer_t *timer0 = (gptimer_t *) 0x80000200;
 grgpio_t  *gpio0  = (grgpio_t *)  0x80000800;
+greth_t   *ether0 = (greth_t *)   0x80000c00;
 
 #endif // PERIPHERIE_H

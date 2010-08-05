@@ -8,6 +8,7 @@ use s3estarter.types.all;
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
+use gaisler.net.all;  -- types
 
 package fpga_components is
 
@@ -22,6 +23,9 @@ package fpga_components is
     
             gpioi           : in    gpio_in_type;
             gpioo           : out   gpio_out_type;
+
+            ethi            : in    eth_in_type;
+            etho            : out   eth_out_type;
 
             -- to stop simulation
             break           : out   std_ulogic

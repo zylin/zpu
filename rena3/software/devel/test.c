@@ -1,4 +1,5 @@
 //#include <stdio.h>
+//#include <stdlib.h> // itoa
 
 #include "peripherie.h"
 
@@ -103,6 +104,45 @@ void uart_putstr(const char *s)
 ////////////////////////////////////////
 // specific stuff
 
+// http://www.mikrocontroller.net/articles/FAQ#itoa.28.29
+void itoa( int z, char* Buffer )
+{
+  int i = 0;
+  int j;
+  char tmp;
+  unsigned u;    // In u bearbeiten wir den Absolutbetrag von z.
+  
+    // ist die Zahl negativ?
+    // gleich mal ein - hinterlassen und die Zahl positiv machen
+    if( z < 0 ) {
+      Buffer[0] = '-';
+      Buffer++;
+      // -INT_MIN ist idR. größer als INT_MAX und nicht mehr 
+      // als int darstellbar! Man muss daher bei der Bildung 
+      // des Absolutbetrages aufpassen.
+      u = ( (unsigned)-(z+1) ) + 1; 
+    }
+    else { 
+      u = (unsigned)z;
+    }
+    // die einzelnen Stellen der Zahl berechnen
+    do {
+      Buffer[i++] = '0' + u % 10;
+      u /= 10;
+    } while( u > 0 );
+ 
+    // den String in sich spiegeln
+    for( j = 0; j < i / 2; ++j ) {
+      tmp = Buffer[j];
+      Buffer[j] = Buffer[i-j-1];
+      Buffer[i-j-1] = tmp;
+    }
+    Buffer[i] = '\0';
+}
+
+
+
+
 void running_light_init( void)
 {
     // enable output drivers
@@ -132,19 +172,37 @@ void running_light( void)
 
 
 //
-//
+//  set leds on number or resend incomming character
 //
 void uart_test( void)
 {
 
     char val;
-        
+
+    // default value
+    gpio0->ioout = 0x55;
+
     while (1)
     {
         val = uart_getchar();
-        uart_putchar( '+');
-        uart_putchar( val);
-        uart_putchar( '-');
+        switch (val)
+        {
+            case '0':  gpio0->ioout = 0x00; break;
+            case '1':  gpio0->ioout = 0x01; break;
+            case '2':  gpio0->ioout = 0x03; break;
+            case '3':  gpio0->ioout = 0x07; break;
+            case '4':  gpio0->ioout = 0x0f; break;
+            case '5':  gpio0->ioout = 0x1f; break;
+            case '6':  gpio0->ioout = 0x3f; break;
+            case '7':  gpio0->ioout = 0x7f; break;
+            case '8':  gpio0->ioout = 0xff; break;
+            case '\r': break;
+            case '\n': break;
+            default:
+                uart_putchar( '+');
+                uart_putchar( val);
+                uart_putchar( '-');
+        }
     }
 
 }
@@ -164,6 +222,30 @@ void gpio_test( void)
     }
 }
 
+//
+// puts ethernet registers
+//
+void ether_test( void)
+{
+    char str[20];
+    
+    //sprintf( str, "%d", 15); // compiled library too big for ram
+
+    uart_putstr( "\ngreth registers:");
+    uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_putstr( str);
+    uart_putstr( "\nstatus:       "); itoa( ether0->status ,      str); uart_putstr( str);
+    uart_putstr( "\nmac_msb:      "); itoa( ether0->mac_msb,      str); uart_putstr( str);
+    uart_putstr( "\nmac_lsb:      "); itoa( ether0->mac_lsb,      str); uart_putstr( str);
+    uart_putstr( "\nmdio_control: "); itoa( ether0->mdio_control, str); uart_putstr( str);
+    uart_putstr( "\ntx_pointer:   "); itoa( ether0->tx_pointer,   str); uart_putstr( str);
+    uart_putstr( "\nrx_pointer:   "); itoa( ether0->rx_pointer,   str); uart_putstr( str);
+    uart_putstr( "\nedcl_ip:      "); itoa( ether0->edcl_ip,      str); uart_putstr( str);
+    uart_putstr( "\nhash_msb:     "); itoa( ether0->hash_msb,     str); uart_putstr( str);
+    uart_putstr( "\nhash_lsb:     "); itoa( ether0->hash_lsb,     str); uart_putstr( str);
+    uart_putchar('\n');
+
+}
+
 
 int main(void)
 {
@@ -180,6 +262,7 @@ int main(void)
     uart_putstr("compiled: " __DATE__ "   " __TIME__ "\n");
 
 
+    ether_test();
 
     uart_test();
     
