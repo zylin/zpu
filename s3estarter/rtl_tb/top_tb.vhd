@@ -312,7 +312,7 @@ begin
     begin
         -- report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
         -- report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
-        wait for 2 ms;
+        wait for 6 ms;
         simulation_run <= false;
         wait;
     end process;

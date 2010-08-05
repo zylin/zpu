@@ -34,8 +34,8 @@ typedef struct {
 
 // uart
 #define UART_STATUS_DATA_READY               (1<< 0)
-#define UART_STATUS_TX_REG_EMPTY             (1<< 1)
-#define UART_STATUS_TX_FIFO_EMPTY            (1<< 2)
+#define UART_STATUS_TX_SHREG_EMPT            (1<< 1)
+#define UART_STATUS_TX_REG_EMPTY             (1<< 2)
 #define UART_STATUS_BREAK_RECEIVED           (1<< 3)
 #define UART_STATUS_OVERRUN                  (1<< 4)
 #define UART_STATUS_PARITY_ERROR             (1<< 5)
@@ -113,6 +113,7 @@ void init_timer_prescaler();
 #define UART_BAUD_RATE  (115200)
 //#define UART_BAUD_RATE  (9600)
 #define UART_SCALER     (F_CPU/(8*UART_BAUD_RATE))
+#define UART_FIFOSIZE   (32)
 
 apbuart_t *uart0  = (apbuart_t *) 0x80000100;
 gptimer_t *timer0 = (gptimer_t *) 0x80000200;

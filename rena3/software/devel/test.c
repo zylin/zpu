@@ -74,8 +74,11 @@ char uart_getchar()
 
 void uart_putchar_raw( char c)
 {
-    loop_until_bit_is_set( uart0->status, UART_STATUS_TX_FIFO_EMPTY);
-    //loop_until_bit_is_set( uart0->status, UART_STATUS_TX_REG_EMPTY);
+    #if UART_FIFOSIZE==1 || !defined(UART_FIFOSIZE)
+    loop_until_bit_is_set( uart0->status, UART_STATUS_TX_REG_EMPTY);
+    #else
+    loop_until_bit_is_clear( uart0->status, UART_STATUS_TX_FIFO_FULL);
+    #endif
     uart0->data = c;
 }
 
@@ -134,15 +137,14 @@ void running_light( void)
 void uart_test( void)
 {
 
-    timer0->e[1].reload = (F_CPU/TIMER_PRESCALER);
+    char val;
         
     while (1)
     {
-        if bit_is_clear( timer0->e[1].ctrl, TIMER_ENABLE)
-        {
-            uart_putchar( 'a');
-            timer0->e[1].ctrl   = TIMER_ENABLE | TIMER_LOAD;
-        }
+        val = uart_getchar();
+        uart_putchar( '+');
+        uart_putchar( val);
+        uart_putchar( '-');
     }
 
 }
@@ -174,7 +176,7 @@ int main(void)
 
     running_light_init();
 
-    //uart_test();
+    uart_test();
     running_light();
     //gpio_test();
 

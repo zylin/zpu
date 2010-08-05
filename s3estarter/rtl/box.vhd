@@ -123,6 +123,14 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
+    gen_ahbmo_none : for i in 1 to 15 generate
+        ahbmo( i) <= ahbm_none;
+    end generate;
+
+    gen_ahbso_none : for i in 1 to 15 generate
+        ahbso( i) <= ahbs_none;
+    end generate;
+
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             timeout    => 11,
@@ -149,9 +157,13 @@ begin
     ---------------------------------------------------------------------
     --  AHB/APB bridge
     ----------------------------------------------------------------------
+    gen_apb_none : for i in 5 to 15 generate
+        apbo( i) <= apb_none;
+    end generate;
+
     apbctrl_i0: apbctrl
         generic map (
-            hindex      => 1,            -- : integer := 0;
+            hindex      => 0,            -- : integer := 0;
             haddr       => 16#800#,      -- : integer := 0;
             nslaves     => 16,           -- : integer range 1 to NAPBSLV := NAPBSLV;
             asserterr   => 1,    
@@ -161,7 +173,7 @@ begin
             rst   => reset_n,            -- : in  std_ulogic;
             clk   => clk,                -- : in  std_ulogic;
             ahbi  => ahbctrl_i0_slvi,    -- : in  ahb_slv_in_type;
-            ahbo  => ahbso(1),           -- : out ahb_slv_out_type;
+            ahbo  => ahbso(0),           -- : out ahb_slv_out_type;
             apbi  => apbctrl_i0_apbi,    -- : out apb_slv_in_type;
             apbo  => apbo                -- : in  apb_slv_out_vector                
         );
@@ -174,7 +186,7 @@ begin
             console    => 1, -- fast simulation output
             parity     => 0, -- no parity
             flow       => 0, -- no hardware handshake
-            fifosize   => 1  -- more than 1 seems not to work (seen in simulation)
+            fifosize   => 32
         )
         port map (
             rst   => reset_n,
@@ -211,7 +223,7 @@ begin
     -- GPIO
     grgpio_i0: grgpio
         generic map (
-            pindex  => 8, 
+            pindex  => 3, 
             paddr   => 8, 
             imask   => 16#0000#, -- interrupt mask (+ enable per software)
             syncrst => 1,        -- only synchronous reset
@@ -221,7 +233,7 @@ begin
             rst    => reset_n, 
             clk    => clk, 
             apbi   => apbctrl_i0_apbi, 
-            apbo   => apbo(8),
+            apbo   => apbo(3),
             gpioi  => gpioi, 
             gpioo  => gpioo
         );
@@ -230,7 +242,7 @@ begin
     -- AHB status register
     ahbstat_i0: ahbstat
         generic map (
-            pindex => 15, 
+            pindex => 4, 
             paddr  => 15, 
             pirq   => 7 
         ) 
@@ -241,7 +253,7 @@ begin
             ahbsi => ahbctrl_i0_slvi, 
             stati => stati, 
             apbi  => apbctrl_i0_apbi, 
-            apbo  => apbo(15)
+            apbo  => apbo(4)
         );
 
     
