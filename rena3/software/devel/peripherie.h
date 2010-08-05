@@ -16,6 +16,9 @@ typedef unsigned long       uint32_t;
 typedef long long           int64_t;
 typedef unsigned long long  uint64_t;
 
+#define TRUE  (1==1)
+#define FALSE (1==0)
+
 
 ////////////////////
 // hardware types

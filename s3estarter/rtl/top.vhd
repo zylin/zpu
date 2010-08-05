@@ -215,6 +215,16 @@ architecture rtl of top is
 
     signal break               : std_ulogic;
 
+    function simulation_active return std_ulogic is
+        variable result : std_ulogic;
+    begin
+        result := '0';
+        -- pragma translate_off
+        result := '1';
+        -- pragma translate_on
+        return result;
+    end function simulation_active;
+
 begin
     
     -- drive unused outputs
@@ -289,7 +299,8 @@ begin
     top_fpga_gpioi.sig_en           <= (others => '0');
     top_fpga_gpioi.din( 3 downto 0) <= SW;
     top_fpga_gpioi.din( 7 downto 4) <= BTN_WEST & BTN_NORTH & BTN_SOUTH & BTN_EAST;
-    top_fpga_gpioi.din(31 downto 8) <= (others => '0');
+    top_fpga_gpioi.din(30 downto 8) <= (others => '0');
+    top_fpga_gpioi.din(31)          <= simulation_active;
 
     box_i0: box
         port map (
@@ -297,10 +308,10 @@ begin
             fpga_rotary_sw  => top_fpga_rotary_sw,  -- : in    fpga_rotary_sw_in_t;
 
             uarti           => top_fpga_uarti,      -- : in    uart_in_type
-            uarto           => box_i0_uarto,       -- : out   uart_out_type
+            uarto           => box_i0_uarto,        -- : out   uart_out_type
 
             gpioi           => top_fpga_gpioi,      -- : in    gpio_in_type;
-            gpioo           => box_i0_gpioo,       -- : out   gpio_out_type;
+            gpioo           => box_i0_gpioo,        -- : out   gpio_out_type;
 
             break           => break                -- : out   cpu break command
         );

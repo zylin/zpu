@@ -123,13 +123,8 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
-    gen_ahbmo_none : for i in 1 to 15 generate
-        ahbmo( i) <= ahbm_none;
-    end generate;
-
-    gen_ahbso_none : for i in 1 to 15 generate
-        ahbso( i) <= ahbs_none;
-    end generate;
+    ahbmo(15 downto 1) <= (others => ahbm_none);
+    ahbso(15 downto 1) <= (others => ahbs_none);
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
@@ -157,9 +152,8 @@ begin
     ---------------------------------------------------------------------
     --  AHB/APB bridge
     ----------------------------------------------------------------------
-    gen_apb_none : for i in 5 to 15 generate
-        apbo( i) <= apb_none;
-    end generate;
+
+    apbo(5 to 15) <= (others => apb_none);
 
     apbctrl_i0: apbctrl
         generic map (
@@ -227,7 +221,7 @@ begin
             paddr   => 8, 
             imask   => 16#0000#, -- interrupt mask (+ enable per software)
             syncrst => 1,        -- only synchronous reset
-            nbits   => 8         -- number of port bits
+            nbits   => 32        -- number of port bits
         )
         port map (
             rst    => reset_n, 

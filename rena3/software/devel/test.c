@@ -168,16 +168,24 @@ void gpio_test( void)
 int main(void)
 {
 
+    uint32_t simulation_active = bit_is_set(gpio0->iodata, (1<<31));
+
+
     timer_init();
     uart_init();
 
-    uart_putstr("SoC, ZPU test program\n");
+    uart_putstr("\n\n");
+    uart_putstr("SoC, ZPU test program ");
+    (simulation_active) ? uart_putstr("(on simulator)\n") : uart_putstr("(on hardware)\n");
     uart_putstr("compiled: " __DATE__ "   " __TIME__ "\n");
 
-    running_light_init();
+
 
     uart_test();
+    
+    running_light_init();
     running_light();
+    
     //gpio_test();
 
     //puts("end.");
