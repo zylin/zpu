@@ -72,10 +72,12 @@ package fpga_components is
             E_MDIO          : inout std_logic; -- management data IO
             E_RX_CLK        : in    std_logic; -- receive clock 25MHz@100BaseTx or 2.5MHz@10Base-T
             E_RX_DV         : in    std_logic; -- receive data valid
-            E_RXD           : in    std_logic_vector(4 downto 0);
+            E_RXD           : in    std_logic_vector(3 downto 0);
+            E_RX_ER         : in    std_logic;
             E_TX_CLK        : in    std_logic; -- transmit clock 25MHz@100BaseTx or 2.5MHz@10Base-T
             E_TX_EN         : out   std_logic; -- transmit enable
-            E_TXD           : out   std_logic_vector(4 downto 0);
+            E_TXD           : out   std_logic_vector(3 downto 0);
+            E_TX_ER         : out   std_logic;
 
             -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
             FPGA_M0         : inout std_logic;

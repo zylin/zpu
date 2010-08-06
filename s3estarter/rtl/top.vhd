@@ -47,10 +47,12 @@ entity top is
         E_MDIO          : inout std_logic; -- management data IO
         E_RX_CLK        : in    std_logic; -- receive clock 25MHz@100BaseTx or 2.5MHz@10Base-T
         E_RX_DV         : in    std_logic; -- receive data valid
-        E_RXD           : in    std_logic_vector(4 downto 0);
+        E_RXD           : in    std_logic_vector(3 downto 0);
+        E_RX_ER         : in    std_logic;
         E_TX_CLK        : in    std_logic; -- transmit clock 25MHz@100BaseTx or 2.5MHz@10Base-T
         E_TX_EN         : out   std_logic; -- transmit enable
-        E_TXD           : out   std_logic_vector(4 downto 0);
+        E_TXD           : out   std_logic_vector(3 downto 0);
+        E_TX_ER         : out   std_logic;
 
         -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
         FPGA_M0         : inout std_logic;
@@ -309,7 +311,7 @@ begin
     top_fpga_ethi.rx_clk      <= E_RX_CLK;
     top_fpga_ethi.rxd         <= "0000" & E_RXD(3 downto 0);
     top_fpga_ethi.rx_dv       <= E_RX_DV;
-    top_fpga_ethi.rx_er       <= E_RXD(4);
+    top_fpga_ethi.rx_er       <= E_RX_ER;
     top_fpga_ethi.rx_col      <= E_COL;
     top_fpga_ethi.rx_crs      <= E_CRS;
     top_fpga_ethi.mdio_i      <= E_MDIO;
@@ -317,7 +319,7 @@ begin
     top_fpga_ethi.edcladdr    <= (others => '0');
     E_TXD(3 downto 0)         <= box_io_etho.txd(3 downto 0);
     E_TX_EN                   <= box_io_etho.tx_en;
-    E_TXD(4)                  <= box_io_etho.tx_er;
+    E_TX_ER                   <= box_io_etho.tx_er;
     E_MDC                     <= box_io_etho.mdc;
     E_MDIO                    <= box_io_etho.mdio_o when box_io_etho.mdio_oe = '1' else 'Z';
 

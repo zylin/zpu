@@ -59,6 +59,8 @@ use gaisler.misc.grgpio;
 use gaisler.uart.apbuart;
 use gaisler.net.greth;
 
+library techmap;
+use techmap.gencomp.all;
 
 architecture rtl of box is
     
@@ -82,6 +84,7 @@ architecture rtl of box is
     signal apbo                          : apb_slv_out_vector := (others => apb_none);
     
     signal gpti                          : gptimer_in_type;
+    signal gptimer_i0_gpto               : gptimer_out_type;
                                          
     signal stati                         : ahbstat_in_type;
 
@@ -129,8 +132,8 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
-    --ahbmo(15 downto 1) <= (others => ahbm_none);
-    --ahbso(15 downto 1) <= (others => ahbs_none);
+    --ahbmo(15 downto 1) <= (others => ahbm_none); -- slow down syntesis
+    --ahbso(15 downto 1) <= (others => ahbs_none); -- slow down syntesis
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
@@ -159,7 +162,7 @@ begin
     --  AHB/APB bridge
     ----------------------------------------------------------------------
 
-    --apbo(5 to 15) <= (others => apb_none);
+    --apbo(5 to 15) <= (others => apb_none); -- slow down syntesis
 
     apbctrl_i0: apbctrl
         generic map (
@@ -217,7 +220,7 @@ begin
             apbi    => apbctrl_i0_apbi,
             apbo    => apbo(2),
             gpti    => gpti,
-            gpto    => open
+            gpto    => gptimer_i0_gpto
         );
 
     -- GPIO
@@ -245,21 +248,15 @@ begin
             pindex      => 12,
             paddr       => 12,
             pirq        => 12,
---          memtech     => inferred,
+            memtech     => inferred,
             mdcscaler   => 50,
             enable_mdio => 1,
-            fifosize    => 32,
-            nsync       => 1,
-            edcl        => 0,
-            edclbufsz   => 8,
-            macaddrh    => 16#00005E#,
-            macaddrl    => 16#00005D#,
-            ipaddrh     => 16#c0a8#,
-            ipaddrl     => 16#0035#
+            fifosize    => 4,
+            nsync       => 1
         )
         port map (
             rst         => reset_n,
-            clk         => clk,
+            clk         => clk
             ahbmi       => ahbctrl_i0_msti,
             ahbmo       => ahbmo(1),
             apbi        => apbctrl_i0_apbi,

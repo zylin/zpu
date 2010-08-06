@@ -57,10 +57,12 @@ architecture testbench of top_tb is
     signal  tb_E_MDIO          : std_logic;
     signal  tb_E_RX_CLK        : std_logic;
     signal  tb_E_RX_DV         : std_logic;
-    signal  tb_E_RXD           : std_logic_vector(4 downto 0);
+    signal  tb_E_RXD           : std_logic_vector(3 downto 0);
+    signal  tb_E_RX_ER         : std_logic;
     signal  tb_E_TX_CLK        : std_logic;
     signal  tb_E_TX_EN         : std_logic;
-    signal  tb_E_TXD           : std_logic_vector(4 downto 0);
+    signal  tb_E_TXD           : std_logic_vector(3 downto 0);
+    signal  tb_E_TX_ER         : std_logic;
 
             -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
     signal  tb_FPGA_M0         : std_logic;
@@ -200,6 +202,7 @@ begin
     tb_E_RX_CLK   <= '0';
     tb_E_RX_DV    <= '0';
     tb_E_RXD      <= (others => '0');
+    tb_E_RX_ER    <= '0';
     tb_E_TX_CLK   <= '0';
 
     
@@ -232,10 +235,12 @@ begin
             E_MDIO          => tb_E_MDIO          , -- : inout std_ulogic;
             E_RX_CLK        => tb_E_RX_CLK        , -- : in    std_ulogic;
             E_RX_DV         => tb_E_RX_DV         , -- : in    std_ulogic;
-            E_RXD           => tb_E_RXD           , -- : in    std_ulogic_vector(4 downto 0);
+            E_RXD           => tb_E_RXD           ,
+            E_RX_ER         => tb_E_RX_ER         , -- : in    std_ulogic_vector(3 downto 0);
             E_TX_CLK        => tb_E_TX_CLK        , -- : in    std_ulogic;
             E_TX_EN         => tb_E_TX_EN         , -- : out   std_ulogic;
-            E_TXD           => tb_E_TXD           , -- : out   std_ulogic_vector(4 downto 0);
+            E_TXD           => tb_E_TXD           , -- : out   std_ulogic_vector(3 downto 0);
+            E_TX_ER         => tb_E_TX_ER         ,
 
             FPGA_M0         => tb_FPGA_M0         , -- : inout std_ulogic;
             FPGA_M1         => tb_FPGA_M1         , -- : inout std_ulogic;
@@ -320,7 +325,7 @@ begin
     begin
         -- report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
         -- report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
-        wait for 16 ms;
+        wait for 50 ms;
         simulation_run <= false;
         wait;
     end process;
