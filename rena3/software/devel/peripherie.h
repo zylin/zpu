@@ -103,6 +103,38 @@ void nsleep(uint32_t nsec);
 void init_timer_prescaler();
 
 // ethernet
+#define ETHER_DESCRIPTOR_ENABLE              (1<<11)
+#define ETHER_DESCRIPTOR_WRAP                (1<<12)
+#define ETHER_DESCRIPTOR_INT_ENABLE          (1<<13)
+#define ETHER_DESCRIPTOR_UNDERRUN_ERR        (1<<14)
+#define ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR  (1<<15)
+
+#define ETHER_CONTROL_TX_ENABLE              (1<< 0)
+#define ETHER_CONTROL_RX_ENABLE              (1<< 1)
+#define ETHER_CONTROL_TX_INT                 (1<< 2)
+#define ETHER_CONTROL_RX_INT                 (1<< 3)
+#define ETHER_CONTROL_FULL_DUPLEX            (1<< 4)
+#define ETHER_CONTROL_PROMISCUOUS_MODE       (1<< 5)
+#define ETHER_CONTROL_RESET                  (1<< 6)
+#define ETHER_CONTROL_SPEED                  (1<< 7)
+#define ETHER_CONTROL_EDCL_AVAILABLE         (1<<31)
+
+#define ETHER_STATUS_RX_ERROR                (1<< 0)
+#define ETHER_STATUS_TX_ERROR                (1<< 1)
+#define ETHER_STATUS_RX_INT                  (1<< 2)
+#define ETHER_STATUS_TX_INT                  (1<< 3)
+#define ETHER_STATUS_RX_AHB_ERROR            (1<< 4)
+#define ETHER_STATUS_TX_AHB_ERROR            (1<< 5)
+#define ETHER_STATUS_RX_TOO_SMALL            (1<< 6)
+#define ETHER_STATUS_INVALID_ADDRESS         (1<< 7)
+
+#define ETHER_MDIO_WR                        (1<< 0)
+#define ETHER_MDIO_RD                        (1<< 1)
+#define ETHER_MDIO_LINKFAIL                  (1<< 2)
+#define ETHER_MDIO_BUSY                      (1<< 3)
+#define ETHER_MDIO_NOT_VALID                 (1<< 4)
+
+#define ETHER_MDIO_
 typedef struct {
     volatile uint32_t control;
     volatile uint32_t status;

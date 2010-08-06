@@ -98,6 +98,27 @@ void uart_putstr(const char *s)
     }
 }
         
+// http://asalt-vehicle.googlecode.com/svn› trunk› src› uart.c
+void uart_hex(unsigned char dataType, unsigned long data) 
+{
+    unsigned char count, i, temp;
+    char dataString[] = "0x        ";
+
+    if (dataType == 8) count = 2;
+    if (dataType == 16) count = 4;
+    if (dataType == 32) count = 8;
+
+    for(i=count; i>0; i--)
+    {
+        temp = data % 16;
+        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
+        else dataString [i+1] = (temp - 10) + 0x41;
+
+        data = data/16;
+    }
+
+    uart_putstr( dataString);
+}
 
 
 
@@ -231,19 +252,71 @@ void ether_test( void)
     
     //sprintf( str, "%d", 15); // compiled library too big for ram
 
+    // reset status (for simulation)
+    ether0->status     = 0xffffffff;
+    ether0->mac_msb    = 0xffff5555;
+    ether0->mac_lsb    = 0x55aaaaaa;
+    ether0->tx_pointer = 0x00001234;
+    ether0->rx_pointer = 0x00004321;
+
     uart_putstr( "\ngreth registers:");
-    uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_putstr( str);
-    uart_putstr( "\nstatus:       "); itoa( ether0->status ,      str); uart_putstr( str);
-    uart_putstr( "\nmac_msb:      "); itoa( ether0->mac_msb,      str); uart_putstr( str);
-    uart_putstr( "\nmac_lsb:      "); itoa( ether0->mac_lsb,      str); uart_putstr( str);
-    uart_putstr( "\nmdio_control: "); itoa( ether0->mdio_control, str); uart_putstr( str);
-    uart_putstr( "\ntx_pointer:   "); itoa( ether0->tx_pointer,   str); uart_putstr( str);
-    uart_putstr( "\nrx_pointer:   "); itoa( ether0->rx_pointer,   str); uart_putstr( str);
-    uart_putstr( "\nedcl_ip:      "); itoa( ether0->edcl_ip,      str); uart_putstr( str);
-    uart_putstr( "\nhash_msb:     "); itoa( ether0->hash_msb,     str); uart_putstr( str);
-    uart_putstr( "\nhash_lsb:     "); itoa( ether0->hash_lsb,     str); uart_putstr( str);
+//  uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_hex(8, str);
+    uart_putstr( "\ncontrol:      "); uart_hex( 32, ether0->control);
+    uart_putstr( "\nstatus:       "); uart_hex( 32, ether0->status);
+    uart_putstr( "\nmac_msb:      "); uart_hex( 32, ether0->mac_msb);
+    uart_putstr( "\nmac_lsb:      "); uart_hex( 32, ether0->mac_lsb);
+    uart_putstr( "\nmdio_control: "); uart_hex( 32, ether0->mdio_control);
+    uart_putstr( "\ntx_pointer:   "); uart_hex( 32, ether0->tx_pointer);
+    uart_putstr( "\nrx_pointer:   "); uart_hex( 32, ether0->rx_pointer);
+    uart_putstr( "\nedcl_ip:      "); uart_hex( 32, ether0->edcl_ip);
+    uart_putstr( "\nhash_msb:     "); uart_hex( 32, ether0->hash_msb);
+    uart_putstr( "\nhash_lsb:     "); uart_hex( 32, ether0->hash_lsb);
     uart_putchar('\n');
 
+}
+
+void ether_text_tx_packaet( void)
+{
+    uint32_t length = 20;
+    uint32_t descr  = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | length;
+    uint32_t data_buffer;
+
+    // setup the data
+    //   fill buffer (ethernet address, type field, etc.)
+
+    // setup the descriptor
+    //   set buffer address on descriptor
+    //   enable descriptor
+
+    // give descriptor to core
+    //ether0->tx_pointer = descriptor_buffer;
+
+    // set tx enable bit
+    ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
+
+    // wait for end of transmission
+    loop_until_bit_is_clear( descr, ETHER_DESCRIPTOR_ENABLE);
+
+    // check for errors in descriptor
+    //ETHER_DESCRIPTOR_UNDERRUN_ERR
+    //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
+
+    // check transmission status
+    // 3 bits (TE, TI, TA)
+}
+
+
+void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
+{
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
+    ether0->mdio_control = (data << 16) | (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_WR;
+}
+
+uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
+{
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
+    ether0->mdio_control = (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_RD;
+    return (ether0->mdio_control >> 16);
 }
 
 
@@ -257,9 +330,9 @@ int main(void)
     uart_init();
 
     uart_putstr("\n\n");
-    uart_putstr("SoC, ZPU test program ");
+    uart_putstr("ZPU test ");
     (simulation_active) ? uart_putstr("(on simulator)\n") : uart_putstr("(on hardware)\n");
-    uart_putstr("compiled: " __DATE__ "   " __TIME__ "\n");
+    uart_putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
 
     ether_test();
