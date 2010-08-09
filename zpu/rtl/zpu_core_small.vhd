@@ -102,11 +102,11 @@ signal  begin_inst          : std_logic;
 
 
 
-signal trace_opcode     : std_logic_vector(7 downto 0);
-signal  trace_pc                : std_logic_vector(maxAddrBitIncIO downto 0);
-signal  trace_sp                : std_logic_vector(maxAddrBitIncIO downto minAddrBit);
-signal  trace_topOfStack                : std_logic_vector(wordSize-1 downto 0);
-signal  trace_topOfStackB               : std_logic_vector(wordSize-1 downto 0);
+signal trace_opcode      : std_logic_vector(7 downto 0);
+signal trace_pc          : std_logic_vector(maxAddrBitIncIO downto 0);
+signal trace_sp          : std_logic_vector(maxAddrBitIncIO downto minAddrBit);
+signal trace_topOfStack  : std_logic_vector(wordSize-1 downto 0);
+signal trace_topOfStackB : std_logic_vector(wordSize-1 downto 0);
 
 -- state machine.
 type State_Type is
@@ -128,7 +128,6 @@ State_ReadIODone,
 State_Decode,
 State_Resync,
 State_Interrupt
-
 );
 
 type DecodedOpcodeType is
@@ -193,18 +192,17 @@ begin
     -- to CVS and compare the latest trace file against the last known
     -- good trace file
     -- pragma translate_off
-    traceFileGenerate:
-   if Generate_Trace generate
-    trace_file: trace port map (
-        clk => clk,
-        begin_inst => begin_inst,
-        pc => trace_pc,
-        opcode => trace_opcode,
-        sp => trace_sp,
-        memA => trace_topOfStack,
-        memB => trace_topOfStackB,
-        busy => busy,
-        intsp => (others => 'U')
+    traceFileGenerate: if Generate_Trace generate
+        trace_file: trace port map (
+            clk         => clk,
+            begin_inst  => begin_inst,
+            pc          => trace_pc,
+            opcode      => trace_opcode,
+            sp          => trace_sp,
+            memA        => trace_topOfStack,
+            memB        => trace_topOfStackB,
+            busy        => busy,
+            intsp       => (others => 'U')
         );
     end generate;
     -- pragma translate_on
