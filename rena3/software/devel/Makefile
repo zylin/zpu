@@ -10,6 +10,7 @@ romgen:
 	gcc zpuromgen.c -o zpuromgen 
 hello:
 	zpu-elf-gcc -O3 -phi "`pwd`/hello.c" -o hello.elf -Wl,--relax -Wl,--gc-sections  -g
+	zpu-elf-size hello.elf
 
 	zpu-elf-objcopy -O binary hello.elf hello.bin
 
@@ -21,6 +22,7 @@ test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
 
 test:
 	zpu-elf-gcc -O3 -phi "`pwd`/test.c" -o test.elf -Wl,--relax -Wl,--gc-sections -Wa,-adhls=test.lst -g
+	zpu-elf-size test.elf
 	zpu-elf-objcopy -O binary test.elf test.bin
 
 	cat > $(test_vhdl) dualport_ram.vhd_header
