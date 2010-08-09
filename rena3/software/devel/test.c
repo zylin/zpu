@@ -174,7 +174,7 @@ void running_light_init( void)
 //
 // generate a running light pattern
 //
-void running_light( void)
+void running_light( uint32_t simulation_active)
 {
 //  unsigned int pattern = 0x01800180;
 	unsigned int pattern = 0x01003007;
@@ -184,7 +184,8 @@ void running_light( void)
     {
     
         gpio0->ioout = pattern;
-        msleep( 125);
+        if (simulation_active) 
+            msleep( 125);
         pattern = (pattern << 1) | (pattern >> 31);
     }
 
@@ -275,37 +276,6 @@ void ether_test( void)
 
 }
 
-void ether_text_tx_packaet( void)
-{
-    uint32_t length = 20;
-    uint32_t descr  = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | length;
-    uint32_t data_buffer;
-
-    // setup the data
-    //   fill buffer (ethernet address, type field, etc.)
-
-    // setup the descriptor
-    //   set buffer address on descriptor
-    //   enable descriptor
-
-    // give descriptor to core
-    //ether0->tx_pointer = descriptor_buffer;
-
-    // set tx enable bit
-    ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
-
-    // wait for end of transmission
-    loop_until_bit_is_clear( descr, ETHER_DESCRIPTOR_ENABLE);
-
-    // check for errors in descriptor
-    //ETHER_DESCRIPTOR_UNDERRUN_ERR
-    //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
-
-    // check transmission status
-    // 3 bits (TE, TI, TA)
-}
-
-
 void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
 {
     loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
@@ -316,8 +286,86 @@ uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
 {
     loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
     ether0->mdio_control = (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_RD;
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
     return (ether0->mdio_control >> 16);
 }
+
+void ether_test_read_mdio( void)
+{
+    uint32_t mdio_phy;  // 0..31
+    uint32_t mdio_reg;  // 0..31
+    uint16_t mdio_data; // 16 bit
+
+    uart_putstr("\nmdio phy registers");
+    for (mdio_phy=31; mdio_phy<32; mdio_phy++)
+    {
+        uart_putstr("\n mdio phy: "); uart_hex( 8, mdio_phy);
+
+        for (mdio_reg=0; mdio_reg<32; (mdio_reg==6) ? mdio_reg=16 : mdio_reg++)
+        {
+            uart_putstr("\n  reg: "); uart_hex(  8, mdio_reg); 
+            uart_putstr("-> ");       uart_hex( 16, ether_mdio_read( mdio_phy, mdio_reg));
+            uart_putstr("-> ");       uart_hex( 32, ether0->mdio_control);
+        }
+    }
+    uart_putchar('\n');
+}
+
+
+void ether_test_tx_packet( void)
+{
+    // data from 0x2000000 to 0x20000FFF
+    uint32_t length = 64; // minimum size is 46 (w/o vlan tag) or 42 (with vlan tag)
+    
+    typedef struct
+    {
+        volatile uint32_t array[length];
+    } data_t;
+
+
+    greth_tx_descriptor_t *descr       = (greth_tx_descriptor_t *) 0xa0000000;
+    data_t                *data_buffer = (data_t *)                0xa0000100;
+
+    
+    uint32_t i;
+
+    gpio0->ioout = 0x01;
+    // setup the data
+    //   fill buffer (ethernet address, type field, etc.)
+    for (i=0; i<length; i++)
+        data_buffer->array[i] = 100 - i;
+
+    gpio0->ioout = 0x03;
+
+    // setup the descriptor
+    //   set buffer address on descriptor
+    descr->address = (uint32_t) data_buffer; 
+    //   enable descriptor
+    descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | length;
+
+    // give descriptor to core
+    ether0->tx_pointer = (uint32_t) descr;
+
+    // set tx enable bit
+    ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
+
+    wait( 15000); 
+    gpio0->ioout = 0x07;
+    gpio0->ioout = (descr->control >> 11);
+
+    // wait for end of transmission
+    loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
+    
+    gpio0->ioout = (descr->control >> 11);
+
+    // check for errors in descriptor
+    //ETHER_DESCRIPTOR_UNDERRUN_ERR
+    //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
+
+    // check transmission status
+    // 3 bits (TE, TI, TA)
+}
+
 
 
 int main(void)
@@ -328,6 +376,7 @@ int main(void)
 
     timer_init();
     uart_init();
+    running_light_init();
 
     uart_putstr("\n\n");
     uart_putstr("ZPU test ");
@@ -335,12 +384,13 @@ int main(void)
     uart_putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
 
-    ether_test();
+    //ether_test();
+    ether_test_tx_packet();
+    //ether_test_read_mdio();
 
-    uart_test();
+    //uart_test();
     
-    running_light_init();
-    running_light();
+    running_light( simulation_active);
     
     //gpio_test();
 

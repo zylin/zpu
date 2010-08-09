@@ -108,6 +108,10 @@ void init_timer_prescaler();
 #define ETHER_DESCRIPTOR_INT_ENABLE          (1<<13)
 #define ETHER_DESCRIPTOR_UNDERRUN_ERR        (1<<14)
 #define ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR  (1<<15)
+typedef struct {
+    volatile uint32_t control;
+    volatile uint32_t address;
+} greth_tx_descriptor_t;
 
 #define ETHER_CONTROL_TX_ENABLE              (1<< 0)
 #define ETHER_CONTROL_RX_ENABLE              (1<< 1)
@@ -134,18 +138,17 @@ void init_timer_prescaler();
 #define ETHER_MDIO_BUSY                      (1<< 3)
 #define ETHER_MDIO_NOT_VALID                 (1<< 4)
 
-#define ETHER_MDIO_
 typedef struct {
-    volatile uint32_t control;
-    volatile uint32_t status;
-    volatile uint32_t mac_msb;
-    volatile uint32_t mac_lsb;
-    volatile uint32_t mdio_control;
-    volatile uint32_t tx_pointer;
-    volatile uint32_t rx_pointer;
-    volatile uint32_t edcl_ip;
-    volatile uint32_t hash_msb;
-    volatile uint32_t hash_lsb;
+    volatile uint32_t control;          // 0x00
+    volatile uint32_t status;           // 0x04
+    volatile uint32_t mac_msb;          // 0x08
+    volatile uint32_t mac_lsb;          // 0x0C
+    volatile uint32_t mdio_control;     // 0x10
+    volatile uint32_t tx_pointer;       // 0x14
+    volatile uint32_t rx_pointer;       // 0x18
+    volatile uint32_t edcl_ip;          // 0x1C
+    volatile uint32_t hash_msb;         // 0x20
+    volatile uint32_t hash_lsb;         // 0x24
 } greth_t;
 
 ////////////////////
