@@ -261,13 +261,13 @@ begin
         );
 
     ahbo.hbusreq <= '1';
-    ahbo.hlock   <= '1';
+    ahbo.hlock   <= '0';
     ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
     ahbo.haddr   <= out_mem_addr;-- & "0000";
     ahbo.hwrite  <= out_mem_writeEnable;
     ahbo.hsize   <= HSIZE_WORD;
     ahbo.hburst  <= HBURST_SINGLE;
-    ahbo.hprot   <= (others => '0');
+    ahbo.hprot   <= "0001";
     ahbo.hwdata  <= mem_write;
     ahbo.hirq    <= (others => '0');
     ahbo.hconfig <= (others => (others => '0')); 
