@@ -204,6 +204,7 @@ begin
     tb_E_RXD      <= (others => '0');
     tb_E_RX_ER    <= '0';
     tb_E_TX_CLK   <= '0';
+    tb_E_MDIO     <= 'H';
 
     
     top_i0: top

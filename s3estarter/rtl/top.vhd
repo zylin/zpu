@@ -321,7 +321,7 @@ begin
     E_TX_EN                   <= box_io_etho.tx_en;
     E_TX_ER                   <= box_io_etho.tx_er;
     E_MDC                     <= box_io_etho.mdc;
-    E_MDIO                    <= box_io_etho.mdio_o when box_io_etho.mdio_oe = '1' else 'Z';
+    E_MDIO                    <= box_io_etho.mdio_o when box_io_etho.mdio_oe = '0' else 'Z';
 
 
     box_i0: box
