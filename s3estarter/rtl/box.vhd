@@ -56,6 +56,7 @@ use gaisler.uart.all; -- types
 use gaisler.net.all;  -- types
 use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
+use gaisler.misc.ahbram;
 use gaisler.uart.apbuart;
 use gaisler.net.greth;
 
@@ -158,6 +159,21 @@ begin
             testoen => '1'
         );
 
+    ahbram_i0 : ahbram
+        generic map (
+            hindex   => 1,
+            haddr    => 16#a00#,
+            hmask    => 16#FFF#,
+            tech     => inferred,
+            kbytes   => 4
+        )
+        port map (
+            rst    => reset_n,
+            clk    => clk,
+            ahbsi  => ahbctrl_i0_slvi,
+            ahbso  => ahbso(1)
+        );
+
     ---------------------------------------------------------------------
     --  AHB/APB bridge
     ----------------------------------------------------------------------
@@ -249,14 +265,14 @@ begin
             paddr       => 12,
             pirq        => 12,
             memtech     => inferred,
-            mdcscaler   => 50,
+            mdcscaler   => 20,
             enable_mdio => 1,
             fifosize    => 4,
             nsync       => 1
         )
         port map (
             rst         => reset_n,
-            clk         => clk
+            clk         => clk,
             ahbmi       => ahbctrl_i0_msti,
             ahbmo       => ahbmo(1),
             apbi        => apbctrl_i0_apbi,

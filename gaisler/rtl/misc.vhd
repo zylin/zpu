@@ -30,8 +30,8 @@ library grlib;
 use grlib.amba.all;
 use grlib.devices.all;
 use grlib.stdlib.all;
---library techmap;
---use techmap.gencomp.all;
+library techmap;
+use techmap.gencomp.all;
 library gaisler;
 
 package misc is
@@ -87,71 +87,71 @@ package misc is
 
 -- 32-bit ram with AHB interface
 
---component ahbram
---generic (
---  hindex  : integer := 0;
---  haddr   : integer := 0;
---  hmask   : integer := 16#fff#;
---  tech    : integer := DEFMEMTECH;
---  kbytes  : integer := 1);
---port (
---  rst    : in  std_ulogic;
---  clk    : in  std_ulogic;
---  ahbsi  : in  ahb_slv_in_type;
---  ahbso  : out ahb_slv_out_type);
---end component;
+  component ahbram
+  generic (
+    hindex  : integer := 0;
+    haddr   : integer := 0;
+    hmask   : integer := 16#fff#;
+    tech    : integer := DEFMEMTECH;
+    kbytes  : integer := 1);
+  port (
+    rst    : in  std_ulogic;
+    clk    : in  std_ulogic;
+    ahbsi  : in  ahb_slv_in_type;
+    ahbso  : out ahb_slv_out_type);
+  end component;
 
   type ahbram_out_type is record
     ce : std_ulogic;
   end record;
 
---component ftahbram is
---  generic (
---    hindex    : integer := 0;
---    haddr     : integer := 0;
---    hmask     : integer := 16#fff#;
---    tech      : integer := DEFMEMTECH;
---    kbytes    : integer := 1;
---    pindex    : integer := 0;
---    paddr     : integer := 0;
---    pmask     : integer := 16#fff#;
---    edacen    : integer := 1;
---    autoscrub : integer := 0;
---    errcnten  : integer := 0;
---    cntbits   : integer range 1 to 8 := 1;
---    ahbpipe   : integer := 0);
---  port (
---    rst     : in  std_ulogic;
---    clk     : in  std_ulogic;
---    ahbsi   : in  ahb_slv_in_type;
---    ahbso   : out ahb_slv_out_type;
---    apbi    : in  apb_slv_in_type;
---    apbo    : out apb_slv_out_type;
---    aramo   : out ahbram_out_type
---  );
---end component;
+  component ftahbram is
+    generic (
+      hindex    : integer := 0;
+      haddr     : integer := 0;
+      hmask     : integer := 16#fff#;
+      tech      : integer := DEFMEMTECH;
+      kbytes    : integer := 1;
+      pindex    : integer := 0;
+      paddr     : integer := 0;
+      pmask     : integer := 16#fff#;
+      edacen    : integer := 1;
+      autoscrub : integer := 0;
+      errcnten  : integer := 0;
+      cntbits   : integer range 1 to 8 := 1;
+      ahbpipe   : integer := 0);
+    port (
+      rst     : in  std_ulogic;
+      clk     : in  std_ulogic;
+      ahbsi   : in  ahb_slv_in_type;
+      ahbso   : out ahb_slv_out_type;
+      apbi    : in  apb_slv_in_type;
+      apbo    : out apb_slv_out_type;
+      aramo   : out ahbram_out_type
+    );
+  end component;
 
---component ftahbram2 is
---  generic (
---    hindex    : integer := 0;
---    haddr     : integer := 0;
---    hmask     : integer := 16#fff#;
---    tech      : integer := DEFMEMTECH;
---    kbytes    : integer := 1;
---    pindex    : integer := 0;
---    paddr     : integer := 0;
---    pmask     : integer := 16#fff#;
---    testen    : integer := 0);
---  port (
---    rst     : in  std_ulogic;
---    clk     : in  std_ulogic;
---    ahbsi   : in  ahb_slv_in_type;
---    ahbso   : out ahb_slv_out_type;
---    apbi    : in  apb_slv_in_type;
---    apbo    : out apb_slv_out_type;
---    aramo   : out ahbram_out_type
---  );
---end component;
+  component ftahbram2 is
+    generic (
+      hindex    : integer := 0;
+      haddr     : integer := 0;
+      hmask     : integer := 16#fff#;
+      tech      : integer := DEFMEMTECH;
+      kbytes    : integer := 1;
+      pindex    : integer := 0;
+      paddr     : integer := 0;
+      pmask     : integer := 16#fff#;
+      testen    : integer := 0);
+    port (
+      rst     : in  std_ulogic;
+      clk     : in  std_ulogic;
+      ahbsi   : in  ahb_slv_in_type;
+      ahbso   : out ahb_slv_out_type;
+      apbi    : in  apb_slv_in_type;
+      apbo    : out apb_slv_out_type;
+      aramo   : out ahbram_out_type
+    );
+  end component;
 
   component ahbdpram
   generic (

@@ -223,6 +223,16 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="techmap"/>
     </file>
+    <file xil_pn:name="../../gaisler/rtl/ahbram.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/syncram.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
   </files>
 
   <properties>
