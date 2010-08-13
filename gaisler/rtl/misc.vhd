@@ -370,7 +370,7 @@ end record;
       paddr  : integer := 0;
       pmask  : integer := 16#FFF#;
       pirq   : integer := 0;
-      nftslv : integer range 1 to NAHBSLV - 1 := 3);
+      nftslv : integer range 1 to NAHBSLV - 1 := 1);
     port(
       rst   : in std_ulogic;
       clk   : in std_ulogic;

@@ -3,6 +3,7 @@ top          =
 
 rtl_files    = ../rtl/misc.vhd \
                ../rtl/uart.vhd \
+               ../rtl/net.vhd \
                ../rtl/*.vhd
 
 rtl_tb_files = 
