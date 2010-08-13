@@ -18,6 +18,7 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 all: compile simulate
 
 compile: lib
+	make compile --directory ../../global/sim
 	make compile --directory ../../gaisler/sim
 	make compile --directory ../../grlib/sim
 	make compile --directory ../../tools/sim
