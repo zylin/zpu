@@ -233,6 +233,11 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="techmap"/>
     </file>
+    <file xil_pn:name="../../global/rtl/global_signals.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="global"/>
+    </file>
   </files>
 
   <properties>
@@ -249,7 +254,6 @@
     <property xil_pn:name="Speed Grade" xil_pn:value="-5" xil_pn:valueState="default"/>
     <property xil_pn:name="Synthesis Tool" xil_pn:value="XST (VHDL/Verilog)" xil_pn:valueState="default"/>
     <property xil_pn:name="Top-Level Source Type" xil_pn:value="HDL" xil_pn:valueState="default"/>
-    <property xil_pn:name="Use Smart Guide" xil_pn:value="true" xil_pn:valueState="non-default"/>
     <property xil_pn:name="VHDL Source Analysis Standard" xil_pn:value="VHDL-200X" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Working Directory" xil_pn:value="xst" xil_pn:valueState="non-default"/>
     <!--                                                                                  -->
@@ -267,6 +271,7 @@
 
   <libraries>
     <library xil_pn:name="gaisler"/>
+    <library xil_pn:name="global"/>
     <library xil_pn:name="grlib"/>
     <library xil_pn:name="rena3"/>
     <library xil_pn:name="s3estarter"/>

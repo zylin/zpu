@@ -11,6 +11,9 @@ use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
 use gaisler.net.all;  -- types
 
+library global;
+use global.global_signals.all;
+
 
 entity box is
     port (
@@ -26,6 +29,8 @@ entity box is
         ethi            : in    eth_in_type;
         etho            : out   eth_out_type;
                                          
+        debug_trace     : out   debug_signals_t;
+        debug_trace_box : out   debug_signals_t;
         -- to stop simulation
         break           : out   std_ulogic
 
@@ -133,11 +138,13 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
-    --ahbmo(15 downto 1) <= (others => ahbm_none); -- slow down syntesis
-    --ahbso(15 downto 1) <= (others => ahbs_none); -- slow down syntesis
+    --ahbmo(15 downto 2) <= (others => ahbm_none); -- slow down syntesis
+    --ahbso(15 downto 2) <= (others => ahbs_none); -- slow down syntesis
 
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
+            defmast    => 0,    -- default master
+            rrobin     => 0,    -- round robin arbitration
             timeout    => 11,
             nahbm      => 2, 
             nahbs      => 2,
@@ -159,6 +166,11 @@ begin
             testoen => '1'
         );
 
+    debug_trace_box.hgrant_0 <= ahbctrl_i0_msti.hgrant(0);
+    debug_trace_box.hgrant_1 <= ahbctrl_i0_msti.hgrant(1); 
+    debug_trace_box.ahbmo0_bureq <= ahbmo(0).hbusreq;
+    debug_trace_box.ahbmo1_bureq <= ahbmo(1).hbusreq;
+
     ahbram_i0 : ahbram
         generic map (
             hindex   => 1,
@@ -178,7 +190,17 @@ begin
     --  AHB/APB bridge
     ----------------------------------------------------------------------
 
-    --apbo(5 to 15) <= (others => apb_none); -- slow down syntesis
+    apbo(0)  <= apb_none; -- slow down syntesis
+    apbo(3)  <= apb_none; -- slow down syntesis
+    apbo(4)  <= apb_none; -- slow down syntesis
+    apbo(5)  <= apb_none; -- slow down syntesis
+    apbo(6)  <= apb_none; -- slow down syntesis
+    apbo(7)  <= apb_none; -- slow down syntesis
+    apbo(9)  <= apb_none; -- slow down syntesis
+    apbo(10) <= apb_none; -- slow down syntesis
+    apbo(11) <= apb_none; -- slow down syntesis
+    apbo(13) <= apb_none; -- slow down syntesis
+    apbo(14) <= apb_none; -- slow down syntesis
 
     apbctrl_i0: apbctrl
         generic map (
@@ -267,7 +289,7 @@ begin
             memtech     => inferred,
             mdcscaler   => 20,
             enable_mdio => 1,
-            fifosize    => 4,
+            fifosize    => 32,
             nsync       => 1
         )
         port map (
@@ -278,7 +300,8 @@ begin
             apbi        => apbctrl_i0_apbi,
             apbo        => apbo(12),
             ethi        => ethi,
-            etho        => etho
+            etho        => etho,
+            debug_trace => debug_trace
         );
 
     stati.cerror <= (others => '0');

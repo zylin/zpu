@@ -5,6 +5,9 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.types.all;
 
+library global;
+use global.global_signals.all;
+
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
@@ -27,6 +30,8 @@ package fpga_components is
             ethi            : in    eth_in_type;
             etho            : out   eth_out_type;
 
+            debug_trace     : out   debug_signals_t;
+            debug_trace_box : out   debug_signals_t;
             -- to stop simulation
             break           : out   std_ulogic
         );
@@ -91,6 +96,7 @@ package fpga_components is
             FX2_CLKIN       : inout std_logic;
             FX2_CLKIO       : inout std_logic;
             FX2_CLKOUT      : inout std_logic;
+            FX2_IO          : inout std_ulogic_vector(40 downto 1);
 
             -- These four connections are shared with the J1 6-pin accessory header
             --FX2_IO          : inout std_ulogic_vector(4 downto 1);
@@ -111,15 +117,15 @@ package fpga_components is
 
             -- ==== 6-pin header J1 ====
             -- These are shared connections with the FX2 connector
-            J1              : inout std_logic_vector(3 downto 0);
+            --J1              : inout std_logic_vector(3 downto 0);
 
             -- ==== 6-pin header J2 ====
             -- These are shared connections with the FX2 connector
-            J2              : inout std_logic_vector(3 downto 0);
+            --J2              : inout std_logic_vector(3 downto 0);
 
             -- ==== 6-pin header J4 ====
             -- These are shared connections with the FX2 connector
-            J4              : inout std_logic_vector(3 downto 0);
+            --J4              : inout std_logic_vector(3 downto 0);
 
             -- ==== Character LCD (LCD) ====
             LCD_E           : out   std_logic;
@@ -131,7 +137,7 @@ package fpga_components is
 
             -- ==== Discrete LEDs (LED) ====
             -- These are shared connections with the FX2 connector
-            LED             : out   std_logic_vector(7 downto 0);
+            --LED             : out   std_logic_vector(7 downto 0);
 
             -- ==== PS/2 Mouse/Keyboard Port (PS2) ====
             PS2_CLK         : inout std_logic;
@@ -168,7 +174,7 @@ package fpga_components is
             SD_CK_FB        : in    std_logic;
 
             -- ==== Intel StrataFlash Parallel NOR Flash (SF) ====
-            SF_A            : out   std_logic_vector(24 downto 0);
+            SF_A            : out   std_logic_vector(23 downto 0);
             SF_BYTE         : out   std_logic;
             SF_CE0          : out   std_logic;
             SF_D            : inout std_logic_vector(15 downto 1);

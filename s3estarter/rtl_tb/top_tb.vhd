@@ -9,6 +9,9 @@ use ieee.numeric_std.all;
 library s3estarter;
 use s3estarter.fpga_components.top;
 
+library global;
+use global.global_signals.all;
+
 
 architecture testbench of top_tb is
     
@@ -19,6 +22,8 @@ architecture testbench of top_tb is
 
     signal   simulation_run    : boolean := true;
 
+    signal  tb_RESET           : std_ulogic;
+    signal  tb_RESET_n         : std_ulogic;
 
             -- ==== Analog-to-Digital Converter (ADC) ====
             -- some connections shared with SPI Flash, DAC, ADC, and AMP
@@ -57,11 +62,11 @@ architecture testbench of top_tb is
     signal  tb_E_MDIO          : std_logic;
     signal  tb_E_RX_CLK        : std_logic;
     signal  tb_E_RX_DV         : std_logic;
-    signal  tb_E_RXD           : std_logic_vector(3 downto 0);
+    signal  tb_E_RXD           : std_logic_vector(7 downto 0);
     signal  tb_E_RX_ER         : std_logic;
     signal  tb_E_TX_CLK        : std_logic;
     signal  tb_E_TX_EN         : std_logic;
-    signal  tb_E_TXD           : std_logic_vector(3 downto 0);
+    signal  tb_E_TXD           : std_logic_vector(7 downto 0) := (others => '0');
     signal  tb_E_TX_ER         : std_logic;
 
             -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
@@ -89,7 +94,7 @@ architecture testbench of top_tb is
             -- The discrete LEDs are shared with the following 8 FX2 connections
             --FX2_IO        : inout std_logic_vector(20 downto 13);
             --FX2_IO          : inout std_logic_vector(40 downto 21);
-    signal  tb_FX2_IO          : std_logic_vector(40 downto 0);
+    signal  tb_FX2_IO          : std_logic_vector(40 downto 1);
 
             -- ==== 6-pin header J1 ====
             -- These are shared connections with the FX2 connector
@@ -185,26 +190,21 @@ architecture testbench of top_tb is
     signal  tb_GCLK10          : std_logic;
 
 
+    -- extra phy signal
+    signal  tb_GTX_CLK         : std_ulogic;
 
 
 begin
 
     tb_CLK_50MHZ  <= not tb_CLK_50MHZ after tb_clk_period/2 when simulation_run;
-    tb_ROT_CENTER <= '1', '0' after 10 * tb_clk_period;
+    tb_RESET      <= '1', '0' after 10 * tb_clk_period;
+    tb_RESET_n    <= not tb_RESET;
+    tb_ROT_CENTER <= tb_RESET;
     
     tb_BTN_EAST   <= '0';
     tb_BTN_NORTH  <= '0';
     tb_BTN_SOUTH  <= '0';
     tb_BTN_WEST   <= '0';
-
-    tb_E_COL      <= '0';
-    tb_E_CRS      <= '0';
-    tb_E_RX_CLK   <= '0';
-    tb_E_RX_DV    <= '0';
-    tb_E_RXD      <= (others => '0');
-    tb_E_RX_ER    <= '0';
-    tb_E_TX_CLK   <= '0';
-    tb_E_MDIO     <= 'H';
 
     
     top_i0: top
@@ -236,11 +236,11 @@ begin
             E_MDIO          => tb_E_MDIO          , -- : inout std_ulogic;
             E_RX_CLK        => tb_E_RX_CLK        , -- : in    std_ulogic;
             E_RX_DV         => tb_E_RX_DV         , -- : in    std_ulogic;
-            E_RXD           => tb_E_RXD           ,
+            E_RXD           => tb_E_RXD(3 downto 0),
             E_RX_ER         => tb_E_RX_ER         , -- : in    std_ulogic_vector(3 downto 0);
             E_TX_CLK        => tb_E_TX_CLK        , -- : in    std_ulogic;
             E_TX_EN         => tb_E_TX_EN         , -- : out   std_ulogic;
-            E_TXD           => tb_E_TXD           , -- : out   std_ulogic_vector(3 downto 0);
+            E_TXD           => tb_E_TXD(3 downto 0),-- : out   std_ulogic_vector(3 downto 0);
             E_TX_ER         => tb_E_TX_ER         ,
 
             FPGA_M0         => tb_FPGA_M0         , -- : inout std_ulogic;
@@ -260,7 +260,7 @@ begin
             LCD_RS          => tb_LCD_RS          , -- : inout std_ulogic;
             LCD_RW          => tb_LCD_RW          , -- : inout std_ulogic;
 
-            LED             => tb_LED             , -- : inout std_ulogic_vector(7 downto 0);
+--          LED             => tb_LED             , -- : inout std_ulogic_vector(7 downto 0);
 
             PS2_CLK         => tb_PS2_CLK         , -- : inout std_ulogic;
             PS2_DATA        => tb_PS2_DATA        , -- : inout std_ulogic;
@@ -291,7 +291,7 @@ begin
 
             SD_CK_FB        => tb_SD_CK_FB        , -- : inout std_ulogic;
 
-            SF_A            => tb_SF_A            , -- : inout std_ulogic_vector(24 downto 0);
+            SF_A            => tb_SF_A(23 downto 0), -- : inout std_ulogic_vector(24 downto 0);
             SF_BYTE         => tb_SF_BYTE         , -- : inout std_ulogic;
             SF_CE0          => tb_SF_CE0          , -- : inout std_ulogic;
             SF_D            => tb_SF_D            , -- : inout std_ulogic_vector(15 downto 1);
@@ -321,12 +321,50 @@ begin
             GCLK10          => tb_GCLK10            -- : inout std_ulogic
         );
 
+    -- phy emulator
+    tb_E_MDIO     <= 'H'; -- pullup
+--  tb_E_RXD      <= (others => '0');
+--  
+--  tb_E_COL      <= '0';
+--  tb_E_CRS      <= '0';
+--  tb_E_RX_CLK   <= '0';
+--  tb_E_RX_DV    <= '0';
+--  tb_E_RX_ER    <= '0';
+--  tb_E_TX_CLK   <= '0';
 
+    phy_i0: entity work.phy
+        generic map (
+            address        => 31, -- : integer range 0 to 31 := 0;
+            base1000_t_fd  => 0,  -- : integer range 0 to 1  := 1;
+            base1000_t_hd  => 0   -- : integer range 0 to 1  := 1;
+        ) 
+        port map (
+            simulation_run => simulation_run,
+            rstn           => tb_RESET_n,        -- : in std_logic;
+            mdio           => tb_E_MDIO,         -- : inout std_logic;
+            tx_clk         => tb_E_TX_CLK,       -- : out std_logic;
+            rx_clk         => tb_E_RX_CLK,       -- : out std_logic; 
+            rxd            => tb_E_RXD,          -- : out std_logic_vector(7 downto 0);   
+            rx_dv          => tb_E_RX_DV,        -- : out std_logic; 
+            rx_er          => tb_E_RX_ER,        -- : out std_logic; 
+            rx_col         => tb_E_COL,          -- : out std_logic;
+            rx_crs         => tb_E_CRS,          -- : out std_logic;
+            txd            => tb_E_TXD,          -- : in std_logic_vector(7 downto 0);   
+            tx_en          => tb_E_TX_EN,        -- : in std_logic; 
+            tx_er          => tb_E_TX_ER,        -- : in std_logic; 
+            mdc            => tb_E_MDC,          -- : in std_logic;
+            gtx_clk        => tb_GTX_CLK         -- : in std_logic  
+        );
+
+
+    -------------------- 
     main: process
     begin
         -- report "bitwidth for counter to 15 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 15 +1)))));
         -- report "bitwidth for counter to 16 : " & integer'image( integer( ieee.math_real.ceil( ieee.math_real.log2( real( 16 +1)))));
-        wait for 50 ms;
+
+        -- wait for 50 ms;
+        wait until rising_edge( global_break);
         simulation_run <= false;
         wait;
     end process;

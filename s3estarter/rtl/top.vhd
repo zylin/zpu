@@ -67,14 +67,11 @@ entity top is
         FX2_CLKIO       : inout std_logic;
         FX2_CLKOUT      : inout std_logic;
 
-        -- These four connections are shared with the J1 6-pin accessory header
-        --FX2_IO          : inout std_ulogic_vector(4 downto 1);
+        FX2_IO          : inout std_logic_vector(40 downto 1);
 
-        -- These four connections are shared with the J2 6-pin accessory header
-        --FX2_IO          : inout std_ulogic_vector(8 downto 5);
-
-        -- These four connections are shared with the J4 6-pin accessory header
-        --FX2_IO          : inout std_ulogic_vector(12 downto 9);
+        --FX2_IO          : inout std_ulogic_vector(4 downto 1); -- shred with J1
+        --FX2_IO          : inout std_ulogic_vector(8 downto 5); -- shred with J2
+        --FX2_IO          : inout std_ulogic_vector(12 downto 9); -- shred with J4
 
         -- The discrete LEDs are shared with the following 8 FX2 connections
         --FX2_IO          : inout std_ulogic_vector(20 downto 13);
@@ -86,15 +83,15 @@ entity top is
 
         -- ==== 6-pin header J1 ====
         -- These are shared connections with the FX2 connector
-        J1              : inout std_logic_vector(3 downto 0);
+        --J1              : inout std_logic_vector(3 downto 0);
 
         -- ==== 6-pin header J2 ====
         -- These are shared connections with the FX2 connector
-        J2              : inout std_logic_vector(3 downto 0);
+        --J2              : inout std_logic_vector(3 downto 0);
 
         -- ==== 6-pin header J4 ====
         -- These are shared connections with the FX2 connector
-        J4              : inout std_logic_vector(3 downto 0);
+        --J4              : inout std_logic_vector(3 downto 0);
 
         -- ==== Character LCD (LCD) ====
         LCD_E           : out   std_logic;
@@ -106,7 +103,7 @@ entity top is
 
         -- ==== Discrete LEDs (LED) ====
         -- These are shared connections with the FX2 connector
-        LED             : out   std_logic_vector(7 downto 0);
+        --LED             : out   std_logic_vector(7 downto 0);
 
         -- ==== PS/2 Mouse/Keyboard Port (PS2) ====
         PS2_CLK         : inout std_logic;
@@ -143,7 +140,7 @@ entity top is
         SD_CK_FB        : in    std_logic;
 
         -- ==== Intel StrataFlash Parallel NOR Flash (SF) ====
-        SF_A            : out   std_logic_vector(24 downto 0);
+        SF_A            : out   std_logic_vector(23 downto 0); -- sf_a<24> = fx_io32 :-(
         SF_BYTE         : out   std_logic;
         SF_CE0          : out   std_logic;
         SF_D            : inout std_logic_vector(15 downto 1);
@@ -185,6 +182,9 @@ library s3estarter;
 use s3estarter.types.all;
 use s3estarter.fpga_components.box;
 
+library global;
+use global.global_signals.all;
+
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
@@ -219,7 +219,11 @@ architecture rtl of top is
     signal top_fpga_ethi       : eth_in_type;
     signal box_io_etho         : eth_out_type;
 
-    signal break               : std_ulogic;
+    signal debug_trace         : debug_signals_t;
+    signal debug_trace_box     : debug_signals_t;
+    signal la_pod_a2           : std_ulogic_vector(7 downto 0);
+    signal la_pod_a3           : std_ulogic_vector(7 downto 0);
+    signal la_pod_c2           : std_ulogic_vector(7 downto 0);
 
     function simulation_active return std_ulogic is
         variable result : std_ulogic;
@@ -315,6 +319,7 @@ begin
     top_fpga_ethi.rx_col      <= E_COL;
     top_fpga_ethi.rx_crs      <= E_CRS;
     top_fpga_ethi.mdio_i      <= E_MDIO;
+    top_fpga_ethi.mdint       <= '0';
     top_fpga_ethi.phyrstaddr  <= (others => '0');
     top_fpga_ethi.edcladdr    <= (others => '0');
     E_TXD(3 downto 0)         <= box_io_etho.txd(3 downto 0);
@@ -338,22 +343,41 @@ begin
             ethi            => top_fpga_ethi,       -- : in    eth_in_type;
             etho            => box_io_etho,         -- : out   eth_out_type;
 
-            break           => break                -- : out   cpu break command
+            debug_trace     => debug_trace,
+            debug_trace_box => debug_trace_box,
+            break           => global_break         -- : out   cpu break command
         );
 
     -- pads for gpio (led out)
-    LED                   <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );
+    FX2_IO(20 downto 13)  <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );
 
     -- connections to logic analyzer pods
-    J4                    <= std_logic_vector( box_i0_gpioo.dout( 3 downto 0) );
-    J1                    <= std_logic_vector( box_i0_gpioo.dout( 7 downto 4) );
-    J2                    <= top_fpga_clk.clk50 & (break) & "00";
 
+    la_pod_a2(3 downto 0) <= std_ulogic_vector( box_io_etho.txd(3 downto 0));
+    la_pod_a2(4)          <= box_io_etho.tx_en;
+    la_pod_a2(5)          <= box_io_etho.tx_er;
+    la_pod_a2(6)          <= top_fpga_ethi.tx_clk;
+    la_pod_a2(7)          <= top_fpga_ethi.rx_col;
+--                        <= top_fpga_ethi.rx_crs;
+
+    la_pod_a3(0)          <= debug_trace_box.hgrant_0;
+    la_pod_a3(1)          <= debug_trace_box.hgrant_1;
+    la_pod_a3(2)          <= debug_trace.r_ctrl_txen;
+    la_pod_a3(3)          <= debug_trace.tmsti_ready;
+    la_pod_a3(4)          <= debug_trace.tmsti_grant;
+    la_pod_a3(5)          <= debug_trace.r_txcnt(0); 
+    la_pod_a3(6)          <= debug_trace.r_txcnt(1);
+    la_pod_a3(7)          <= top_fpga_clk.clk50;
+    
+    la_pod_c2(3 downto 0) <= debug_trace.txdstate;
+    la_pod_c2(4)          <= debug_trace_box.ahbmo0_bureq;
+    la_pod_c2(5)          <= debug_trace_box.ahbmo1_bureq;
+
+
+    FX2_IO( 8 downto  1) <= std_logic_vector( la_pod_a2);
+    FX2_IO(12 downto  9) <= std_logic_vector( la_pod_a3(3 downto 0));
+    FX2_IO(24 downto 21) <= std_logic_vector( la_pod_a3(7 downto 4));
+    FX2_IO(32 downto 25) <= std_logic_vector( la_pod_c2);
       
-    -- port map (gpio(i), gpioo.dout(i), gpioo.oen(i), gpioi.din(i))
-    -- port (pad : inout std_ulogic; i, en : in std_ulogic; o : out std_ulogic)
-
-    -- pad <= i when en = '0' else 'Z' after 2 ns;
-    -- o   <= to_X01(pad) after 1 ns;
 
 end architecture rtl;
