@@ -23,10 +23,10 @@ simulate:
 
 
 clean:
+	rm -rf $(library) 
 	rm -f transcript
 	rm -f *.wlf
 	rm -f wlf*
-	rm -rf $(library) 
 
 
 # default patterns
