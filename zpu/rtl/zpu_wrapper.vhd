@@ -214,8 +214,6 @@ architecture rtl of zpu_ahb is
 begin
 
     -- TODO ahbi.hgrant
-    -- TODO ahbi.hready
-    -- TODO ahbi.hresp
     -- TODO ahbi.cache
     -- TODO ahbi.hirq
     -- TODO ahbi.testen
@@ -260,7 +258,7 @@ begin
             break               => break
         );
 
-    ahbo.hbusreq <= '1';
+    ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable;
     ahbo.hlock   <= '0';
     ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
     ahbo.haddr   <= out_mem_addr;-- & "0000";
