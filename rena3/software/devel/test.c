@@ -1,5 +1,4 @@
 //#include <stdio.h>
-//#include <stdlib.h> // itoa
 
 #include "peripherie.h"
 
@@ -177,16 +176,26 @@ void running_light_init( void)
 void running_light( uint32_t simulation_active)
 {
 //  unsigned int pattern = 0x01800180;
-	unsigned int pattern = 0x01003007;
+	unsigned int pattern = 0x80300700;
+    uint32_t count = 32;
 
             
     while (1)
     {
     
         gpio0->ioout = pattern;
-        if (simulation_active) 
-            msleep( 125);
         pattern = (pattern << 1) | (pattern >> 31);
+
+        if (simulation_active)
+        {
+            // do only limited runs
+            if (count == 0) break;
+            count--;
+        } 
+        else
+        {
+            msleep( 125);
+        }
     }
 
 }
@@ -247,6 +256,32 @@ void gpio_test( void)
 //
 // puts ethernet registers
 //
+
+void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
+{
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
+    ether0->mdio_control = (data << 16) | (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_WR;
+}
+
+uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
+{
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
+    ether0->mdio_control = (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_RD;
+    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
+    return (ether0->mdio_control >> 16);
+}
+void ether_init( void)
+{
+    
+    ether0->status  = 0xffffffff; // init for simulation
+    ether0->mac_msb = 0xffff0a00;
+    ether0->mac_lsb = 0x2a0bfefb;
+    ether0->control = ETHER_CONTROL_RESET;
+    loop_until_bit_is_clear( ether0->control, ETHER_CONTROL_RESET);
+    ether_mdio_write( 0x1f, 0x00, 0x8000); // software reset
+    ether_mdio_write( 0x1f, 0x00, 0x2180); // autoneg off, speed 100, full duplex, col test
+}
+
 void ether_test( void)
 {
     char str[20];
@@ -255,8 +290,8 @@ void ether_test( void)
 
     // reset status (for simulation)
     ether0->status     = 0xffffffff;
-    ether0->mac_msb    = 0xffff5555;
-    ether0->mac_lsb    = 0x55aaaaaa;
+    ether0->mac_msb    = 0xffff001b;
+    ether0->mac_lsb    = 0x21684b0a;
     ether0->tx_pointer = 0x00001234;
     ether0->rx_pointer = 0x00004321;
 
@@ -276,22 +311,9 @@ void ether_test( void)
 
 }
 
-void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
-{
-    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
-    ether0->mdio_control = (data << 16) | (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_WR;
-}
-
-uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
-{
-    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
-    ether0->mdio_control = (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_RD;
-    loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
-    return (ether0->mdio_control >> 16);
-}
-
 void ether_test_read_mdio( void)
 {
+    char str[20];
     uint32_t mdio_phy;  // 0..31
     uint32_t mdio_reg;  // 0..31
     uint16_t mdio_data; // 16 bit
@@ -301,11 +323,14 @@ void ether_test_read_mdio( void)
     {
         uart_putstr("\n mdio phy: "); uart_hex( 8, mdio_phy);
 
-        for (mdio_reg=0; mdio_reg<32; (mdio_reg==6) ? mdio_reg=16 : mdio_reg++)
+        for (mdio_reg=0; mdio_reg<32; mdio_reg++)
         {
-            uart_putstr("\n  reg: "); uart_hex(  8, mdio_reg); 
+            if (mdio_reg==7)  mdio_reg=16;
+            if (mdio_reg==19) mdio_reg=20;
+            if (mdio_reg==24) mdio_reg=27;
+            uart_putstr("\n  reg: "); itoa( mdio_reg, str); uart_putstr( str);
             uart_putstr("-> ");       uart_hex( 16, ether_mdio_read( mdio_phy, mdio_reg));
-            uart_putstr("-> ");       uart_hex( 32, ether0->mdio_control);
+//          uart_putstr("-> ");       uart_hex( 32, ether0->mdio_control);
         }
     }
     uart_putchar('\n');
@@ -349,15 +374,18 @@ void ether_test_tx_packet( void)
     // set tx enable bit
     ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
 
-    wait( 15000); 
-    gpio0->ioout = 0x07;
-    gpio0->ioout = (descr->control >> 11);
+    //gpio0->ioout = 0x07;
+    //gpio0->ioout = (descr->control >> 11);
 
     // wait for end of transmission
-    loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
+    //loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
     
-    gpio0->ioout = (descr->control >> 11);
+    wait( 15000); 
+    uart_putstr("\ngreth->control :"); uart_hex( 32, ether0->control);
+    uart_putstr("\ngreth->status  :"); uart_hex( 32, ether0->status);
+    uart_putstr("\ndescr->control :"); uart_hex( 32, descr->control);
 
+    ether_test_read_mdio();
     // check for errors in descriptor
     //ETHER_DESCRIPTOR_UNDERRUN_ERR
     //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
@@ -377,9 +405,10 @@ int main(void)
     timer_init();
     uart_init();
     running_light_init();
+    ether_init();
 
     uart_putstr("\n\n");
-    uart_putstr("ZPU test ");
+    uart_putstr("test.c ");
     (simulation_active) ? uart_putstr("(on simulator)\n") : uart_putstr("(on hardware)\n");
     uart_putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
