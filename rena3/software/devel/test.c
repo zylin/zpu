@@ -19,6 +19,10 @@ void msleep(uint32_t msec)
 {
     uint32_t tcr;
 
+    // 1 msec    = 6250
+    // 167 msec  = 2**20 (20 bit counter) 391 slices
+    // 2684 msec = 2**24 (24 bit counter) 450 slices
+    //           = 2**32 (32 bit counter) 572 slices
     timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000)*msec;
     timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
 
@@ -32,6 +36,7 @@ void nsleep(uint32_t nsec)
 {
     uint32_t tcr;
 
+    // 1 nsec = 6
     timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000000)*nsec;
     timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
 
@@ -339,34 +344,55 @@ void ether_test_read_mdio( void)
 
 void ether_test_tx_packet( void)
 {
-    // data from 0x2000000 to 0x20000FFF
-    uint32_t length = 64; // minimum size is 46 (w/o vlan tag) or 42 (with vlan tag)
-    
-    typedef struct
-    {
-        volatile uint32_t array[length];
-    } data_t;
+    // data memory segment from 0xa000000 to 0xa0000FFF
 
-
-    greth_tx_descriptor_t *descr       = (greth_tx_descriptor_t *) 0xa0000000;
-    data_t                *data_buffer = (data_t *)                0xa0000100;
-
+    greth_tx_descriptor_t *descr        = (greth_tx_descriptor_t *) (0xa0000000);
+    mac_header_t          *mac_header   = (mac_header_t *)          (0xa0000100);
     
     uint32_t i;
 
-    gpio0->ioout = 0x01;
     // setup the data
     //   fill buffer (ethernet address, type field, etc.)
-    for (i=0; i<length; i++)
-        data_buffer->array[i] = 100 - i;
+    for (i=0; i<data_length; i++)
+        mac_header->ip_header.udp_header.data[i] = data_length - i;
 
-    gpio0->ioout = 0x03;
+    // setup ethernet packet
+    mac_header->dest_mac[0]            = 0x00; // ipconfig -all
+    mac_header->dest_mac[1]            = 0x1b;
+    mac_header->dest_mac[2]            = 0x21;
+    mac_header->dest_mac[3]            = 0x68;
+    mac_header->dest_mac[4]            = 0x4b;
+    mac_header->dest_mac[5]            = 0x0a;
+    mac_header->source_mac[0]          = 0xde;
+    mac_header->source_mac[1]          = 0xad;
+    mac_header->source_mac[2]          = 0xbe;
+    mac_header->source_mac[3]          = 0xef;
+    mac_header->source_mac[4]          = 0x00;
+    mac_header->source_mac[5]          = 0x20;
+    mac_header->ethertype              = ETHERTYPE_IPv4;//data_length;
 
+    mac_header->ip_header.version         = (4<<4) | 5 ; //version + (5*32 bit length)
+    mac_header->ip_header.tos             = 0;
+    mac_header->ip_header.length          = data_length + 29;
+    mac_header->ip_header.identification  = 0;
+    mac_header->ip_header.fragment_offset = FLAG_DF | 0;
+    mac_header->ip_header.ttl             = 255;
+    mac_header->ip_header.protocol_id     = PROTOCOL_UDP;
+    mac_header->ip_header.checksum        = 0x678d;
+    mac_header->ip_header.source_ip       = (10<<24)+(0<<16)+(0<<8)+(2<<0);
+    mac_header->ip_header.dest_ip         = (10<<24)+(0<<16)+(0<<8)+(1<<0);
+
+    mac_header->ip_header.udp_header.source_port = 5050;
+    mac_header->ip_header.udp_header.dest_port   = 5050;
+    mac_header->ip_header.udp_header.length      = data_length + 8;
+    mac_header->ip_header.udp_header.checksum    = 0x9fe3;
+    
+    
     // setup the descriptor
     //   set buffer address on descriptor
-    descr->address = (uint32_t) data_buffer; 
+    descr->address = (uint32_t) mac_header; 
     //   enable descriptor
-    descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | length;
+    descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | data_length + 42;
 
     // give descriptor to core
     ether0->tx_pointer = (uint32_t) descr;
@@ -374,18 +400,14 @@ void ether_test_tx_packet( void)
     // set tx enable bit
     ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
 
-    //gpio0->ioout = 0x07;
-    //gpio0->ioout = (descr->control >> 11);
-
     // wait for end of transmission
-    //loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
+    loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
     
-    wait( 15000); 
     uart_putstr("\ngreth->control :"); uart_hex( 32, ether0->control);
     uart_putstr("\ngreth->status  :"); uart_hex( 32, ether0->status);
     uart_putstr("\ndescr->control :"); uart_hex( 32, descr->control);
 
-    ether_test_read_mdio();
+    // ether_test_read_mdio();
     // check for errors in descriptor
     //ETHER_DESCRIPTOR_UNDERRUN_ERR
     //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR

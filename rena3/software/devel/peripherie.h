@@ -151,6 +151,49 @@ typedef struct {
     volatile uint32_t hash_lsb;         // 0x24
 } greth_t;
 
+
+struct udp_header_st {
+    uint16_t source_port;
+    uint16_t dest_port;
+    uint16_t length;
+    uint16_t checksum;
+    uint8_t  data[1500];//[data_length];
+} __attribute((packed));
+
+typedef struct udp_header_st udp_header_t;
+
+
+uint32_t data_length       = 64; // minimum size is 46 (w/o vlan tag) or 42 (with vlan tag)
+
+#define PROTOCOL_UDP   (17)
+#define FLAG_DF        (1<<14)
+#define FLAG_MF        (1<<15)
+struct ip_header_st {
+    uint8_t      version; // +ihl (ip header length)
+    uint8_t      tos;
+    uint16_t     length;
+    uint16_t     identification;
+    uint16_t     fragment_offset; // +flags
+    uint8_t      ttl;
+    uint8_t      protocol_id; // udp = 17, tcp = 6
+    uint16_t     checksum;
+    uint32_t     source_ip;
+    uint32_t     dest_ip;
+    udp_header_t udp_header;
+} __attribute((packed));
+
+typedef struct ip_header_st ip_header_t;
+
+#define ETHERTYPE_IPv4  (0x0800)
+#define ETHERTYPE_ARP   (0x0806)
+struct mac_header_st {
+    uint8_t     dest_mac[6];
+    uint8_t     source_mac[6];
+    uint16_t    ethertype; // length or eg. 0x800 IPv4, 0x0806 ARP, 0x8892 Profinet, 0x88a4 etherCat
+    ip_header_t ip_header;
+} __attribute((packed));
+typedef struct mac_header_st mac_header_t;
+
 ////////////////////
 // hardware units
 
@@ -164,7 +207,7 @@ typedef struct {
 #define UART_BAUD_RATE  (115200)
 //#define UART_BAUD_RATE  (9600)
 #define UART_SCALER     (F_CPU/(8*UART_BAUD_RATE))
-#define UART_FIFOSIZE   (32)
+#define UART_FIFOSIZE   (1)
 
 apbuart_t *uart0  = (apbuart_t *) 0x80000100;
 gptimer_t *timer0 = (gptimer_t *) 0x80000200;
