@@ -2,6 +2,48 @@
 ### SPARTAN-3E STARTER KIT BOARD CONSTRAINTS FILE
 #####################################################
 
+
+
+###
+### timing constraints
+###
+
+# Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
+TIMESPEC "TS_CLK_50NHZ" = PERIOD "CLK_50MHZ" 20.0 ns HIGH 40% ;
+
+# ethernet clock
+TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 40% ;
+NET "E_RX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
+NET "E_TX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
+
+
+###
+### placement constraints
+###
+# memory 8x4 bit = 32 bit width
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram3" AREA_GROUP = "ZPU_MEM3" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram4" AREA_GROUP = "ZPU_MEM4" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram5" AREA_GROUP = "ZPU_MEM5" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram6" AREA_GROUP = "ZPU_MEM6" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
+INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
+AREA_GROUP "ZPU_MEM1" RANGE = "RAMB16_X0Y1:RAMB16_X0Y1" ;
+AREA_GROUP "ZPU_MEM2" RANGE = "RAMB16_X0Y2:RAMB16_X0Y2" ;
+AREA_GROUP "ZPU_MEM3" RANGE = "RAMB16_X0Y3:RAMB16_X0Y3" ;
+AREA_GROUP "ZPU_MEM4" RANGE = "RAMB16_X0Y4:RAMB16_X0Y4" ;
+AREA_GROUP "ZPU_MEM5" RANGE = "RAMB16_X0Y5:RAMB16_X0Y5" ;
+AREA_GROUP "ZPU_MEM6" RANGE = "RAMB16_X0Y6:RAMB16_X0Y6" ;
+AREA_GROUP "ZPU_MEM7" RANGE = "RAMB16_X0Y7:RAMB16_X0Y7" ;
+AREA_GROUP "ZPU_MEM8" RANGE = "RAMB16_X0Y8:RAMB16_X0Y8" ;
+
+
+
+###
+### Pin locations
+###
+
 # ==== Analog-to-Digital Converter (ADC) ====
 # some connections shared with SPI Flash, DAC, ADC, and AMP
 NET "AD_CONV" LOC = "P11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
@@ -19,10 +61,7 @@ NET "BTN_SOUTH" LOC = "K17" | IOSTANDARD = LVTTL | PULLDOWN ;
 NET "BTN_WEST" LOC = "D18" | IOSTANDARD = LVTTL | PULLDOWN ;
 
 # ==== Clock inputs (CLK) ====
-NET "CLK_50MHZ" LOC = "C9" | IOSTANDARD = LVCMOS33 ;
-
-# Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
-NET "CLK_50MHZ" PERIOD = 20.0ns HIGH 40%;
+NET "CLK_50MHZ" LOC = "C9" | IOSTANDARD = LVCMOS33 | TNM_NET = "CLK_50MHZ";
 NET "CLK_AUX" LOC = "B8" | IOSTANDARD = LVCMOS33 ;
 NET "CLK_SMA" LOC = "A10" | IOSTANDARD = LVCMOS33 ;
 
@@ -39,8 +78,7 @@ NET "E_COL"    LOC = "U6"  | IOSTANDARD = LVCMOS33 ;
 NET "E_CRS"    LOC = "U13" | IOSTANDARD = LVCMOS33 ;
 NET "E_MDC"    LOC = "P9"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
 NET "E_MDIO"   LOC = "U5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_RX_CLK" LOC = "V3"  | IOSTANDARD = LVCMOS33;
-NET "E_RX_CLK" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "E_RX_CLK" LOC = "V3"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
 
 NET "E_RX_DV"  LOC = "V2"  | IOSTANDARD = LVCMOS33 ;
 NET "E_RXD<0>" LOC = "V8"  | IOSTANDARD = LVCMOS33 ;
@@ -48,8 +86,7 @@ NET "E_RXD<1>" LOC = "T11" | IOSTANDARD = LVCMOS33 ;
 NET "E_RXD<2>" LOC = "U11" | IOSTANDARD = LVCMOS33 ;
 NET "E_RXD<3>" LOC = "V14" | IOSTANDARD = LVCMOS33 ;
 NET "E_RX_ER"  LOC = "U14" | IOSTANDARD = LVCMOS33 ;
-NET "E_TX_CLK" LOC = "T7"  | IOSTANDARD = LVCMOS33 ;
-NET "E_TX_CLK" CLOCK_DEDICATED_ROUTE = FALSE;
+NET "E_TX_CLK" LOC = "T7"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
 NET "E_TX_EN"  LOC = "P15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
 NET "E_TXD<0>" LOC = "R11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
 NET "E_TXD<1>" LOC = "T15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
