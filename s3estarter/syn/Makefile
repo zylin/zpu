@@ -1,7 +1,8 @@
 
 all:	
-	@echo "program - program fpga with bit file"
 	@echo "check   - look for timing and other synthesis issues"
+	@echo "update  - update bitstream with elf file"
+	@echo "program - program fpga with bit file"
 	@echo "clean"
 	@echo "..."
 
@@ -12,6 +13,9 @@ check:
 	@-grep --with-filename --count "WARNING:Xst:737" xst/*.syr
 	@echo -e "\nUnassigned signals: "
 	@-grep --with-filename "WARNING:Xst:653"         xst/*.syr
+
+update:
+	data2mem -bm zpu_i0_memory.bmm -bd ../../rena3/software/devel/test.elf -bt xst/top.bit -o b xst/top_update.bit
 
 program:
 	impact -batch impact.cmd
