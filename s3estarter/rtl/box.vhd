@@ -144,7 +144,7 @@ begin
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             defmast    => 0,    -- default master
-            rrobin     => 0,    -- round robin arbitration
+            rrobin     => 1,    -- round robin arbitration
             timeout    => 11,
             nahbm      => 2, 
             nahbs      => 2,
@@ -227,7 +227,7 @@ begin
             console    => 1, -- fast simulation output
             parity     => 0, -- no parity
             flow       => 0, -- no hardware handshake
-            fifosize   => 32
+            fifosize   => 1
         )
         port map (
             rst   => reset_n,
@@ -250,7 +250,7 @@ begin
             sepirq  => 0, -- use separate interupts for each timer
             sbits   => 8, -- prescaler bits
             ntimers => 2, -- number of timers
-            nbits   => 32 -- timer bits
+            nbits   => 20 -- timer bits
         )
         port map (
             rst     => reset_n,
@@ -300,8 +300,7 @@ begin
             apbi        => apbctrl_i0_apbi,
             apbo        => apbo(12),
             ethi        => ethi,
-            etho        => etho,
-            debug_trace => debug_trace
+            etho        => etho
         );
 
     stati.cerror <= (others => '0');
