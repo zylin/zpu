@@ -11,7 +11,7 @@ vhdlfiles    = $(rtl_files)
 all: compile
 
 compile: lib
-	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+	vcom -2008 -quiet -work $(library) $(vhdlfiles) | ccze -A
 
 #simulate:
 #	export top=$(top); \
