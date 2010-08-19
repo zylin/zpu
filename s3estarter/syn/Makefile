@@ -15,6 +15,7 @@ check:
 	@-grep --with-filename "WARNING:Xst:653"         xst/*.syr
 
 update:
+	make test --directory ../../rena3/software/devel
 	data2mem -bm zpu_i0_memory.bmm -bd ../../rena3/software/devel/test.elf -bt xst/top.bit -o b xst/top_update.bit
 
 program:
