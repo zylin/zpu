@@ -9,7 +9,7 @@
 ###
 
 # Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
-TIMESPEC "TS_CLK_50NHZ" = PERIOD "CLK_50MHZ" 20.0 ns HIGH 40% ;
+TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 20.0 ns HIGH 40% ;
 
 # ethernet clock
 TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 40% ;
