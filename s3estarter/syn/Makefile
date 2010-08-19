@@ -22,3 +22,4 @@ program:
 
 clean:
 	rm -f *.log
+	rm _impact.cmd

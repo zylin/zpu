@@ -3,7 +3,6 @@
 help:
 	@echo "run     - run Treeviz"
 	@echo "convert - convert data"
-	@echo "get     - copy map report from syn directory"
 	@echo "clean   - tidy up"
 
 run:	ressources.xml
@@ -12,11 +11,10 @@ run:	ressources.xml
 convert: ressources.xml
 
 ressources.xml:
-	saxon-xslt top_map.xrpt convert.xsl > tmp.xml
+	saxon-xslt ../s3estarter/syn/xst/top_map.xrpt convert.xsl > tmp.xml
+	# prune empty lines with sed
 	sed -e '/^[ ]*$$/d' tmp.xml > ressources.xml
 
-get:
-	cp ../s3estarter/syn/xst/top_map.xrpt . 
 
 clean:
 	rm -f tmp.xml
