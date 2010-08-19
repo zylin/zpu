@@ -102,6 +102,15 @@ void msleep(uint32_t msec);
 void nsleep(uint32_t nsec);
 void init_timer_prescaler();
 
+
+// vga
+typedef struct {
+    volatile uint32_t data;
+    volatile uint32_t background_color;
+    volatile uint32_t foreground_color;
+} apbvga_t;
+
+
 // ethernet
 #define ETHER_DESCRIPTOR_ENABLE              (1<<11)
 #define ETHER_DESCRIPTOR_WRAP                (1<<12)
@@ -211,6 +220,7 @@ typedef struct mac_header_st mac_header_t;
 
 apbuart_t *uart0  = (apbuart_t *) 0x80000100;
 gptimer_t *timer0 = (gptimer_t *) 0x80000200;
+apbvga_t  *vga0   = (apbvga_t *)  0x80000600;
 grgpio_t  *gpio0  = (grgpio_t *)  0x80000800;
 greth_t   *ether0 = (greth_t *)   0x80000c00;
 

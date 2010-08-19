@@ -219,6 +219,8 @@ architecture rtl of top is
     signal top_fpga_ethi       : eth_in_type;
     signal box_io_etho         : eth_out_type;
 
+    signal box_i0_vgao         : apbvga_out_type;
+
     signal debug_trace         : debug_signals_t;
     signal debug_trace_box     : debug_signals_t;
     signal la_pod_a2           : std_ulogic_vector(7 downto 0);
@@ -274,16 +276,11 @@ begin
     SPI_SCK         <= '0';
     SPI_SS_B        <= spi_ss_b_disable;
     SPI_ALT_CS_JP11 <= spi_ss_b_disable;
-    
-    VGA_RED         <= '0';
-    VGA_GREEN       <= '0';
-    VGA_BLUE        <= '0';
-    VGA_HSYNC       <= '0';
-    VGA_VSYNC       <= '0';
 
     XC_CMD          <= "00";
     XC_CPLD_EN      <= '0';
-
+    
+    
     top_fpga_clk.clk50        <= CLK_50MHZ;
     top_fpga_clk.aux          <= CLK_AUX;
     top_fpga_clk.sma          <= CLK_SMA;
@@ -343,10 +340,19 @@ begin
             ethi            => top_fpga_ethi,       -- : in    eth_in_type;
             etho            => box_io_etho,         -- : out   eth_out_type;
 
+            vgao            => box_i0_vgao,         -- : out   apbvga_out_type;
+                                         
             debug_trace     => debug_trace,
             debug_trace_box => debug_trace_box,
             break           => global_break         -- : out   cpu break command
         );
+   
+    -- vga output
+    VGA_RED         <= box_i0_vgao.video_out_r(7);
+    VGA_GREEN       <= box_i0_vgao.video_out_g(7);
+    VGA_BLUE        <= box_i0_vgao.video_out_b(7);
+    VGA_HSYNC       <= box_i0_vgao.hsync;
+    VGA_VSYNC       <= box_i0_vgao.vsync;
 
     -- pads for gpio (led out)
     FX2_IO(20 downto 13)  <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );

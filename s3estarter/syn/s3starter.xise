@@ -238,6 +238,26 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="global"/>
     </file>
+    <file xil_pn:name="../rtl/clk_gen.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="s3estarter"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/apbvga.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/charrom.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/charrom_package.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
   </files>
 
   <properties>

@@ -97,9 +97,7 @@ void uart_putchar( char c)
 void uart_putstr(const char *s)
 {
     while (*s) 
-    {
         uart_putchar( *s++);
-    }
 }
         
 // http://asalt-vehicle.googlecode.com/svn› trunk› src› uart.c
@@ -165,6 +163,74 @@ void itoa( int z, char* Buffer )
     Buffer[i] = '\0';
 }
 
+
+
+uint8_t vga_line;
+uint8_t vga_column;
+
+void vga_init( void)
+{
+    vga0->background_color = 0x00000000;
+    vga0->foreground_color = 0x00ffffff;
+    vga_line               = 0;
+    vga_column             = 0;
+}
+
+
+
+void vga_putchar( char c)
+{
+
+    if (c == '\n')
+    {
+        if (vga_line<36) 
+            vga_line++;
+        else
+            vga_line = 0;
+
+        vga_column = 0;
+    }
+    else
+    {
+        vga0->data = (( vga_line * 80 + vga_column)<<8) | c;
+        vga_column++;
+    }
+        
+}
+
+void vga_putstr(char *s)
+{
+    while (*s)
+        vga_putchar( *s++);
+}
+
+
+void putstr(char *s)
+{
+    uart_putstr( s);
+    vga_putstr( s);
+}
+
+void puthex(unsigned char dataType, unsigned long data) 
+{
+    unsigned char count, i, temp;
+    char dataString[] = "0x        ";
+
+    if (dataType == 8) count = 2;
+    if (dataType == 16) count = 4;
+    if (dataType == 32) count = 8;
+
+    for(i=count; i>0; i--)
+    {
+        temp = data % 16;
+        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
+        else dataString [i+1] = (temp - 10) + 0x41;
+
+        data = data/16;
+    }
+    uart_putstr( dataString);
+    vga_putstr( dataString);
+}
 
 
 
@@ -286,7 +352,7 @@ void ether_init( void)
     ether_mdio_write( 0x1f, 0x00, 0x8000); // software reset
     ether_mdio_write( 0x1f, 0x00, 0x2180); // autoneg off, speed 100, full duplex, col test
 }
-
+  
 void ether_test( void)
 {
     char str[20];
@@ -314,8 +380,8 @@ void ether_test( void)
     uart_putstr( "\nhash_lsb:     "); uart_hex( 32, ether0->hash_lsb);
     uart_putchar('\n');
 
-}
-
+}  
+/*
 void ether_test_read_mdio( void)
 {
     char str[20];
@@ -340,7 +406,7 @@ void ether_test_read_mdio( void)
     }
     uart_putchar('\n');
 }
-
+*/
 
 void ether_test_tx_packet( void)
 {
@@ -403,9 +469,9 @@ void ether_test_tx_packet( void)
     // wait for end of transmission
     loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
     
-    uart_putstr("\ngreth->control :"); uart_hex( 32, ether0->control);
-    uart_putstr("\ngreth->status  :"); uart_hex( 32, ether0->status);
-    uart_putstr("\ndescr->control :"); uart_hex( 32, descr->control);
+    putstr("\ngreth->control :"); puthex( 32, ether0->control);
+    putstr("\ngreth->status  :"); puthex( 32, ether0->status);
+    putstr("\ndescr->control :"); puthex( 32, descr->control);
 
     // ether_test_read_mdio();
     // check for errors in descriptor
@@ -425,14 +491,15 @@ int main(void)
 
 
     timer_init();
+    vga_init();
     uart_init();
     running_light_init();
     ether_init();
 
-    uart_putstr("\n\n");
-    uart_putstr("test.c ");
-    (simulation_active) ? uart_putstr("(on simulator)\n") : uart_putstr("(on hardware)\n");
-    uart_putstr("compiled: " __DATE__ "  " __TIME__ "\n");
+    putstr("\n\n");
+    putstr("test.c ");
+    (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
+    putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
 
     //ether_test();

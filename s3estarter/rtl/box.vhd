@@ -5,6 +5,8 @@ use ieee.std_logic_1164.all;
 
 library s3estarter;
 use s3estarter.types.all;
+use s3estarter.fpga_components.clk_gen;
+
 
 library gaisler;
 use gaisler.misc.all; -- types
@@ -28,6 +30,8 @@ entity box is
 
         ethi            : in    eth_in_type;
         etho            : out   eth_out_type;
+
+        vgao            : out   apbvga_out_type;
                                          
         debug_trace     : out   debug_signals_t;
         debug_trace_box : out   debug_signals_t;
@@ -62,17 +66,22 @@ use gaisler.net.all;  -- types
 use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
 use gaisler.misc.ahbram;
+use gaisler.misc.apbvga;
 use gaisler.uart.apbuart;
 use gaisler.net.greth;
 
 library techmap;
 use techmap.gencomp.all;
 
+
+
 architecture rtl of box is
     
     signal clk                           : std_ulogic;
+    signal clk_gen_i0_clk_25MHz          : std_ulogic;
+    signal clk_gen_i0_clk_ready          : std_ulogic;
+
     signal reset                         : std_ulogic;
-    signal reset_async                   : std_ulogic;
                                          
     signal reset_shiftreg                : std_ulogic_vector(3 downto 0) := (others => '1');
 
@@ -91,21 +100,28 @@ architecture rtl of box is
     
     signal gpti                          : gptimer_in_type;
     signal gptimer_i0_gpto               : gptimer_out_type;
-                                         
+
     signal stati                         : ahbstat_in_type;
 
 begin
     
     -- select clk and reset source 
-    clk             <= fpga_clk.clk50;
-    reset_async     <= fpga_rotary_sw.center; 
 
+    clk_gen_i0: clk_gen
+        port map (
+            clk       => fpga_clk.clk50,           -- : in  std_ulogic;
+            arst      => fpga_rotary_sw.center,    -- : in  std_ulogic;
+            clk_50MHz => clk,                      -- : out std_ulogic;
+            clk_25MHz => clk_gen_i0_clk_25MHz,     -- : out std_ulogic;
+            clk_ready => clk_gen_i0_clk_ready      -- : out std_ulogic
+        );
 
     -- generate synchronous reset
+    -- now from DCM lock signal 
     reset_synchronizer : process
     begin
         wait until rising_edge( clk);
-        reset_shiftreg <= reset_shiftreg( reset_shiftreg'high-1 downto 0) & reset_async;
+        reset_shiftreg <= reset_shiftreg( reset_shiftreg'high-1 downto 0) & not clk_gen_i0_clk_ready;
     end process;
 
     reset           <= reset_shiftreg( reset_shiftreg'high);
@@ -190,17 +206,16 @@ begin
     --  AHB/APB bridge
     ----------------------------------------------------------------------
 
-    apbo(0)  <= apb_none; -- slow down syntesis
-    apbo(3)  <= apb_none; -- slow down syntesis
-    apbo(4)  <= apb_none; -- slow down syntesis
-    apbo(5)  <= apb_none; -- slow down syntesis
-    apbo(6)  <= apb_none; -- slow down syntesis
-    apbo(7)  <= apb_none; -- slow down syntesis
-    apbo(9)  <= apb_none; -- slow down syntesis
-    apbo(10) <= apb_none; -- slow down syntesis
-    apbo(11) <= apb_none; -- slow down syntesis
-    apbo(13) <= apb_none; -- slow down syntesis
-    apbo(14) <= apb_none; -- slow down syntesis
+    apbo(0)  <= apb_none; -- slow down synthesis
+    apbo(3)  <= apb_none; -- slow down synthesis
+    apbo(4)  <= apb_none; -- slow down synthesis
+    apbo(5)  <= apb_none; -- slow down synthesis
+    apbo(7)  <= apb_none; -- slow down synthesis
+    apbo(9)  <= apb_none; -- slow down synthesis
+    apbo(10) <= apb_none; -- slow down synthesis
+    apbo(11) <= apb_none; -- slow down synthesis
+    apbo(13) <= apb_none; -- slow down synthesis
+    apbo(14) <= apb_none; -- slow down synthesis
 
     apbctrl_i0: apbctrl
         generic map (
@@ -260,6 +275,23 @@ begin
             gpti    => gpti,
             gpto    => gptimer_i0_gpto
         );
+
+    -- SVGA
+    apbvga_i0: apbvga
+        generic map (
+            memtech => DEFMEMTECH,
+            pindex  => 6,
+            paddr   => 6
+        )
+        port map (
+            rst     => reset_n,
+            clk     => clk,
+            vgaclk  => clk_gen_i0_clk_25MHz,
+            apbi    => apbctrl_i0_apbi,
+            apbo    => apbo(6),
+            vgao    => vgao
+        );
+
 
     -- GPIO
     grgpio_i0: grgpio

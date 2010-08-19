@@ -4,6 +4,7 @@ top          =
 rtl_files    = ../rtl/misc.vhd \
                ../rtl/uart.vhd \
                ../rtl/net.vhd \
+               ../rtl/charrom_package.vhd \
                ../rtl/*.vhd
 
 rtl_tb_files = 

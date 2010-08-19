@@ -14,9 +14,10 @@ ressources.xml:
 	saxon-xslt ../s3estarter/syn/xst/top_map.xrpt convert.xsl > tmp.xml
 	# prune empty lines with sed
 	sed -e '/^[ ]*$$/d' tmp.xml > ressources.xml
+	# cleanup
+	rm -f tmp.xml
 
 
 clean:
-	rm -f tmp.xml
 	rm -f ressources.xml
 

@@ -30,12 +30,28 @@ package fpga_components is
             ethi            : in    eth_in_type;
             etho            : out   eth_out_type;
 
+            vgao            : out   apbvga_out_type;
+
             debug_trace     : out   debug_signals_t;
             debug_trace_box : out   debug_signals_t;
             -- to stop simulation
             break           : out   std_ulogic
         );
     end component box;
+
+
+
+    component clk_gen is
+        port (
+            clk       : in  std_ulogic;
+            arst      : in  std_ulogic;
+            clk_50MHz : out std_ulogic;
+            clk_25MHz : out std_ulogic;
+            clk_ready : out std_ulogic
+        );
+    end component clk_gen;
+
+
 
     
     component top is

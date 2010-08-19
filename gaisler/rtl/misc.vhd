@@ -503,21 +503,21 @@ end record;
     bitdepth        : std_logic_vector(1 downto 0);     -- Bith depth
   end record;
 
---component apbvga
---generic(
---  memtech     : integer := DEFMEMTECH;
---  pindex      : integer := 0;
---  paddr       : integer := 0;
---  pmask       : integer := 16#fff#);
---port(
---  rst             : in std_ulogic;                        -- Global asynchronous reset
---  clk             : in std_ulogic;                        -- Global clock
---  vgaclk          : in std_ulogic;                        -- VGA clock
---  apbi            : in apb_slv_in_type;
---  apbo            : out apb_slv_out_type;
---  vgao            : out apbvga_out_type
---  );
---end component;
+  component apbvga
+  generic(
+    memtech     : integer := DEFMEMTECH;
+    pindex      : integer := 0;
+    paddr       : integer := 0;
+    pmask       : integer := 16#fff#);
+  port(
+    rst             : in std_ulogic;                        -- Global asynchronous reset
+    clk             : in std_ulogic;                        -- Global clock
+    vgaclk          : in std_ulogic;                        -- VGA clock
+    apbi            : in apb_slv_in_type;
+    apbo            : out apb_slv_out_type;
+    vgao            : out apbvga_out_type
+    );
+  end component;
 
 --component svgactrl
 --generic(

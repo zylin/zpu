@@ -2,6 +2,7 @@ library      = s3estarter
 top          = top_tb
 
 rtl_files    = ../rtl/fpga_types.vhd \
+	       ../rtl/fpga_components.vhd \
                ../rtl/*.vhd
 
 rtl_tb_files = ../rtl_tb/*.vhd
