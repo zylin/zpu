@@ -34,8 +34,8 @@ use grlib.stdlib.all;
 
 package amba is
 
-constant NAHBMST : integer := 2;  -- maximum AHB masters
-constant NAHBSLV : integer := 2;  -- maximum AHB slaves
+constant NAHBMST : integer := 4;  -- maximum AHB masters
+constant NAHBSLV : integer := 4;  -- maximum AHB slaves
 constant NAPBSLV : integer := 16; -- maximum APB slaves
 constant NAHBIRQ : integer := 32; -- maximum interrupts
 constant NAHBAMR : integer := 4;  -- maximum address mapping registers
