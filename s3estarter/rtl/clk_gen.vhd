@@ -8,11 +8,12 @@ use unisim.vcomponents.dcm_sp; -- spartan 3e specific
 
 entity clk_gen is
     port (
-        clk       : in  std_ulogic;
-        arst      : in  std_ulogic;
-        clk_50MHz : out std_ulogic;
-        clk_25MHz : out std_ulogic;
-        clk_ready : out std_ulogic
+        clk        : in  std_ulogic;
+        arst       : in  std_ulogic;
+        clk_100MHz : out std_ulogic;
+        clk_50MHz  : out std_ulogic;
+        clk_25MHz  : out std_ulogic;
+        clk_ready  : out std_ulogic
     );
 end entity clk_gen;
 
@@ -61,5 +62,7 @@ begin
             PSINCDEC    => '0',       -- Dynamic phase adjust increment/decrement
             RST         => arst       -- DCM asynchronous reset input
         );
+
+        clk_100MHz <= clk2x;
 
 end architecture rtl;
