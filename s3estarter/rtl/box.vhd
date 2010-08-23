@@ -32,6 +32,21 @@ entity box is
         etho            : out   eth_out_type;
 
         vgao            : out   apbvga_out_type;
+
+        ddr_clk         : out   std_logic_vector(2 downto 0);
+        ddr_clkb        : out   std_logic_vector(2 downto 0);
+        ddr_clk_fb      : in    std_logic;
+        ddr_clk_fb_out  : out   std_logic;
+        ddr_cke         : out   std_logic_vector(1 downto 0);
+        ddr_csb         : out   std_logic_vector(1 downto 0);
+        ddr_web         : out   std_ulogic;                     -- ddr write enable
+        ddr_rasb        : out   std_ulogic;                     -- ddr ras
+        ddr_casb        : out   std_ulogic;                     -- ddr cas
+        ddr_dm          : out   std_logic_vector (1 downto 0);  -- ddr dm
+        ddr_dqs         : inout std_logic_vector (1 downto 0);  -- ddr dqs
+        ddr_ad          : out   std_logic_vector (13 downto 0); -- ddr address
+        ddr_ba          : out   std_logic_vector (1 downto 0);  -- ddr bank address
+        ddr_dq          : inout std_logic_vector (15 downto 0); -- ddr data
                                          
         debug_trace     : out   debug_signals_t;
         debug_trace_box : out   debug_signals_t;
@@ -69,6 +84,7 @@ use gaisler.misc.ahbram;
 use gaisler.misc.apbvga;
 use gaisler.uart.apbuart;
 use gaisler.net.greth;
+use gaisler.memctrl.ddrspa;
 
 library techmap;
 use techmap.gencomp.all;
@@ -79,7 +95,9 @@ architecture rtl of box is
     
     signal clk                           : std_ulogic;
     signal clk_gen_i0_clk_25MHz          : std_ulogic;
+    signal clk_gen_i0_clk_100MHz         : std_ulogic;
     signal clk_gen_i0_clk_ready          : std_ulogic;
+    signal clkddr                        : std_ulogic;
 
     signal reset                         : std_ulogic;
                                          
@@ -109,11 +127,12 @@ begin
 
     clk_gen_i0: clk_gen
         port map (
-            clk       => fpga_clk.clk50,           -- : in  std_ulogic;
-            arst      => fpga_rotary_sw.center,    -- : in  std_ulogic;
-            clk_50MHz => clk,                      -- : out std_ulogic;
-            clk_25MHz => clk_gen_i0_clk_25MHz,     -- : out std_ulogic;
-            clk_ready => clk_gen_i0_clk_ready      -- : out std_ulogic
+            clk        => fpga_clk.clk50,           -- : in  std_ulogic;
+            arst       => fpga_rotary_sw.center,    -- : in  std_ulogic;
+            clk_100MHz => clk_gen_i0_clk_100MHz,    -- : out std_ulogic;
+            clk_50MHz  => clk,                      -- : out std_ulogic;
+            clk_25MHz  => clk_gen_i0_clk_25MHz,     -- : out std_ulogic;
+            clk_ready  => clk_gen_i0_clk_ready      -- : out std_ulogic
         );
 
     -- generate synchronous reset
@@ -144,7 +163,7 @@ begin
     zpu_ahb_i0: zpu_ahb
     port map (
         clk    => clk,             -- : in  std_ulogic;
-     	reset  => reset,           -- : in  std_ulogic;
+        reset  => reset,           -- : in  std_ulogic;
         ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
         ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic
@@ -163,7 +182,7 @@ begin
             rrobin     => 1,    -- round robin arbitration
             timeout    => 11,
             nahbm      => 2, 
-            nahbs      => 2,
+            nahbs      => 3,
             disirq     => 1,    -- disable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
             assertwarn => 1,    -- enable assertions for warnings
@@ -187,6 +206,7 @@ begin
     debug_trace_box.ahbmo0_bureq <= ahbmo(0).hbusreq;
     debug_trace_box.ahbmo1_bureq <= ahbmo(1).hbusreq;
 
+
     ahbram_i0 : ahbram
         generic map (
             hindex   => 1,
@@ -201,6 +221,54 @@ begin
             ahbsi  => ahbctrl_i0_slvi,
             ahbso  => ahbso(1)
         );
+
+
+    ddrspa_i0: ddrspa
+        generic map (
+            fabtech        => spartan3e,
+            memtech        => DEFMEMTECH,
+            hindex         => 2,
+            haddr          => 16#900#,
+            hmask          => 16#FC0#,
+--          ioaddr         => 16#c00#, -- ddr control register
+            ddrbits        => 16,
+            MHz            => 100,
+            clkmul         => 2, -- for clk_ddr
+            clkdiv         => 2, -- for clk_ddr
+            col            => 10,
+            Mbyte          => 64,
+            pwron          => 1
+        )
+        port map (
+            rst_ddr        => reset_n,               -- in  std_ulogic;
+            rst_ahb        => reset_n,               -- in  std_ulogic;
+            clk_ddr        => clk_gen_i0_clk_100MHz, -- in  std_ulogic;
+          --clk_ddr        => clk,                   -- in  std_ulogic;
+            clk_ahb        => clk,                   -- in  std_ulogic;
+            lock           => open,                  -- out std_ulogic; -- DCM locked
+            clkddro        => clkddr,                -- out std_ulogic; -- DCM locked
+            clkddri        => clkddr,                -- in  std_ulogic;
+
+            ahbsi          => ahbctrl_i0_slvi, -- in  ahb_slv_in_type;
+            ahbso          => ahbso(2),        -- out ahb_slv_out_type;
+
+            ddr_clk        => ddr_clk,         -- out std_logic_vector(2 downto 0);
+            ddr_clkb       => ddr_clkb,        -- out std_logic_vector(2 downto 0);
+            ddr_clk_fb_out => ddr_clk_fb_out,  -- out std_logic;
+            ddr_clk_fb     => ddr_clk_fb,      -- in std_logic;
+            ddr_cke        => ddr_cke,         -- out std_logic_vector(1 downto 0);
+            ddr_csb        => ddr_csb,         -- out std_logic_vector(1 downto 0);
+            ddr_web        => ddr_web,         -- out std_ulogic;                       -- ddr write enable
+            ddr_rasb       => ddr_rasb,        -- out std_ulogic;                       -- ddr ras
+            ddr_casb       => ddr_casb,        -- out std_ulogic;                       -- ddr cas
+            ddr_dm         => ddr_dm,          -- out std_logic_vector (ddrbits/8-1 downto 0);    -- ddr dm
+            ddr_dqs        => ddr_dqs,         -- inout std_logic_vector (ddrbits/8-1 downto 0);    -- ddr dqs
+            ddr_ad         => ddr_ad,          -- out std_logic_vector (13 downto 0);   -- ddr address
+            ddr_ba         => ddr_ba,          -- out std_logic_vector (1 downto 0);    -- ddr bank address
+            ddr_dq         => ddr_dq           -- inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
+        );
+
+            
 
     ---------------------------------------------------------------------
     --  AHB/APB bridge

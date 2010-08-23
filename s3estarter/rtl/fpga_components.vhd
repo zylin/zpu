@@ -32,6 +32,21 @@ package fpga_components is
 
             vgao            : out   apbvga_out_type;
 
+            ddr_clk         : out   std_logic_vector(2 downto 0);
+            ddr_clkb        : out   std_logic_vector(2 downto 0);
+            ddr_clk_fb      : in    std_logic;
+            ddr_clk_fb_out  : out   std_logic;
+            ddr_cke         : out   std_logic_vector(1 downto 0);
+            ddr_csb         : out   std_logic_vector(1 downto 0);
+            ddr_web         : out   std_ulogic;                     -- ddr write enable
+            ddr_rasb        : out   std_ulogic;                     -- ddr ras
+            ddr_casb        : out   std_ulogic;                     -- ddr cas
+            ddr_dm          : out   std_logic_vector (1 downto 0);  -- ddr dm
+            ddr_dqs         : inout std_logic_vector (1 downto 0);  -- ddr dqs
+            ddr_ad          : out   std_logic_vector (13 downto 0); -- ddr address
+            ddr_ba          : out   std_logic_vector (1 downto 0);  -- ddr bank address
+            ddr_dq          : inout std_logic_vector (15 downto 0); -- ddr data
+
             debug_trace     : out   debug_signals_t;
             debug_trace_box : out   debug_signals_t;
             -- to stop simulation
@@ -43,11 +58,12 @@ package fpga_components is
 
     component clk_gen is
         port (
-            clk       : in  std_ulogic;
-            arst      : in  std_ulogic;
-            clk_50MHz : out std_ulogic;
-            clk_25MHz : out std_ulogic;
-            clk_ready : out std_ulogic
+            clk        : in  std_ulogic;
+            arst       : in  std_ulogic;
+            clk_100MHz : out std_ulogic;
+            clk_50MHz  : out std_ulogic;
+            clk_25MHz  : out std_ulogic;
+            clk_ready  : out std_ulogic
         );
     end component clk_gen;
 
@@ -171,7 +187,7 @@ package fpga_components is
             RS232_DTE_TXD   : out   std_logic;
 
             -- ==== DDR SDRAM (SD) ==== (I/O Bank 3, VCCO=2.5V)
-            SD_A            : inout std_logic_vector(12 downto 0); -- address inputs
+            SD_A            : out   std_logic_vector(12 downto 0); -- address inputs
             SD_DQ           : inout std_logic_vector(15 downto 0); -- data IO
             SD_BA           : out   std_logic_vector(1 downto 0);  -- bank address inputs
             SD_RAS          : out   std_logic;                     -- command output
@@ -179,8 +195,8 @@ package fpga_components is
             SD_WE           : out   std_logic;                     -- command output 
             SD_UDM          : out   std_logic;                     -- data mask
             SD_LDM          : out   std_logic;                     -- data mask
-            SD_UDQS         : in    std_logic;                     -- data strobe
-            SD_LDQS         : in    std_logic;                     -- data strobe
+            SD_UDQS         : inout std_logic;                     -- data strobe
+            SD_LDQS         : inout std_logic;                     -- data strobe
             SD_CS           : out   std_logic;                     -- active low chip select
             SD_CKE          : out   std_logic;                     -- active high clock enable
             SD_CK_N         : out   std_logic;                     -- differential clock

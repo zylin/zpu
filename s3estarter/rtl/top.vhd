@@ -121,7 +121,7 @@ entity top is
         RS232_DTE_TXD   : out   std_logic;
 
         -- ==== DDR SDRAM (SD) ==== (I/O Bank 3, VCCO=2.5V)
-        SD_A            : inout std_logic_vector(12 downto 0); -- address inputs
+        SD_A            : out   std_logic_vector(12 downto 0); -- address inputs
         SD_DQ           : inout std_logic_vector(15 downto 0); -- data IO
         SD_BA           : out   std_logic_vector(1 downto 0);  -- bank address inputs
         SD_RAS          : out   std_logic;                     -- command output
@@ -129,8 +129,8 @@ entity top is
         SD_WE           : out   std_logic;                     -- command output 
         SD_UDM          : out   std_logic;                     -- data mask
         SD_LDM          : out   std_logic;                     -- data mask
-        SD_UDQS         : in    std_logic;                     -- data strobe
-        SD_LDQS         : in    std_logic;                     -- data strobe
+        SD_UDQS         : inout std_logic;                     -- data strobe
+        SD_LDQS         : inout std_logic;                     -- data strobe
         SD_CS           : out   std_logic;                     -- active low chip select
         SD_CKE          : out   std_logic;                     -- active high clock enable
         SD_CK_N         : out   std_logic;                     -- differential clock
@@ -221,6 +221,15 @@ architecture rtl of top is
 
     signal box_i0_vgao         : apbvga_out_type;
 
+    signal box_i0_ddr_cke      : std_logic_vector(1 downto 0);
+    signal box_i0_ddr_csb      : std_logic_vector(1 downto 0);
+    signal box_i0_ddr_dm       : std_logic_vector(1 downto 0);
+    signal box_i0_ddr_dqs      : std_logic_vector(1 downto 0);
+    signal box_i0_ddr_ad       : std_logic_vector(13 downto 0);
+    signal box_i0_ddr_clk      : std_logic_vector(2 downto 0);
+    signal box_i0_ddr_clkb     : std_logic_vector(2 downto 0);
+
+
     signal debug_trace         : debug_signals_t;
     signal debug_trace_box     : debug_signals_t;
     signal la_pod_a2           : std_ulogic_vector(7 downto 0);
@@ -254,17 +263,6 @@ begin
     LCD_RW          <= '0';
                     
     RS232_DTE_TXD   <= '0';
-                    
-    SD_BA           <= "00";
-    SD_RAS          <= '0';
-    SD_CAS          <= '0';
-    SD_WE           <= '1';
-    SD_UDM          <= '0';
-    SD_LDM          <= '0';
-    SD_CS           <= '1'; 
-    SD_CKE          <= '0';
-    SD_CK_N         <= '0';
-    SD_CK_P         <= '1';
                     
     SF_A            <= (others => '0');
     SF_BYTE         <= '0';
@@ -341,11 +339,36 @@ begin
             etho            => box_io_etho,         -- : out   eth_out_type;
 
             vgao            => box_i0_vgao,         -- : out   apbvga_out_type;
+
+            ddr_clk         => box_i0_ddr_clk,      -- : out   std_logic_vector(2 downto 0);
+            ddr_clkb        => box_i0_ddr_clkb,     -- : out   std_logic_vector(2 downto 0);
+            ddr_clk_fb      => SD_CK_FB,            -- : in    std_logic;
+            ddr_clk_fb_out  => open,                -- : out   std_logic;
+            ddr_cke         => box_i0_ddr_cke,      -- : out   std_logic_vector(1 downto 0);
+            ddr_csb         => box_i0_ddr_csb,      -- : out   std_logic_vector(1 downto 0);
+            ddr_web         => SD_WE,               -- : out   std_ulogic;                     -- ddr write enable
+            ddr_rasb        => SD_RAS,              -- : out   std_ulogic;                     -- ddr ras
+            ddr_casb        => SD_CAS,              -- : out   std_ulogic;                     -- ddr cas
+            ddr_dm          => box_i0_ddr_dm,       -- : out   std_logic_vector (1 downto 0);  -- ddr dm
+            ddr_dqs         => box_i0_ddr_dqs,      -- : inout std_logic_vector (1 downto 0);  -- ddr dqs
+            ddr_ad          => box_i0_ddr_ad,       -- : out   std_logic_vector (13 downto 0); -- ddr address
+            ddr_ba          => SD_BA,               -- : out   std_logic_vector (1 downto 0);  -- ddr bank address
+            ddr_dq          => SD_DQ,               -- : inout std_logic_vector (63 downto 0); -- ddr data
                                          
             debug_trace     => debug_trace,
             debug_trace_box => debug_trace_box,
             break           => global_break         -- : out   cpu break command
         );
+    SD_CK_P         <= box_i0_ddr_clk(0);
+    SD_CK_N         <= box_i0_ddr_clkb(0);
+
+    SD_UDQS         <= box_i0_ddr_dqs(1); -- right ??
+    SD_LDQS         <= box_i0_ddr_dqs(0); -- right ??
+    SD_CKE          <= box_i0_ddr_cke(0);
+    SD_CS           <= box_i0_ddr_csb(0);
+    SD_LDM          <= box_i0_ddr_dm(0);
+    SD_UDM          <= box_i0_ddr_dm(1);
+    SD_A            <= box_i0_ddr_ad( 12 downto 0);
    
     -- vga output
     VGA_RED         <= box_i0_vgao.video_out_r(7);
