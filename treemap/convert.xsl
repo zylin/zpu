@@ -28,7 +28,8 @@
         <xsl:call-template name="brams" />
     </xsl:variable>
 
-    <node name="{$nodename}" size="{$nodeslices}" created="{substring(concat('0000',$nodebrams),1+string-length($nodebrams),4)}-01-01 00:00:00">
+<!--<node name="{$nodename}" size="{$nodeslices}" created="{substring(concat('0000',$nodebrams),1+string-length($nodebrams),4)}-01-01 00:00:00">-->
+    <node name="{$nodename}" slices="{$nodeslices}" brams="{$nodebrams}">
         <xsl:apply-templates /> 
     </node>
 
