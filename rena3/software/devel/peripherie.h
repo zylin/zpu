@@ -203,6 +203,20 @@ struct mac_header_st {
 } __attribute((packed));
 typedef struct mac_header_st mac_header_t;
 
+
+// ddr control register set
+typedef struct {
+    volatile uint32_t sdram_control;
+    volatile uint32_t sdram_config;
+    volatile uint32_t sdram_power_saving;
+    volatile uint32_t reserved;
+    volatile uint32_t status_read;
+    volatile uint32_t phy_config_0;
+    volatile uint32_t phy_config_1;
+} ddrspa_t;
+
+
+
 ////////////////////
 // hardware units
 
@@ -223,5 +237,6 @@ gptimer_t *timer0 = (gptimer_t *) 0x80000200;
 apbvga_t  *vga0   = (apbvga_t *)  0x80000600;
 grgpio_t  *gpio0  = (grgpio_t *)  0x80000800;
 greth_t   *ether0 = (greth_t *)   0x80000c00;
+ddrspa_t  *ddr0   = (ddrspa_t *)  0xfff00000;
 
 #endif // PERIPHERIE_H

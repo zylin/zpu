@@ -10,6 +10,7 @@
 #define loop_until_bit_is_set(mem, bv)    do {} while( bit_is_clear(mem, bv))
 #define loop_until_bit_is_clear(mem, bv)  do {} while( bit_is_set(mem, bv))
 
+uint32_t simulation_active;
 
 
 ////////////////////////////////////////
@@ -30,6 +31,21 @@ void msleep(uint32_t msec)
     {
         tcr = timer0->e[0].ctrl;
     } while ( (tcr & TIMER_ENABLE));
+}
+
+void sleep(uint32_t sec)
+{
+    uint32_t timer;
+
+    for (timer=0; timer<sec; timer++)
+    {
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+    }
 }
 
 void nsleep(uint32_t nsec)
@@ -178,6 +194,18 @@ void vga_init( void)
 
 
 
+void vga_clear( void)
+{
+    uint32_t count;
+    uint32_t count_max = 37*80;
+
+    for(count = 0; count< count_max; count++)
+        vga0->data = count<<8;
+
+    vga_line               = 0;
+    vga_column             = 0;
+}
+
 void vga_putchar( char c)
 {
 
@@ -273,6 +301,7 @@ void running_light( uint32_t simulation_active)
 
 
 
+
 //
 //  set leds on number or resend incomming character
 //
@@ -310,6 +339,7 @@ void uart_test( void)
 }
 
 
+
 //
 // puts input switches doubled on leds
 //
@@ -323,6 +353,7 @@ void gpio_test( void)
         gpio0->ioout = (val << 4) | val;
     }
 }
+
 
 //
 // puts ethernet registers
@@ -353,6 +384,7 @@ void ether_init( void)
     ether_mdio_write( 0x1f, 0x00, 0x2180); // autoneg off, speed 100, full duplex, col test
 }
   
+
 void ether_test( void)
 {
     char str[20];
@@ -380,8 +412,9 @@ void ether_test( void)
     uart_putstr( "\nhash_lsb:     "); uart_hex( 32, ether0->hash_lsb);
     uart_putchar('\n');
 
-}  
-/*
+} 
+
+
 void ether_test_read_mdio( void)
 {
     char str[20];
@@ -406,7 +439,10 @@ void ether_test_read_mdio( void)
     }
     uart_putchar('\n');
 }
-*/
+
+
+
+
 
 void ether_test_tx_packet( void)
 {
@@ -484,10 +520,164 @@ void ether_test_tx_packet( void)
 
 
 
+void memory_test( void)
+{
+    uint32_t *memory = (uint32_t *) (0x90000000);
+    uint32_t *memptr;
+    uint32_t i;
+    uint32_t read;
+    uint32_t length = 20;
+   
+
+    memptr = memory;
+
+    putstr("write address: ");   puthex( 32, memptr);
+    putstr("  length: ");        puthex( 32, length);
+    putstr("\n\n");
+
+    for ( i=0; i<length; i++)
+    {
+        *memptr = i;
+        memptr++;
+    }
+
+    memptr = memory;
+    for ( i=0; i<length; i++)
+        {
+            read = *memptr;
+            if (!simulation_active)
+            {
+                putstr("read  address: ");        puthex( 32, memptr);
+                putstr("  expect: ");             puthex( 32, i);
+                putstr("  got: ");                puthex( 32, read);
+                (i == read) ? putstr(" ok") :  putstr(" error");
+                putstr("\n");
+            } else
+            {
+                putstr("  got: ");                  puthex( 32, read);
+                putstr("\n");
+            }
+
+        memptr++;
+        }
+}
+
+void memory_info( void)
+{
+    uint32_t value;
+    char str[20];
+
+    putstr("DDR memory info");
+
+
+    value = ddr0->sdram_control;
+
+    putstr("\nauto t_RERESH :");  itoa( value & 0x7fff, str); putstr( str);
+    putstr("\nclock enable  :");  puthex(  8, value >> 15 & 0x01);
+    putstr("\ninitalize     :");  puthex(  8, value >> 16 & 0x01);
+    putstr("\ncolumn size   :");  
+        switch (value >> 21 & 0x03)
+        {
+            case 0: putstr(" 512"); break;
+            case 1: putstr("1024"); break;
+            case 2: putstr("2048"); break;
+            case 3: putstr("4069"); break;
+        }
+
+    putstr("\nbanksize      :");  itoa( 1<<(3+(value >> 23 & 0x07)), str); putstr( str);putstr("Mbyte");
+    
+    // requirement for 100 MHz
+    // trcd  0 (+1) -> t_rcd = 20 ns
+    // trfc  4 (+3) -> t_rfc = 70 ns 
+    // trp   0 (+2) -> t_rp  = 20 ns 
+    // trp+trfc+4   -> t_rc  = 80 ns
+    //                 t_ras = 50 ns
+    
+    putstr("\nt_RCD         :");  itoa( 1 + (value >> 26 & 0x01), str); putstr( str);
+    putstr("\nt_RFC         :");  itoa( 3 + (value >> 27 & 0x07), str); putstr( str);
+    putstr("\nt_RP          :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
+    putstr("\nrefresh en.   :");  puthex(  8, value >> 31 & 0x01);
+
+    
+    value = ddr0->sdram_config;
+
+    putstr("\nDDR frequency :");  itoa( value & 0x0fff, str); putstr( str);
+    putstr("\nDDR data width:");  itoa( 1<<(3+(value >> 12 & 0x07)), str); putstr( str);
+    putstr("\nmobile support:");  puthex(  8, value >> 15 & 0x01);
+
+    
+    value = ddr0->sdram_power_saving;
+
+    putstr("\nself refresh  :");  
+        switch (value & 0x07)
+        {
+            case 0: putstr("1/1"); break;
+            case 1: putstr("1/2"); break;
+            case 2: putstr("1/4"); break;
+            case 5: putstr("1/8"); break;
+            case 6: putstr("1/8"); break;
+            default: putstr("unknown");
+        } putstr(" array");
+    putstr("\ntemp-comp refr:");  
+        switch (value >> 3 & 0x03)
+        {
+            case 0: putstr("70"); break;
+            case 1: putstr("45"); break;
+            case 2: putstr("15"); break;
+            case 3: putstr("85"); break;
+        } putstr("\°C");
+    putstr("\ndrive strength:");  
+        switch (value >> 5 & 0x07)
+        {
+            case 0: putstr("full"); break;
+            case 1: putstr("half"); break;
+            case 2: putstr("1/4"); break;
+            case 3: putstr("3/4"); break;
+        }
+    putstr("\npower saving  :");  
+        switch (value >> 16 & 0x07)
+        {
+            case 0: putstr("none"); break;
+            case 1: putstr("power down"); break;
+            case 2: putstr("self refresh"); break;
+            case 4: putstr("clock stop"); break;
+            case 5: putstr("deep power down"); break;
+            default: putstr("unknown");
+        }
+    putstr("\nt_XP          :");  itoa( 2 + (value >> 19 & 0x01), str); putstr( str);
+    putstr("\nt_XSR         :");  itoa( (value >> 20 & 0x0f), str); putstr( str);
+    putstr("\nt_CKE         :");  itoa( 1 + (value >> 24 & 0x01), str); putstr( str);
+    putstr("\nCAS latency   :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
+    putstr("\nmobile enabled:");  puthex(  8, value >> 31 & 0x01);
+   
+ 
+    value = ddr0->status_read;
+
+    putstr("\nstatus read   :");  puthex(32 , value);
+}
+
+
+
+void mem_dump( void)
+{
+    uint32_t *memptr;
+    uint32_t i;
+
+    for ( i=0xfff00000; i<=0xfff00018; i+=0x00000004)
+    {
+        memptr = i;
+        putstr("address: ");   puthex( 32, memptr);
+        putstr(" data: ");     puthex( 32, *memptr);
+        putstr("\n");
+    }
+}
+
+
 int main(void)
 {
 
-    uint32_t simulation_active = bit_is_set(gpio0->iodata, (1<<31));
+    // check if on simulator or on hardware
+    simulation_active = bit_is_set(gpio0->iodata, (1<<31));
 
 
     timer_init();
@@ -501,9 +691,24 @@ int main(void)
     (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
     putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
+    uint8_t i;
+
+    mem_dump();
+    sleep( 10);
+    while (1)
+    {
+        vga_clear();
+        memory_test();
+        sleep( 5);
+
+        vga_clear();
+        memory_info();
+        sleep( 5);
+
+    }
 
     //ether_test();
-    ether_test_tx_packet();
+    //ether_test_tx_packet();
     //ether_test_read_mdio();
 
     //uart_test();
