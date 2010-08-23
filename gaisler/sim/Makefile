@@ -5,10 +5,10 @@ rtl_files    = ../rtl/misc.vhd \
                ../rtl/uart.vhd \
                ../rtl/net.vhd \
                ../rtl/charrom_package.vhd \
+               ../rtl/memctrl.vhd \
                ../rtl/*.vhd
 
-rtl_tb_files = 
-#	       ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/*.vhd
 
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 
