@@ -258,6 +258,71 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="gaisler"/>
     </file>
+    <file xil_pn:name="../../techmap/rtl/allddr.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/allpads.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/clkpad.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/ddr_phy_unisim.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/ddr_unisim.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/ddrphy.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/iopad.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/outpad.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../techmap/rtl/pads_unisim.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="techmap"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/ddr_phy.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/ddrsp16a.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/ddrspa.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
+    <file xil_pn:name="../../gaisler/rtl/memctrl.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="gaisler"/>
+    </file>
   </files>
 
   <properties>
