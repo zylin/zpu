@@ -1,6 +1,7 @@
 library      = techmap
 
-rtl_files    = ../rtl/*.vhd \
+rtl_files    = ../rtl/gencomp.vhd \
+               ../rtl/ddr_unisim.vhd \
                ../rtl/*.vhd
 
 rtl_tb_files = ../rtl_tb/*.vhd
