@@ -8,6 +8,9 @@ use s3estarter.types.all;
 library global;
 use global.global_signals.all;
 
+library grlib;
+use grlib.amba.all;
+
 library gaisler;
 use gaisler.misc.all; -- types
 use gaisler.uart.all; -- types
@@ -60,10 +63,15 @@ package fpga_components is
         port (
             clk        : in  std_ulogic;
             arst       : in  std_ulogic;
+            --
             clk_100MHz : out std_ulogic;
             clk_50MHz  : out std_ulogic;
             clk_25MHz  : out std_ulogic;
-            clk_ready  : out std_ulogic
+            clk_ready  : out std_ulogic;
+            --
+            psdone     : out std_ulogic;
+            psen       : in  std_ulogic;
+            psincdec   : in  std_ulogic
         );
     end component clk_gen;
 
@@ -242,5 +250,25 @@ package fpga_components is
             GCLK10          : inout std_logic
         );
     end component top;
+
+
+    component dcm_ctrl_apb is
+      generic (
+        pindex   : integer := 0;
+        paddr    : integer := 0;
+        pmask    : integer := 16#fff#
+      );
+      port (
+        rst_n    : in  std_ulogic;
+        clk      : in  std_ulogic;
+        apbi     : in  apb_slv_in_type;
+        apbo     : out apb_slv_out_type;
+
+        psdone   : in  std_ulogic;
+        psen     : out std_ulogic;
+        psincdec : out std_ulogic
+      );
+    end component dcm_ctrl_apb;
+
 
 end package fpga_components;

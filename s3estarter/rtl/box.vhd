@@ -6,6 +6,7 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.types.all;
 use s3estarter.fpga_components.clk_gen;
+use s3estarter.fpga_components.dcm_ctrl_apb;
 
 
 library gaisler;
@@ -118,6 +119,10 @@ architecture rtl of box is
     
     signal gpti                          : gptimer_in_type;
     signal gptimer_i0_gpto               : gptimer_out_type;
+            
+    signal clk_gen_i0_psdone             : std_ulogic;
+    signal dcm_ctrl_apb_i0_psen          : std_ulogic;
+    signal dcm_ctrl_apb_i0_psincdec      : std_ulogic;
 
     signal stati                         : ahbstat_in_type;
 
@@ -129,10 +134,16 @@ begin
         port map (
             clk        => fpga_clk.clk50,           -- : in  std_ulogic;
             arst       => fpga_rotary_sw.center,    -- : in  std_ulogic;
+            --
             clk_100MHz => clk_gen_i0_clk_100MHz,    -- : out std_ulogic;
             clk_50MHz  => clk,                      -- : out std_ulogic;
             clk_25MHz  => clk_gen_i0_clk_25MHz,     -- : out std_ulogic;
-            clk_ready  => clk_gen_i0_clk_ready      -- : out std_ulogic
+            clk_ready  => clk_gen_i0_clk_ready,     -- : out std_ulogic
+            --
+            psdone     => open,  -- clk_gen_i0_psdone,        -- : out std_ulogic;
+            psen       => '0',   -- dcm_ctrl_apb_i0_psen,     -- : in  std_ulogic;
+            psincdec   => '0'    -- dcm_ctrl_apb_i0_psincdec  -- : in  std_ulogic
+
         );
 
     -- generate synchronous reset
@@ -173,6 +184,9 @@ begin
     --  AHB CONTROLLER
     ----------------------------------------------------------------------
 
+    ahbmo(2) <= ahbm_none;
+    ahbmo(3) <= ahbm_none;
+    ahbso(3) <= ahbs_none;
     --ahbmo(15 downto 2) <= (others => ahbm_none); -- slow down syntesis
     --ahbso(15 downto 2) <= (others => ahbs_none); -- slow down syntesis
 
@@ -223,6 +237,44 @@ begin
         );
 
 
+    -- fpga filled around 78%, clk (50 MHz after DCM)
+    -- frequency  relation     timing score   test
+    --    75 MHz   3:2                14657   ok
+    --   100 MHz   4:2                  350   failed completly
+    --   100 MHz   2:1                  350   failed completly
+    --   120 MHz  12:5                78434   failed completly
+    --   133 MHz   8:3                95169   failed completly
+    --   150 MHz   3:1                 4817   failed completly
+    
+    -- fpga filled around 78%, fpga_clk.clk50 (before DCM
+    -- frequency  relation     timing score   test
+    --    75 MHz   3:2         routing failed
+    --   100 MHz   2:1                  913   failed completly
+    
+    -- fpga filled around 78%, clk100 (100 MHz after DCM)
+    -- frequency  relation     timing score   test
+    --   133 MHz   4:3                96809   failed
+    
+    -- fpga filled around 79%, direct from DCM, many TIG
+    -- frequency  relation     timing score   test
+    --    75 MHz    3:2                   0   ok
+    --    80 MHz    8:5                   0   ok
+    --    90 MHz    9:5                   0   ok
+    --   100 MHz    2:1                   0   ok 
+    --   120 MHz   12:5                   0   ok
+    --   125 MHz    5:2                   0   ok
+    --   130 MHz   13:5                   0   failed
+
+    -- fpga filled around 63%, direct from DCM, many TIG
+    -- frequency  relation     timing score   test
+    --    75 MHz    3:2                   0   ok
+    --    80 MHz    8:5                   0   ok
+    --    90 MHz    9:5                   0   ok
+    --   100 MHz    2:1                   0   ok 
+    --   120 MHz   12:5                   0   partly errors
+    --   125 MHz    5:2                   0   failed
+    --   130 MHz   13:5                   0   failed
+
     ddrspa_i0: ddrspa
         generic map (
             fabtech        => spartan3e,
@@ -230,24 +282,24 @@ begin
             hindex         => 2,
             haddr          => 16#900#,
             hmask          => 16#FC0#,
---          ioaddr         => 16#c00#, -- ddr control register
             ddrbits        => 16,
             MHz            => 100,
-            clkmul         => 2, -- for clk_ddr
-            clkdiv         => 2, -- for clk_ddr
+            clkmul         => 1, -- for clk_ddr
+            clkdiv         => 1, -- for clk_ddr
             col            => 10,
-            Mbyte          => 64,
+            Mbyte          => 16,
             pwron          => 1
         )
         port map (
-            rst_ddr        => reset_n,               -- in  std_ulogic;
+            rst_ddr        => '1',                   -- in  std_ulogic;
             rst_ahb        => reset_n,               -- in  std_ulogic;
             clk_ddr        => clk_gen_i0_clk_100MHz, -- in  std_ulogic;
-          --clk_ddr        => clk,                   -- in  std_ulogic;
+          --clk_ddr        => fpga_clk.clk50,        -- in  std_ulogic;
             clk_ahb        => clk,                   -- in  std_ulogic;
             lock           => open,                  -- out std_ulogic; -- DCM locked
             clkddro        => clkddr,                -- out std_ulogic; -- DCM locked
-            clkddri        => clkddr,                -- in  std_ulogic;
+          --clkddri        => clkddr,                -- in  std_ulogic;
+            clkddri        => clk_gen_i0_clk_100MHz, -- in  std_ulogic;
 
             ahbsi          => ahbctrl_i0_slvi, -- in  ahb_slv_in_type;
             ahbso          => ahbso(2),        -- out ahb_slv_out_type;
@@ -265,7 +317,12 @@ begin
             ddr_dqs        => ddr_dqs,         -- inout std_logic_vector (ddrbits/8-1 downto 0);    -- ddr dqs
             ddr_ad         => ddr_ad,          -- out std_logic_vector (13 downto 0);   -- ddr address
             ddr_ba         => ddr_ba,          -- out std_logic_vector (1 downto 0);    -- ddr bank address
-            ddr_dq         => ddr_dq           -- inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
+            ddr_dq         => ddr_dq,          -- inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
+            --
+            psclk          => clk,
+            psdone         => clk_gen_i0_psdone,
+            psen           => dcm_ctrl_apb_i0_psen,
+            psincdec       => dcm_ctrl_apb_i0_psincdec
         );
 
             
@@ -283,7 +340,6 @@ begin
     apbo(10) <= apb_none; -- slow down synthesis
     apbo(11) <= apb_none; -- slow down synthesis
     apbo(13) <= apb_none; -- slow down synthesis
-    apbo(14) <= apb_none; -- slow down synthesis
 
     apbctrl_i0: apbctrl
         generic map (
@@ -402,6 +458,29 @@ begin
             ethi        => ethi,
             etho        => etho
         );
+
+    -- dcm control
+    dcm_ctrl_apb_i0: dcm_ctrl_apb
+        generic map (
+            pindex      => 14,
+            paddr       => 14
+        )
+        port map (
+            rst_n       => reset_n,
+            clk         => clk,
+            apbi        => apbctrl_i0_apbi,
+            apbo        => apbo(14),
+            --
+            psdone      => clk_gen_i0_psdone,
+            psen        => dcm_ctrl_apb_i0_psen,
+            psincdec    => dcm_ctrl_apb_i0_psincdec
+        );
+    debug_trace_box.psen     <= dcm_ctrl_apb_i0_psen;
+    debug_trace_box.psincdec <= dcm_ctrl_apb_i0_psincdec;
+    debug_trace_box.psdone   <= clk_gen_i0_psdone;
+    debug_trace_box.clk_in   <= fpga_clk.clk50;
+    debug_trace_box.clk_out  <= clk;
+
 
     stati.cerror <= (others => '0');
     -- AHB status register

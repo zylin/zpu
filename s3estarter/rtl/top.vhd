@@ -232,9 +232,9 @@ architecture rtl of top is
 
     signal debug_trace         : debug_signals_t;
     signal debug_trace_box     : debug_signals_t;
-    signal la_pod_a2           : std_ulogic_vector(7 downto 0);
-    signal la_pod_a3           : std_ulogic_vector(7 downto 0);
-    signal la_pod_c2           : std_ulogic_vector(7 downto 0);
+    signal la_pod_a2           : std_ulogic_vector(7 downto 0) := (others => '0');
+    signal la_pod_a3           : std_ulogic_vector(7 downto 0) := (others => '0');
+    signal la_pod_c2           : std_ulogic_vector(7 downto 0) := (others => '0');
 
     function simulation_active return std_ulogic is
         variable result : std_ulogic;
@@ -257,10 +257,6 @@ begin
     DAC_CS          <= dac_cs_disable;
                     
     DS_WIRE         <= 'Z';
-                    
-    LCD_E           <= '0';
-    LCD_RS          <= '0';
-    LCD_RW          <= '0';
                     
     RS232_DTE_TXD   <= '0';
                     
@@ -295,12 +291,13 @@ begin
     
     
     -- pads for gpio (buttons i)
-    top_fpga_gpioi.sig_in           <= (others => '0');
-    top_fpga_gpioi.sig_en           <= (others => '0');
-    top_fpga_gpioi.din( 3 downto 0) <= SW;
-    top_fpga_gpioi.din( 7 downto 4) <= BTN_WEST & BTN_NORTH & BTN_SOUTH & BTN_EAST;
-    top_fpga_gpioi.din(30 downto 8) <= (others => '0');
-    top_fpga_gpioi.din(31)          <= simulation_active;
+    top_fpga_gpioi.sig_in            <= (others => '0');
+    top_fpga_gpioi.sig_en            <= (others => '0');
+    top_fpga_gpioi.din( 3 downto  0) <= SW;
+    top_fpga_gpioi.din( 7 downto  4) <= BTN_WEST & BTN_NORTH & BTN_SOUTH & BTN_EAST;
+    top_fpga_gpioi.din(11 downto  8) <= ROT_CENTER & '0' & ROT_B & ROT_A;
+    top_fpga_gpioi.din(30 downto 12) <= (others => '0');
+    top_fpga_gpioi.din(31)           <= simulation_active;
 
 
     -- connections for ethernet
@@ -359,48 +356,65 @@ begin
             debug_trace_box => debug_trace_box,
             break           => global_break         -- : out   cpu break command
         );
-    SD_CK_P         <= box_i0_ddr_clk(0);
-    SD_CK_N         <= box_i0_ddr_clkb(0);
-
-    SD_UDQS         <= box_i0_ddr_dqs(1); -- right ??
-    SD_LDQS         <= box_i0_ddr_dqs(0); -- right ??
-    SD_CKE          <= box_i0_ddr_cke(0);
-    SD_CS           <= box_i0_ddr_csb(0);
-    SD_LDM          <= box_i0_ddr_dm(0);
-    SD_UDM          <= box_i0_ddr_dm(1);
-    SD_A            <= box_i0_ddr_ad( 12 downto 0);
-   
-    -- vga output
-    VGA_RED         <= box_i0_vgao.video_out_r(7);
-    VGA_GREEN       <= box_i0_vgao.video_out_g(7);
-    VGA_BLUE        <= box_i0_vgao.video_out_b(7);
-    VGA_HSYNC       <= box_i0_vgao.hsync;
-    VGA_VSYNC       <= box_i0_vgao.vsync;
+    SD_CK_P           <= box_i0_ddr_clk(0);
+    SD_CK_N           <= box_i0_ddr_clkb(0);
+                     
+    SD_UDQS           <= box_i0_ddr_dqs(1); -- right ??
+    SD_LDQS           <= box_i0_ddr_dqs(0); -- right ??
+    SD_CKE            <= box_i0_ddr_cke(0);
+    SD_CS             <= box_i0_ddr_csb(0);
+    SD_LDM            <= box_i0_ddr_dm(0);
+    SD_UDM            <= box_i0_ddr_dm(1);
+    SD_A              <= box_i0_ddr_ad( 12 downto 0);
+                     
+    -- vga output    
+    VGA_RED           <= box_i0_vgao.video_out_r(7);
+    VGA_GREEN         <= box_i0_vgao.video_out_g(7);
+    VGA_BLUE          <= box_i0_vgao.video_out_b(7);
+    VGA_HSYNC         <= box_i0_vgao.hsync;
+    VGA_VSYNC         <= box_i0_vgao.vsync;
+    
+    -- LCD output
+    SF_D(11 downto 8) <= box_i0_gpioo.dout(11 downto 8);
+    LCD_E             <= box_i0_gpioo.dout(13);
+    LCD_RS            <= box_i0_gpioo.dout(14);
+    LCD_RW            <= box_i0_gpioo.dout(15);
+                    
 
     -- pads for gpio (led out)
     FX2_IO(20 downto 13)  <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );
 
     -- connections to logic analyzer pods
+    -- clk phase shift (bla_fpga_clkps.tla)
+--  la_pod_a2(0)          <= debug_trace_box.clk_in;
+    la_pod_a2(1)          <= debug_trace_box.psen;
+    la_pod_a2(2)          <= debug_trace_box.psincdec;
+    la_pod_a2(3)          <= debug_trace_box.psdone;
+--  la_pod_a2(4)          <= debug_trace_box.clk_out;
+--  la_pod_a2(5)          <= 
+--  la_pod_a2(6)          <=
+--  la_pod_a2(7)          <=
 
-    la_pod_a2(3 downto 0) <= std_ulogic_vector( box_io_etho.txd(3 downto 0));
-    la_pod_a2(4)          <= box_io_etho.tx_en;
-    la_pod_a2(5)          <= box_io_etho.tx_er;
-    la_pod_a2(6)          <= top_fpga_ethi.tx_clk;
-    la_pod_a2(7)          <= top_fpga_ethi.rx_col;
+    -- ahb grant problem (bla_fpga_grethernet.tla)
+--  la_pod_a2(3 downto 0) <= std_ulogic_vector( box_io_etho.txd(3 downto 0));
+--  la_pod_a2(4)          <= box_io_etho.tx_en;
+--  la_pod_a2(5)          <= box_io_etho.tx_er;
+--  la_pod_a2(6)          <= top_fpga_ethi.tx_clk;
+--  la_pod_a2(7)          <= top_fpga_ethi.rx_col;
 --                        <= top_fpga_ethi.rx_crs;
 
-    la_pod_a3(0)          <= debug_trace_box.hgrant_0;
-    la_pod_a3(1)          <= debug_trace_box.hgrant_1;
-    la_pod_a3(2)          <= debug_trace.r_ctrl_txen;
-    la_pod_a3(3)          <= debug_trace.tmsti_ready;
-    la_pod_a3(4)          <= debug_trace.tmsti_grant;
-    la_pod_a3(5)          <= debug_trace.r_txcnt(0); 
-    la_pod_a3(6)          <= debug_trace.r_txcnt(1);
-    la_pod_a3(7)          <= top_fpga_clk.clk50;
-    
-    la_pod_c2(3 downto 0) <= debug_trace.txdstate;
-    la_pod_c2(4)          <= debug_trace_box.ahbmo0_bureq;
-    la_pod_c2(5)          <= debug_trace_box.ahbmo1_bureq;
+--  la_pod_a3(0)          <= debug_trace_box.hgrant_0;
+--  la_pod_a3(1)          <= debug_trace_box.hgrant_1;
+--  la_pod_a3(2)          <= debug_trace.r_ctrl_txen;
+--  la_pod_a3(3)          <= debug_trace.tmsti_ready;
+--  la_pod_a3(4)          <= debug_trace.tmsti_grant;
+--  la_pod_a3(5)          <= debug_trace.r_txcnt(0); 
+--  la_pod_a3(6)          <= debug_trace.r_txcnt(1);
+--  la_pod_a3(7)          <= top_fpga_clk.clk50;
+--  
+--  la_pod_c2(3 downto 0) <= debug_trace.txdstate;
+--  la_pod_c2(4)          <= debug_trace_box.ahbmo0_bureq;
+--  la_pod_c2(5)          <= debug_trace_box.ahbmo1_bureq;
 
 
     FX2_IO( 8 downto  1) <= std_logic_vector( la_pod_a2);
