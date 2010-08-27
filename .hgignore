@@ -58,3 +58,5 @@ glob:treemap/Treeviz/*
 glob:sp601/sp601_restore_flash/*
 
 #others
+glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
+glob:s3estarter/doc/Untersuchung des DDR.doc
