@@ -912,7 +912,12 @@ entity spartan3e_ddr_phy is
     casn      	: in  std_ulogic;
     wen       	: in  std_ulogic;
     csn       	: in  std_logic_vector(1 downto 0);
-    cke       	: in  std_logic_vector(1 downto 0)
+    cke       	: in  std_logic_vector(1 downto 0);
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
   );
 
 end;
@@ -1241,9 +1246,9 @@ begin
 
   nops : if rskew = 0 generate
     read_dll : DCM
-      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SOURCE_SYNCHRONOUS")
-      port map ( CLKIN => ddrclkfbl, CLKFB => rclk0b, DSSEN => gnd, PSCLK => gnd,
-      PSEN => gnd, PSINCDEC => gnd, RST => dll2rst(0), CLK0 => rclk0,
+      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SYSTEM_SYNCHRONOUS", CLKOUT_PHASE_SHIFT => "VARIABLE")
+      port map ( CLKIN => ddrclkfbl, CLKFB => rclk0b, DSSEN => gnd, PSCLK => psclk,
+      PSEN => psen, PSINCDEC => psincdec, PSDONE=> psdone, RST => dll2rst(0), CLK0 => rclk0,
       CLK90 => rclk90, CLK270 => rclk270);
   end generate;
   ps : if rskew /= 0 generate

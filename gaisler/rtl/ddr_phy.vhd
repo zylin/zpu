@@ -66,7 +66,13 @@ entity ddr_phy is
     ddr_dq    	: inout  std_logic_vector (dbits-1 downto 0); -- ddr data
  
     sdi         : out sdctrl_in_type;
-    sdo         : in  sdctrl_out_type);
+    sdo         : in  sdctrl_out_type;
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
+  );
 end;
 
 architecture rtl of ddr_phy is
@@ -89,7 +95,7 @@ begin
 	sdo.address(15 downto 2), sdo.ba(1 downto 0),
 	sdi.data(dbits*2-1 downto 0), sdo.data(dbits*2-1 downto 0), 
 	sdo.dqm(dbits/4-1 downto 0), sdo.bdrive, sdo.bdrive, sdo.qdrive, 
-	sdo.rasn, sdo.casn, sdo.sdwen, sdo.sdcsn, sdo.sdcke, sdo.sdck, sdo.moben);
+	sdo.rasn, sdo.casn, sdo.sdwen, sdo.sdcsn, sdo.sdcke, sdo.sdck, sdo.moben, psdone, psclk, psen, psincdec);
 
 end;
 

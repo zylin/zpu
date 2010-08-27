@@ -849,7 +849,13 @@ component ddrphy
     csn       	: in  std_logic_vector(1 downto 0);
     cke       	: in  std_logic_vector(1 downto 0);
     ck          : in  std_logic_vector(2 downto 0);
-    moben       : in  std_logic);
+    moben       : in  std_logic;
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
+);
 end component;
 
 component ddr2phy

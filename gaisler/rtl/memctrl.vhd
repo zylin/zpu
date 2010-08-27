@@ -658,8 +658,12 @@ end component;
     ddr_dqs  	: inout std_logic_vector (ddrbits/8-1 downto 0);    -- ddr dqs
     ddr_ad      : out std_logic_vector (13 downto 0);   -- ddr address
     ddr_ba      : out std_logic_vector (1 downto 0);    -- ddr bank address
-    ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
-
+    ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0); -- ddr data
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
   );
   end component; 
 
@@ -862,7 +866,13 @@ component ddr2spa
     ddr_dq    	: inout  std_logic_vector (dbits-1 downto 0); -- ddr data
  
     sdi         : out sdctrl_in_type;
-    sdo         : in  sdctrl_out_type);
+    sdo         : in  sdctrl_out_type;
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
+  );
   end component;
 
   component ddr2_phy

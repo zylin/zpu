@@ -83,8 +83,12 @@ entity ddrspa is
     ddr_dqs  	: inout std_logic_vector (ddrbits/8-1 downto 0);    -- ddr dqs
     ddr_ad      : out std_logic_vector (13 downto 0);   -- ddr address
     ddr_ba      : out std_logic_vector (1 downto 0);    -- ddr bank address
-    ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
-
+    ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0); -- ddr data
+    --
+    psdone      : out std_ulogic;
+    psclk       : in  std_ulogic;
+    psen        : in  std_ulogic;
+    psincdec    : in  std_ulogic
   );
 end; 
 
@@ -105,7 +109,7 @@ begin
 	rst_ddr, clk_ddr, clkddro, clkread, lock,
 	ddr_clk, ddr_clkb, ddr_clk_fb_out, ddr_clk_fb,
 	ddr_cke, ddr_csb, ddr_web, ddr_rasb, ddr_casb, 
-	ddr_dm, ddr_dqs, ddr_ad, ddr_ba, ddr_dq, sdi, sdo);
+	ddr_dm, ddr_dqs, ddr_ad, ddr_ba, ddr_dq, sdi, sdo, psdone, psclk, psen, psincdec);
 
   ddr16 : if ddrbits = 16 generate
     ddrc : ddrsp16a generic map (memtech => memtech, hindex => hindex, 
