@@ -9,7 +9,9 @@
 ###
 
 # Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
-TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 20.0 ns HIGH 40% ;
+TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40% INPUT_JITTER 1 ps;
+										   
+INST "box_i0/clk_gen_i0/dcm_sp_i0" LOC = "DCM_X0Y1";
 
 # ethernet clock
 TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 40% ;
@@ -19,12 +21,32 @@ NET "E_TX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
 # DDR memory clock feedback
 NET "SD_CK_FB" CLOCK_DEDICATED_ROUTE = FALSE;
 PIN "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
+					   
 
-# ignore timing on DDR clocks
-NET "box_i0/clk"    TNM_NET = FFS "grp_1";
-NET "box_i0/clkddr" TNM_NET = FFS "grp_2";
-TIMESPEC "TS_DDR" = FROM "grp_1" TO "grp_2" TIG;
+# ignore timing on DDR controller
+NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r" TNM_NET = FFS "ddr_clk_1";
+NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_270r" TNM_NET = FFS "ddr_clk_2";
 
+NET "box_i0/clk" TNM_NET = "sys_clk";
+
+TIMESPEC "TS_sys_ddr1" = FROM "sys_clk" TO "ddr_clk_1" TIG;
+TIMESPEC "TS_ddr1_sys" = FROM "ddr_clk_1" TO "sys_clk" TIG;
+
+TIMESPEC "TS_sys_ddr2" = FROM "sys_clk" TO "ddr_clk_2" TIG;
+TIMESPEC "TS_ddr2_sys" = FROM "ddr_clk_2" TO "sys_clk" TIG;
+
+TIMESPEC "TS_ddr1_ddr2" = FROM "ddr_clk_1" TO "ddr_clk_2" TIG;
+TIMESPEC "TS_ddr2_ddr1" = FROM "ddr_clk_2" TO "ddr_clk_1" TIG;
+
+
+INST "*/*dq_pad/*"  IOBDELAY=NONE;
+INST "*/*dqs_pad/*" IOBDELAY=NONE;
+
+
+			
+# additional for direct clk to ddr DCMs
+#NET "CLK_50MHZ" CLOCK_DEDICATED_ROUTE = FALSE;
+#PIN "box_i0/clk_gen_i0/dcm_sp_i0.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
 
 ###
 ### placement constraints
