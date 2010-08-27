@@ -209,7 +209,8 @@ void vga_clear( void)
 void vga_putchar( char c)
 {
 
-    if (c == '\n')
+    vga0->data = (( vga_line * 80 + vga_column)<<8) | c;
+    if ( (c == '\n') || (vga_column == 79) )
     {
         if (vga_line<36) 
             vga_line++;
@@ -220,7 +221,6 @@ void vga_putchar( char c)
     }
     else
     {
-        vga0->data = (( vga_line * 80 + vga_column)<<8) | c;
         vga_column++;
     }
         
@@ -260,6 +260,26 @@ void puthex(unsigned char dataType, unsigned long data)
     vga_putstr( dataString);
 }
 
+
+void vga_puthex(unsigned char dataType, unsigned long data) 
+{
+    unsigned char count, i, temp;
+    char dataString[] = "0x        ";
+
+    if (dataType == 8) count = 2;
+    if (dataType == 16) count = 4;
+    if (dataType == 32) count = 8;
+
+    for(i=count; i>0; i--)
+    {
+        temp = data % 16;
+        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
+        else dataString [i+1] = (temp - 10) + 0x41;
+
+        data = data/16;
+    }
+    vga_putstr( dataString);
+}
 
 
 void running_light_init( void)
@@ -522,16 +542,17 @@ void ether_test_tx_packet( void)
 
 void memory_test( void)
 {
-    uint32_t *memory = (uint32_t *) (0x90000000);
-    uint32_t *memptr;
+    uint32_t *memoryw = (uint32_t *) (0x90000000);
+    uint32_t *memoryr = (uint32_t *) (0x92000000);
+    uint32_t *memptr;         //      0x_1000000
     uint32_t i;
     uint32_t read;
-    uint32_t length = 20;
+    uint32_t length = 32;
    
 
-    memptr = memory;
+    memptr = memoryw;
 
-    putstr("write address: ");   puthex( 32, memptr);
+    putstr("write address: ");   puthex( 32, (uint32_t) memptr);
     putstr("  length: ");        puthex( 32, length);
     putstr("\n\n");
 
@@ -541,13 +562,13 @@ void memory_test( void)
         memptr++;
     }
 
-    memptr = memory;
+    memptr = memoryr;
     for ( i=0; i<length; i++)
         {
             read = *memptr;
             if (!simulation_active)
             {
-                putstr("read  address: ");        puthex( 32, memptr);
+                putstr("read  address: ");        puthex( 32, (uint32_t) memptr);
                 putstr("  expect: ");             puthex( 32, i);
                 putstr("  got: ");                puthex( 32, read);
                 (i == read) ? putstr(" ok") :  putstr(" error");
@@ -561,6 +582,76 @@ void memory_test( void)
         memptr++;
         }
 }
+
+void memory_test_init( uint32_t start, uint32_t length)
+{
+    uint32_t *memory = (uint32_t *) start;//(0x90000000);
+    uint32_t *memptr;
+    uint32_t i;
+   
+
+    memptr = memory;
+
+    // write
+    for ( i=0; i<length; i++)
+    {
+        *memptr = (uint32_t) memptr;
+        memptr++;
+    }
+
+}
+int memory_test_complete( uint32_t start, uint32_t length)
+{
+    uint32_t *memory = (uint32_t *) start;//(0x90000000);
+    uint32_t *memptr;
+    uint32_t i;
+    uint32_t read;
+   
+
+    // read/ compare
+    memptr = memory;
+    for ( i=0; i<length; i++)
+    {
+        read = *memptr;
+        if (memptr != read) return( FALSE);
+        memptr++;
+    }
+    return( TRUE);
+}
+
+int memory_test_dot( void)
+{
+    uint32_t i;
+    uint32_t s;
+    uint32_t chunks = 0x0002;
+    char str[20];
+    int count_bad;
+
+    vga_init();
+    itoa( dcm_ctrl0->dec, str); vga_putstr("phase shift : "); vga_putstr( str); vga_putstr("     ");
+    
+    s         = 0x90000000;
+    count_bad = 0;
+
+    for (i=0; i<2048; i++)
+    {
+        if ((i%64) == 0)
+        {
+            vga_putstr("\n"); vga_puthex( 32, s); vga_putstr(" ");
+        }
+        if ( memory_test_complete( s, chunks) )
+            vga_putstr(".");
+        else
+        {
+            vga_putstr("!");
+            count_bad++;
+        }
+        s += chunks;
+    }
+
+    return( count_bad);
+}
+
 
 void memory_info( void)
 {
@@ -625,7 +716,7 @@ void memory_info( void)
             case 1: putstr("45"); break;
             case 2: putstr("15"); break;
             case 3: putstr("85"); break;
-        } putstr("\°C");
+        } putstr("°C");
     putstr("\ndrive strength:");  
         switch (value >> 5 & 0x07)
         {
@@ -663,47 +754,130 @@ void mem_dump( void)
     uint32_t *memptr;
     uint32_t i;
 
-    for ( i=0xfff00000; i<=0xfff00018; i+=0x00000004)
+//  for ( i=0x80000e00; i<=0x80000e04; i+=0x00000004) // dcm control
+//  for ( i=0xfff00000; i<=0xfff00018; i+=0x00000004) // ddr control
+    for ( i=0x90000000; i<=0x90000080; i+=0x00000004) // ddr content
     {
-        memptr = i;
-        putstr("address: ");   puthex( 32, memptr);
-        putstr(" data: ");     puthex( 32, *memptr);
+        memptr = (uint32_t *) i;
+        putstr("address: ");   puthex( 32, (uint32_t) memptr);
+        putstr(" data: ");     puthex( 32,           *memptr);
         putstr("\n");
     }
+}
+
+void dcm_test_ps( void)
+{
+
+    const uint32_t pattern   = 0x55aaff55;
+    const uint16_t range     = 255;
+    const uint16_t sleeptime = 1;
+    uint16_t       i;
+    uint16_t       min_error;
+    int32_t        min_error_pos;
+    int32_t        low_value;
+    int32_t        high_value;
+    char           str[20];
+
+    putstr("\n\nDCM phase shift testing");
+    
+    putstr("\ninitial: "); itoa( dcm_ctrl0->dec, str); putstr( str); putstr(" "); puthex( 32, memory_test_dot() );
+
+    // go down
+    while (dcm_ctrl0->dec > -range)
+    {
+        dcm_ctrl0->dec = 0;
+        msleep( sleeptime);
+    }
+
+    // search low value
+    i             = 0xffff;
+    min_error     = 0xffff;
+    min_error_pos = -range;
+    while (( i != 0) && (dcm_ctrl0->dec < range))
+    {
+        dcm_ctrl0->inc = 0;
+        i = memory_test_dot();
+        if (i < min_error)
+        {
+            min_error = i;
+            min_error_pos = dcm_ctrl0->dec;
+        }
+        putstr("\n"); itoa( i, str); putstr( str); 
+    }
+    low_value = dcm_ctrl0->dec;
+
+    // search high value
+    i = 0;
+    while ((i == 0) && (dcm_ctrl0->dec < range))
+    {
+        dcm_ctrl0->inc = 0;
+        i = memory_test_dot();
+        if (i < min_error)
+        {
+            min_error = i;
+            min_error_pos = dcm_ctrl0->dec;
+        }
+        putstr("\n"); itoa( i, str); putstr( str);
+    }
+    high_value = dcm_ctrl0->dec;
+    // go to eye
+    //for (i=0; i<( ( high_value-low_value) / 2); i++)
+    for (i=0; i<( ( high_value-min_error_pos) ); i++)
+    {
+        dcm_ctrl0->dec = 0;
+        msleep( sleeptime);
+        //loop_until_bit_is_set( dcm_ctrl0->ready, (1<<0) );
+    }
+
+    putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
+    putstr("\nhigh:        "); itoa( high_value, str);               putstr( str);
+    putstr("\ndiff:        "); itoa(  high_value-low_value, str);    putstr( str);
+    putstr("\ndiff/2:      "); itoa( (high_value-low_value)/2, str); putstr( str);
+    putstr("\nmin_err:     "); itoa( min_error, str);                putstr( str);
+    putstr("\nmin_err_pos: "); itoa( min_error_pos, str);            putstr( str);
+    putstr("\nfinal:       "); itoa( dcm_ctrl0->dec, str);           putstr( str);
 }
 
 
 int main(void)
 {
+    char str[20];
 
     // check if on simulator or on hardware
     simulation_active = bit_is_set(gpio0->iodata, (1<<31));
 
+    memory_test_init( 0x90000000, 0x0010000);
 
     timer_init();
     vga_init();
     uart_init();
     running_light_init();
     ether_init();
-
+    
     putstr("\n\n");
+    vga_clear();
+
     putstr("test.c ");
     (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
     putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
-    uint8_t i;
+    //memory_info();
+    //sleep( 5);
 
-    mem_dump();
+    dcm_test_ps();
     sleep( 10);
+    
+    //vga_clear();
+    //mem_dump();
+    //sleep( 10);
+
+    vga_clear();
     while (1)
     {
-        vga_clear();
-        memory_test();
-        sleep( 5);
-
-        vga_clear();
-        memory_info();
-        sleep( 5);
+        memory_test_dot();
+        //sleep( 1);
+        if bit_is_set( gpio0->iodata, (1<<7))   dcm_ctrl0->dec = 0; // btn west -> dec ps
+        if bit_is_set( gpio0->iodata, (1<<4))   dcm_ctrl0->inc = 0; // btn east -> inc ps
 
     }
 
