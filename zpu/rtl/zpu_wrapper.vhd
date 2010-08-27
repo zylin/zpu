@@ -96,6 +96,23 @@ package zpu_wrapper_package is
         );
     end component zpu_ahb;
 
+    component zpu_bus_trace is
+        generic (
+            log_file            : string := "bus_trace.txt"
+        );
+        port (
+            clk                 : in std_logic;
+            reset               : in std_logic;
+            --
+            in_mem_busy         : in std_logic; 
+            mem_read            : in std_logic_vector(wordSize-1 downto 0);
+            mem_write           : in std_logic_vector(wordSize-1 downto 0);              
+            out_mem_addr        : in std_logic_vector(maxAddrBitIncIO downto 0);
+            out_mem_writeEnable : in std_logic; 
+            out_mem_readEnable  : in std_logic
+        );
+    end component zpu_bus_trace;
+
 
 end package zpu_wrapper_package;
 
@@ -272,5 +289,20 @@ begin
     ahbo.hindex  <= 0;
 
     --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
+
+    -- pragma translate_off
+    zpu_bus_trace_i0: zpu_bus_trace
+    port map (
+        clk                     => clk,                 -- : in std_logic;
+        reset                   => reset,               -- : in std_logic;
+        --                      =>                      -- 
+        in_mem_busy             => busy,                -- : in std_logic; 
+        mem_read                => ahbi.hrdata,         -- : in std_logic_vector(wordSize-1 downto 0);
+        mem_write               => mem_write,           -- : in std_logic_vector(wordSize-1 downto 0);              
+        out_mem_addr            => out_mem_addr,        -- : in std_logic_vector(maxAddrBitIncIO downto 0);
+        out_mem_writeEnable     => out_mem_writeEnable, -- : in std_logic; 
+        out_mem_readEnable      => out_mem_readEnable   -- : in std_logic
+    );
+    -- pragma translate_on
 
 end architecture rtl;
