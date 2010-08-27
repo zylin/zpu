@@ -323,6 +323,11 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="gaisler"/>
     </file>
+    <file xil_pn:name="../rtl/dcm_ctrl_apb.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="s3estarter"/>
+    </file>
   </files>
 
   <properties>
