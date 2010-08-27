@@ -1,6 +1,7 @@
 
 all:	
 	@echo "check   - look for timing and other synthesis issues"
+	@echo "bitfile - generate bit file"
 	@echo "update  - update bitstream with elf file"
 	@echo "program - program fpga with bit file"
 	@echo "clean"
@@ -24,3 +25,25 @@ program:
 clean:
 	rm -f *.log
 	rm _impact.cmd
+
+dir:	
+	mkdir -p xst
+
+.PHONY: xst
+xst:	
+	cd xst ; xst -intstyle ise -ifn "D:/home/bl5599/projects/s3estarter/syn/xst/top.xst" -ofn "D:/home/bl5599/projects/s3estarter/syn/xst/top.syr"
+	
+translate: xst
+	cd xst ; ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf -p xc3s500e-fg320-5 top.ngc top.ngd
+	
+map: translate
+	cd xst ; map -intstyle ise -p xc3s500e-fg320-5 -cm area -detail -ir off -pr off -c 100 -o top_map.ncd top.ngd top.pcf
+	
+par: map	
+	cd xst ; par -w -intstyle ise -ol high -t 1 top_map.ncd top.ncd top.pcf
+	
+trace: par	
+	cd xst ; trce -intstyle ise -v 3 -s 5 -n 3 -fastpaths -xml top.twx top.ncd -o top.twr top.pcf
+	
+bitgen: par
+	cd xst ; bitgen -intstyle ise -f top.ut top.ncd
