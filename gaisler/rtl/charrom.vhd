@@ -2545,7 +2545,9 @@ begin
     process
     begin
         wait until rising_edge( clk);
-        data <= rom( to_integer( unsigned( addr)));
+        if not is_x( addr) then -- avoid simulation warnings
+            data <= rom( to_integer( unsigned( addr)));
+        end if;
     end process;
 end rtl;
 
