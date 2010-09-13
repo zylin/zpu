@@ -1,6 +1,7 @@
 //#include <stdio.h>
 
 #include "peripherie.h"
+#include "lcd-routines.h"
 
 ////////////////////////////////////////
 // common defines
@@ -11,68 +12,6 @@
 #define loop_until_bit_is_clear(mem, bv)  do {} while( bit_is_set(mem, bv))
 
 uint32_t simulation_active;
-
-
-////////////////////////////////////////
-// timer functions
-
-void msleep(uint32_t msec)
-{
-    uint32_t tcr;
-
-    // 1 msec    = 6250
-    // 167 msec  = 2**20 (20 bit counter) 391 slices
-    // 2684 msec = 2**24 (24 bit counter) 450 slices
-    //           = 2**32 (32 bit counter) 572 slices
-    timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000)*msec;
-    timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
-
-    do 
-    {
-        tcr = timer0->e[0].ctrl;
-    } while ( (tcr & TIMER_ENABLE));
-}
-
-void sleep(uint32_t sec)
-{
-    uint32_t timer;
-
-    for (timer=0; timer<sec; timer++)
-    {
-        msleep( 166);
-        msleep( 166);
-        msleep( 166);
-        msleep( 166);
-        msleep( 166);
-        msleep( 166);
-    }
-}
-
-void nsleep(uint32_t nsec)
-{
-    uint32_t tcr;
-
-    // 1 nsec = 6
-    timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000000)*nsec;
-    timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
-
-    do 
-    {
-        tcr = timer0->e[0].ctrl;
-    } while ( (tcr & TIMER_ENABLE));
-}
-
-void wait( uint32_t value)
-{
-    uint32_t i;
-
-    for (i=0; i<value; i++) {}
-}
-
-void timer_init( void)
-{
-    timer0->scaler_reload = TIMER_PRESCALER-1; // set prescaler
-}
 
 
 
@@ -285,7 +224,7 @@ void vga_puthex(unsigned char dataType, unsigned long data)
 void running_light_init( void)
 {
     // enable output drivers
-    gpio0->iodir = 0x000000FF;
+    gpio0->iodir |= 0x000000FF;
 }
 
 
@@ -302,7 +241,7 @@ void running_light( uint32_t simulation_active)
     while (1)
     {
     
-        gpio0->ioout = pattern;
+        gpio0->ioout = 0x000000ff & pattern;
         pattern = (pattern << 1) | (pattern >> 31);
 
         if (simulation_active)
@@ -470,6 +409,7 @@ void ether_test_tx_packet( void)
 
     greth_tx_descriptor_t *descr        = (greth_tx_descriptor_t *) (0xa0000000);
     mac_header_t          *mac_header   = (mac_header_t *)          (0xa0000100);
+    uint32_t              data_length   = 64;
     
     uint32_t i;
 
@@ -849,10 +789,13 @@ int main(void)
     memory_test_init( 0x90000000, 0x0010000);
 
     timer_init();
+    lcd_init();
     vga_init();
     uart_init();
     running_light_init();
     ether_init();
+    
+    lcd_string("init done.");
     
     putstr("\n\n");
     vga_clear();

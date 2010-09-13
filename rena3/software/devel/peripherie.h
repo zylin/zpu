@@ -172,7 +172,7 @@ struct udp_header_st {
 typedef struct udp_header_st udp_header_t;
 
 
-uint32_t data_length       = 64; // minimum size is 46 (w/o vlan tag) or 42 (with vlan tag)
+//uint32_t data_length       = 64; // minimum size is 46 (w/o vlan tag) or 42 (with vlan tag)
 
 #define PROTOCOL_UDP   (17)
 #define FLAG_DF        (1<<14)
@@ -241,12 +241,20 @@ typedef struct {
 #define UART_SCALER     (F_CPU/(8*UART_BAUD_RATE))
 #define UART_FIFOSIZE   (1)
 
-apbuart_t  *uart0     = (apbuart_t *)  0x80000100;
-gptimer_t  *timer0    = (gptimer_t *)  0x80000200;
-apbvga_t   *vga0      = (apbvga_t *)   0x80000600;
-grgpio_t   *gpio0     = (grgpio_t *)   0x80000800;
-greth_t    *ether0    = (greth_t *)    0x80000c00;
-dcm_ctrl_t *dcm_ctrl0 = (dcm_ctrl_t *) 0x80000e00;
-ddrspa_t   *ddr0      = (ddrspa_t *)   0xfff00000;
+extern apbuart_t  *uart0;
+extern gptimer_t  *timer0;
+extern apbvga_t   *vga0;
+extern grgpio_t   *gpio0;
+extern greth_t    *ether0;
+extern dcm_ctrl_t *dcm_ctrl0;
+extern ddrspa_t   *ddr0;
+
+//apbuart_t  *uart0     = (apbuart_t *)  0x80000100;
+//gptimer_t  *timer0    = (gptimer_t *)  0x80000200;
+//apbvga_t   *vga0      = (apbvga_t *)   0x80000600;
+//grgpio_t   *gpio0     = (grgpio_t *)   0x80000800;
+//greth_t    *ether0    = (greth_t *)    0x80000c00;
+//dcm_ctrl_t *dcm_ctrl0 = (dcm_ctrl_t *) 0x80000e00;
+//ddrspa_t   *ddr0      = (ddrspa_t *)   0xfff00000;
 
 #endif // PERIPHERIE_H

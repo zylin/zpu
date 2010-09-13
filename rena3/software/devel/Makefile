@@ -23,7 +23,7 @@ hello:
 test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
 
 test:
-	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi "`pwd`/test.c" -o test.elf -Wl,--relax -Wl,--gc-sections -Wa,-adhls=test.lst -g
+	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi "`pwd`/test.c" hw.c timer.c lcd-routines.c -o test.elf -Wl,--relax -Wl,--gc-sections -Wa,-adhls=test.lst -g
 	zpu-elf-size test.elf
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary test.elf test.bin
 
