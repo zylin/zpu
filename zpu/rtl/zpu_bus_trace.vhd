@@ -88,13 +88,16 @@ begin
             null;
         else
             if out_mem_writeEnable = '1' then
-                print("mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
+                print(         "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
+                print( l_file, "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
             end if; -- mem_write
 
             if out_mem_readEnable = '1' then
                 wait until in_mem_busy = '0';
-                print("mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
+                print(         "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
+                print( l_file, "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
             end if; -- mem_read
+
         end if; -- reset
     end process;
 end architecture trace;
