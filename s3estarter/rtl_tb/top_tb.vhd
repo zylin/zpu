@@ -202,7 +202,10 @@ begin
     tb_CLK_50MHZ  <= not tb_CLK_50MHZ after tb_clk_period/2 when simulation_run;
     tb_RESET      <= '1', '0' after 10 * tb_clk_period;
     tb_RESET_n    <= not tb_RESET;
+
     tb_ROT_CENTER <= tb_RESET;
+    tb_ROT_A      <= '0';
+    tb_ROT_B      <= '0';
     
     tb_BTN_EAST   <= '0';
     tb_BTN_NORTH  <= '0';
@@ -410,12 +413,13 @@ begin
         wait;
     end process;
 
-    gen_sw_pattern: process
-        variable count : unsigned( tb_SW'range) := (others => '0');
-    begin
-        wait until rising_edge( tb_CLK_50MHZ);
-        tb_SW <= std_logic_vector( count);
-        count := count + 1;
-    end process;
+--  gen_sw_pattern: process
+--      variable count : unsigned( tb_SW'range) := (others => '0');
+--  begin
+--      wait until rising_edge( tb_CLK_50MHZ);
+--      tb_SW <= std_logic_vector( count);
+--      count := count + 1;
+--  end process;
+    tb_SW <= (others => '0');
 
 end architecture testbench;
