@@ -1,9 +1,16 @@
 
 all:	
-	@echo "check   - look for timing and other synthesis issues"
-	@echo "bitfile - generate bit file"
-	@echo "update  - update bitstream with elf file"
-	@echo "program - program fpga with bit file"
+	@echo "check     - look for timing and other synthesis issues"
+	@echo "xst       - generate ??? file"
+	@echo "translate - generate ngd file"
+	@echo "map       - generate ncd file"
+	@echo "par       - place&route ncd file"
+	@echo "trace     - generate timing report"
+	@echo "bitgen    - generate bit file"
+	@echo "update    - update bitstream with elf file"
+	@echo "program   - program fpga with bit file"
+	@echo "genmcs    - genrate mcs file"
+	@echo "progspi   - program spi flash with mcs file"
 	@echo "clean"
 	@echo "..."
 
@@ -21,6 +28,12 @@ update:
 
 program:
 	impact -batch impact.cmd
+
+genmcs:
+	promgen -spi -p mcs -w -o top_update.mcs -s 8192 -u 0 xst/top_update.bit
+
+progspi: genmcs
+	impact -batch prog_spi.cmd
 
 clean:
 	rm -f *.log
