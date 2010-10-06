@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 package global_signals is
 
@@ -13,11 +14,17 @@ package global_signals is
         txdstate     : std_ulogic_vector(3 downto 0);
         ahbmo0_bureq : std_ulogic;
         ahbmo1_bureq : std_ulogic;
+        --
         psdone       : std_ulogic;
+        psovfl       : std_ulogic;
         psen         : std_ulogic;
         psincdec     : std_ulogic;
         clk_in       : std_ulogic;
         clk_out      : std_ulogic;
+        --
+        timeout_cnt : unsigned(7 downto 0); 
+        psready     : std_ulogic;
+        pserror     : std_ulogic;
     end record;
 
     signal global_break    : std_ulogic;

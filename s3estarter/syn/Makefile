@@ -47,10 +47,10 @@ xst:
 	cd xst ; xst -intstyle ise -ifn "D:/home/bl5599/projects/s3estarter/syn/xst/top.xst" -ofn "D:/home/bl5599/projects/s3estarter/syn/xst/top.syr"
 	
 translate: xst
-	cd xst ; ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf -p xc3s500e-fg320-5 top.ngc top.ngd
+	cd xst ; ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf -p xc3s500e-fg320-4 top.ngc top.ngd
 	
 map: translate
-	cd xst ; map -intstyle ise -p xc3s500e-fg320-5 -cm area -detail -ir off -pr off -c 100 -o top_map.ncd top.ngd top.pcf
+	cd xst ; map -intstyle ise -p xc3s500e-fg320-4 -cm area -detail -ir off -pr off -c 100 -o top_map.ncd top.ngd top.pcf
 	
 par: map	
 	cd xst ; par -w -intstyle ise -ol high -t 1 top_map.ncd top.ncd top.pcf

@@ -232,6 +232,7 @@ architecture rtl of top is
 
     signal debug_trace         : debug_signals_t;
     signal debug_trace_box     : debug_signals_t;
+    signal debug_trace_dcm     : debug_signals_t;
     signal la_pod_a2           : std_ulogic_vector(7 downto 0) := (others => '0');
     signal la_pod_a3           : std_ulogic_vector(7 downto 0) := (others => '0');
     signal la_pod_c2           : std_ulogic_vector(7 downto 0) := (others => '0');
@@ -354,6 +355,7 @@ begin
                                          
             debug_trace     => debug_trace,
             debug_trace_box => debug_trace_box,
+            debug_trace_dcm => debug_trace_dcm,
             break           => global_break         -- : out   cpu break command
         );
     SD_CK_P           <= box_i0_ddr_clk(0);
@@ -390,10 +392,11 @@ begin
     la_pod_a2(1)          <= debug_trace_box.psen;
     la_pod_a2(2)          <= debug_trace_box.psincdec;
     la_pod_a2(3)          <= debug_trace_box.psdone;
---  la_pod_a2(4)          <= debug_trace_box.clk_out;
---  la_pod_a2(5)          <= 
---  la_pod_a2(6)          <=
---  la_pod_a2(7)          <=
+    la_pod_a2(4)          <= debug_trace_box.psovfl;
+    la_pod_a2(5)          <= debug_trace_dcm.psready; 
+    la_pod_a2(6)          <= debug_trace_dcm.pserror;
+
+    la_pod_a3             <= std_ulogic_vector( debug_trace_dcm.timeout_cnt);
 
     -- ahb grant problem (bla_fpga_grethernet.tla)
 --  la_pod_a2(3 downto 0) <= std_ulogic_vector( box_io_etho.txd(3 downto 0));

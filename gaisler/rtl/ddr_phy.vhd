@@ -69,6 +69,7 @@ entity ddr_phy is
     sdo         : in  sdctrl_out_type;
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic
@@ -95,7 +96,7 @@ begin
 	sdo.address(15 downto 2), sdo.ba(1 downto 0),
 	sdi.data(dbits*2-1 downto 0), sdo.data(dbits*2-1 downto 0), 
 	sdo.dqm(dbits/4-1 downto 0), sdo.bdrive, sdo.bdrive, sdo.qdrive, 
-	sdo.rasn, sdo.casn, sdo.sdwen, sdo.sdcsn, sdo.sdcke, sdo.sdck, sdo.moben, psdone, psclk, psen, psincdec);
+	sdo.rasn, sdo.casn, sdo.sdwen, sdo.sdcsn, sdo.sdcke, sdo.sdck, sdo.moben, psdone, psovfl, psclk, psen, psincdec);
 
 end;
 

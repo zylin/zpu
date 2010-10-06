@@ -9,9 +9,14 @@
 ###
 
 # Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
-TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40% INPUT_JITTER 1 ps;
+#TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40% INPUT_JITTER 1 ps;
+TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40%;
 										   
 INST "box_i0/clk_gen_i0/dcm_sp_i0" LOC = "DCM_X0Y1";
+
+# becaus routing problems
+INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll" LOC = "DCM_X0Y0";
+INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y0";
 
 # ethernet clock
 TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 40% ;
@@ -24,26 +29,46 @@ PIN "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll.CLKIN" CLOC
 					   
 
 # ignore timing on DDR controller
-NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r" TNM_NET = FFS "ddr_clk_1";
-NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_270r" TNM_NET = FFS "ddr_clk_2";
+NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r"   TNM_NET = FFS "ddr_clk_1";
+TIMESPEC "TS_CLK_100MHZ" = PERIOD "ddr_clk_1" 100.0 MHz;
 
-NET "box_i0/clk" TNM_NET = "sys_clk";
+#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_270r" TNM_NET = FFS "ddr_clk_2";
+NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b"  TNM_NET = FFS "ddr_clk_2";
 
-TIMESPEC "TS_sys_ddr1" = FROM "sys_clk" TO "ddr_clk_1" TIG;
-TIMESPEC "TS_ddr1_sys" = FROM "ddr_clk_1" TO "sys_clk" TIG;
+NET "box_i0/clk"                   TNM_NET = "sys_clk";
+NET "box_i0/clk_gen_i0_clk_100MHz" TNM_NET = "fast_clk";
 
-TIMESPEC "TS_sys_ddr2" = FROM "sys_clk" TO "ddr_clk_2" TIG;
-TIMESPEC "TS_ddr2_sys" = FROM "ddr_clk_2" TO "sys_clk" TIG;
+TIMESPEC "TS_sys_fast"  = FROM "sys_clk"   TO "fast_clk"   TIG;
+TIMESPEC "TS_fast_sys"  = FROM "fast_clk"  TO "sys_clk"    TIG;
+                        
+                        
+TIMESPEC "TS_sys_ddr1"  = FROM "sys_clk"   TO "ddr_clk_1"  TIG;
+TIMESPEC "TS_ddr1_sys"  = FROM "ddr_clk_1" TO "sys_clk"    TIG;
+                        
+TIMESPEC "TS_sys_ddr2"  = FROM "sys_clk"   TO "ddr_clk_2"  TIG;
+TIMESPEC "TS_ddr2_sys"  = FROM "ddr_clk_2" TO "sys_clk"    TIG;
+                        
+TIMESPEC "TS_fast_ddr2"  = FROM "fast_clk"  TO "ddr_clk_2" TIG;
+TIMESPEC "TS_ddr2_fast"  = FROM "ddr_clk_2" TO "fast_clk"  TIG;
 
-TIMESPEC "TS_ddr1_ddr2" = FROM "ddr_clk_1" TO "ddr_clk_2" TIG;
-TIMESPEC "TS_ddr2_ddr1" = FROM "ddr_clk_2" TO "ddr_clk_1" TIG;
+# it's for the writing clock, relevant
+#TIMESPEC "TS_ddr1_ddr2" = FROM "ddr_clk_1" TO "ddr_clk_2" TIG;
+#TIMESPEC "TS_ddr2_ddr1" = FROM "ddr_clk_2" TO "ddr_clk_1" TIG;
 
 
 INST "*/*dq_pad/*"  IOBDELAY=NONE;
 INST "*/*dqs_pad/*" IOBDELAY=NONE;
 
-
+#NET "*/ddr_dqsin*"  IOBDELAY=NONE;
+#NET "*/ddr_dqs*"    IOBDELAY=NONE;
+#NET "*/ddr_dqsoen*" IOBDELAY=NONE;
 			
+
+#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsin[0]"  IOBDELAY=NONE;
+#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsin[1]"  IOBDELAY=NONE;
+#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsoen[0]" IOBDELAY=NONE;
+#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsoen[1]" IOBDELAY=NONE;
+
 # additional for direct clk to ddr DCMs
 #NET "CLK_50MHZ" CLOCK_DEDICATED_ROUTE = FALSE;
 #PIN "box_i0/clk_gen_i0/dcm_sp_i0.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;

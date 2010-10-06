@@ -51,6 +51,7 @@ entity box is
                                          
         debug_trace     : out   debug_signals_t;
         debug_trace_box : out   debug_signals_t;
+        debug_trace_dcm : out   debug_signals_t;
         -- to stop simulation
         break           : out   std_ulogic
 
@@ -120,7 +121,9 @@ architecture rtl of box is
     signal gpti                          : gptimer_in_type;
     signal gptimer_i0_gpto               : gptimer_out_type;
             
-    signal clk_gen_i0_psdone             : std_ulogic;
+    --signal clk_gen_i0_psdone             : std_ulogic;
+    signal ddrspa_i0_psdone		 : std_ulogic;
+    signal ddrspa_i0_psovfl		 : std_ulogic;
     signal dcm_ctrl_apb_i0_psen          : std_ulogic;
     signal dcm_ctrl_apb_i0_psincdec      : std_ulogic;
 
@@ -271,6 +274,7 @@ begin
     --    80 MHz    8:5                   0   ok
     --    90 MHz    9:5                   0   ok
     --   100 MHz    2:1                   0   ok 
+    --   110 MHz   11:5  
     --   120 MHz   12:5                   0   partly errors
     --   125 MHz    5:2                   0   failed
     --   130 MHz   13:5                   0   failed
@@ -287,7 +291,7 @@ begin
             clkmul         => 1, -- for clk_ddr
             clkdiv         => 1, -- for clk_ddr
             col            => 10,
-            Mbyte          => 16,
+            Mbyte          => 8,
             pwron          => 1
         )
         port map (
@@ -320,7 +324,8 @@ begin
             ddr_dq         => ddr_dq,          -- inout  std_logic_vector (ddrbits-1 downto 0) -- ddr data
             --
             psclk          => clk,
-            psdone         => clk_gen_i0_psdone,
+            psdone         => ddrspa_i0_psdone,
+            psovfl         => ddrspa_i0_psovfl,
             psen           => dcm_ctrl_apb_i0_psen,
             psincdec       => dcm_ctrl_apb_i0_psincdec
         );
@@ -471,13 +476,17 @@ begin
             apbi        => apbctrl_i0_apbi,
             apbo        => apbo(14),
             --
-            psdone      => clk_gen_i0_psdone,
+            psdone      => ddrspa_i0_psdone,
+            psovfl      => ddrspa_i0_psovfl,
             psen        => dcm_ctrl_apb_i0_psen,
-            psincdec    => dcm_ctrl_apb_i0_psincdec
+            psincdec    => dcm_ctrl_apb_i0_psincdec,
+            --
+            debug_trace => debug_trace_dcm
         );
     debug_trace_box.psen     <= dcm_ctrl_apb_i0_psen;
     debug_trace_box.psincdec <= dcm_ctrl_apb_i0_psincdec;
-    debug_trace_box.psdone   <= clk_gen_i0_psdone;
+    debug_trace_box.psdone   <= ddrspa_i0_psdone;
+    debug_trace_box.psovfl   <= ddrspa_i0_psovfl;
     debug_trace_box.clk_in   <= fpga_clk.clk50;
     debug_trace_box.clk_out  <= clk;
 

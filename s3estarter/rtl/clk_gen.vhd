@@ -17,6 +17,7 @@ entity clk_gen is
         clk_ready  : out std_ulogic;
         --
         psdone     : out std_ulogic;
+        psovfl     : out std_ulogic;
         psen       : in  std_ulogic;
         psincdec   : in  std_ulogic
     );
@@ -26,9 +27,10 @@ end entity clk_gen;
 
 architecture rtl of clk_gen is
 
-    signal clk0  : std_ulogic;
-    signal clk2x : std_ulogic;
-    signal clkfx : std_ulogic;
+    signal clk0             : std_ulogic;
+    signal clk2x            : std_ulogic;
+    signal clkfx            : std_ulogic;
+    signal dcm_sp_i0_status : std_logic_vector(7 downto 0);
 
 begin
     
@@ -36,7 +38,7 @@ begin
         generic map (
             CLKDV_DIVIDE            => 2.0,     -- Divide by: 1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6.0,6.5
                                                 -- 7.0,7.5,8.0,9.0,10.0,11.0,12.0,13.0,14.0,15.0 or 16.0
-            CLKFX_MULTIPLY          => 2,       -- Can be any integer from 1 to 32
+            CLKFX_MULTIPLY          =>  2,      -- Can be any integer from 1 to 32
             CLKFX_DIVIDE            => 1,       -- Can be any interger from 1 to 32
             CLKIN_DIVIDE_BY_2       => FALSE,   -- TRUE/FALSE to enable CLKIN divide by two feature
             CLKIN_PERIOD            => 20.0,    -- Specify period of input clock
@@ -50,25 +52,26 @@ begin
             STARTUP_WAIT            => TRUE     -- Delay configuration DONE until DCM_SP LOCK, TRUE/FALSE
         )
         port map (
-            CLK0        => clk0,      -- 0 degree DCM CLK ouptput
-            CLK180      => open,      -- 180 degree DCM CLK output
-            CLK270      => open,      -- 270 degree DCM CLK output
-            CLK2X       => clk2x,     -- 2X DCM CLK output
-            CLK2X180    => open,      -- 2X, 180 degree DCM CLK out
-            CLK90       => open,      -- 90 degree DCM CLK output
-            CLKDV       => clk_25MHz, -- Divided DCM CLK out (CLKDV_DIVIDE)
-            CLKFX       => clkfx,     -- DCM CLK synthesis out (M/D)
-            CLKFX180    => open,      -- 180 degree CLK synthesis out
-            LOCKED      => clk_ready, -- DCM LOCK status output
-            PSDONE      => psdone,    -- Dynamic phase adjust done output
-            STATUS      => open,      -- 8-bit DCM status bits output
-            CLKFB       => clk0,      -- DCM clock feedback
-            CLKIN       => clk,       -- Clock input (from IBUFG, BUFG or DCM)
-            PSCLK       => clk,       -- Dynamic phase adjust clock input
-            PSEN        => psen,      -- Dynamic phase adjust enable input
-            PSINCDEC    => psincdec,  -- Dynamic phase adjust increment/decrement
-            RST         => arst       -- DCM asynchronous reset input
+            CLK0        => clk0,             -- 0 degree DCM CLK ouptput
+            CLK180      => open,             -- 180 degree DCM CLK output
+            CLK270      => open,             -- 270 degree DCM CLK output
+            CLK2X       => clk2x,            -- 2X DCM CLK output
+            CLK2X180    => open,             -- 2X, 180 degree DCM CLK out
+            CLK90       => open,             -- 90 degree DCM CLK output
+            CLKDV       => clk_25MHz,        -- Divided DCM CLK out (CLKDV_DIVIDE)
+            CLKFX       => clkfx,            -- DCM CLK synthesis out (M/D)
+            CLKFX180    => open,             -- 180 degree CLK synthesis out
+            LOCKED      => clk_ready,        -- DCM LOCK status output
+            PSDONE      => psdone,           -- Dynamic phase adjust done output
+            STATUS      => dcm_sp_i0_status, -- 8-bit DCM status bits output
+            CLKFB       => clk0,             -- DCM clock feedback
+            CLKIN       => clk,              -- Clock input (from IBUFG, BUFG or DCM)
+            PSCLK       => clk,              -- Dynamic phase adjust clock input
+            PSEN        => psen,             -- Dynamic phase adjust enable input
+            PSINCDEC    => psincdec,         -- Dynamic phase adjust increment/decrement
+            RST         => arst              -- DCM asynchronous reset input
         );
+        psovfl     <= dcm_sp_i0_status(0);
 
         clk_50MHz  <= clk0;
         clk_100MHz <= clkfx;

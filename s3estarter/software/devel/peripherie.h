@@ -218,9 +218,10 @@ typedef struct {
 
 // dcm control
 typedef struct {
-    volatile uint32_t ready;
-    volatile int32_t dec;
-    volatile int32_t inc;
+    volatile uint32_t psstatus;
+    volatile int32_t  psdec;
+    volatile int32_t  psinc;
+    volatile int32_t  psvalue;
 } dcm_ctrl_t;
 
 

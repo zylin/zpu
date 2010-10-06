@@ -661,6 +661,7 @@ end component;
     ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0); -- ddr data
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic
@@ -869,6 +870,7 @@ component ddr2spa
     sdo         : in  sdctrl_out_type;
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic

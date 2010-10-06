@@ -852,6 +852,7 @@ component ddrphy
     moben       : in  std_logic;
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic

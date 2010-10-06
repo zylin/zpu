@@ -523,12 +523,14 @@ void memory_test( void)
         }
 }
 
+// fill the memory with data (data = address)
 void memory_test_init( uint32_t start, uint32_t length)
 {
     uint32_t *memory = (uint32_t *) start;//(0x90000000);
     uint32_t *memptr;
     uint32_t i;
-   
+  
+    lcd_clear(); lcd_string("memory test init");
 
     memptr = memory;
 
@@ -543,32 +545,31 @@ void memory_test_init( uint32_t start, uint32_t length)
 int memory_test_complete( uint32_t start, uint32_t length)
 {
     uint32_t *memory = (uint32_t *) start;//(0x90000000);
-    uint32_t *memptr;
     uint32_t i;
-    uint32_t read;
+    uint8_t  error;
    
 
-    // read/ compare
-    memptr = memory;
+    // read and compare
+    error = 0;
     for ( i=0; i<length; i++)
     {
-        read = *memptr;
-        if (memptr != read) return( FALSE);
-        memptr++;
+        if (memory != *memory) error++;
+        memory++;
     }
-    return( TRUE);
+    return( error);
 }
 
 int memory_test_dot( void)
 {
     uint32_t i;
     uint32_t s;
-    uint32_t chunks = 0x0002;
-    char str[20];
-    int count_bad;
+    uint32_t chunks = 0x0001;
+    char     str[20];
+    uint32_t count_bad;
+    uint8_t  error;
 
     vga_init();
-    itoa( dcm_ctrl0->dec, str); vga_putstr("phase shift : "); vga_putstr( str); vga_putstr("     ");
+    itoa( dcm_ctrl0->psvalue, str); vga_putstr("phase shift: "); vga_putstr( str); vga_putstr("  status: ");  vga_puthex( 8, dcm_ctrl0->psstatus); vga_putstr("     ");
     
     s         = 0x90000000;
     count_bad = 0;
@@ -579,13 +580,9 @@ int memory_test_dot( void)
         {
             vga_putstr("\n"); vga_puthex( 32, s); vga_putstr(" ");
         }
-        if ( memory_test_complete( s, chunks) )
-            vga_putstr(".");
-        else
-        {
-            vga_putstr("!");
-            count_bad++;
-        }
+        error = memory_test_complete( s, chunks);
+        vga_putchar( '0' + error);
+        count_bad += error;
         s += chunks;
     }
 
@@ -708,74 +705,117 @@ void mem_dump( void)
 void dcm_test_ps( void)
 {
 
-    const uint32_t pattern   = 0x55aaff55;
-    const uint16_t range     = 255;
-    const uint16_t sleeptime = 1;
+    uint32_t get_max_range( uint32_t sdram_config)
+    {
+        uint32_t frequency;
+        uint32_t factor;
+        uint32_t value;
+
+        frequency = sdram_config & 0x00000fff;                 // mask bits
+        factor    = (frequency < 60) ? 10 : 15;            // select factor
+        value     = factor * ((1000/frequency) - 3);       // p. 127, ug331.pdf
+        return( value);
+    }
+
+    uint16_t       range_max = get_max_range( ddr0->sdram_config);
     uint16_t       i;
     uint16_t       min_error;
     int32_t        min_error_pos;
     int32_t        low_value;
     int32_t        high_value;
+    int32_t        end_value;
     char           str[20];
+    int8_t         low_found;
+    int8_t         high_found;
 
     putstr("\n\nDCM phase shift testing");
     
-    putstr("\ninitial: "); itoa( dcm_ctrl0->dec, str); putstr( str); putstr(" "); puthex( 32, memory_test_dot() );
+    i = memory_test_dot();
+    putstr("\ninitial: "); itoa( dcm_ctrl0->psvalue, str); putstr( str); putstr(" "); puthex( 32, i);
 
-    // go down
-    while (dcm_ctrl0->dec > -range)
+    lcd_clear(); lcd_string("go down");
+    //while (dcm_ctrl0->psstatus != 3)
+    while (dcm_ctrl0->psvalue > -range_max)
     {
-        dcm_ctrl0->dec = 0;
-        msleep( sleeptime);
+        dcm_ctrl0->psdec = 0; while (dcm_ctrl0->psstatus == 0); 
     }
 
-    // search low value
+    // set one up
+    dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
+    dcm_ctrl0->psstatus = 0;
+    
+    lcd_clear(); lcd_string("scan range");
+    lcd_setcursor( 0, 2); itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
+    sleep(2);
     i             = 0xffff;
     min_error     = 0xffff;
-    min_error_pos = -range;
-    while (( i != 0) && (dcm_ctrl0->dec < range))
+    min_error_pos = dcm_ctrl0->psvalue;
+
+    low_found     = FALSE; low_value  = -5555;
+    high_found    = FALSE; high_value =  5555;
+
+    //while ( dcm_ctrl0->psstatus != 3)
+    while ( dcm_ctrl0->psvalue < range_max) 
     {
-        dcm_ctrl0->inc = 0;
+        dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
+
         i = memory_test_dot();
+        vga_putstr("\n");
+
+        // min error detection
         if (i < min_error)
         {
             min_error = i;
-            min_error_pos = dcm_ctrl0->dec;
+            min_error_pos = dcm_ctrl0->psvalue;
         }
-        putstr("\n"); itoa( i, str); putstr( str); 
-    }
-    low_value = dcm_ctrl0->dec;
-
-    // search high value
-    i = 0;
-    while ((i == 0) && (dcm_ctrl0->dec < range))
-    {
-        dcm_ctrl0->inc = 0;
-        i = memory_test_dot();
-        if (i < min_error)
+        // low value
+        if ( (i == 0) && (!low_found) )
         {
-            min_error = i;
-            min_error_pos = dcm_ctrl0->dec;
+            low_found = TRUE;
+            low_value = dcm_ctrl0->psvalue;
         }
-        putstr("\n"); itoa( i, str); putstr( str);
-    }
-    high_value = dcm_ctrl0->dec;
-    // go to eye
-    //for (i=0; i<( ( high_value-low_value) / 2); i++)
-    for (i=0; i<( ( high_value-min_error_pos) ); i++)
-    {
-        dcm_ctrl0->dec = 0;
-        msleep( sleeptime);
-        //loop_until_bit_is_set( dcm_ctrl0->ready, (1<<0) );
+        if ( (i == 0) && low_found )
+        {
+            high_found = TRUE;
+            high_value = dcm_ctrl0->psvalue;
+        }
+        // uart + lcd debug
+        putstr("\n");        
+        lcd_setcursor( 0, 2); 
+        itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
+        uart_putstr( str); uart_putstr("\t");
+        itoa( i, str); putstr( str); 
+        vga_putstr("    ");
     }
 
+    lcd_clear(); lcd_string("go to eye");
+    if ((low_found) && (high_found))
+        end_value = high_value - ((high_value - low_value) / 2);
+    else
+        end_value = min_error_pos;
+
+    // end_value means now the left shift
+    end_value = dcm_ctrl0->psvalue - end_value;
+
+    while (end_value > 0)
+    {
+        end_value--;
+        dcm_ctrl0->psdec = 0;  while (dcm_ctrl0->psstatus == 0); 
+    }
+    
+    putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
+    putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
     putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
     putstr("\nhigh:        "); itoa( high_value, str);               putstr( str);
+    putstr("\n");
     putstr("\ndiff:        "); itoa(  high_value-low_value, str);    putstr( str);
     putstr("\ndiff/2:      "); itoa( (high_value-low_value)/2, str); putstr( str);
+    putstr("\n");
     putstr("\nmin_err:     "); itoa( min_error, str);                putstr( str);
     putstr("\nmin_err_pos: "); itoa( min_error_pos, str);            putstr( str);
-    putstr("\nfinal:       "); itoa( dcm_ctrl0->dec, str);           putstr( str);
+    putstr("\n");
+    putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
+    lcd_clear(); lcd_string("dcm_test_ps done");
 }
 
 
@@ -786,8 +826,6 @@ int main(void)
     // check if on simulator or on hardware
     simulation_active = bit_is_set(gpio0->iodata, (1<<31));
 
-    memory_test_init( 0x90000000, 0x0010000);
-
     timer_init();
     lcd_init();
     vga_init();
@@ -795,6 +833,9 @@ int main(void)
     running_light_init();
     ether_init();
     
+    // fill the memory once (safe time)
+    memory_test_init( 0x90000000, 0x0010000);
+
     lcd_string("init done.");
     
     putstr("\n\n");
@@ -804,8 +845,8 @@ int main(void)
     (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
     putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
-    //memory_info();
-    //sleep( 5);
+    memory_info();
+    sleep( 5);
 
     dcm_test_ps();
     sleep( 10);
@@ -819,8 +860,9 @@ int main(void)
     {
         memory_test_dot();
         //sleep( 1);
-        if bit_is_set( gpio0->iodata, (1<<7))   dcm_ctrl0->dec = 0; // btn west -> dec ps
-        if bit_is_set( gpio0->iodata, (1<<4))   dcm_ctrl0->inc = 0; // btn east -> inc ps
+        if bit_is_set( gpio0->iodata, (1<<7))   dcm_ctrl0->psdec = 0; // btn west -> dec ps
+        if bit_is_set( gpio0->iodata, (1<<4))   dcm_ctrl0->psinc = 0; // btn east -> inc ps
+        if bit_is_set( gpio0->iodata, (1<<5))   memory_test_init( 0x90000000, 0x0010000); // btn ???? -> inc ps
 
     }
 

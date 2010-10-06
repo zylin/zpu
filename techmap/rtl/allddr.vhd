@@ -203,6 +203,7 @@ component spartan3e_ddr_phy
     cke       	: in  std_logic_vector(1 downto 0);
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic

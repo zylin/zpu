@@ -52,6 +52,7 @@ package fpga_components is
 
             debug_trace     : out   debug_signals_t;
             debug_trace_box : out   debug_signals_t;
+            debug_trace_dcm : out   debug_signals_t;
             -- to stop simulation
             break           : out   std_ulogic
         );
@@ -70,6 +71,7 @@ package fpga_components is
             clk_ready  : out std_ulogic;
             --
             psdone     : out std_ulogic;
+            psovfl     : out std_ulogic;
             psen       : in  std_ulogic;
             psincdec   : in  std_ulogic
         );
@@ -259,14 +261,17 @@ package fpga_components is
         pmask    : integer := 16#fff#
       );
       port (
-        rst_n    : in  std_ulogic;
-        clk      : in  std_ulogic;
-        apbi     : in  apb_slv_in_type;
-        apbo     : out apb_slv_out_type;
-
-        psdone   : in  std_ulogic;
-        psen     : out std_ulogic;
-        psincdec : out std_ulogic
+        rst_n           : in  std_ulogic;
+        clk             : in  std_ulogic;
+        apbi            : in  apb_slv_in_type;
+        apbo            : out apb_slv_out_type;
+                        
+        psdone          : in  std_ulogic;
+        psovfl          : in  std_ulogic;
+        psen            : out std_ulogic;
+        psincdec        : out std_ulogic;
+            
+        debug_trace     : out   debug_signals_t
       );
     end component dcm_ctrl_apb;
 

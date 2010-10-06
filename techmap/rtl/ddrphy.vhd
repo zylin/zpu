@@ -80,6 +80,7 @@ entity ddrphy is
     moben       : in  std_logic;
     --
     psdone      : out std_ulogic;
+    psovfl      : out std_ulogic;
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic
@@ -205,7 +206,7 @@ begin
 	ddr_cke, ddr_csb, ddr_web, ddr_rasb, ddr_casb, 
 	ddr_dm, ddr_dqs, ddr_ad, ddr_ba, ddr_dq,
 	addr, ba, dqin, dqout, dm, oen, dqs, dqsoen,
-	rasn, casn, wen, csn, cke, psdone, psclk, psen, psincdec);
+	rasn, casn, wen, csn, cke, psdone, psovfl, psclk, psen, psincdec);
 
   end generate;
 

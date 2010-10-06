@@ -60,3 +60,9 @@ glob:sp601/sp601_restore_flash/*
 #others
 glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
 glob:s3estarter/doc/Untersuchung des DDR.doc
+glob:beam_position_monitor/
+glob:bpm/
+glob:rubygem/
+glob:soc-lm32
+glob:src/
+glob:xilinx_ddr_ref_design/
