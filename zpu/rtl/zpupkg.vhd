@@ -100,8 +100,7 @@ package zpupkg is
 
 	component zpu_core is
     port ( clk : in std_logic;
-	 		  areset : in std_logic;
-	 		  enable : in std_logic; 
+	 		  reset  : in std_logic;
 	 		  in_mem_busy : in std_logic; 
 	 		  mem_read : in std_logic_vector(wordSize-1 downto 0);
 	 		  mem_write : out std_logic_vector(wordSize-1 downto 0);
@@ -116,24 +115,27 @@ package zpupkg is
 
 	
 	component timer is
-	  port(
-	       clk              : in std_logic;
-			 areset				: in std_logic;
-			 we					: in std_logic;
-			 din					: in std_logic_vector(7 downto 0);
-			 adr					: in std_logic_vector(2 downto 0);
-			 dout					: out std_logic_vector(7 downto 0));
+	    port (
+	        clk             : in std_logic;
+			reset			: in std_logic;
+			we				: in std_logic;
+			din				: in std_logic_vector(7 downto 0);
+			adr				: in std_logic_vector(2 downto 0);
+			dout			: out std_logic_vector(7 downto 0)
+        );
 	end component;
 
 	component  zpuio is
-		port (	areset			: in std_logic;
-				cpu_clk			: in std_logic;
-				clk_status		: in std_logic_vector(2 downto 0);
-				cpu_din			: in std_logic_vector(15 downto 0);
-				cpu_a			: in std_logic_vector(20 downto 0);
-				cpu_we			: in std_logic_vector(1 downto 0);
-				cpu_re			: in std_logic;
-				cpu_dout		: inout std_logic_vector(15 downto 0));
+		port (	
+            reset	 		: in std_logic;
+			cpu_clk			: in std_logic;
+			clk_status		: in std_logic_vector(2 downto 0);
+			cpu_din			: in std_logic_vector(15 downto 0);
+			cpu_a			: in std_logic_vector(20 downto 0);
+			cpu_we			: in std_logic_vector(1 downto 0);
+			cpu_re			: in std_logic;
+			cpu_dout		: inout std_logic_vector(15 downto 0)
+        );
 	end component;
 
 

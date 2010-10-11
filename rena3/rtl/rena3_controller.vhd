@@ -44,6 +44,8 @@ begin
     --
     -- optional -> automatic readout after defined acquire time
 
+    rena3_out <= default_rena3_controller_out_c;
+    zpu_out   <= default_zpu_in_c;
 
     --------------------
     comb : process(r)

@@ -7,8 +7,7 @@ rtl_files    = ../rtl/version.vhd \
                ../rtl/devices.vhd \
                ../rtl/*.vhd
 
-rtl_tb_files = 
-#	       ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/*.vhd
 
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 

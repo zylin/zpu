@@ -1,3 +1,6 @@
+-- 
+-- only a test with a running led
+--
 -- ibox design
 
 library ieee;
@@ -8,7 +11,7 @@ use s3estarter.types.all;
 
 
 
-entity ibox is
+entity ibox_test is
     port (
         clk             : in    std_ulogic;
         reset           : in    std_ulogic;
@@ -17,7 +20,7 @@ entity ibox is
         fpga_led        : out   fpga_led_out_t; 
         fpga_rotary_sw  : in    fpga_rotary_sw_in_t
     );
-end entity ibox;
+end entity ibox_test;
 
 
 
@@ -25,7 +28,7 @@ library ieee;
 use ieee.numeric_std.all;
 
 
-architecture rtl of ibox is
+architecture rtl of ibox_test is
     
     function gen_counter_max return positive is
         variable result : positive;

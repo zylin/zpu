@@ -181,7 +181,7 @@ begin
     zpu_ahb_i0: zpu_ahb
     port map (
         clk    => clk,             -- : in  std_ulogic;
-	 	areset => reset,           -- : in  std_ulogic;
+	 	reset  => reset,           -- : in  std_ulogic;
         ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
         ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic

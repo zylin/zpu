@@ -38,15 +38,15 @@ use ieee.numeric_std.all;
 
 package zpu_config is
 	-- generate trace output
-	constant	Generate_Trace		: boolean := true;
+	constant	Generate_Trace		: boolean := false;-- true; -- BLa
 	constant 	wordPower			: integer := 5;
 	-- during simulation, set this to '0' to get matching trace.txt 
 	constant	DontCareValue		: std_logic := '0';
 	-- Clock frequency in MHz.
-	constant	ZPU_Frequency		: std_logic_vector(7 downto 0) := x"64";
+	constant	ZPU_Frequency		: std_logic_vector(7 downto 0) := std_logic_vector(to_unsigned(50, 8));
 	-- This is the msb address bit. bytes=2^(maxAddrBitIncIO+1)
-	constant 	maxAddrBitIncIO		: integer := 31; -- was: 27
-	constant 	maxAddrBitBRAM		: integer := 16;
+	constant 	maxAddrBitIncIO		: integer := 31; -- BLa: 31 -- was: 27
+	constant 	maxAddrBitBRAM		: integer := 13; -- was: 16
 		
 	-- start byte address of stack. 
 	-- point to top of RAM - 2*words

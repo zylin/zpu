@@ -25,6 +25,12 @@ package zpu_wrapper_package is
         -- be cleared automatically
         interrupt   : std_ulogic;
     end record;
+    constant default_zpu_in_c: zpu_in_t := (
+        enable    => '0',
+        mem_busy  => '0',
+        mem_read  => (others => '0'),
+        interrupt => '0'
+    );
 
     type zpu_out_t is record
         mem_write           : std_ulogic_vector(wordSize-1 downto 0);			  
@@ -40,12 +46,20 @@ package zpu_wrapper_package is
         -- in simulation to stop simulation
         break               : std_ulogic;
     end record;
+    constant default_zpu_out_c : zpu_out_t := (
+        mem_write       => (others => '0'), 
+        mem_addr        => (others => '0'),
+        mem_writeEnable => '0',
+        mem_readEnable  => '0',
+        mem_writeMask   => (others => '0'),
+        break           => '0'
+    );
 
     component zpu_wrapper is
         Port ( 
             clk     : in  std_ulogic;
             -- asynchronous reset signal
-            areset  : in  std_ulogic;
+            reset   : in  std_ulogic;
 
             zpu_in  : in  zpu_in_t;
             zpu_out : out zpu_out_t
@@ -72,7 +86,7 @@ package zpu_wrapper_package is
         port ( 
             clk     : in  std_ulogic;
             -- asynchronous reset signal
-            areset  : in  std_ulogic;
+            reset   : in  std_ulogic;
 
             -- ahb
             ahbi   : in  ahb_mst_in_type; 
@@ -81,6 +95,23 @@ package zpu_wrapper_package is
             break  : out std_ulogic
         );
     end component zpu_ahb;
+
+    component zpu_bus_trace is
+        generic (
+            log_file            : string := "bus_trace.txt"
+        );
+        port (
+            clk                 : in std_logic;
+            reset               : in std_logic;
+            --
+            in_mem_busy         : in std_logic; 
+            mem_read            : in std_logic_vector(wordSize-1 downto 0);
+            mem_write           : in std_logic_vector(wordSize-1 downto 0);              
+            out_mem_addr        : in std_logic_vector(maxAddrBitIncIO downto 0);
+            out_mem_writeEnable : in std_logic; 
+            out_mem_readEnable  : in std_logic
+        );
+    end component zpu_bus_trace;
 
 
 end package zpu_wrapper_package;
@@ -103,8 +134,8 @@ use zpu.zpupkg.zpu_core;
 entity zpu_wrapper is
     Port ( 
         clk     : in  std_ulogic;
-    	-- asynchronous reset signal
-	 	areset  : in  std_ulogic;
+    	-- reset signal
+	 	reset   : in  std_ulogic;
 
         zpu_in  : in  zpu_in_t;
         zpu_out : out zpu_out_t
@@ -125,9 +156,8 @@ begin
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
-            areset              => areset,
+            reset               => reset,
             --
-            enable              => zpu_in.enable,
             in_mem_busy         => zpu_in.mem_busy,
             mem_read            => std_logic_vector(zpu_in.mem_read),
             interrupt           => zpu_in.interrupt,
@@ -146,7 +176,7 @@ begin
     zpu_out.mem_readEnable      <= std_ulogic(out_mem_readEnable);
     zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
-end architecture;
+end architecture rtl;
 
 
 
@@ -171,7 +201,7 @@ entity zpu_ahb is
     Port ( 
         clk     : in  std_ulogic;
     	-- asynchronous reset signal
-	 	areset  : in  std_ulogic;
+	 	reset   : in  std_ulogic;
 
         -- ahb
         ahbi   : in  ahb_mst_in_type; 
@@ -184,7 +214,11 @@ end zpu_ahb;
 
 architecture rtl of zpu_ahb is
 
-    constant me_c              : string  := rtl'path_name;
+    constant me_c              : string  :=
+    -- pragma translate_off
+   	 rtl'path_name &
+    -- pragma translate_on
+	 "";
 
     signal mem_write           : std_logic_vector(31 downto 0);
     signal out_mem_addr        : std_logic_vector(31 downto 0);
@@ -192,13 +226,11 @@ architecture rtl of zpu_ahb is
     signal out_mem_readEnable  : std_logic;
     signal mem_writeMask       : std_logic_vector(3 downto 0);
 
-    signal enable              : std_logic;
+    signal busy                : std_logic;
 
 begin
 
     -- TODO ahbi.hgrant
-    -- TODO ahbi.hready
-    -- TODO ahbi.hresp
     -- TODO ahbi.cache
     -- TODO ahbi.hirq
     -- TODO ahbi.testen
@@ -224,13 +256,14 @@ begin
         end case;
     end process check;
 
+    busy <= out_mem_readEnable or not ahbi.hready;
+
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
-            areset              => areset,
+            reset               => reset,
             --
-            enable              => ahbi.hready,
-            in_mem_busy         => ahbi.hready,
+            in_mem_busy         => busy,
             mem_read            => ahbi.hrdata,
             interrupt           => or_reduce(ahbi.hirq),
             --
@@ -242,14 +275,14 @@ begin
             break               => break
         );
 
-    ahbo.hbusreq <= '1';
-    ahbo.hlock   <= '1';
+    ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable;
+    ahbo.hlock   <= '0';
     ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
     ahbo.haddr   <= out_mem_addr;-- & "0000";
     ahbo.hwrite  <= out_mem_writeEnable;
     ahbo.hsize   <= HSIZE_WORD;
     ahbo.hburst  <= HBURST_SINGLE;
-    ahbo.hprot   <= (others => '0');
+    ahbo.hprot   <= "0001";
     ahbo.hwdata  <= mem_write;
     ahbo.hirq    <= (others => '0');
     ahbo.hconfig <= (others => (others => '0')); 
@@ -257,4 +290,19 @@ begin
 
     --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
 
-end architecture;
+    -- pragma translate_off
+    zpu_bus_trace_i0: zpu_bus_trace
+    port map (
+        clk                     => clk,                 -- : in std_logic;
+        reset                   => reset,               -- : in std_logic;
+        --                      =>                      -- 
+        in_mem_busy             => busy,                -- : in std_logic; 
+        mem_read                => ahbi.hrdata,         -- : in std_logic_vector(wordSize-1 downto 0);
+        mem_write               => mem_write,           -- : in std_logic_vector(wordSize-1 downto 0);              
+        out_mem_addr            => out_mem_addr,        -- : in std_logic_vector(maxAddrBitIncIO downto 0);
+        out_mem_writeEnable     => out_mem_writeEnable, -- : in std_logic; 
+        out_mem_readEnable      => out_mem_readEnable   -- : in std_logic
+    );
+    -- pragma translate_on
+
+end architecture rtl;

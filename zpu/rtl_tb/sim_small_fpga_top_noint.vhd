@@ -53,7 +53,7 @@ architecture behave of fpga_top is
 
 signal clk : std_logic;
 
-signal	areset			: std_logic := '1';
+signal	reset			: std_logic := '1';
 
 
 component  zpu_io is
@@ -62,7 +62,7 @@ component  zpu_io is
           );
   port(
        	clk         : in std_logic;
-       	areset        : in std_logic;
+       	reset        : in std_logic;
 		busy : out std_logic;
 		writeEnable : in std_logic;
 		readEnable : in std_logic;
@@ -83,8 +83,6 @@ signal			  mem_addr : std_logic_vector(maxAddrBitIncIO downto 0);
 signal			  mem_writeEnable : std_logic; 
 signal			  mem_readEnable : std_logic;
 signal			  mem_writeMask: std_logic_vector(wordBytes-1 downto 0);
-
-signal			  enable : std_logic;
 
 signal			  dram_mem_busy : std_logic;
 signal			  dram_mem_read : std_logic_vector(wordSize-1 downto 0);
@@ -113,8 +111,7 @@ begin
 
 	zpu: zpu_core port map (
 		clk => clk ,
-	 	areset => areset,
-	 	enable => enable,
+	 	reset => reset,
  		in_mem_busy => mem_busy, 
  		mem_read => mem_read,
  		mem_write => mem_write, 
@@ -128,7 +125,7 @@ begin
 
 	ioMap: zpu_io port map (
        	clk => clk,
-	 	areset => areset,
+	 	reset => reset,
 		busy => io_busy,
 		writeEnable => io_mem_writeEnable,
 		readEnable => io_mem_readEnable,
@@ -165,17 +162,15 @@ begin
 	io_ready <= (io_reading or io_mem_readEnable) and not io_busy;
 
 	memoryControlSync:
-	process(clk, areset)
+	process
 	begin
-		if areset = '1' then
-			enable <= '0';
-			io_reading <= '0';
-			dram_ready <= '0';
-			
-		elsif (clk'event and clk = '1') then
-			enable <= '1';
-			io_reading <= io_busy or io_mem_readEnable; 
-			dram_ready<=dram_mem_readEnable;
+		wait until rising_edge(clk);
+		io_reading  	<= io_busy or io_mem_readEnable; 
+		dram_ready  	<= dram_mem_readEnable;
+
+		if reset = '1' then
+			io_reading  <= '0';
+			dram_ready  <= '0';
 		end if;
 	end process;
 
@@ -186,7 +181,7 @@ begin
 		   wait for 5 ns; 
    			clk <= '1';
 		   wait for 5 ns; 
-		   areset <= '0';
+		   reset <= '0';
 	end PROCESS clock;
 
 

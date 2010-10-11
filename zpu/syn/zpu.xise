@@ -15,41 +15,40 @@
   <version xil_pn:ise_version="12.2" xil_pn:schema_version="2"/>
 
   <files>
-    <file xil_pn:name="s3estarter.ucf" xil_pn:type="FILE_UCF">
-      <association xil_pn:name="Implementation"/>
-    </file>
-    <file xil_pn:name="../rtl/fpga_types.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../rtl/zpu_core_small.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
-      <library xil_pn:name="s3estarter"/>
+      <library xil_pn:name="zpu"/>
     </file>
-    <file xil_pn:name="../rtl/ibox.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../rtl/dualport_ram.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
-      <library xil_pn:name="s3estarter"/>
+      <library xil_pn:name="zpu"/>
     </file>
-    <file xil_pn:name="../rtl/obox.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../rtl/zpu_config.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
-      <library xil_pn:name="s3estarter"/>
+      <library xil_pn:name="zpu"/>
     </file>
-    <file xil_pn:name="../rtl/top.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../rtl/zpupkg.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
-      <library xil_pn:name="s3estarter"/>
+      <library xil_pn:name="zpu"/>
     </file>
   </files>
 
   <properties>
     <property xil_pn:name="Device" xil_pn:value="xc3s500e" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Device Family" xil_pn:value="Spartan3E" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|top|rtl" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="../../rtl/top.vhd" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/top" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Generate Detailed MAP Report" xil_pn:value="true" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|zpu_core|behave" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="../../rtl/zpu_core_small.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/zpu_core" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Package" xil_pn:value="fg320" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Preferred Language" xil_pn:value="VHDL" xil_pn:valueState="default"/>
+    <property xil_pn:name="Project Description" xil_pn:value="test synthesis for zpu" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Property Specification in Project File" xil_pn:value="Store non-default values only" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Simulator" xil_pn:value="Modelsim-XE VHDL" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Simulator" xil_pn:value="Modelsim-PE VHDL" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Speed Grade" xil_pn:value="-5" xil_pn:valueState="default"/>
     <property xil_pn:name="Synthesis Tool" xil_pn:value="XST (VHDL/Verilog)" xil_pn:valueState="default"/>
     <property xil_pn:name="Top-Level Source Type" xil_pn:value="HDL" xil_pn:valueState="default"/>
@@ -58,10 +57,10 @@
     <!--                                                                                  -->
     <!-- The following properties are for internal use only. These should not be modified.-->
     <!--                                                                                  -->
-    <property xil_pn:name="PROP_DesignName" xil_pn:value="xst" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_DesignName" xil_pn:value="zpu" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_DevFamilyPMName" xil_pn:value="spartan3e" xil_pn:valueState="default"/>
-    <property xil_pn:name="PROP_intProjectCreationTimestamp" xil_pn:value="2010-07-28T13:31:47" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="PROP_intWbtProjectID" xil_pn:value="CDB67F517F174923B9BFA7F953ADF4F5" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_intProjectCreationTimestamp" xil_pn:value="2010-08-02T09:56:56" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="PROP_intWbtProjectID" xil_pn:value="50AE5A95445243FFB1B465458D1F5EB4" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_intWorkingDirLocWRTProjDir" xil_pn:value="UnderProjDir" xil_pn:valueState="non-default"/>
     <property xil_pn:name="PROP_intWorkingDirUsed" xil_pn:value="Yes" xil_pn:valueState="non-default"/>
   </properties>
@@ -69,7 +68,7 @@
   <bindings/>
 
   <libraries>
-    <library xil_pn:name="s3estarter"/>
+    <library xil_pn:name="zpu"/>
   </libraries>
 
   <autoManagedFiles>

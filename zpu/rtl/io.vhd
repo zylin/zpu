@@ -14,14 +14,14 @@ entity  zpu_io is
            log_file:       string  := "log.txt"
           );
   port(
-       	clk         : in std_logic;
-       	areset        : in std_logic;
-		busy : out std_logic;
-		writeEnable : in std_logic;
-		readEnable : in std_logic;
-		write	: in std_logic_vector(wordSize-1 downto 0);
-		read	: out std_logic_vector(wordSize-1 downto 0);
-		addr : in std_logic_vector(maxAddrBit downto minAddrBit)
+       	clk         : in  std_logic;
+       	reset       : in  std_logic;
+		busy        : out std_logic;
+		writeEnable : in  std_logic;
+		readEnable  : in  std_logic;
+		write	    : in  std_logic_vector(wordSize-1 downto 0);
+		read    	: out std_logic_vector(wordSize-1 downto 0);
+		addr        : in  std_logic_vector(maxAddrBit downto minAddrBit)
 		);
 end zpu_io;
    
@@ -46,24 +46,26 @@ begin
 	
 	timerinst: timer port map (
        clk => clk,
-		 areset => areset,
-		 we => timer_we,
-		 din => write(7 downto 0),
-		 adr => addr(4 downto 2),
-		 dout => timer_read);
+		 reset => reset,
+		 we    => timer_we,
+		 din   => write(7 downto 0),
+		 adr   => addr(4 downto 2),
+		 dout  => timer_read);
 	
-	busy <= writeEnable or readEnable;
+	busy     <= writeEnable or  readEnable;
 	timer_we <= writeEnable and addr(12);
 	
-	process(areset, clk)
+	process
 	variable taddr         : std_logic_vector(maxAddrBit downto 0);
     variable outstr        : string(1 to 200);
     variable outstr_length : natural := 0;
 	begin
+        wait until rising_edge( clk);
 
-		if (areset = '1') then
+		if (reset = '1') then
 --			timer_we <= '0';
-		elsif rising_edge(clk) then
+            null;
+		else
 --			timer_we <= '0';
 		    taddr := (others => '0');
     		taddr(maxAddrBit downto minAddrBit) := addr;
@@ -71,7 +73,7 @@ begin
 			if writeEnable = '1' then
 				-- external interface (fixed address)
 				--<JK> extend compare to avoid waring messages
-				if ("1" & addr & lowAddrBits)=x"80a000c" then
+				if ("1" & addr & lowAddrBits)=x"080a000c" then
 					--report "Write to UART[0]" & " :0x" & hstr(write);
 					-- Write to UART
 				    --report "" & character'val(to_integer(unsigned(write))) severity note;
@@ -99,11 +101,11 @@ begin
 			read <= (others => '0');
 			if (readEnable = '1') then
 				--<JK> extend compare to avoid waring messages
-				if ("1" & addr & lowAddrBits)=x"80a000c" then
+				if ("1" & addr & lowAddrBits)=x"080a000c" then
 					--report "Read UART[0]";
 					read(8) <= not tx_full; -- output fifo not full
 					read(9) <= not rx_empty; -- receiver not empty
-				elsif ("1" & addr & lowAddrBits)=x"80a0010" then
+				elsif ("1" & addr & lowAddrBits)=x"080a0010" then
 					report "Read UART[1]";
 					read(8) <= not rx_empty; -- receiver not empty
 					read(7 downto 0) <= (others => '0');

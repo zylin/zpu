@@ -18,11 +18,13 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 all: compile simulate
 
 compile: lib
+	make compile --directory ../../global/sim
 	make compile --directory ../../gaisler/sim
 	make compile --directory ../../grlib/sim
 	make compile --directory ../../tools/sim
+	make --directory ../software/devel/ test
 	make compile --directory ../../zpu/sim
-	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+	vcom -2008 -quiet -work $(library) $(vhdlfiles) | ccze -A
 
 simulate:
 	export top=$(top); \

@@ -1,0 +1,64 @@
+#include "peripherie.h"
+
+////////////////////////////////////////
+// timer functions
+
+void msleep(uint32_t msec)
+{
+    uint32_t tcr;
+
+    // 1 msec    = 6250
+    // 167 msec  = 2**20 (20 bit counter) 391 slices
+    // 2684 msec = 2**24 (24 bit counter) 450 slices
+    //           = 2**32 (32 bit counter) 572 slices
+    timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000)*msec;
+    timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
+
+    do 
+    {
+        tcr = timer0->e[0].ctrl;
+    } while ( (tcr & TIMER_ENABLE));
+}
+
+void sleep(uint32_t sec)
+{
+    uint32_t timer;
+
+    for (timer=0; timer<sec; timer++)
+    {
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+        msleep( 166);
+    }
+}
+
+void usleep(uint32_t nsec)
+{
+    uint32_t tcr;
+
+    // 1 nsec = 6
+    timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000000)*nsec;
+    timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
+
+    do 
+    {
+        tcr = timer0->e[0].ctrl;
+    } while ( (tcr & TIMER_ENABLE));
+}
+
+void wait( uint32_t value)
+{
+    uint32_t i;
+
+    for (i=0; i<value; i++) {}
+}
+
+void timer_init( void)
+{
+    timer0->scaler_reload = TIMER_PRESCALER-1; // set prescaler
+}
+
+
