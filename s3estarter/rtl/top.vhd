@@ -386,12 +386,17 @@ begin
     FX2_IO(20 downto 13)  <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );
 
     -- connections to logic analyzer pods
-    connect_pods: process
+    connect_pods: process( debug_trace_box)
     begin
         -- set defaults
         la_pod_a2 <= (others => '0');
         la_pod_a3 <= (others => '0');
         la_pod_c2 <= (others => '0');
+        
+        -- ddr clocks
+        la_pod_a2(0)  <= debug_trace_box.sys_clk;
+        la_pod_a2(1)  <= debug_trace_box.ddr_clk;
+        la_pod_a2(2)  <= debug_trace_box.ddr_fb_clk;
 
     -- clk phase shift (bla_fpga_clkps.tla)
 --  la_pod_a2(1)          <= debug_trace_box.psen;

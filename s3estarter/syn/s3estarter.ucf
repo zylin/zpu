@@ -60,7 +60,7 @@ TIMESPEC "TS_ddr_feedback_net" = PERIOD "ddr_feedback_net" 138 MHz HIGH 50% ;
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r"   TNM_NET = FFS "ddr_clk_1";
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b"  TNM_NET = FFS "ddr_clk_2";
 
-NET "box_i0/clk"               TNM_NET = "sys_clk";
+#NET "box_i0/clk"               TNM_NET = "sys_clk";
 #NET "box_i0/clk_gen_i0_clk_fx" TNM_NET = "fast_clk";
 
 #TIMESPEC "TS_sys_fast"  = FROM "sys_clk"   TO "fast_clk"   TIG;

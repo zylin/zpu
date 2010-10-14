@@ -292,7 +292,7 @@ begin
             MHz            => 100,
             clkmul         => 1,       -- for clk_ddr
             clkdiv         => 1,       -- for clk_ddr
-            col            => 9,       -- others use only 9, we 10 why?
+            col            => 10,      -- column address: 1024
             Mbyte          => 32,
             pwron          => 1
         )
@@ -330,6 +330,9 @@ begin
             psincdec       => dcm_ctrl_apb_i0_psincdec
         );
 
+    debug_trace_box.sys_clk    <= clk;
+    debug_trace_box.ddr_clk    <= clk_gen_i0_clk_fx;
+    debug_trace_box.ddr_fb_clk <= ddrspa_i0_clkddro;
             
 
     ---------------------------------------------------------------------

@@ -22,9 +22,13 @@ package global_signals is
         clk_in       : std_ulogic;
         clk_out      : std_ulogic;
         --
-        timeout_cnt : unsigned(7 downto 0); 
-        psready     : std_ulogic;
-        pserror     : std_ulogic;
+        timeout_cnt  : unsigned(7 downto 0); 
+        psready      : std_ulogic;
+        pserror      : std_ulogic;
+        --
+        sys_clk      : std_ulogic;
+        ddr_clk      : std_ulogic;
+        ddr_fb_clk   : std_ulogic;
     end record;
 
     signal global_break    : std_ulogic;
