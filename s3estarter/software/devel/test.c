@@ -3,6 +3,8 @@
 #include "peripherie.h"
 #include "lcd-routines.h"
 
+//#define LCD_ENABLE
+
 ////////////////////////////////////////
 // common defines
 
@@ -10,6 +12,15 @@
 #define bit_is_clear(mem, bv)             (!(mem & bv))
 #define loop_until_bit_is_set(mem, bv)    do {} while( bit_is_clear(mem, bv))
 #define loop_until_bit_is_clear(mem, bv)  do {} while( bit_is_set(mem, bv))
+
+////////////////////////////////////////
+// named keys
+#define BUTTON_WEST                       (1<<7)
+#define BUTTON_EAST                       (1<<4)
+#define BUTTON_SOUTH                      (1<<5)
+#define BUTTON_NORTH                      (1<<6)  // is it right
+
+#define WORD_MODE                         (0)
 
 uint32_t simulation_active;
 
@@ -68,8 +79,8 @@ void uart_hex(unsigned char dataType, unsigned long data)
     for(i=count; i>0; i--)
     {
         temp = data % 16;
-        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
-        else dataString [i+1] = (temp - 10) + 0x41;
+        if (temp<10) dataString [i+1] = temp + 0x30;
+        else         dataString [i+1] = (temp - 10) + 0x41;
 
         data = data/16;
     }
@@ -190,12 +201,27 @@ void puthex(unsigned char dataType, unsigned long data)
     for(i=count; i>0; i--)
     {
         temp = data % 16;
-        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
-        else dataString [i+1] = (temp - 10) + 0x41;
+        if (temp<10) dataString [i+1] = temp + 0x30;
+        else         dataString [i+1] = (temp - 10) + 0x41;
 
         data = data/16;
     }
     uart_putstr( dataString);
+    vga_putstr( dataString);
+}
+
+
+void vga_putbin(unsigned char dataType, unsigned long data) 
+{
+    unsigned char count, i, temp;
+    char dataString[] = "0b                                ";
+
+    for(i=dataType; i>0; i--)
+    {
+        temp = data % 2;
+        dataString [i+1] = temp + 0x30;
+        data = data/2;
+    }
     vga_putstr( dataString);
 }
 
@@ -212,8 +238,8 @@ void vga_puthex(unsigned char dataType, unsigned long data)
     for(i=count; i>0; i--)
     {
         temp = data % 16;
-        if((temp>=0) && (temp<10)) dataString [i+1] = temp + 0x30;
-        else dataString [i+1] = (temp - 10) + 0x41;
+        if (temp<10) dataString [i+1] = temp + 0x30;
+        else         dataString [i+1] = (temp - 10) + 0x41;
 
         data = data/16;
     }
@@ -530,7 +556,9 @@ void memory_test_init( uint32_t start, uint32_t length)
     uint32_t *memptr;
     uint32_t i;
   
+    #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("memory test init");
+    #endif
 
     memptr = memory;
 
@@ -546,6 +574,7 @@ int memory_test_complete( uint32_t start, uint32_t length)
 {
     uint32_t *memory = (uint32_t *) start;//(0x90000000);
     uint32_t i;
+    uint32_t data;
     uint8_t  error;
    
 
@@ -553,37 +582,61 @@ int memory_test_complete( uint32_t start, uint32_t length)
     error = 0;
     for ( i=0; i<length; i++)
     {
-        if (memory != *memory) error++;
+        data = *memory;
+        if (memory != data) error++;
         memory++;
     }
     return( error);
 }
 
-int memory_test_dot( void)
+int memory_test_dot( int mode)
+// mode 0  --> print wordwise
+// mode 1  --> print bitwise
 {
     uint32_t i;
     uint32_t s;
+    uint32_t *mem;
+    uint32_t data;
     uint32_t chunks = 0x0001;
     char     str[20];
     uint32_t count_bad;
     uint8_t  error;
 
     vga_init();
-    itoa( dcm_ctrl0->psvalue, str); vga_putstr("phase shift: "); vga_putstr( str); vga_putstr("  status: ");  vga_puthex( 8, dcm_ctrl0->psstatus); vga_putstr("     ");
+    // print status line
+    itoa( dcm_ctrl0->psvalue, str); vga_putstr("phase shift  -  value: "); vga_putstr( str); vga_putstr("  status: ");  vga_puthex( 8, dcm_ctrl0->psstatus); vga_putstr("     ");
     
-    s         = 0x90000000;
     count_bad = 0;
+    s         = 0x90000000;
 
-    for (i=0; i<2048; i++)
+
+    if (mode == WORD_MODE)
     {
-        if ((i%64) == 0)
+
+        for (i=0; i<2048; i++)
         {
-            vga_putstr("\n"); vga_puthex( 32, s); vga_putstr(" ");
+            if ((i%64) == 0)
+            {
+                vga_putstr("\n"); vga_puthex( 32, s); vga_putstr(" ");
+            }
+            error = memory_test_complete( s, chunks);
+            vga_putchar( '0' + error);
+            count_bad += error;
+            s += sizeof(data) * chunks;
         }
-        error = memory_test_complete( s, chunks);
-        vga_putchar( '0' + error);
-        count_bad += error;
-        s += chunks;
+    }
+    else
+    {
+        mem = s;
+        for (i=0; i<32; i++)
+        {
+            vga_putstr("\n"); vga_puthex( 32, mem); vga_putchar(' ');
+            data = *mem;
+            vga_putbin( 32, data); vga_putchar(' ');
+            if (mem == data) vga_putstr("ok  ");
+            else             vga_putstr("FAIL");
+            mem++;
+        }
     }
 
     return( count_bad);
@@ -730,10 +783,12 @@ void dcm_test_ps( void)
 
     putstr("\n\nDCM phase shift testing");
     
-    i = memory_test_dot();
+    i = memory_test_dot( WORD_MODE);
     putstr("\ninitial: "); itoa( dcm_ctrl0->psvalue, str); putstr( str); putstr(" "); puthex( 32, i);
 
+    #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("go down");
+    #endif
     //while (dcm_ctrl0->psstatus != 3)
     while (dcm_ctrl0->psvalue > -range_max)
     {
@@ -744,8 +799,10 @@ void dcm_test_ps( void)
     dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
     dcm_ctrl0->psstatus = 0;
     
+    #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("scan range");
     lcd_setcursor( 0, 2); itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
+    #endif
     sleep(2);
     i             = 0xffff;
     min_error     = 0xffff;
@@ -759,7 +816,7 @@ void dcm_test_ps( void)
     {
         dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
 
-        i = memory_test_dot();
+        i = memory_test_dot( WORD_MODE);
         vga_putstr("\n");
 
         // min error detection
@@ -782,13 +839,18 @@ void dcm_test_ps( void)
         // uart + lcd debug
         putstr("\n");        
         lcd_setcursor( 0, 2); 
-        itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
+        itoa( dcm_ctrl0->psvalue, str); 
+        #ifdef LCD_ENABLE
+        lcd_string( str); lcd_data( ' ');
+        #endif
         uart_putstr( str); uart_putstr("\t");
         itoa( i, str); putstr( str); 
         vga_putstr("    ");
     }
 
+    #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("go to eye");
+    #endif
     if ((low_found) && (high_found))
         end_value = high_value - ((high_value - low_value) / 2);
     else
@@ -815,13 +877,18 @@ void dcm_test_ps( void)
     putstr("\nmin_err_pos: "); itoa( min_error_pos, str);            putstr( str);
     putstr("\n");
     putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
+    #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("dcm_test_ps done");
+    #endif
 }
 
 
 int main(void)
 {
     char str[20];
+    int  test_mode;
+
+    test_mode = WORD_MODE;
 
     // check if on simulator or on hardware
     simulation_active = bit_is_set(gpio0->iodata, (1<<31));
@@ -836,7 +903,9 @@ int main(void)
     // fill the memory once (safe time)
     memory_test_init( 0x90000000, 0x0010000);
 
+    #ifdef LCD_ENABLE
     lcd_string("init done.");
+    #endif
     
     putstr("\n\n");
     vga_clear();
@@ -851,18 +920,40 @@ int main(void)
     dcm_test_ps();
     sleep( 10);
     
-    //vga_clear();
-    //mem_dump();
-    //sleep( 10);
-
     vga_clear();
+    #ifdef LCD_ENABLE
+    lcd_clear(); lcd_string("enter main loop");
+    #endif
     while (1)
     {
-        memory_test_dot();
+        memory_test_dot( test_mode);
         //sleep( 1);
-        if bit_is_set( gpio0->iodata, (1<<7))   dcm_ctrl0->psdec = 0; // btn west -> dec ps
-        if bit_is_set( gpio0->iodata, (1<<4))   dcm_ctrl0->psinc = 0; // btn east -> inc ps
-        if bit_is_set( gpio0->iodata, (1<<5))   memory_test_init( 0x90000000, 0x0010000); // btn ???? -> inc ps
+        if bit_is_set( gpio0->iodata, BUTTON_WEST)   
+        {
+            #ifdef LCD_ENABLE
+            lcd_clear(); lcd_string("ps step down");
+            #endif
+            dcm_ctrl0->psdec = 0;
+        }
+
+        if bit_is_set( gpio0->iodata, BUTTON_EAST)
+        {
+            #ifdef LCD_ENABLE
+            lcd_clear(); lcd_string("ps step up");
+            #endif
+            dcm_ctrl0->psinc = 0;
+        }
+
+        if bit_is_set( gpio0->iodata, BUTTON_SOUTH)  memory_test_init( 0x90000000, 0x0010000); // btn south -> inc ps
+
+        if bit_is_set( gpio0->iodata, BUTTON_NORTH)  
+        {
+            #ifdef LCD_ENABLE
+            lcd_clear(); lcd_string("switch test mode");
+            #endif
+            vga_clear();
+            test_mode = !(test_mode);
+        }
 
     }
 
