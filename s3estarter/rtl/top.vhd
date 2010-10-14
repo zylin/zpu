@@ -233,9 +233,9 @@ architecture rtl of top is
     signal debug_trace         : debug_signals_t;
     signal debug_trace_box     : debug_signals_t;
     signal debug_trace_dcm     : debug_signals_t;
-    signal la_pod_a2           : std_ulogic_vector(7 downto 0) := (others => '0');
-    signal la_pod_a3           : std_ulogic_vector(7 downto 0) := (others => '0');
-    signal la_pod_c2           : std_ulogic_vector(7 downto 0) := (others => '0');
+    signal la_pod_a2           : std_ulogic_vector(7 downto 0);
+    signal la_pod_a3           : std_ulogic_vector(7 downto 0);
+    signal la_pod_c2           : std_ulogic_vector(7 downto 0);
 
     function simulation_active return std_ulogic is
         variable result : std_ulogic;
@@ -341,7 +341,6 @@ begin
             ddr_clk         => box_i0_ddr_clk,      -- : out   std_logic_vector(2 downto 0);
             ddr_clkb        => box_i0_ddr_clkb,     -- : out   std_logic_vector(2 downto 0);
             ddr_clk_fb      => SD_CK_FB,            -- : in    std_logic;
-            ddr_clk_fb_out  => open,                -- : out   std_logic;
             ddr_cke         => box_i0_ddr_cke,      -- : out   std_logic_vector(1 downto 0);
             ddr_csb         => box_i0_ddr_csb,      -- : out   std_logic_vector(1 downto 0);
             ddr_web         => SD_WE,               -- : out   std_ulogic;                     -- ddr write enable
@@ -361,8 +360,8 @@ begin
     SD_CK_P           <= box_i0_ddr_clk(0);
     SD_CK_N           <= box_i0_ddr_clkb(0);
                      
-    SD_UDQS           <= box_i0_ddr_dqs(1); -- right ??
-    SD_LDQS           <= box_i0_ddr_dqs(0); -- right ??
+    SD_LDQS           <= box_i0_ddr_dqs(0);
+    SD_UDQS           <= box_i0_ddr_dqs(1);
     SD_CKE            <= box_i0_ddr_cke(0);
     SD_CS             <= box_i0_ddr_csb(0);
     SD_LDM            <= box_i0_ddr_dm(0);
@@ -387,16 +386,23 @@ begin
     FX2_IO(20 downto 13)  <= std_logic_vector( box_i0_gpioo.dout( 7 downto 0) );
 
     -- connections to logic analyzer pods
-    -- clk phase shift (bla_fpga_clkps.tla)
---  la_pod_a2(0)          <= debug_trace_box.clk_in;
-    la_pod_a2(1)          <= debug_trace_box.psen;
-    la_pod_a2(2)          <= debug_trace_box.psincdec;
-    la_pod_a2(3)          <= debug_trace_box.psdone;
-    la_pod_a2(4)          <= debug_trace_box.psovfl;
-    la_pod_a2(5)          <= debug_trace_dcm.psready; 
-    la_pod_a2(6)          <= debug_trace_dcm.pserror;
+    connect_pods: process
+    begin
+        -- set defaults
+        la_pod_a2 <= (others => '0');
+        la_pod_a3 <= (others => '0');
+        la_pod_c2 <= (others => '0');
 
-    la_pod_a3             <= std_ulogic_vector( debug_trace_dcm.timeout_cnt);
+    -- clk phase shift (bla_fpga_clkps.tla)
+--  la_pod_a2(1)          <= debug_trace_box.psen;
+--  la_pod_a2(2)          <= debug_trace_box.psincdec;
+--  la_pod_a2(3)          <= debug_trace_box.psdone;
+--  la_pod_a2(4)          <= debug_trace_box.psovfl;
+--  la_pod_a2(5)          <= debug_trace_dcm.psready; 
+--  la_pod_a2(6)          <= debug_trace_dcm.pserror;
+
+--  la_pod_a3             <= std_ulogic_vector( debug_trace_dcm.timeout_cnt);
+--  
 
     -- ahb grant problem (bla_fpga_grethernet.tla)
 --  la_pod_a2(3 downto 0) <= std_ulogic_vector( box_io_etho.txd(3 downto 0));
@@ -419,7 +425,9 @@ begin
 --  la_pod_c2(4)          <= debug_trace_box.ahbmo0_bureq;
 --  la_pod_c2(5)          <= debug_trace_box.ahbmo1_bureq;
 
+    end process connect_pods;
 
+    -- map la_pod over fx2 pins
     FX2_IO( 8 downto  1) <= std_logic_vector( la_pod_a2);
     FX2_IO(12 downto  9) <= std_logic_vector( la_pod_a3(3 downto 0));
     FX2_IO(24 downto 21) <= std_logic_vector( la_pod_a3(7 downto 4));
