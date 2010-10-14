@@ -1,6 +1,10 @@
 #####################################################
 ### SPARTAN-3E STARTER KIT BOARD CONSTRAINTS FILE
 #####################################################
+## Family:      spartan3e
+## Device:      XC3S500e
+## Package:     FG320
+## Speed Grade: -4 (the cheaper one)
 
 
 
@@ -8,74 +12,76 @@
 ### timing constraints
 ###
 
+#
 # Define clock period for 50 MHz oscillator (40%/60% duty-cycle)
-#TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40% INPUT_JITTER 1 ps;
+#
 TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40%;
-										   
-INST "box_i0/clk_gen_i0/dcm_sp_i0" LOC = "DCM_X0Y1";
+
+
+#
+# DCM placement
+#
 
 # becaus routing problems
-INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll" LOC = "DCM_X0Y0";
-INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y0";
+INST "box_i0/clk_gen_i0/dcm_sp_i0"                                     LOC = "DCM_X0Y1";
 
+INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll"           LOC = "DCM_X0Y0";
+INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y1";
+
+# long routing for fb clock
+# dosen't find eye
+#INST "box_i0/clk_gen_i0/dcm_sp_i0"                                     LOC = "DCM_X1Y1";
+
+#INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll"           LOC = "DCM_X0Y0";
+#INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y1";
+
+#
 # ethernet clock
-TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 40% ;
+#
+TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 50% ;
+# need because misplaced ethernet clock lines
 NET "E_RX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
 NET "E_TX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
+# this net can be fixed to side-bufg (only logic in one quadrant)
+#INST "E_TX_CLK_BUFGP" LOC = "BUFGMUX_X3Y2" ;
+
+
+
+#
+# DDR timing
+#
 
 # DDR memory clock feedback
 NET "SD_CK_FB" CLOCK_DEDICATED_ROUTE = FALSE;
-PIN "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
-					   
+NET "SD_CK_FB" TNM_NET = "ddr_feedback_net";
+TIMESPEC "TS_ddr_feedback_net" = PERIOD "ddr_feedback_net" 138 MHz HIGH 50% ;
 
 # ignore timing on DDR controller
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r"   TNM_NET = FFS "ddr_clk_1";
-TIMESPEC "TS_CLK_100MHZ" = PERIOD "ddr_clk_1" 100.0 MHz;
-
-#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_270r" TNM_NET = FFS "ddr_clk_2";
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b"  TNM_NET = FFS "ddr_clk_2";
 
-NET "box_i0/clk"                   TNM_NET = "sys_clk";
-NET "box_i0/clk_gen_i0_clk_100MHz" TNM_NET = "fast_clk";
+NET "box_i0/clk"               TNM_NET = "sys_clk";
+#NET "box_i0/clk_gen_i0_clk_fx" TNM_NET = "fast_clk";
 
-TIMESPEC "TS_sys_fast"  = FROM "sys_clk"   TO "fast_clk"   TIG;
-TIMESPEC "TS_fast_sys"  = FROM "fast_clk"  TO "sys_clk"    TIG;
+#TIMESPEC "TS_sys_fast"  = FROM "sys_clk"   TO "fast_clk"   TIG;
+#TIMESPEC "TS_fast_sys"  = FROM "fast_clk"  TO "sys_clk"    TIG;
                         
                         
-TIMESPEC "TS_sys_ddr1"  = FROM "sys_clk"   TO "ddr_clk_1"  TIG;
-TIMESPEC "TS_ddr1_sys"  = FROM "ddr_clk_1" TO "sys_clk"    TIG;
+#TIMESPEC "TS_sys_ddr1"  = FROM "sys_clk"   TO "ddr_clk_1"  TIG;
+#TIMESPEC "TS_ddr1_sys"  = FROM "ddr_clk_1" TO "sys_clk"    TIG;
+#                        
+#TIMESPEC "TS_sys_ddr2"  = FROM "sys_clk"   TO "ddr_clk_2"  TIG;
+#TIMESPEC "TS_ddr2_sys"  = FROM "ddr_clk_2" TO "sys_clk"    TIG;
                         
-TIMESPEC "TS_sys_ddr2"  = FROM "sys_clk"   TO "ddr_clk_2"  TIG;
-TIMESPEC "TS_ddr2_sys"  = FROM "ddr_clk_2" TO "sys_clk"    TIG;
-                        
-TIMESPEC "TS_fast_ddr2"  = FROM "fast_clk"  TO "ddr_clk_2" TIG;
-TIMESPEC "TS_ddr2_fast"  = FROM "ddr_clk_2" TO "fast_clk"  TIG;
-
-# it's for the writing clock, relevant
-#TIMESPEC "TS_ddr1_ddr2" = FROM "ddr_clk_1" TO "ddr_clk_2" TIG;
-#TIMESPEC "TS_ddr2_ddr1" = FROM "ddr_clk_2" TO "ddr_clk_1" TIG;
+#TIMESPEC "TS_fast_ddr2"  = FROM "fast_clk"  TO "ddr_clk_2" TIG;
+#TIMESPEC "TS_ddr2_fast"  = FROM "ddr_clk_2" TO "fast_clk"  TIG;
 
 
-INST "*/*dq_pad/*"  IOBDELAY=NONE;
-INST "*/*dqs_pad/*" IOBDELAY=NONE;
-
-#NET "*/ddr_dqsin*"  IOBDELAY=NONE;
-#NET "*/ddr_dqs*"    IOBDELAY=NONE;
-#NET "*/ddr_dqsoen*" IOBDELAY=NONE;
-			
-
-#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsin[0]"  IOBDELAY=NONE;
-#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsin[1]"  IOBDELAY=NONE;
-#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsoen[0]" IOBDELAY=NONE;
-#NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/ddr_dqsoen[1]" IOBDELAY=NONE;
-
-# additional for direct clk to ddr DCMs
-#NET "CLK_50MHZ" CLOCK_DEDICATED_ROUTE = FALSE;
-#PIN "box_i0/clk_gen_i0/dcm_sp_i0.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
 
 ###
 ### placement constraints
 ###
+
 # internal memory for zpu 8x4 bit = 32 bit width
 INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
 INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
@@ -85,14 +91,15 @@ INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram5" AREA_GROUP = "ZPU_MEM5" ;
 INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram6" AREA_GROUP = "ZPU_MEM6" ;
 INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
 INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
-AREA_GROUP "ZPU_MEM1" RANGE = "RAMB16_X1Y1:RAMB16_X1Y1" ;
-AREA_GROUP "ZPU_MEM2" RANGE = "RAMB16_X1Y2:RAMB16_X1Y2" ;
-AREA_GROUP "ZPU_MEM3" RANGE = "RAMB16_X1Y3:RAMB16_X1Y3" ;
-AREA_GROUP "ZPU_MEM4" RANGE = "RAMB16_X1Y4:RAMB16_X1Y4" ;
-AREA_GROUP "ZPU_MEM5" RANGE = "RAMB16_X1Y5:RAMB16_X1Y5" ;
-AREA_GROUP "ZPU_MEM6" RANGE = "RAMB16_X1Y6:RAMB16_X1Y6" ;
-AREA_GROUP "ZPU_MEM7" RANGE = "RAMB16_X1Y7:RAMB16_X1Y7" ;
-AREA_GROUP "ZPU_MEM8" RANGE = "RAMB16_X1Y8:RAMB16_X1Y8" ;
+# planahead has problems with "" around range
+AREA_GROUP "ZPU_MEM1" RANGE = RAMB16_X1Y1:RAMB16_X1Y1 ;
+AREA_GROUP "ZPU_MEM2" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;
+AREA_GROUP "ZPU_MEM3" RANGE = RAMB16_X1Y3:RAMB16_X1Y3 ;
+AREA_GROUP "ZPU_MEM4" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;
+AREA_GROUP "ZPU_MEM5" RANGE = RAMB16_X1Y5:RAMB16_X1Y5 ;
+AREA_GROUP "ZPU_MEM6" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;
+AREA_GROUP "ZPU_MEM7" RANGE = RAMB16_X1Y7:RAMB16_X1Y7 ;
+AREA_GROUP "ZPU_MEM8" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;
 
 
 
@@ -102,88 +109,88 @@ AREA_GROUP "ZPU_MEM8" RANGE = "RAMB16_X1Y8:RAMB16_X1Y8" ;
 
 # ==== Analog-to-Digital Converter (ADC) ====
 # some connections shared with SPI Flash, DAC, ADC, and AMP
-NET "AD_CONV" LOC = "P11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
+NET "AD_CONV"     LOC = "P11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Programmable Gain Amplifier (AMP) ====
 # some connections shared with SPI Flash, DAC, ADC, and AMP
-NET "AMP_CS" LOC = "N7" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
-NET "AMP_DOUT" LOC = "E18" | IOSTANDARD = LVCMOS33 ;
-NET "AMP_SHDN" LOC = "P7" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
+NET "AMP_CS"      LOC = "N7"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
+NET "AMP_DOUT"    LOC = "E18" | IOSTANDARD = LVCMOS33 ;
+NET "AMP_SHDN"    LOC = "P7"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Pushbuttons (BTN) ====
-NET "BTN_EAST" LOC = "H13" | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_NORTH" LOC = "V4" | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_SOUTH" LOC = "K17" | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_WEST" LOC = "D18" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "BTN_EAST"    LOC = "H13" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "BTN_NORTH"   LOC = "V4"  | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "BTN_SOUTH"   LOC = "K17" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "BTN_WEST"    LOC = "D18" | IOSTANDARD = LVTTL | PULLDOWN ;
 
 # ==== Clock inputs (CLK) ====
-NET "CLK_50MHZ" LOC = "C9" | IOSTANDARD = LVCMOS33 | TNM_NET = "CLK_50MHZ";
-NET "CLK_AUX" LOC = "B8" | IOSTANDARD = LVCMOS33 ;
-NET "CLK_SMA" LOC = "A10" | IOSTANDARD = LVCMOS33 ;
+NET "CLK_50MHZ"   LOC = "C9"  | IOSTANDARD = LVCMOS33 | TNM_NET = "CLK_50MHZ";
+NET "CLK_AUX"     LOC = "B8"  | IOSTANDARD = LVCMOS33 ;
+NET "CLK_SMA"     LOC = "A10" | IOSTANDARD = LVCMOS33 ;
 
 # ==== Digital-to-Analog Converter (DAC) ====
 # some connections shared with SPI Flash, DAC, ADC, and AMP
-NET "DAC_CLR" LOC = "P8" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "DAC_CS" LOC = "N8" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "DAC_CLR"     LOC = "P8"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "DAC_CS"      LOC = "N8"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
 
 # ==== 1-Wire Secure EEPROM (DS)
-NET "DS_WIRE" LOC = "U4" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
+NET "DS_WIRE"     LOC = "U4"  | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
 
 # ==== Ethernet PHY (E) ====
-NET "E_COL"    LOC = "U6"  | IOSTANDARD = LVCMOS33 ;
-NET "E_CRS"    LOC = "U13" | IOSTANDARD = LVCMOS33 ;
-NET "E_MDC"    LOC = "P9"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_MDIO"   LOC = "U5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_RX_CLK" LOC = "V3"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
-
-NET "E_RX_DV"  LOC = "V2"  | IOSTANDARD = LVCMOS33 ;
-NET "E_RXD<0>" LOC = "V8"  | IOSTANDARD = LVCMOS33 ;
-NET "E_RXD<1>" LOC = "T11" | IOSTANDARD = LVCMOS33 ;
-NET "E_RXD<2>" LOC = "U11" | IOSTANDARD = LVCMOS33 ;
-NET "E_RXD<3>" LOC = "V14" | IOSTANDARD = LVCMOS33 ;
-NET "E_RX_ER"  LOC = "U14" | IOSTANDARD = LVCMOS33 ;
-NET "E_TX_CLK" LOC = "T7"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
-NET "E_TX_EN"  LOC = "P15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_TXD<0>" LOC = "R11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_TXD<1>" LOC = "T15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_TXD<2>" LOC = "R5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_TXD<3>" LOC = "T5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "E_TX_ER"  LOC = "R6"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_COL"       LOC = "U6"  | IOSTANDARD = LVCMOS33 ;
+NET "E_CRS"       LOC = "U13" | IOSTANDARD = LVCMOS33 ;
+NET "E_MDC"       LOC = "P9"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_MDIO"      LOC = "U5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_RX_CLK"    LOC = "V3"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
+                  
+NET "E_RX_DV"     LOC = "V2"  | IOSTANDARD = LVCMOS33 ;
+NET "E_RXD<0>"    LOC = "V8"  | IOSTANDARD = LVCMOS33 ;
+NET "E_RXD<1>"    LOC = "T11" | IOSTANDARD = LVCMOS33 ;
+NET "E_RXD<2>"    LOC = "U11" | IOSTANDARD = LVCMOS33 ;
+NET "E_RXD<3>"    LOC = "V14" | IOSTANDARD = LVCMOS33 ;
+NET "E_RX_ER"     LOC = "U14" | IOSTANDARD = LVCMOS33 ;
+NET "E_TX_CLK"    LOC = "T7"  | IOSTANDARD = LVCMOS33 | TNM_NET = "E_CLK";
+NET "E_TX_EN"     LOC = "P15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_TXD<0>"    LOC = "R11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_TXD<1>"    LOC = "T15" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_TXD<2>"    LOC = "R5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_TXD<3>"    LOC = "T5"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "E_TX_ER"     LOC = "R6"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
 
 # ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
-NET "FPGA_M0" LOC = "M10" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "FPGA_M1" LOC = "V11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "FPGA_M2" LOC = "T10" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
-NET "FPGA_INIT_B" LOC = "T3" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 4 ;
+NET "FPGA_M0"     LOC = "M10" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "FPGA_M1"     LOC = "V11" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "FPGA_M2"     LOC = "T10" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 8 ;
+NET "FPGA_INIT_B" LOC = "T3"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 4 ;
 NET "FPGA_RDWR_B" LOC = "U10" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 4 ;
-NET "FPGA_HSWAP" LOC = "B3" | IOSTANDARD = LVCMOS33 ;
+NET "FPGA_HSWAP"  LOC = "B3"  | IOSTANDARD = LVCMOS33 ;
 
 # ==== FX2 Connector (FX2) ====
-NET "FX2_CLKIN" LOC = "E10" | IOSTANDARD = LVCMOS33 ;
-NET "FX2_CLKIO" LOC = "D9" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_CLKIN"  LOC = "E10" | IOSTANDARD = LVCMOS33 ;
+NET "FX2_CLKIO"  LOC = "D9"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_CLKOUT" LOC = "D10" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 
 # These four connections are shared with the J1 6-pin accessory header
-NET "FX2_IO<1>" LOC = "B4" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<2>" LOC = "A4" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<3>" LOC = "D5" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<4>" LOC = "C5" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<1>"  LOC = "B4"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<2>"  LOC = "A4"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<3>"  LOC = "D5"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<4>"  LOC = "C5"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 
 # These four connections are shared with the J2 6-pin accessory header
-NET "FX2_IO<5>" LOC = "A6" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<6>" LOC = "B6" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<7>" LOC = "E7" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<8>" LOC = "F7" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<5>"  LOC = "A6"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<6>"  LOC = "B6"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<7>"  LOC = "E7"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<8>"  LOC = "F7"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 
 # These four connections are shared with the J4 6-pin accessory header
-NET "FX2_IO<9>" LOC = "D7" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<10>" LOC = "C7" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<11>" LOC = "F8" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<12>" LOC = "E8" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<9>"  LOC = "D7"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<10>" LOC = "C7"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<11>" LOC = "F8"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<12>" LOC = "E8"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 
 # The discrete LEDs are shared with the following 8 FX2 connections
-NET "FX2_IO<13>" LOC = "F9" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<14>" LOC = "E9" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<13>" LOC = "F9"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<14>" LOC = "E9"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<15>" LOC = "D11" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<16>" LOC = "C11" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<17>" LOC = "F11" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
@@ -200,18 +207,18 @@ NET "FX2_IO<26>" LOC = "D14" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<27>" LOC = "A16" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<28>" LOC = "B16" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<29>" LOC = "E13" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<30>" LOC = "C4" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<30>" LOC = "C4"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<31>" LOC = "B11" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<32>" LOC = "A11" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<33>" LOC = "A8" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
-NET "FX2_IO<34>" LOC = "G9" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<33>" LOC = "A8"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<34>" LOC = "G9"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 #
 NET "FX2_IO<35>" LOC = "D12" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<36>" LOC = "C12" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<37>" LOC = "A15" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<38>" LOC = "B15" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 #
-NET "FX2_IO<39>" LOC = "C3" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
+NET "FX2_IO<39>" LOC = "C3"  | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 NET "FX2_IO<40>" LOC = "C15" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 
 
@@ -237,13 +244,13 @@ NET "FX2_IO<40>" LOC = "C15" | IOSTANDARD = LVCMOS33 | SLEW = FAST | DRIVE = 8 ;
 #NET "J4<3>" LOC = "E8" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Character LCD (LCD) ====
-NET "LCD_E" LOC = "M18" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
-NET "LCD_RS" LOC = "L18" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
-NET "LCD_RW" LOC = "L17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
+NET "LCD_E"     LOC = "M18" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
+NET "LCD_RS"    LOC = "L18" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
+NET "LCD_RW"    LOC = "L17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 
 # LCD data connections are shared with StrataFlash connections SF_D<11:8>
-#NET "SF_D<8>" LOC = "R15" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
-#NET "SF_D<9>" LOC = "R16" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
+#NET "SF_D<8>"  LOC = "R15" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
+#NET "SF_D<9>"  LOC = "R16" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 #NET "SF_D<10>" LOC = "P17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 #NET "SF_D<11>" LOC = "M15" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 
@@ -255,17 +262,17 @@ NET "LCD_RW" LOC = "L17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 #NET "LED<3>" LOC = "F11" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
 #NET "LED<4>" LOC = "C11" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
 #NET "LED<5>" LOC = "D11" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
-#NET "LED<6>" LOC = "E9" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
-#NET "LED<7>" LOC = "F9" | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
+#NET "LED<6>" LOC = "E9"  | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
+#NET "LED<7>" LOC = "F9"  | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
 
 # ==== PS/2 Mouse/Keyboard Port (PS2) ====
-NET "PS2_CLK" LOC = "G14" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
-NET "PS2_DATA" LOC = "G13" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
+NET "PS2_CLK"           LOC = "G14" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
+NET "PS2_DATA"          LOC = "G13" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
 
 # ==== Rotary Pushbutton Switch (ROT) ====
-NET "ROT_A" LOC = "K18" | IOSTANDARD = LVTTL | PULLUP ;
-NET "ROT_B" LOC = "G18" | IOSTANDARD = LVTTL | PULLUP ;
-NET "ROT_CENTER" LOC = "V16" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "ROT_A"             LOC = "K18" | IOSTANDARD = LVTTL | PULLUP ;
+NET "ROT_B"             LOC = "G18" | IOSTANDARD = LVTTL | PULLUP ;
+NET "ROT_CENTER"        LOC = "V16" | IOSTANDARD = LVTTL | PULLDOWN ;
 
 # ==== RS-232 Serial Ports (RS232) ====
 NET "RS232_DCE_RXD"     LOC = "R7"  | IOSTANDARD = LVTTL ;
@@ -294,27 +301,27 @@ NET "SD_CK_N"           LOC = "J4"  | IOSTANDARD = SSTL2_I ;
 NET "SD_CK_P"           LOC = "J5"  | IOSTANDARD = SSTL2_I ;
 NET "SD_CKE"            LOC = "K3"  | IOSTANDARD = SSTL2_I ;
 NET "SD_CS"             LOC = "K4"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<0>"          LOC = "L2"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<1>"          LOC = "L1"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<2>"          LOC = "L3"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<3>"          LOC = "L4"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<4>"          LOC = "M3"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<5>"          LOC = "M4"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<6>"          LOC = "M5"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<7>"          LOC = "M6"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<8>"          LOC = "E2"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<9>"          LOC = "E1"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<10>"         LOC = "F1"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<11>"         LOC = "F2"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<12>"         LOC = "G6"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<13>"         LOC = "G5"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<14>"         LOC = "H6"  | IOSTANDARD = SSTL2_I ;
-NET "SD_DQ<15>"         LOC = "H5"  | IOSTANDARD = SSTL2_I ;
+NET "SD_DQ<0>"          LOC = "L2"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<1>"          LOC = "L1"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<2>"          LOC = "L3"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<3>"          LOC = "L4"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<4>"          LOC = "M3"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<5>"          LOC = "M4"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<6>"          LOC = "M5"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<7>"          LOC = "M6"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<8>"          LOC = "E2"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<9>"          LOC = "E1"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<10>"         LOC = "F1"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<11>"         LOC = "F2"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<12>"         LOC = "G6"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<13>"         LOC = "G5"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<14>"         LOC = "H6"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_DQ<15>"         LOC = "H5"  | IOSTANDARD = SSTL2_I | PULLUP ;
 NET "SD_LDM"            LOC = "J2"  | IOSTANDARD = SSTL2_I ;
-NET "SD_LDQS"           LOC = "L6"  | IOSTANDARD = SSTL2_I ;
-NET "SD_RAS"            LOC = "C1"  | IOSTANDARD = SSTL2_I ;
 NET "SD_UDM"            LOC = "J1"  | IOSTANDARD = SSTL2_I ;
-NET "SD_UDQS"           LOC = "G3"  | IOSTANDARD = SSTL2_I ;
+NET "SD_RAS"            LOC = "C1"  | IOSTANDARD = SSTL2_I ;
+NET "SD_LDQS"           LOC = "L6"  | IOSTANDARD = SSTL2_I | PULLUP ;
+NET "SD_UDQS"           LOC = "G3"  | IOSTANDARD = SSTL2_I | PULLUP ;
 NET "SD_WE"             LOC = "D1"  | IOSTANDARD = SSTL2_I ;
 
 # Path to allow connection to top DCM connection
@@ -379,7 +386,7 @@ NET "SF_WE"             LOC = "D17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW =
 NET "SPI_MISO" 	        LOC = "N10" | IOSTANDARD = LVCMOS33 ;
 NET "SPI_MOSI" 	        LOC = "T4"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 NET "SPI_SCK" 	        LOC = "U16" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
-NET "SPI_SS_B"          LOC = "U3"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
+NET "SPI_SS_B"          LOC = "U3"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 | PULLUP ;
 NET "SPI_ALT_CS_JP11"   LOC = "R12" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Slide Switches (SW) ====
