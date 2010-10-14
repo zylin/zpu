@@ -1,3 +1,9 @@
+MODULE = top
+DEVICE = xc3s500e-fg320-4
+#UCF_FILE = D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf
+UCF_FILE = s3estarter.ucf
+
+
 
 all:	
 	@echo "check     - look for timing and other synthesis issues"
@@ -13,6 +19,13 @@ all:
 	@echo "progspi   - program spi flash with mcs file"
 	@echo "clean"
 	@echo "..."
+	@echo "testflow  - bitgen update program check"
+	@echo "finalflow - bitgen update progspi check"
+
+testflow: bitgen update program check
+
+finalflow: bitgen update progspi check
+
 
 check:
 	@echo -e "Timing score: "
@@ -22,41 +35,60 @@ check:
 	@echo -e "\nUnassigned signals: "
 	@-grep --with-filename "WARNING:Xst:653"         xst/*.syr
 
+
 update:
-	make test --directory ../../rena3/software/devel
-	data2mem -bm zpu_i0_memory.bmm -bd ../../rena3/software/devel/test.elf -bt xst/top.bit -o b xst/top_update.bit
+	make test --directory ../software/devel
+	data2mem -bm zpu_i0_memory.bmm -bd ../software/devel/test.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
+
 
 program:
 	impact -batch impact.cmd
 
+
 genmcs:
-	promgen -spi -p mcs -w -o top_update.mcs -s 8192 -u 0 xst/top_update.bit
+	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 xst/$(MODULE)_update.bit
+
 
 progspi: genmcs
 	impact -batch prog_spi.cmd
+
 
 clean:
 	rm -f *.log
 	rm _impact.cmd
 
+
 dir:	
 	mkdir -p xst
 
-.PHONY: xst
-xst:	
-	cd xst ; xst -intstyle ise -ifn "D:/home/bl5599/projects/s3estarter/syn/xst/top.xst" -ofn "D:/home/bl5599/projects/s3estarter/syn/xst/top.syr"
-	
-translate: xst
-	cd xst ; ngdbuild -intstyle ise -dd _ngo -nt timestamp -uc D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf -p xc3s500e-fg320-4 top.ngc top.ngd
-	
-map: translate
-	cd xst ; map -intstyle ise -p xc3s500e-fg320-4 -cm area -detail -ir off -pr off -c 100 -o top_map.ncd top.ngd top.pcf
-	
-par: map	
-	cd xst ; par -w -intstyle ise -ol high -t 1 top_map.ncd top.ncd top.pcf
-	
-trace: par	
-	cd xst ; trce -intstyle ise -v 3 -s 5 -n 3 -fastpaths -xml top.twx top.ncd -o top.twr top.pcf
-	
-bitgen: par
-	cd xst ; bitgen -intstyle ise -f top.ut top.ncd
+xst:    $(MODULE).ngc
+translate: $(MODULE).ngd
+map:    $(MODULE)_map.ncd
+par:    $(MODULE).ncd
+
+#.PHONY: xst
+
+$(MODULE).ngc:	
+	cd xst ; xst -ifn "D:/home/bl5599/projects/s3estarter/syn/xst/$(MODULE).xst" -ofn "D:/home/bl5599/projects/s3estarter/syn/xst/$(MODULE).syr"
+
+
+$(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
+	cd xst ; ngdbuild -dd _ngo -nt timestamp -uc ../$(UCF_FILE) -p $(DEVICE) $(MODULE).ngc $(MODULE).ngd
+
+
+$(MODULE)_map.ncd: $(MODULE).ngd
+	cd xst ; map -p $(DEVICE) -cm speed -detail -ir off -pr off -c 100 -o $(MODULE)_map.ncd $(MODULE).ngd $(MODULE).pcf
+
+
+$(MODULE).ncd: $(MODULE)_map.ncd
+	cd xst ; par -w -ol high -t 1 $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
+
+
+trace: $(MODULE).ncd	
+	cd xst ; trce -v 3 -s 5 -n 3 -fastpaths -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
+
+
+bitgen: $(MODULE).ncd
+	cd xst ; bitgen -intstyle ise -f $(MODULE).ut $(MODULE).ncd
+
+
