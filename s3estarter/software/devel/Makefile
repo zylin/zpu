@@ -8,9 +8,11 @@ all:
 	@echo
 	@echo "clean     - clean up"
 
-romgen:
+romgen: zpuromgen.c
 	gcc zpuromgen.c -o zpuromgen 
-hello:
+
+
+hello: romgen
 	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi "`pwd`/hello.c" -o hello.elf -Wl,--relax -Wl,--gc-sections  -g
 	zpu-elf-size hello.elf
 
@@ -22,7 +24,7 @@ hello:
 
 test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
 
-test:
+test: romgen
 	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi "`pwd`/test.c" hw.c timer.c lcd-routines.c -o test.elf -Wl,--relax -Wl,--gc-sections -Wa,-adhls=test.lst -g
 	zpu-elf-size test.elf
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary test.elf test.bin
