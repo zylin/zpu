@@ -1,9 +1,6 @@
 syntax:glob
 
-#download directorys
-*/download/*
-
-#vim stuff
+# vim stuff
 *.swp
 
 # modelsim stuff
@@ -17,22 +14,37 @@ _info
 _vmake
 _temp*
 transcript
+tcl_stacktrace.txt
 
+# c stuff
+*.elf
+*.bin
+*.lst
+
+# download directorys
+*/download/*
 
 # docs
-glob:esnug_c/doc/*.pdf
-glob:grlib/doc/*.pdf
-glob:pacoblaze/doc/*.pdf
-glob:rena3/doc/*.pdf
-glob:s3estarter/doc/*.pdf
-glob:zpu/doc/*.pdf
-glob:tdc/paper/list.txt
+glob:*/doc/*.pdf
+glob:*/doc/*.ppt
+glob:tdc/paper/*.*
 
 glob:ct-lab.zip
 glob:rena3/software/devel/zpuromgen.exe
 
 # syn stuff
 glob:*/syn/xst/*
+glob:*.mcs
+glob:*.bit
+glob:*.prm
+
+# rena3 special
+glob:rena3/doc/*.xls
+glob:rena3/sim/log.txt
+glob:rena3/sim/trace.txt
+
+# s3estarter special
+glob:s3estarter/sim/trace.txt
 
 # esnug simulation special
 glob:esnug_c/sim/test/*_diff.txt
@@ -40,3 +52,20 @@ glob:esnug_c/sim/test/*_dut.txt
 glob:esnug_c/sim/test/*_log.txt
 glob:esnug_c/sim/test/pipe1xx
 glob:esnug_c/sim/test/xxx_*.txt
+
+# special projects
+glob:treemap/Treeviz/*
+glob:sp601/sp601_restore_flash/*
+
+#others
+glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
+glob:s3estarter/doc/Untersuchung des DDR.doc
+glob:bpm/
+glob:rubygem/
+glob:soc-lm32
+glob:src/
+glob:xilinx_ddr_ref_design/
+glob:wb_ddr/
+
+# handled by SVN
+glob:beam_position_monitor/
