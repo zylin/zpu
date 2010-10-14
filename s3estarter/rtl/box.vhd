@@ -37,7 +37,6 @@ entity box is
         ddr_clk         : out   std_logic_vector(2 downto 0);
         ddr_clkb        : out   std_logic_vector(2 downto 0);
         ddr_clk_fb      : in    std_logic;
-        ddr_clk_fb_out  : out   std_logic;
         ddr_cke         : out   std_logic_vector(1 downto 0);
         ddr_csb         : out   std_logic_vector(1 downto 0);
         ddr_web         : out   std_ulogic;                     -- ddr write enable
@@ -96,10 +95,10 @@ use techmap.gencomp.all;
 architecture rtl of box is
     
     signal clk                           : std_ulogic;
-    signal clk_gen_i0_clk_25MHz          : std_ulogic;
-    signal clk_gen_i0_clk_100MHz         : std_ulogic;
+    signal clk_gen_i0_clk_dv             : std_ulogic;
+    signal clk_gen_i0_clk_fx             : std_ulogic;
     signal clk_gen_i0_clk_ready          : std_ulogic;
-    signal clkddr                        : std_ulogic;
+    signal ddrspa_i0_clkddro             : std_ulogic;
 
     signal reset                         : std_ulogic;
                                          
@@ -121,9 +120,8 @@ architecture rtl of box is
     signal gpti                          : gptimer_in_type;
     signal gptimer_i0_gpto               : gptimer_out_type;
             
-    --signal clk_gen_i0_psdone             : std_ulogic;
-    signal ddrspa_i0_psdone		 : std_ulogic;
-    signal ddrspa_i0_psovfl		 : std_ulogic;
+    signal ddrspa_i0_psdone		         : std_ulogic;
+    signal ddrspa_i0_psovfl		         : std_ulogic;
     signal dcm_ctrl_apb_i0_psen          : std_ulogic;
     signal dcm_ctrl_apb_i0_psincdec      : std_ulogic;
 
@@ -134,13 +132,17 @@ begin
     -- select clk and reset source 
 
     clk_gen_i0: clk_gen
+        generic map (
+            fx_mul     => 2,                        -- integer 2..32
+            fx_div     => 1                         -- integer 1..32
+        )
         port map (
             clk        => fpga_clk.clk50,           -- : in  std_ulogic;
             arst       => fpga_rotary_sw.center,    -- : in  std_ulogic;
             --
-            clk_100MHz => clk_gen_i0_clk_100MHz,    -- : out std_ulogic;
-            clk_50MHz  => clk,                      -- : out std_ulogic;
-            clk_25MHz  => clk_gen_i0_clk_25MHz,     -- : out std_ulogic;
+            clkfx      => clk_gen_i0_clk_fx,        -- : out std_ulogic;
+            clk50      => clk,                      -- : out std_ulogic;
+            clkdv      => clk_gen_i0_clk_dv,        -- : out std_ulogic;
             clk_ready  => clk_gen_i0_clk_ready,     -- : out std_ulogic
             --
             psdone     => open,  -- clk_gen_i0_psdone,        -- : out std_ulogic;
@@ -285,32 +287,30 @@ begin
             memtech        => DEFMEMTECH,
             hindex         => 2,
             haddr          => 16#900#,
-            hmask          => 16#FC0#,
-            ddrbits        => 16,
+            hmask          => 16#F00#, -- my guess: FC0
+            ddrbits        => 16,     
             MHz            => 100,
-            clkmul         => 1, -- for clk_ddr
-            clkdiv         => 1, -- for clk_ddr
-            col            => 10,
-            Mbyte          => 8,
+            clkmul         => 1,       -- for clk_ddr
+            clkdiv         => 1,       -- for clk_ddr
+            col            => 9,       -- others use only 9, we 10 why?
+            Mbyte          => 32,
             pwron          => 1
         )
         port map (
             rst_ddr        => '1',                   -- in  std_ulogic;
             rst_ahb        => reset_n,               -- in  std_ulogic;
-            clk_ddr        => clk_gen_i0_clk_100MHz, -- in  std_ulogic;
-          --clk_ddr        => fpga_clk.clk50,        -- in  std_ulogic;
+            clk_ddr        => clk_gen_i0_clk_fx,     -- in  std_ulogic;
             clk_ahb        => clk,                   -- in  std_ulogic;
             lock           => open,                  -- out std_ulogic; -- DCM locked
-            clkddro        => clkddr,                -- out std_ulogic; -- DCM locked
-          --clkddri        => clkddr,                -- in  std_ulogic;
-            clkddri        => clk_gen_i0_clk_100MHz, -- in  std_ulogic;
+            clkddro        => ddrspa_i0_clkddro,     -- out std_ulogic;
+            clkddri        => ddrspa_i0_clkddro,     -- in  std_ulogic;
 
             ahbsi          => ahbctrl_i0_slvi, -- in  ahb_slv_in_type;
             ahbso          => ahbso(2),        -- out ahb_slv_out_type;
 
             ddr_clk        => ddr_clk,         -- out std_logic_vector(2 downto 0);
             ddr_clkb       => ddr_clkb,        -- out std_logic_vector(2 downto 0);
-            ddr_clk_fb_out => ddr_clk_fb_out,  -- out std_logic;
+            ddr_clk_fb_out => open,            -- out std_logic;
             ddr_clk_fb     => ddr_clk_fb,      -- in std_logic;
             ddr_cke        => ddr_cke,         -- out std_logic_vector(1 downto 0);
             ddr_csb        => ddr_csb,         -- out std_logic_vector(1 downto 0);
@@ -415,7 +415,7 @@ begin
         port map (
             rst     => reset_n,
             clk     => clk,
-            vgaclk  => clk_gen_i0_clk_25MHz,
+            vgaclk  => clk_gen_i0_clk_dv,
             apbi    => apbctrl_i0_apbi,
             apbo    => apbo(6),
             vgao    => vgao

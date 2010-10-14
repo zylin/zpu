@@ -38,7 +38,6 @@ package fpga_components is
             ddr_clk         : out   std_logic_vector(2 downto 0);
             ddr_clkb        : out   std_logic_vector(2 downto 0);
             ddr_clk_fb      : in    std_logic;
-            ddr_clk_fb_out  : out   std_logic;
             ddr_cke         : out   std_logic_vector(1 downto 0);
             ddr_csb         : out   std_logic_vector(1 downto 0);
             ddr_web         : out   std_ulogic;                     -- ddr write enable
@@ -61,13 +60,17 @@ package fpga_components is
 
 
     component clk_gen is
+        generic (
+            fx_mul     : integer := 1;
+            fx_div     : integer := 1
+        );
         port (
             clk        : in  std_ulogic;
             arst       : in  std_ulogic;
             --
-            clk_100MHz : out std_ulogic;
-            clk_50MHz  : out std_ulogic;
-            clk_25MHz  : out std_ulogic;
+            clkfx      : out std_ulogic;
+            clk50      : out std_ulogic;
+            clkdv      : out std_ulogic;
             clk_ready  : out std_ulogic;
             --
             psdone     : out std_ulogic;
