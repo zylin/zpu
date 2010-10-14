@@ -1242,26 +1242,27 @@ begin
 
     bufg7 : BUFG port map (I => rclk0, O => rclk0b);
     bufg8 : BUFG port map (I => rclk90, O => rclk90b);
---  bufg9 : BUFG port map (I => rclk270, O => rclk270b);
+--    bufg9 : BUFG port map (I => rclk270, O => rclk270b);
     rclk270b <= not rclk90b;
     clkread <= not rclk90b;
 
   nops : if rskew = 0 generate
     read_dll : DCM
-      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SYSTEM_SYNCHRONOUS", CLKOUT_PHASE_SHIFT => "VARIABLE")
-      port map ( CLKIN => clk_0r, CLKFB => rclk0b, DSSEN => gnd, PSCLK => psclk,
-      PSEN => psen, PSINCDEC => psincdec, PSDONE=> psdone, STATUS => dcm_status, RST => dll2rst(0), CLK0 => rclk0,
-      CLK90 => rclk90, CLK270 => rclk270);
-      psovfl <= dcm_status(0);
+      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SOURCE_SYNCHRONOUS", CLKOUT_PHASE_SHIFT => "VARIABLE")
+      port map ( CLKIN => ddrclkfbl, CLKFB => rclk0b, DSSEN => gnd, PSCLK => psclk,
+        PSEN => psen, PSINCDEC => psincdec, PSDONE => psdone, STATUS => dcm_status, RST => dll2rst(0), CLK0 => rclk0,
+        CLK90 => rclk90, CLK270 => rclk270);
+    psovfl <= dcm_status(0);
   end generate;
---  ps : if rskew /= 0 generate
---    read_dll : DCM
---      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SOURCE_SYNCHRONOUS", 
---	CLKOUT_PHASE_SHIFT => "FIXED", PHASE_SHIFT => rskew)
---      port map ( CLKIN => ddrclkfbl, CLKFB => rclk0b, DSSEN => gnd, PSCLK => gnd,
---      PSEN => gnd, PSINCDEC => gnd, RST => dll2rst(0), CLK0 => rclk0,
---      CLK90 => rclk90, CLK270 => rclk270);
---  end generate;
+  ps : if rskew /= 0 generate
+    read_dll : DCM
+      generic map (clkin_period => 10.0, DESKEW_ADJUST => "SOURCE_SYNCHRONOUS", 
+        CLKOUT_PHASE_SHIFT => "VARIABLE", PHASE_SHIFT => rskew)
+      port map ( CLKIN => ddrclkfbl, CLKFB => rclk0b, DSSEN => gnd, PSCLK => psclk,
+        PSEN => psen, PSINCDEC => psincdec, PSDONE => psdone, STATUS => dcm_status, RST => dll2rst(0), CLK0 => rclk0,
+        CLK90 => rclk90, CLK270 => rclk270);
+    psovfl <= dcm_status(0);
+  end generate;
 
   ddgen : for i in 0 to dbits-1 generate
     qi : IDDR2
