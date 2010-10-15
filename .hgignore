@@ -30,7 +30,6 @@ glob:*/doc/*.ppt
 glob:tdc/paper/*.*
 
 glob:ct-lab.zip
-glob:rena3/software/devel/zpuromgen.exe
 
 # syn stuff
 glob:*/syn/xst/*
@@ -45,6 +44,11 @@ glob:rena3/sim/trace.txt
 
 # s3estarter special
 glob:s3estarter/sim/trace.txt
+glob:s3estarter/sim/bus_trace.txt
+glob:s3estarter/sim/dumpdata.txt
+glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
+glob:s3estarter/doc/Untersuchung des DDR.doc
+glob:s3estarter/doc/ddr_tests/
 
 # esnug simulation special
 glob:esnug_c/sim/test/*_diff.txt
@@ -55,16 +59,15 @@ glob:esnug_c/sim/test/xxx_*.txt
 
 # special projects
 glob:treemap/Treeviz/*
+glob:treemap/Treeviz-0.35/*
 glob:sp601/sp601_restore_flash/*
 
 #others
-glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
-glob:s3estarter/doc/Untersuchung des DDR.doc
 glob:bpm/
 glob:rubygem/
-glob:soc-lm32
+glob:soc-lm32/
 glob:src/
-glob:xilinx_ddr_ref_design/
+glob:ddr_ram_cores/
 
 # handled by SVN
 glob:beam_position_monitor/
