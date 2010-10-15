@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="./isim.wdb" id="1" type="auto">
+         <top_modules>
+            <top_module name="allddr" />
+            <top_module name="allmem" />
+            <top_module name="allpads" />
+            <top_module name="amba" />
+            <top_module name="attributes" />
+            <top_module name="charrom_package" />
+            <top_module name="devices" />
+            <top_module name="ethcomp" />
+            <top_module name="ethernet_mac" />
+            <top_module name="fpga_components" />
+            <top_module name="gencomp" />
+            <top_module name="global_signals" />
+            <top_module name="grethpkg" />
+            <top_module name="memctrl" />
+            <top_module name="misc" />
+            <top_module name="net" />
+            <top_module name="numeric_std" />
+            <top_module name="sim" />
+            <top_module name="std_logic_1164" />
+            <top_module name="std_logic_misc" />
+            <top_module name="stdio" />
+            <top_module name="stdlib" />
+            <top_module name="textio" />
+            <top_module name="top_tb" />
+            <top_module name="txt_util" />
+            <top_module name="types" />
+            <top_module name="uart" />
+            <top_module name="vcomponents" />
+            <top_module name="version" />
+            <top_module name="vital_primitives" />
+            <top_module name="vital_timing" />
+            <top_module name="vpkg" />
+            <top_module name="zpu_config" />
+            <top_module name="zpu_wrapper_package" />
+            <top_module name="zpupkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <WVObjectSize size="24" />
+   <wvobject fp_name="divider14" type="divider">
+      <obj_property name="label">DDR Chip</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/dq" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">dq[15:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/dqs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dqs[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dqs[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">addr[12:0]</obj_property>
+      <obj_property name="ObjectShortName">addr[12:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/ba" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/clk_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">clk_n</obj_property>
+      <obj_property name="ObjectShortName">clk_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/cke" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cke</obj_property>
+      <obj_property name="ObjectShortName">cke</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cs_n</obj_property>
+      <obj_property name="ObjectShortName">cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/ras_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">ras_n</obj_property>
+      <obj_property name="ObjectShortName">ras_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/cas_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">cas_n</obj_property>
+      <obj_property name="ObjectShortName">cas_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/we_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">we_n</obj_property>
+      <obj_property name="ObjectShortName">we_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/mt46v16m16_i0/dm" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">dm[1:0]</obj_property>
+      <obj_property name="ObjectShortName">dm[1:0]</obj_property>
+      <obj_property name="Radix">BINARYRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider56" type="divider">
+      <obj_property name="label">DDR controller</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">r</obj_property>
+      <obj_property name="ObjectShortName">r</obj_property>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.startsd" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.startsd</obj_property>
+         <obj_property name="ObjectShortName">r.startsd</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.startsdold" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.startsdold</obj_property>
+         <obj_property name="ObjectShortName">r.startsdold</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.burst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.burst</obj_property>
+         <obj_property name="ObjectShortName">r.burst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.hready" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.hready</obj_property>
+         <obj_property name="ObjectShortName">r.hready</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.bdrive" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.bdrive</obj_property>
+         <obj_property name="ObjectShortName">r.bdrive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.qdrive" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.qdrive</obj_property>
+         <obj_property name="ObjectShortName">r.qdrive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.nbdrive" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.nbdrive</obj_property>
+         <obj_property name="ObjectShortName">r.nbdrive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.mstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">.mstate</obj_property>
+         <obj_property name="ObjectShortName">r.mstate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sdstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">.sdstate</obj_property>
+         <obj_property name="ObjectShortName">r.sdstate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cmstate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">.cmstate</obj_property>
+         <obj_property name="ObjectShortName">r.cmstate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.istate" type="other" db_ref_id="1">
+         <obj_property name="ElementShortName">.istate</obj_property>
+         <obj_property name="ObjectShortName">r.istate</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.trfc" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.trfc</obj_property>
+         <obj_property name="ObjectShortName">r.trfc</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.refresh" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.refresh</obj_property>
+         <obj_property name="ObjectShortName">r.refresh</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sdcsn" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.sdcsn</obj_property>
+         <obj_property name="ObjectShortName">r.sdcsn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sdwen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.sdwen</obj_property>
+         <obj_property name="ObjectShortName">r.sdwen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.rasn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.rasn</obj_property>
+         <obj_property name="ObjectShortName">r.rasn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.casn" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.casn</obj_property>
+         <obj_property name="ObjectShortName">r.casn</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.dqm" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.dqm</obj_property>
+         <obj_property name="ObjectShortName">r.dqm</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.dqm_dly" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.dqm_dly</obj_property>
+         <obj_property name="ObjectShortName">r.dqm_dly</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.wdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.wdata</obj_property>
+         <obj_property name="ObjectShortName">r.wdata</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.address" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.address</obj_property>
+         <obj_property name="ObjectShortName">r.address</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.ba" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.ba</obj_property>
+         <obj_property name="ObjectShortName">r.ba</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.waddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.waddr</obj_property>
+         <obj_property name="ObjectShortName">r.waddr</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.cfg</obj_property>
+         <obj_property name="ObjectShortName">r.cfg</obj_property>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.command" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.command</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.command</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.csize" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.csize</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.csize</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.bsize" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.bsize</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.bsize</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.trcd" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.trcd</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.trcd</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.trfc" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.trfc</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.trfc</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.trp" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.trp</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.trp</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.refresh" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.refresh</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.refresh</obj_property>
+            <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.renable" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.renable</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.renable</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.dllrst" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.dllrst</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.dllrst</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.refon" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.refon</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.refon</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.cke" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.cke</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.cke</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.pasr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.pasr</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.pasr</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.tcsr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.tcsr</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.tcsr</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.ds" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.ds</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.ds</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.pmode" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.pmode</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.pmode</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.mobileen" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.mobileen</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.mobileen</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.txsr" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.txsr</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.txsr</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.txp" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.txp</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.txp</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.tcke" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.tcke</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.tcke</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.cl" type="logic" db_ref_id="1">
+            <obj_property name="ElementShortName">.cl</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.cl</obj_property>
+         </wvobject>
+         <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cfg.conf" type="array" db_ref_id="1">
+            <obj_property name="ElementShortName">.conf</obj_property>
+            <obj_property name="ObjectShortName">r.cfg.conf</obj_property>
+            <obj_property name="Radix">HEXRADIX</obj_property>
+         </wvobject>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.idlecnt" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.idlecnt</obj_property>
+         <obj_property name="ObjectShortName">r.idlecnt</obj_property>
+         <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.ck" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.ck</obj_property>
+         <obj_property name="ObjectShortName">r.ck</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.txp" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.txp</obj_property>
+         <obj_property name="ObjectShortName">r.txp</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.tcke" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.tcke</obj_property>
+         <obj_property name="ObjectShortName">r.tcke</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sref_tmpcom" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.sref_tmpcom</obj_property>
+         <obj_property name="ObjectShortName">r.sref_tmpcom</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.extdqs" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.extdqs</obj_property>
+         <obj_property name="ObjectShortName">r.extdqs</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sdo_bdrive" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.sdo_bdrive</obj_property>
+         <obj_property name="ObjectShortName">r.sdo_bdrive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.sdo_qdrive" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.sdo_qdrive</obj_property>
+         <obj_property name="ObjectShortName">r.sdo_qdrive</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.ck_dly" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.ck_dly</obj_property>
+         <obj_property name="ObjectShortName">r.ck_dly</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/ddrspa_i0/ddr16/ddrc/r.cke_dly" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.cke_dly</obj_property>
+         <obj_property name="ObjectShortName">r.cke_dly</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="divider33" type="divider">
+      <obj_property name="label">output LEDs</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[13]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[13]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[13]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[14]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[14]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[14]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[15]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[15]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[15]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[16]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[16]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[16]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[17]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[17]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[17]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[18]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[18]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[18]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[19]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[19]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[19]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/fx2_io[20]" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">[20]</obj_property>
+      <obj_property name="ObjectShortName">fx2_io[20]</obj_property>
+   </wvobject>
+</wave_config>

@@ -46,6 +46,8 @@ glob:rena3/sim/trace.txt
 glob:s3estarter/sim/trace.txt
 glob:s3estarter/sim/bus_trace.txt
 glob:s3estarter/sim/dumpdata.txt
+glob:s3estarter/sim_isim/bus_trace.txt
+glob:s3estarter/sim_isim/dumpdata.txt
 glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
 glob:s3estarter/doc/Untersuchung des DDR.doc
 glob:s3estarter/doc/ddr_tests/

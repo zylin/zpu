@@ -141,7 +141,7 @@ package fpga_components is
             FX2_CLKIN       : inout std_logic;
             FX2_CLKIO       : inout std_logic;
             FX2_CLKOUT      : inout std_logic;
-            FX2_IO          : inout std_ulogic_vector(40 downto 1);
+            FX2_IO          : inout std_logic_vector(40 downto 1);
 
             -- These four connections are shared with the J1 6-pin accessory header
             --FX2_IO          : inout std_ulogic_vector(4 downto 1);

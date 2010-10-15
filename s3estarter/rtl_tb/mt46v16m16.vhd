@@ -1154,23 +1154,23 @@ BEGIN
                 IF Cas_latency_15 = '1' THEN
                     Read_cmnd (3) := '1';
                     Read_bank (3) := Ba;
-                    Read_cols (3) := Addr (8 DOWNTO 0);
+                    Read_cols (3) := Addr (9 DOWNTO 0);
                 ELSIF Cas_latency_2 = '1' THEN
                     Read_cmnd (4) := '1';
                     Read_bank (4) := Ba;
-                    Read_cols (4) := Addr (8 DOWNTO 0);
+                    Read_cols (4) := Addr (9 DOWNTO 0);
                 ELSIF Cas_latency_25 = '1' THEN
                     Read_cmnd (5) := '1';
                     Read_bank (5) := Ba;
-                    Read_cols (5) := Addr (8 DOWNTO 0);
+                    Read_cols (5) := Addr (9 DOWNTO 0);
                 ELSIF Cas_latency_3 = '1' THEN
                     Read_cmnd (6) := '1';
                     Read_bank (6) := Ba;
-                    Read_cols (6) := Addr (8 DOWNTO 0);
+                    Read_cols (6) := Addr (9 DOWNTO 0);
                 ELSIF Cas_latency_4 = '1' THEN
                     Read_cmnd (8) := '1';
                     Read_bank (8) := Ba;
-                    Read_cols (8) := Addr (8 DOWNTO 0);
+                    Read_cols (8) := Addr (9 DOWNTO 0);
                 END IF;
 
                 -- Write to Read: Terminate Write Immediately
