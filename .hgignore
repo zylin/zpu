@@ -73,3 +73,4 @@ glob:ddr_ram_cores/
 
 # handled by SVN
 glob:beam_position_monitor/
+glob:s3estarter/sim_isim/isim/
