@@ -74,6 +74,13 @@ architecture trace of zpu_bus_trace is
             when x"80000e08" => return("dcm inc ps");
             when x"80000f00" => return("ahb status");
             when x"80000f04" => return("ahb failing address");
+            when x"fff00000" => return("sdram control");
+            when x"fff00004" => return("sdram config");
+            when x"fff00008" => return("sdram power saving");
+            when x"fff0000c" => return("sdram reserved");
+            when x"fff00010" => return("sdram status read");
+            when x"fff00014" => return("sdram phy config 0");
+            when x"fff00018" => return("sdram phy config 1");
             when others      => return("unkown");
         end case;
     end function get_name;
