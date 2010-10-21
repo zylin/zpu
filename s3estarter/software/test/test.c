@@ -1,7 +1,7 @@
 //#include <stdio.h>
 
-#include "peripherie.h"
-#include "lcd-routines.h"
+#include <peripherie.h>
+#include <lcd-routines.h>
 
 //#define LCD_ENABLE
 
@@ -21,6 +21,7 @@
 #define BUTTON_NORTH                      (1<<6)  // is it right
 
 #define WORD_MODE                         (0)
+#define BIT_MODE                          (1)
 
 uint32_t simulation_active;
 
@@ -643,17 +644,45 @@ int memory_test_dot( int mode)
 }
 
 
+
+uint16_t memory_test_fast( void)
+{
+    uint32_t i;
+    uint32_t s;
+    uint32_t *mem;
+    uint32_t data;
+    uint32_t chunks = 0x0001;
+    char     str[20];
+    uint32_t count_bad;
+    uint8_t  error;
+
+    
+    count_bad = 0;
+    s         = 0x90000000;
+
+
+    for (i=0; i<2048; i++)
+    {
+        error = memory_test_complete( s, chunks);
+        count_bad += error;
+        s += sizeof(data) * chunks;
+    }
+
+    return( count_bad);
+}
+
+
 void memory_info( void)
 {
     uint32_t value;
-    char str[20];
+    char str[10];
 
     putstr("DDR memory info");
 
 
     value = ddr0->sdram_control;
 
-    putstr("\nauto t_RERESH :");  itoa( value & 0x7fff, str); putstr( str);
+    putstr("\n\nauto t_RERESH :");  itoa( value & 0x7fff, str); putstr( str);
     putstr("\nclock enable  :");  puthex(  8, value >> 15 & 0x01);
     putstr("\ninitalize     :");  puthex(  8, value >> 16 & 0x01);
     putstr("\ncolumn size   :");  
@@ -679,17 +708,17 @@ void memory_info( void)
     putstr("\nt_RP          :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
     putstr("\nrefresh en.   :");  puthex(  8, value >> 31 & 0x01);
 
-    
+   
     value = ddr0->sdram_config;
 
-    putstr("\nDDR frequency :");  itoa( value & 0x0fff, str); putstr( str);
+    putstr("\n\nDDR frequency :");  itoa( value & 0x0fff, str); putstr( str);
     putstr("\nDDR data width:");  itoa( 1<<(3+(value >> 12 & 0x07)), str); putstr( str);
     putstr("\nmobile support:");  puthex(  8, value >> 15 & 0x01);
 
     
     value = ddr0->sdram_power_saving;
 
-    putstr("\nself refresh  :");  
+    putstr("\n\nself refresh  :");  
         switch (value & 0x07)
         {
             case 0: putstr("1/1"); break;
@@ -730,11 +759,16 @@ void memory_info( void)
     putstr("\nt_CKE         :");  itoa( 1 + (value >> 24 & 0x01), str); putstr( str);
     putstr("\nCAS latency   :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
     putstr("\nmobile enabled:");  puthex(  8, value >> 31 & 0x01);
-   
+  
  
     value = ddr0->status_read;
+    putstr("\n\nstatus read   :");  puthex(32 , value);
 
-    putstr("\nstatus read   :");  puthex(32 , value);
+    value = ddr0->phy_config_0;
+    putstr("\n\nphy config 0  :");  puthex(32 , value);
+
+    value = ddr0->phy_config_1;
+    putstr("\n\nphy config 1  :");  puthex(32 , value);
 }
 
 
@@ -774,6 +808,7 @@ void dcm_test_ps( void)
     uint16_t       i;
     uint16_t       min_error;
     int32_t        min_error_pos;
+    int8_t         first_changed;
     int32_t        low_value;
     int32_t        high_value;
     int32_t        end_value;
@@ -790,7 +825,7 @@ void dcm_test_ps( void)
     lcd_clear(); lcd_string("go down");
     #endif
     //while (dcm_ctrl0->psstatus != 3)
-    while (dcm_ctrl0->psvalue > -range_max)
+    while (dcm_ctrl0->psvalue >= -range_max)
     {
         dcm_ctrl0->psdec = 0; while (dcm_ctrl0->psstatus == 0); 
     }
@@ -803,16 +838,15 @@ void dcm_test_ps( void)
     lcd_clear(); lcd_string("scan range");
     lcd_setcursor( 0, 2); itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
     #endif
-    sleep(2);
     i             = 0xffff;
-    min_error     = 0xffff;
+    min_error     = memory_test_dot( WORD_MODE);
     min_error_pos = dcm_ctrl0->psvalue;
 
-    low_found     = FALSE; low_value  = -5555;
-    high_found    = FALSE; high_value =  5555;
+    low_found     = FALSE; low_value  = -555;
+    high_found    = FALSE; high_value =  555;
+    first_changed = FALSE;
 
-    //while ( dcm_ctrl0->psstatus != 3)
-    while ( dcm_ctrl0->psvalue < range_max) 
+    while ( dcm_ctrl0->psvalue <= range_max) 
     {
         dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
 
@@ -822,8 +856,9 @@ void dcm_test_ps( void)
         // min error detection
         if (i < min_error)
         {
-            min_error = i;
+            min_error     = i;
             min_error_pos = dcm_ctrl0->psvalue;
+            first_changed = TRUE;
         }
         // low value
         if ( (i == 0) && (!low_found) )
@@ -852,9 +887,20 @@ void dcm_test_ps( void)
     lcd_clear(); lcd_string("go to eye");
     #endif
     if ((low_found) && (high_found))
+    {
         end_value = high_value - ((high_value - low_value) / 2);
+    }
     else
-        end_value = min_error_pos;
+    {
+        if (first_changed)
+        {
+            end_value = min_error_pos;
+        }
+        else
+        {
+            end_value = 0;
+        }
+    }
 
     // end_value means now the left shift
     end_value = dcm_ctrl0->psvalue - end_value;
@@ -865,6 +911,7 @@ void dcm_test_ps( void)
         dcm_ctrl0->psdec = 0;  while (dcm_ctrl0->psstatus == 0); 
     }
     
+    vga_clear();
     putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
     putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
     putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
@@ -875,6 +922,7 @@ void dcm_test_ps( void)
     putstr("\n");
     putstr("\nmin_err:     "); itoa( min_error, str);                putstr( str);
     putstr("\nmin_err_pos: "); itoa( min_error_pos, str);            putstr( str);
+    putstr("\n");if (first_changed) putstr("go min_error"); else putstr("go zero");
     putstr("\n");
     putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
     #ifdef LCD_ENABLE
@@ -882,6 +930,104 @@ void dcm_test_ps( void)
     #endif
 }
 
+void ddr_scan_fast( void)
+{
+
+    uint32_t get_max_range( uint32_t sdram_config)
+    {
+        uint32_t frequency;
+        uint32_t factor;
+        uint32_t value;
+
+        frequency = sdram_config & 0x00000fff;                 // mask bits
+        factor    = (frequency < 60) ? 10 : 15;            // select factor
+        value     = factor * ((1000/frequency) - 3);       // p. 127, ug331.pdf
+        return( value);
+    }
+
+    uint16_t       range_max = get_max_range( ddr0->sdram_config);
+    //uint16_t       i;
+    int32_t        low_value;
+    int32_t        high_value;
+    int32_t        end_value;
+    int32_t        shift_value;
+    char           str[20];
+    int8_t         low_found;
+    int8_t         high_found;
+    uint16_t       errors;
+
+    low_found  = FALSE;
+    high_found = FALSE;
+
+    while (dcm_ctrl0->psvalue >= -range_max)
+    {
+        dcm_ctrl0->psdec = 0; while (dcm_ctrl0->psstatus == 0); 
+    }
+
+    while ( ((!low_found) || (!high_found)) && ( dcm_ctrl0->psvalue <= range_max))
+    {
+        errors = memory_test_fast();
+
+        if ( (!low_found) && (errors == 0))
+        {
+            low_found = TRUE;
+            low_value = dcm_ctrl0->psvalue;
+        }
+        if ( (low_found) && (errors != 0))
+        {
+            high_found = TRUE;
+            high_value = dcm_ctrl0->psvalue;
+        }
+        dcm_ctrl0->psinc = 0;  while (dcm_ctrl0->psstatus == 0); 
+    }
+
+    // make decision
+    if ((low_found) && (high_found))
+    {
+        end_value = high_value - ((high_value - low_value) / 2);
+    }
+    else
+    {
+        end_value = 11;
+    }
+
+    // end_value means now the left shift
+    shift_value = dcm_ctrl0->psvalue - end_value;
+
+    while (shift_value > 0)
+    {
+        shift_value--;
+        dcm_ctrl0->psdec = 0;  while (dcm_ctrl0->psstatus == 0); 
+    }
+    
+    vga_clear();
+    putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
+    putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
+    putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
+    putstr("\nhigh:        "); itoa( high_value, str);               putstr( str);
+    putstr("\n");
+    putstr("\ndiff:        "); itoa(  high_value-low_value, str);    putstr( str);
+    putstr("\ndiff/2:      "); itoa( (high_value-low_value)/2, str); putstr( str);
+    putstr("\n");
+    putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
+}
+
+void ddr_init( void)
+{
+    ddr0->sdram_control = 
+          (1<<31)    // refresh enable
+        | (0<<30)    // t_RP  = 2 clocks (40 ns) (2+x)
+        | (5<<27)    // t_RFC = 8 clocks (80 ns) (3+x)
+        | (0<<26)    // t_RCD = 2 clocks (30 ns) (2+x)
+        | (2<<23)    // 32 MB RAM
+        | (1<<21)    // col size = 1024
+        | (1<<17)    // PLL reset
+        | (1<<16)    // initalize
+        | (1<<15)    // clock enable
+        | 779;       // t_REFRESH
+    loop_until_bit_is_clear( ddr0->sdram_control, 16);
+}
+    
 
 int main(void)
 {
@@ -894,11 +1040,41 @@ int main(void)
     simulation_active = bit_is_set(gpio0->iodata, (1<<31));
 
     timer_init();
-    lcd_init();
-    vga_init();
     uart_init();
-    running_light_init();
-    ether_init();
+        
+    ddr_init();
+
+    /*
+    if (simulation_active) {
+        
+        // 32 writes
+        memory_test_init( 0x90000000, 8);
+        
+        // 32 reads
+        uint8_t i;
+        uint32_t data;
+        uint32_t *memptr = 0x90000000;
+
+        data = 0;
+        for ( i=0; i<8; i++)
+        {
+            data += *memptr;
+            memptr++;
+        }
+        puthex(32, data); putc('\n');
+        abort();
+    }
+    */
+
+
+    //lcd_init();
+    vga_init();
+    //running_light_init();
+    //ether_init();
+
+    putstr("test.c ");
+    (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
+    putstr("compiled: " __DATE__ "  " __TIME__ "\n");
     
     // fill the memory once (safe time)
     memory_test_init( 0x90000000, 0x0010000);
@@ -910,14 +1086,10 @@ int main(void)
     putstr("\n\n");
     vga_clear();
 
-    putstr("test.c ");
-    (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
-    putstr("compiled: " __DATE__ "  " __TIME__ "\n");
 
     memory_info();
     sleep( 5);
-
-    dcm_test_ps();
+    ddr_scan_fast();//dcm_test_ps();
     sleep( 10);
     
     vga_clear();
@@ -944,7 +1116,12 @@ int main(void)
             dcm_ctrl0->psinc = 0;
         }
 
-        if bit_is_set( gpio0->iodata, BUTTON_SOUTH)  memory_test_init( 0x90000000, 0x0010000); // btn south -> inc ps
+        if bit_is_set( gpio0->iodata, BUTTON_SOUTH)  
+        {
+            ddr_init();
+            ddr_scan_fast();
+            memory_test_init( 0x90000000, 0x0010000); // btn south -> inc ps
+        }
 
         if bit_is_set( gpio0->iodata, BUTTON_NORTH)  
         {
@@ -969,4 +1146,5 @@ int main(void)
 
     //puts("end.");
     abort();
+    
 }
