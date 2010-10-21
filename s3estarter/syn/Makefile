@@ -37,8 +37,8 @@ check:
 
 
 update:
-	make test --directory ../software/devel
-	data2mem -bm zpu_i0_memory.bmm -bd ../software/devel/test.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
+	make test --directory ../software/test
+	data2mem -bm zpu_i0_memory.bmm -bd ../software/test/test.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
 
 
 program:
