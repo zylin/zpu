@@ -22,10 +22,8 @@
             <top_module name="misc" />
             <top_module name="net" />
             <top_module name="numeric_std" />
-            <top_module name="sim" />
             <top_module name="std_logic_1164" />
             <top_module name="std_logic_misc" />
-            <top_module name="stdio" />
             <top_module name="stdlib" />
             <top_module name="textio" />
             <top_module name="top_tb" />
@@ -36,6 +34,7 @@
             <top_module name="version" />
             <top_module name="vital_primitives" />
             <top_module name="vital_timing" />
+            <top_module name="vl_types" />
             <top_module name="vpkg" />
             <top_module name="zpu_config" />
             <top_module name="zpu_wrapper_package" />
@@ -43,65 +42,160 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="24" />
+   <WVObjectSize size="35" />
    <wvobject fp_name="divider14" type="divider">
       <obj_property name="label">DDR Chip</obj_property>
       <obj_property name="DisplayName">label</obj_property>
       <obj_property name="BkColor">128 128 255</obj_property>
       <obj_property name="TextColor">230 230 230</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/dq" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dq[15:0]</obj_property>
-      <obj_property name="ObjectShortName">dq[15:0]</obj_property>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Clk" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Clk</obj_property>
+      <obj_property name="ObjectShortName">Clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Clk_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Clk_n</obj_property>
+      <obj_property name="ObjectShortName">Clk_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Cke" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Cke</obj_property>
+      <obj_property name="ObjectShortName">Cke</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Cs_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Cs_n</obj_property>
+      <obj_property name="ObjectShortName">Cs_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Addr" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Addr[12:0]</obj_property>
+      <obj_property name="ObjectShortName">Addr[12:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/dqs" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dqs[1:0]</obj_property>
-      <obj_property name="ObjectShortName">dqs[1:0]</obj_property>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/We_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">We_n</obj_property>
+      <obj_property name="ObjectShortName">We_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Ras_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Ras_n</obj_property>
+      <obj_property name="ObjectShortName">Ras_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Cas_n" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Cas_n</obj_property>
+      <obj_property name="ObjectShortName">Cas_n</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Ba" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Ba[1:0]</obj_property>
+      <obj_property name="ObjectShortName">Ba[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Dm" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Dm[1:0]</obj_property>
+      <obj_property name="ObjectShortName">Dm[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Dq" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Dq[15:0]</obj_property>
+      <obj_property name="ObjectShortName">Dq[15:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/addr" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">addr[12:0]</obj_property>
-      <obj_property name="ObjectShortName">addr[12:0]</obj_property>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Dqs" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">Dqs[1:0]</obj_property>
+      <obj_property name="ObjectShortName">Dqs[1:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider86" type="divider">
+      <obj_property name="label">chip inside</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/Active_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">Active_enable</obj_property>
+      <obj_property name="ObjectShortName">Active_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/DLL_enable" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">DLL_enable</obj_property>
+      <obj_property name="ObjectShortName">DLL_enable</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/model_verilog/mt46v32m16_i0/power_up_done" type="logic" db_ref_id="1">
+      <obj_property name="ElementShortName">power_up_done</obj_property>
+      <obj_property name="ObjectShortName">power_up_done</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider90" type="divider">
+      <obj_property name="label">AHB/APB</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/ahbctrl_i0_msti" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbctrl_i0_msti</obj_property>
+      <obj_property name="ObjectShortName">ahbctrl_i0_msti</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/ba" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">ba[1:0]</obj_property>
-      <obj_property name="ObjectShortName">ba[1:0]</obj_property>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/ahbmo" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbmo[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbmo[3:0]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/clk" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">clk</obj_property>
-      <obj_property name="ObjectShortName">clk</obj_property>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/ahbctrl_i0_slvi" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbctrl_i0_slvi</obj_property>
+      <obj_property name="ObjectShortName">ahbctrl_i0_slvi</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/clk_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">clk_n</obj_property>
-      <obj_property name="ObjectShortName">clk_n</obj_property>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/ahbso" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">ahbso[3:0]</obj_property>
+      <obj_property name="ObjectShortName">ahbso[3:0]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/cke" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">cke</obj_property>
-      <obj_property name="ObjectShortName">cke</obj_property>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">apbctrl_i0_apbi</obj_property>
+      <obj_property name="ObjectShortName">apbctrl_i0_apbi</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.psel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.psel</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.psel</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.penable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.penable</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.penable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.paddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.paddr</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.paddr</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.pwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.pwrite</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.pwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.pwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.pwdata</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.pwdata</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.pirq" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.pirq</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.pirq</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.testen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testen</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.testen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.testrst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testrst</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.testrst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.scanen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.scanen</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.scanen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/apbctrl_i0_apbi.testoen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testoen</obj_property>
+         <obj_property name="ObjectShortName">apbctrl_i0_apbi.testoen</obj_property>
+      </wvobject>
    </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/cs_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">cs_n</obj_property>
-      <obj_property name="ObjectShortName">cs_n</obj_property>
-   </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/ras_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">ras_n</obj_property>
-      <obj_property name="ObjectShortName">ras_n</obj_property>
-   </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/cas_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">cas_n</obj_property>
-      <obj_property name="ObjectShortName">cas_n</obj_property>
-   </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/we_n" type="logic" db_ref_id="1">
-      <obj_property name="ElementShortName">we_n</obj_property>
-      <obj_property name="ObjectShortName">we_n</obj_property>
-   </wvobject>
-   <wvobject fp_name="/top_tb/mt46v16m16_i0/dm" type="array" db_ref_id="1">
-      <obj_property name="ElementShortName">dm[1:0]</obj_property>
-      <obj_property name="ObjectShortName">dm[1:0]</obj_property>
-      <obj_property name="Radix">BINARYRADIX</obj_property>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/apbo" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">apbo[0:15]</obj_property>
+      <obj_property name="ObjectShortName">apbo[0:15]</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
    </wvobject>
    <wvobject fp_name="divider56" type="divider">
       <obj_property name="label">DDR controller</obj_property>

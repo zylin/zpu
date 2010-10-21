@@ -19,68 +19,72 @@ architecture testbench of top_tb is
 
     constant tb_clk_period     : time := (1 sec / 50_000_000);
 
+    type     memory_model_t is (gaisler, micron);
+
+    constant memory_model      : memory_model_t := micron;
+    --constant memory_model      : memory_model_t := gaisler;
 
     signal   simulation_run    : boolean := true;
 
-    signal  tb_RESET           : std_ulogic;
-    signal  tb_RESET_n         : std_ulogic;
+    signal   tb_RESET          : std_ulogic;
+    signal   tb_RESET_n        : std_ulogic;
 
     -- ==== Analog-to-Digital Converter (ADC) ====
     -- some connections shared with SPI Flash, DAC, ADC, and AMP
-    signal  tb_AD_CONV         : std_logic;
+    signal   tb_AD_CONV        : std_logic;
 
     -- ==== Programmable Gain Amplifier (AMP) ====
     -- some connections shared with SPI Flash, DAC, ADC, and AMP
-    signal  tb_AMP_CS          : std_logic;
-    signal  tb_AMP_DOUT        : std_logic;
-    signal  tb_AMP_SHDN        : std_logic;
+    signal   tb_AMP_CS         : std_logic;
+    signal   tb_AMP_DOUT       : std_logic;
+    signal   tb_AMP_SHDN       : std_logic;
 
     -- ==== Pushbuttons (BTN) ====
-    signal  tb_BTN_EAST        : std_logic;
-    signal  tb_BTN_NORTH       : std_logic;
-    signal  tb_BTN_SOUTH       : std_logic;
-    signal  tb_BTN_WEST        : std_logic;
+    signal   tb_BTN_EAST       : std_logic;
+    signal   tb_BTN_NORTH      : std_logic;
+    signal   tb_BTN_SOUTH      : std_logic;
+    signal   tb_BTN_WEST       : std_logic;
 
     -- ==== Clock inputs (CLK) ====
-    signal  tb_CLK_50MHZ       : std_logic := '0';
-                          
-    signal  tb_CLK_AUX         : std_logic := '0';
-    signal  tb_CLK_SMA         : std_logic := '0';
+    signal   tb_CLK_50MHZ      : std_logic := '0';
+                           
+    signal   tb_CLK_AUX        : std_logic := '0';
+    signal   tb_CLK_SMA        : std_logic := '0';
 
     -- ==== Digital-to-Analog Converter (DAC) ====
     -- some connections shared with SPI Flash, DAC, ADC, and AMP
-    signal  tb_DAC_CLR         : std_logic;
-    signal  tb_DAC_CS          : std_logic;
+    signal   tb_DAC_CLR        : std_logic;
+    signal   tb_DAC_CS         : std_logic;
 
     -- ==== 1-Wire Secure EEPROM (DS)
-    signal  tb_DS_WIRE         : std_logic;
+    signal   tb_DS_WIRE        : std_logic;
 
     -- ==== Ethernet PHY (E) ====
-    signal  tb_E_COL           : std_logic;
-    signal  tb_E_CRS           : std_logic;
-    signal  tb_E_MDC           : std_logic;
-    signal  tb_E_MDIO          : std_logic;
-    signal  tb_E_RX_CLK        : std_logic;
-    signal  tb_E_RX_DV         : std_logic;
-    signal  tb_E_RXD           : std_logic_vector(7 downto 0);
-    signal  tb_E_RX_ER         : std_logic;
-    signal  tb_E_TX_CLK        : std_logic;
-    signal  tb_E_TX_EN         : std_logic;
-    signal  tb_E_TXD           : std_logic_vector(7 downto 0) := (others => '0');
-    signal  tb_E_TX_ER         : std_logic;
+    signal   tb_E_COL          : std_logic;
+    signal   tb_E_CRS          : std_logic;
+    signal   tb_E_MDC          : std_logic;
+    signal   tb_E_MDIO         : std_logic;
+    signal   tb_E_RX_CLK       : std_logic;
+    signal   tb_E_RX_DV        : std_logic;
+    signal   tb_E_RXD          : std_logic_vector(7 downto 0);
+    signal   tb_E_RX_ER        : std_logic;
+    signal   tb_E_TX_CLK       : std_logic;
+    signal   tb_E_TX_EN        : std_logic;
+    signal   tb_E_TXD          : std_logic_vector(7 downto 0) := (others => '0');
+    signal   tb_E_TX_ER        : std_logic;
 
     -- ==== FPGA Configuration Mode, INIT_B Pins (FPGA) ====
-    signal  tb_FPGA_M0         : std_logic;
-    signal  tb_FPGA_M1         : std_logic;
-    signal  tb_FPGA_M2         : std_logic;
-    signal  tb_FPGA_INIT_B     : std_logic;
-    signal  tb_FPGA_RDWR_B     : std_logic;
-    signal  tb_FPGA_HSWAP      : std_logic;
+    signal   tb_FPGA_M0        : std_logic;
+    signal   tb_FPGA_M1        : std_logic;
+    signal   tb_FPGA_M2        : std_logic;
+    signal   tb_FPGA_INIT_B    : std_logic;
+    signal   tb_FPGA_RDWR_B    : std_logic;
+    signal   tb_FPGA_HSWAP     : std_logic;
 
     -- ==== FX2 Connector (FX2) ====
-    signal  tb_FX2_CLKIN       : std_logic;
-    signal  tb_FX2_CLKIO       : std_logic;
-    signal  tb_FX2_CLKOUT      : std_logic;
+    signal   tb_FX2_CLKIN      : std_logic;
+    signal   tb_FX2_CLKIO      : std_logic;
+    signal   tb_FX2_CLKOUT     : std_logic;
 
     -- These four connections are shared with the J1 6-pin accessory header
     --FX2_IO          : inout std_logic_vector(4 downto 1);
@@ -356,8 +360,9 @@ begin
             gtx_clk        => tb_GTX_CLK         -- : in std_logic  
         );
 
-    -- ddr ram model
-    mt46v16m16_i0: entity work.mt46v16m16
+    -- ddr ram model(s)
+    model_vhdl: if memory_model = gaisler generate
+      mt46v16m16_i0: entity work.mt46v16m16
         generic map (                                  -- Timing for -75Z CL2
 --          tCK                 : time    :=  7.500 ns;
 --          tCH                 : time    :=  3.375 ns;       -- 0.45*tCK
@@ -382,20 +387,41 @@ begin
 --          fname               : string  := "sdram.srec";	-- File to read from
 --          bbits               : integer :=  16
         )
+      port map (
+          Dq    => tb_SD_DQ,        -- : INOUT STD_LOGIC_VECTOR (data_bits - 1 DOWNTO 0)
+          Dqs   => tb_SD_DQS,       -- : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0)
+          Addr  => tb_SD_A,         -- : IN    STD_LOGIC_VECTOR (addr_bits - 1 DOWNTO 0);
+          Ba    => tb_SD_BA,        -- : IN    STD_LOGIC_VECTOR (1 DOWNTO 0);
+          Clk   => tb_SD_CK_P,      -- : IN    STD_LOGIC;
+          Clk_n => tb_SD_CK_N,      -- : IN    STD_LOGIC;
+          Cke   => tb_SD_CKE,       -- : IN    STD_LOGIC;
+          Cs_n  => tb_SD_CS,        -- : IN    STD_LOGIC;
+          Ras_n => tb_SD_RAS,       -- : IN    STD_LOGIC;
+          Cas_n => tb_SD_CAS,       -- : IN    STD_LOGIC;
+          We_n  => tb_SD_WE,        -- : IN    STD_LOGIC;
+          Dm    => tb_SD_DM         -- : IN    STD_LOGIC_VECTOR (1 DOWNTO 0)
+      );
+    end generate model_vhdl;
+
+
+    model_verilog: if memory_model = micron generate
+      -- timing -6f
+      mt46v32m16_i0: entity work.ddr
         port map (
-            Dq    => tb_SD_DQ,        -- : INOUT STD_LOGIC_VECTOR (data_bits - 1 DOWNTO 0) := (OTHERS => 'Z');
-            Dqs   => tb_SD_DQS,       -- : INOUT STD_LOGIC_VECTOR (1 DOWNTO 0) := "ZZ";
-            Addr  => tb_SD_A,         -- : IN    STD_LOGIC_VECTOR (addr_bits - 1 DOWNTO 0);
-            Ba    => tb_SD_BA,        -- : IN    STD_LOGIC_VECTOR (1 DOWNTO 0);
-            Clk   => tb_SD_CK_P,      -- : IN    STD_LOGIC;
-            Clk_n => tb_SD_CK_N,      -- : IN    STD_LOGIC;
-            Cke   => tb_SD_CKE,       -- : IN    STD_LOGIC;
-            Cs_n  => tb_SD_CS,        -- : IN    STD_LOGIC;
-            Ras_n => tb_SD_RAS,       -- : IN    STD_LOGIC;
-            Cas_n => tb_SD_CAS,       -- : IN    STD_LOGIC;
-            We_n  => tb_SD_WE,        -- : IN    STD_LOGIC;
-            Dm    => tb_SD_DM         -- : IN    STD_LOGIC_VECTOR (1 DOWNTO 0)
+            Clk   => tb_SD_CK_P,
+            Clk_n => tb_SD_CK_N,
+            Cke   => tb_SD_CKE,
+            Cs_n  => tb_SD_CS,
+            Ras_n => tb_SD_RAS,
+            Cas_n => tb_SD_CAS,
+            We_n  => tb_SD_WE,
+            Ba    => tb_SD_BA,
+            Addr  => tb_SD_A,
+            Dm    => tb_SD_DM,
+            Dq    => tb_SD_DQ,
+            Dqs   => tb_SD_DQS
         );
+    end generate model_verilog;
 
     tb_SD_DM  <= tb_SD_UDM  & tb_SD_LDM;
     tb_SD_DQS <= tb_SD_UDQS & tb_SD_LDQS;

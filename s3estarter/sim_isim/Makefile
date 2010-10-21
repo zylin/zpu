@@ -6,7 +6,6 @@ all: compile simulate
 
 
 compile:
-	#vlogcomp --work $(library) --include ../rtl/ $(verilogfiles)
 	vhpcomp  --work global      ../../global/rtl/*.vhd
 	vhpcomp  --work grlib       ../../grlib/rtl/version.vhd ../../grlib/rtl/stdlib.vhd ../../grlib/rtl/amba.vhd ../../grlib/rtl/devices.vhd ../../grlib/rtl/*.vhd
 	vhpcomp  --work grlib       ../../grlib/rtl_tb/*.vhd
@@ -15,6 +14,7 @@ compile:
 	vhpcomp  --work gaisler     ../../gaisler/rtl_tb/*.vhd
 	vhpcomp  --work zpu         ../../zpu/rtl/zpu_config.vhd ../../zpu/rtl/zpupkg.vhd ../../zpu/rtl_tb/txt_util.vhd ../../zpu/rtl/*.vhd
 	vhpcomp  --work s3estarter  ../rtl/fpga_types.vhd ../rtl/fpga_components.vhd ../rtl/*.vhd
+	vlogcomp --work s3estarter --include ../rtl_tb/ --define sg6 --define x16 ../rtl_tb/ddr.v
 	vhpcomp  --work s3estarter  ../rtl_tb/*.vhd
 
 simulate:
@@ -27,6 +27,6 @@ clean:
 	rm -f fuse.log
 	rm -f isim.log
 	rm -f isim.wdb
-	rm tb.exe
+	rm -f tb.exe
 
 
