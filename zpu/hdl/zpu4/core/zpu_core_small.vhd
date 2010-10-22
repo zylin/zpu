@@ -494,6 +494,7 @@ begin
 							null; 
 					end case;
 				when State_ReadIO =>
+					memAAddr <= sp;
 					if (in_mem_busy = '0') then
 						state <= State_Fetch;
 						memAWriteEnable <= '1';
