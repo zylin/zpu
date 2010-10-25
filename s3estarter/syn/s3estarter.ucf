@@ -22,18 +22,11 @@ TIMESPEC "TS_CLK_50MHZ" = PERIOD "CLK_50MHZ" 50.0 MHz HIGH 40%;
 # DCM placement
 #
 
-# becaus routing problems
+# fixed because routing problems
 INST "box_i0/clk_gen_i0/dcm_sp_i0"                                     LOC = "DCM_X0Y1";
 
 INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll"           LOC = "DCM_X0Y0";
 INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y1";
-
-# long routing for fb clock
-# dosen't find eye
-#INST "box_i0/clk_gen_i0/dcm_sp_i0"                                     LOC = "DCM_X1Y1";
-
-#INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/dll"           LOC = "DCM_X0Y0";
-#INST "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/nops.read_dll" LOC = "DCM_X1Y1";
 
 #
 # ethernet clock
@@ -42,8 +35,6 @@ TIMESPEC "TS_E_CLK" = PERIOD "E_CLK" 25.0 MHz HIGH 50% ;
 # need because misplaced ethernet clock lines
 NET "E_RX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
 NET "E_TX_CLK" CLOCK_DEDICATED_ROUTE = FALSE ;
-# this net can be fixed to side-bufg (only logic in one quadrant)
-#INST "E_TX_CLK_BUFGP" LOC = "BUFGMUX_X3Y2" ;
 
 
 
@@ -56,25 +47,9 @@ NET "SD_CK_FB" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "SD_CK_FB" TNM_NET = "ddr_feedback_net";
 TIMESPEC "TS_ddr_feedback_net" = PERIOD "ddr_feedback_net" 138 MHz HIGH 50% ;
 
-# ignore timing on DDR controller
+# time nets from ddr controller 
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r"   TNM_NET = FFS "ddr_clk_1";
 NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b"  TNM_NET = FFS "ddr_clk_2";
-
-#NET "box_i0/clk"               TNM_NET = "sys_clk";
-#NET "box_i0/clk_gen_i0_clk_fx" TNM_NET = "fast_clk";
-
-#TIMESPEC "TS_sys_fast"  = FROM "sys_clk"   TO "fast_clk"   TIG;
-#TIMESPEC "TS_fast_sys"  = FROM "fast_clk"  TO "sys_clk"    TIG;
-                        
-                        
-#TIMESPEC "TS_sys_ddr1"  = FROM "sys_clk"   TO "ddr_clk_1"  TIG;
-#TIMESPEC "TS_ddr1_sys"  = FROM "ddr_clk_1" TO "sys_clk"    TIG;
-#                        
-#TIMESPEC "TS_sys_ddr2"  = FROM "sys_clk"   TO "ddr_clk_2"  TIG;
-#TIMESPEC "TS_ddr2_sys"  = FROM "ddr_clk_2" TO "sys_clk"    TIG;
-                        
-#TIMESPEC "TS_fast_ddr2"  = FROM "fast_clk"  TO "ddr_clk_2" TIG;
-#TIMESPEC "TS_ddr2_fast"  = FROM "ddr_clk_2" TO "fast_clk"  TIG;
 
 
 
