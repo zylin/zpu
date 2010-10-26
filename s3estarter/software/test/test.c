@@ -675,6 +675,7 @@ uint16_t memory_test_fast( void)
 void memory_info( void)
 {
     uint32_t value;
+    uint8_t  mobile;
     char str[10];
 
     putstr("DDR memory info");
@@ -713,62 +714,66 @@ void memory_info( void)
 
     putstr("\n\nDDR frequency :");  itoa( value & 0x0fff, str); putstr( str);
     putstr("\nDDR data width:");  itoa( 1<<(3+(value >> 12 & 0x07)), str); putstr( str);
-    putstr("\nmobile support:");  puthex(  8, value >> 15 & 0x01);
+    mobile = value >> 15 & 0x01;
+    putstr("\nmobile support:");  puthex(  8, mobile);
 
+    if (mobile) {
     
-    value = ddr0->sdram_power_saving;
+        value = ddr0->sdram_power_saving;
 
-    putstr("\n\nself refresh  :");  
-        switch (value & 0x07)
-        {
-            case 0: putstr("1/1"); break;
-            case 1: putstr("1/2"); break;
-            case 2: putstr("1/4"); break;
-            case 5: putstr("1/8"); break;
-            case 6: putstr("1/8"); break;
-            default: putstr("unknown");
-        } putstr(" array");
-    putstr("\ntemp-comp refr:");  
-        switch (value >> 3 & 0x03)
-        {
-            case 0: putstr("70"); break;
-            case 1: putstr("45"); break;
-            case 2: putstr("15"); break;
-            case 3: putstr("85"); break;
-        } putstr("°C");
-    putstr("\ndrive strength:");  
-        switch (value >> 5 & 0x07)
-        {
-            case 0: putstr("full"); break;
-            case 1: putstr("half"); break;
-            case 2: putstr("1/4"); break;
-            case 3: putstr("3/4"); break;
-        }
-    putstr("\npower saving  :");  
-        switch (value >> 16 & 0x07)
-        {
-            case 0: putstr("none"); break;
-            case 1: putstr("power down"); break;
-            case 2: putstr("self refresh"); break;
-            case 4: putstr("clock stop"); break;
-            case 5: putstr("deep power down"); break;
-            default: putstr("unknown");
-        }
-    putstr("\nt_XP          :");  itoa( 2 + (value >> 19 & 0x01), str); putstr( str);
-    putstr("\nt_XSR         :");  itoa( (value >> 20 & 0x0f), str); putstr( str);
-    putstr("\nt_CKE         :");  itoa( 1 + (value >> 24 & 0x01), str); putstr( str);
-    putstr("\nCAS latency   :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
-    putstr("\nmobile enabled:");  puthex(  8, value >> 31 & 0x01);
-  
- 
+        putstr("\n\nself refresh  :");  
+            switch (value & 0x07)
+            {
+                case 0: putstr("1/1"); break;
+                case 1: putstr("1/2"); break;
+                case 2: putstr("1/4"); break;
+                case 5: putstr("1/8"); break;
+                case 6: putstr("1/8"); break;
+                default: putstr("unknown");
+            } putstr(" array");
+        putstr("\ntemp-comp refr:");  
+            switch (value >> 3 & 0x03)
+            {
+                case 0: putstr("70"); break;
+                case 1: putstr("45"); break;
+                case 2: putstr("15"); break;
+                case 3: putstr("85"); break;
+            } putstr("°C");
+        putstr("\ndrive strength:");  
+            switch (value >> 5 & 0x07)
+            {
+                case 0: putstr("full"); break;
+                case 1: putstr("half"); break;
+                case 2: putstr("1/4"); break;
+                case 3: putstr("3/4"); break;
+            }
+        putstr("\npower saving  :");  
+            switch (value >> 16 & 0x07)
+            {
+                case 0: putstr("none"); break;
+                case 1: putstr("power down"); break;
+                case 2: putstr("self refresh"); break;
+                case 4: putstr("clock stop"); break;
+                case 5: putstr("deep power down"); break;
+                default: putstr("unknown");
+            }
+        putstr("\nt_XP          :");  itoa( 2 + (value >> 19 & 0x01), str); putstr( str);
+        putstr("\nt_XSR         :");  itoa( (value >> 20 & 0x0f), str); putstr( str);
+        putstr("\nt_CKE         :");  itoa( 1 + (value >> 24 & 0x01), str); putstr( str);
+        putstr("\nCAS latency   :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
+        putstr("\nmobile enabled:");  puthex(  8, value >> 31 & 0x01);
+      
+     
+        value = ddr0->phy_config_0;
+        putstr("\n\nphy config 0  :");  puthex(32 , value);
+
+        value = ddr0->phy_config_1;
+        putstr("\n\nphy config 1  :");  puthex(32 , value);
+    }
+        
     value = ddr0->status_read;
     putstr("\n\nstatus read   :");  puthex(32 , value);
 
-    value = ddr0->phy_config_0;
-    putstr("\n\nphy config 0  :");  puthex(32 , value);
-
-    value = ddr0->phy_config_1;
-    putstr("\n\nphy config 1  :");  puthex(32 , value);
 }
 
 
@@ -930,9 +935,17 @@ void dcm_test_ps( void)
     #endif
 }
 
-void ddr_scan_fast( void)
+/*
+ * this code try to find the data valid window from ddr sdram
+ *
+ * problem: not bubble proof
+ *
+ */
+uint8_t ddr_scan_fast( void)
 {
 
+    // max range fpr dcm phase shift depends
+    // on used frequency (only on spartan 3a)
     uint32_t get_max_range( uint32_t sdram_config)
     {
         uint32_t frequency;
@@ -946,7 +959,6 @@ void ddr_scan_fast( void)
     }
 
     uint16_t       range_max = get_max_range( ddr0->sdram_config);
-    //uint16_t       i;
     int32_t        low_value;
     int32_t        high_value;
     int32_t        end_value;
@@ -954,10 +966,12 @@ void ddr_scan_fast( void)
     char           str[20];
     int8_t         low_found;
     int8_t         high_found;
+    int8_t         data_valid;
     uint16_t       errors;
 
-    low_found  = FALSE;
-    high_found = FALSE;
+    data_valid = FALSE;
+    low_found  = FALSE; low_value  = -15;
+    high_found = FALSE; high_value =  15;
 
     while (dcm_ctrl0->psvalue >= -range_max)
     {
@@ -982,13 +996,14 @@ void ddr_scan_fast( void)
     }
 
     // make decision
-    if ((low_found) && (high_found))
+    if (low_found && high_found && ((high_value-low_value) > 30) )
     {
-        end_value = high_value - ((high_value - low_value) / 2);
+        end_value  = high_value - ((high_value - low_value) / 2);
+        data_valid = TRUE;
     }
     else
     {
-        end_value = 11;
+        end_value = 40; // fits in most cases
     }
 
     // end_value means now the left shift
@@ -1001,7 +1016,8 @@ void ddr_scan_fast( void)
     }
     
     vga_clear();
-    putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
+    putstr("\n");if (data_valid) putstr("data valid"); else putstr("data NOT valid");
+    putstr("\n");if (low_found)  putstr("low  found"); else putstr("low  NOT found");
     putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
     putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
     putstr("\nhigh:        "); itoa( high_value, str);               putstr( str);
@@ -1009,7 +1025,9 @@ void ddr_scan_fast( void)
     putstr("\ndiff:        "); itoa(  high_value-low_value, str);    putstr( str);
     putstr("\ndiff/2:      "); itoa( (high_value-low_value)/2, str); putstr( str);
     putstr("\n");
-    putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
+    putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);       putstr( str);
+
+    return( data_valid);
 }
 
 void ddr_init( void)
@@ -1024,7 +1042,7 @@ void ddr_init( void)
         | (1<<17)    // PLL reset
         | (1<<16)    // initalize
         | (1<<15)    // clock enable
-        | 779;       // t_REFRESH
+        | 780;       // t_REFRESH
     loop_until_bit_is_clear( ddr0->sdram_control, 16);
 }
     
@@ -1042,7 +1060,6 @@ int main(void)
     timer_init();
     uart_init();
         
-    ddr_init();
 
     /*
     if (simulation_active) {
@@ -1069,6 +1086,7 @@ int main(void)
 
     //lcd_init();
     vga_init();
+    ddr_init();
     //running_light_init();
     //ether_init();
 
@@ -1084,13 +1102,13 @@ int main(void)
     #endif
     
     putstr("\n\n");
-    vga_clear();
+    //vga_clear();
 
 
     memory_info();
     sleep( 5);
     ddr_scan_fast();//dcm_test_ps();
-    sleep( 10);
+    sleep( 5);
     
     vga_clear();
     #ifdef LCD_ENABLE
@@ -1120,6 +1138,7 @@ int main(void)
         {
             ddr_init();
             ddr_scan_fast();
+            sleep( 5);
             memory_test_init( 0x90000000, 0x0010000); // btn south -> inc ps
         }
 

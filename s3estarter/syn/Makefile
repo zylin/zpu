@@ -69,7 +69,7 @@ par:    $(MODULE).ncd
 #.PHONY: xst
 
 $(MODULE).ngc:	
-	cd xst ; xst -ifn "D:/home/bl5599/projects/s3estarter/syn/xst/$(MODULE).xst" -ofn "D:/home/bl5599/projects/s3estarter/syn/xst/$(MODULE).syr"
+	cd xst ; xst -ifn $(MODULE).xst -ofn $(MODULE).syr
 
 
 $(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
@@ -85,7 +85,7 @@ $(MODULE).ncd: $(MODULE)_map.ncd
 
 
 trace: $(MODULE).ncd	
-	cd xst ; trce -v 3 -s 5 -n 3 -fastpaths -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
+	cd xst ; trce -e -a -u -s 4 -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
 
 
 bitgen: $(MODULE).ncd

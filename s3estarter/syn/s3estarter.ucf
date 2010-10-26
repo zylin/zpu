@@ -47,10 +47,21 @@ NET "SD_CK_FB" CLOCK_DEDICATED_ROUTE = FALSE;
 NET "SD_CK_FB" TNM_NET = "ddr_feedback_net";
 TIMESPEC "TS_ddr_feedback_net" = PERIOD "ddr_feedback_net" 138 MHz HIGH 50% ;
 
-# time nets from ddr controller 
-NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/clk_0r"   TNM_NET = FFS "ddr_clk_1";
-NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b"  TNM_NET = FFS "ddr_clk_2";
+# DDR IO PADS
+INST SD_* TNM = "DDR_PADS";
 
+# times determined by probing
+TIMEGRP "DDR_PADS" OFFSET = IN 3.60 ns VALID 3.95 ns BEFORE "SD_CK_FB" RISING;
+TIMEGRP "DDR_PADS" OFFSET = IN 3.60 ns VALID 3.95 ns BEFORE "SD_CK_FB" FALLING;
+
+TIMEGRP "DDR_PADS" OFFSET = OUT AFTER "SD_CK_FB" RISING;
+TIMEGRP "DDR_PADS" OFFSET = OUT AFTER "SD_CK_FB" FALLING;
+
+# we use async fifos -> so timing ignore (TIG)
+NET "box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se.ddr_phy0/rclk90b" TNM_NET = "ddr_read_clk";
+
+TIMESPEC "ts_sys_read" = FROM "CLK_50MHZ" to "ddr_read_clk" TIG;
+TIMESPEC "ts_read_sys" = FROM "ddr_read_clk" to "CLK_50MHZ" TIG;
 
 
 ###
@@ -93,10 +104,10 @@ NET "AMP_DOUT"    LOC = "E18" | IOSTANDARD = LVCMOS33 ;
 NET "AMP_SHDN"    LOC = "P7"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Pushbuttons (BTN) ====
-NET "BTN_EAST"    LOC = "H13" | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_NORTH"   LOC = "V4"  | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_SOUTH"   LOC = "K17" | IOSTANDARD = LVTTL | PULLDOWN ;
-NET "BTN_WEST"    LOC = "D18" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "BTN_EAST"    LOC = "H13" | IOSTANDARD = LVTTL | PULLDOWN | TIG;
+NET "BTN_NORTH"   LOC = "V4"  | IOSTANDARD = LVTTL | PULLDOWN | TIG;
+NET "BTN_SOUTH"   LOC = "K17" | IOSTANDARD = LVTTL | PULLDOWN | TIG;
+NET "BTN_WEST"    LOC = "D18" | IOSTANDARD = LVTTL | PULLDOWN | TIG;
 
 # ==== Clock inputs (CLK) ====
 NET "CLK_50MHZ"   LOC = "C9"  | IOSTANDARD = LVCMOS33 | TNM_NET = "CLK_50MHZ";
@@ -241,19 +252,19 @@ NET "LCD_RW"    LOC = "L17" | IOSTANDARD = LVCMOS33 | DRIVE = 4 | SLEW = SLOW ;
 #NET "LED<7>" LOC = "F9"  | IOSTANDARD = LVTTL | SLEW = SLOW | DRIVE = 8 ;
 
 # ==== PS/2 Mouse/Keyboard Port (PS2) ====
-NET "PS2_CLK"           LOC = "G14" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
-NET "PS2_DATA"          LOC = "G13" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW ;
+NET "PS2_CLK"           LOC = "G14" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW | TIG;
+NET "PS2_DATA"          LOC = "G13" | IOSTANDARD = LVCMOS33 | DRIVE = 8 | SLEW = SLOW | TIG;
 
 # ==== Rotary Pushbutton Switch (ROT) ====
-NET "ROT_A"             LOC = "K18" | IOSTANDARD = LVTTL | PULLUP ;
-NET "ROT_B"             LOC = "G18" | IOSTANDARD = LVTTL | PULLUP ;
-NET "ROT_CENTER"        LOC = "V16" | IOSTANDARD = LVTTL | PULLDOWN ;
+NET "ROT_A"             LOC = "K18" | IOSTANDARD = LVTTL | PULLUP | TIG;
+NET "ROT_B"             LOC = "G18" | IOSTANDARD = LVTTL | PULLUP | TIG;
+NET "ROT_CENTER"        LOC = "V16" | IOSTANDARD = LVTTL | PULLDOWN | TIG;
 
 # ==== RS-232 Serial Ports (RS232) ====
-NET "RS232_DCE_RXD"     LOC = "R7"  | IOSTANDARD = LVTTL ;
-NET "RS232_DCE_TXD"     LOC = "M14" | IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = SLOW ;
-NET "RS232_DTE_RXD"     LOC = "U8"  | IOSTANDARD = LVTTL ;
-NET "RS232_DTE_TXD"     LOC = "M13" | IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = SLOW ;
+NET "RS232_DCE_RXD"     LOC = "R7"  | IOSTANDARD = LVTTL | TIG;
+NET "RS232_DCE_TXD"     LOC = "M14" | IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = SLOW | TIG;
+NET "RS232_DTE_RXD"     LOC = "U8"  | IOSTANDARD = LVTTL | TIG;
+NET "RS232_DTE_TXD"     LOC = "M13" | IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = SLOW | TIG;
 
 # ==== DDR SDRAM (SD) ==== (I/O Bank 3, VCCO=2.5V)
 NET "SD_A<0>"           LOC = "T1"  | IOSTANDARD = SSTL2_I ;
@@ -365,10 +376,10 @@ NET "SPI_SS_B"          LOC = "U3"  | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIV
 NET "SPI_ALT_CS_JP11"   LOC = "R12" | IOSTANDARD = LVCMOS33 | SLEW = SLOW | DRIVE = 6 ;
 
 # ==== Slide Switches (SW) ====
-NET "SW<0>"             LOC = "L13" | IOSTANDARD = LVTTL | PULLUP ;
-NET "SW<1>"             LOC = "L14" | IOSTANDARD = LVTTL | PULLUP ;
-NET "SW<2>"             LOC = "H18" | IOSTANDARD = LVTTL | PULLUP ;
-NET "SW<3>"             LOC = "N17" | IOSTANDARD = LVTTL | PULLUP ;
+NET "SW<0>"             LOC = "L13" | IOSTANDARD = LVTTL | PULLUP | TIG;
+NET "SW<1>"             LOC = "L14" | IOSTANDARD = LVTTL | PULLUP | TIG;
+NET "SW<2>"             LOC = "H18" | IOSTANDARD = LVTTL | PULLUP | TIG;
+NET "SW<3>"             LOC = "N17" | IOSTANDARD = LVTTL | PULLUP | TIG;
 
 # ==== VGA Port (VGA) ====
 NET "VGA_BLUE"          LOC = "G15" | IOSTANDARD = LVTTL | DRIVE = 8 | SLEW = FAST ;
