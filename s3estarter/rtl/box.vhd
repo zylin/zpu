@@ -287,7 +287,7 @@ begin
             memtech        => DEFMEMTECH,
             hindex         => 2,
             haddr          => 16#900#,
-            hmask          => 16#F00#, -- my guess: FC0
+            hmask          => 16#F00#,
             ddrbits        => 16,     
             MHz            => 100,
             clkmul         => 1,       -- for clk_ddr

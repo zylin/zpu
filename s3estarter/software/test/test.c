@@ -211,6 +211,21 @@ void puthex(unsigned char dataType, unsigned long data)
     vga_putstr( dataString);
 }
 
+void putint(uint32_t data)
+{
+    char           str[20];
+
+    itoa( data, str);
+    putstr( str);
+}
+
+void lcd_putint(uint32_t data)
+{
+    char           str[20];
+
+    itoa( data, str);
+    lcd_putstr( str);
+}
 
 void vga_putbin(unsigned char dataType, unsigned long data) 
 {
@@ -660,15 +675,43 @@ uint16_t memory_test_fast( void)
     count_bad = 0;
     s         = 0x90000000;
 
-
-    for (i=0; i<2048; i++)
+    i         = 0;
+    while ( (i<2048) && (count_bad==0) )
     {
         error = memory_test_complete( s, chunks);
         count_bad += error;
         s += sizeof(data) * chunks;
+        i++;
     }
 
     return( count_bad);
+}
+
+//
+// return: size of memory in 1k blocks
+// 
+uint32_t memory_detect_ramsize( uint32_t start)
+{
+    uint32_t *memory = (uint32_t *) start;
+    uint32_t size;
+    uint32_t blocksize = 1024/sizeof(*memory); 
+
+
+    // fill with known values, beginning from top
+    for (memory = start + 0x0F000000; memory >= start; memory -= blocksize)
+    {
+        *memory = memory;
+    }
+
+    size = 0;
+    // check for know values, beginning from bottom
+    for (memory = start; memory <= start + 0x0F000000; memory += blocksize)
+    {
+        if (*memory == memory)
+            size++;
+    }
+    
+    return( size);
 }
 
 
@@ -774,6 +817,7 @@ void memory_info( void)
     value = ddr0->status_read;
     putstr("\n\nstatus read   :");  puthex(32 , value);
 
+
 }
 
 
@@ -817,14 +861,14 @@ void dcm_test_ps( void)
     int32_t        low_value;
     int32_t        high_value;
     int32_t        end_value;
-    char           str[20];
+    //char           str[20];
     int8_t         low_found;
     int8_t         high_found;
 
     putstr("\n\nDCM phase shift testing");
     
     i = memory_test_dot( WORD_MODE);
-    putstr("\ninitial: "); itoa( dcm_ctrl0->psvalue, str); putstr( str); putstr(" "); puthex( 32, i);
+    putstr("\ninitial: "); putint( dcm_ctrl0->psvalue); putstr(" "); puthex( 32, i);
 
     #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("go down");
@@ -841,7 +885,7 @@ void dcm_test_ps( void)
     
     #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("scan range");
-    lcd_setcursor( 0, 2); itoa( dcm_ctrl0->psvalue, str); lcd_string( str); lcd_data( ' ');
+    lcd_setcursor( 0, 2); lcd_putint( dcm_ctrl0->psvalue); lcd_data( ' ');
     #endif
     i             = 0xffff;
     min_error     = memory_test_dot( WORD_MODE);
@@ -879,12 +923,11 @@ void dcm_test_ps( void)
         // uart + lcd debug
         putstr("\n");        
         lcd_setcursor( 0, 2); 
-        itoa( dcm_ctrl0->psvalue, str); 
         #ifdef LCD_ENABLE
-        lcd_string( str); lcd_data( ' ');
+        lcd_putint( dcm_ctrl0->psvalue); lcd_data( ' ');
         #endif
-        uart_putstr( str); uart_putstr("\t");
-        itoa( i, str); putstr( str); 
+        uart_putint( dcm_ctrl0->psvalue); uart_putstr("\t");
+        putint( i); 
         vga_putstr("    ");
     }
 
@@ -919,17 +962,16 @@ void dcm_test_ps( void)
     vga_clear();
     putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
     putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
-    putstr("\nlow:         "); itoa( low_value, str);                putstr( str);
-    putstr("\nhigh:        "); itoa( high_value, str);               putstr( str);
+    putstr("\nlow:         "); putint( low_value);
+    putstr("\nhigh:        "); putint( high_value);
     putstr("\n");
-    putstr("\ndiff:        "); itoa(  high_value-low_value, str);    putstr( str);
-    putstr("\ndiff/2:      "); itoa( (high_value-low_value)/2, str); putstr( str);
+    putstr("\ndiff:        "); putint(  high_value-low_value);
     putstr("\n");
-    putstr("\nmin_err:     "); itoa( min_error, str);                putstr( str);
-    putstr("\nmin_err_pos: "); itoa( min_error_pos, str);            putstr( str);
+    putstr("\nmin_err:     "); putint( min_error);
+    putstr("\nmin_err_pos: "); putint( min_error_pos);
     putstr("\n");if (first_changed) putstr("go min_error"); else putstr("go zero");
     putstr("\n");
-    putstr("\nfinal:       "); itoa( dcm_ctrl0->psvalue, str);           putstr( str);
+    putstr("\nfinal:       "); putint( dcm_ctrl0->psvalue);
     #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("dcm_test_ps done");
     #endif
@@ -1094,8 +1136,6 @@ int main(void)
     (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
     putstr("compiled: " __DATE__ "  " __TIME__ "\n");
     
-    // fill the memory once (safe time)
-    memory_test_init( 0x90000000, 0x0010000);
 
     #ifdef LCD_ENABLE
     lcd_string("init done.");
@@ -1107,7 +1147,14 @@ int main(void)
 
     memory_info();
     sleep( 5);
+    
+    // fill the memory once (safe time)
+    memory_test_init( 0x90000000, 0x0010000);
     ddr_scan_fast();//dcm_test_ps();
+    
+    putstr("\n\nmemory size   :");  
+    putint( memory_detect_ramsize( 0x90000000) );
+    putstr(" blocks");
     sleep( 5);
     
     vga_clear();
@@ -1137,9 +1184,15 @@ int main(void)
         if bit_is_set( gpio0->iodata, BUTTON_SOUTH)  
         {
             ddr_init();
+            
+            memory_test_init( 0x90000000, 0x0010000);
             ddr_scan_fast();
+            
+            putstr("\n\nmemory size   :");  
+            putint( memory_detect_ramsize( 0x90000000) );
+            putstr(" blocks");
+    
             sleep( 5);
-            memory_test_init( 0x90000000, 0x0010000); // btn south -> inc ps
         }
 
         if bit_is_set( gpio0->iodata, BUTTON_NORTH)  
