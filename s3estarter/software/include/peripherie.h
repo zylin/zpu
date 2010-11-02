@@ -98,9 +98,11 @@ typedef struct {
     gptimer_element_t e[8];
 } gptimer_t;
 
-void msleep(uint32_t msec);
-void nsleep(uint32_t nsec);
-void init_timer_prescaler();
+#define CLOCKS_PER_SECOND         (1000)
+void usleep( uint32_t nsec);
+void msleep( uint32_t msec);
+void sleep( uint32_t sec);
+void timer_init( void);
 
 
 // vga

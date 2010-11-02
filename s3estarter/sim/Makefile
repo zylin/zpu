@@ -13,6 +13,8 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 all: compile simulate
 
 compile_others:
+	#make --directory ../software/test/ test
+	make --directory ../software/ethernet_speed
 	make compile --directory ../../rena3/sim
 
 compile: lib

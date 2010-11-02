@@ -22,7 +22,6 @@ compile: lib
 	make compile --directory ../../gaisler/sim
 	make compile --directory ../../grlib/sim
 	make compile --directory ../../tools/sim
-	make --directory ../software/devel/ test
 	make compile --directory ../../zpu/sim
 	vcom -2008 -quiet -work $(library) $(vhdlfiles) | ccze -A
 

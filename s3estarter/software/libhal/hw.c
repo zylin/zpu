@@ -1,4 +1,4 @@
-#include "peripherie.h"
+#include <peripherie.h>
 
 apbuart_t  *uart0     = (apbuart_t *)  0x80000100;
 gptimer_t  *timer0    = (gptimer_t *)  0x80000200;
