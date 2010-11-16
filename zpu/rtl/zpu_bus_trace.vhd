@@ -15,15 +15,15 @@ entity zpu_bus_trace is
         log_file            : string := "bus_trace.txt"
     );
     port (
-        clk                 : in std_logic;
-        reset               : in std_logic;
+        clk                 : in std_ulogic;
+        reset               : in std_ulogic;
         --
-        in_mem_busy         : in std_logic; 
-        mem_read            : in std_logic_vector(wordSize-1 downto 0);
-        mem_write           : in std_logic_vector(wordSize-1 downto 0);              
-        out_mem_addr        : in std_logic_vector(maxAddrBitIncIO downto 0);
-        out_mem_writeEnable : in std_logic; 
-        out_mem_readEnable  : in std_logic
+        in_mem_busy         : in std_ulogic; 
+        mem_read            : in std_ulogic_vector(wordSize-1 downto 0);
+        mem_write           : in std_ulogic_vector(wordSize-1 downto 0);              
+        out_mem_addr        : in std_ulogic_vector(maxAddrBitIncIO downto 0);
+        out_mem_writeEnable : in std_ulogic; 
+        out_mem_readEnable  : in std_ulogic
     );
 end entity zpu_bus_trace;
 
@@ -32,7 +32,7 @@ architecture trace of zpu_bus_trace is
 
     file l_file : text open write_mode is log_file;
 
-    function get_name( mem_addr : std_logic_vector(maxAddrBitIncIO downto 0)) return string is
+    function get_name( mem_addr : std_ulogic_vector(maxAddrBitIncIO downto 0)) return string is
     begin
         case mem_addr is
             when x"80000100" => return("uart data");
@@ -81,7 +81,11 @@ architecture trace of zpu_bus_trace is
             when x"fff00010" => return("sdram status read");
             when x"fff00014" => return("sdram phy config 0");
             when x"fff00018" => return("sdram phy config 1");
-            when others      => return("unkown");
+            when others      => 
+                if (mem_addr >= x"00000000") and (mem_addr <= x"00003fff") then return("bram"); end if;
+                if (mem_addr >= x"a0000000") and (mem_addr <= x"a0003fff") then return("sram"); end if;
+                if (mem_addr >= x"90000000") and (mem_addr <= x"90003fff") then return("ddr ram"); end if;
+                return("unkown");
         end case;
     end function get_name;
 

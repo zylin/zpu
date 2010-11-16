@@ -83,6 +83,9 @@ package zpu_wrapper_package is
     end component;
 
     component zpu_ahb is
+        generic(
+            hindex  : integer := 0
+        );
         port ( 
             clk     : in  std_ulogic;
             -- asynchronous reset signal
@@ -101,15 +104,15 @@ package zpu_wrapper_package is
             log_file            : string := "bus_trace.txt"
         );
         port (
-            clk                 : in std_logic;
-            reset               : in std_logic;
+            clk                 : in std_ulogic;
+            reset               : in std_ulogic;
             --
-            in_mem_busy         : in std_logic; 
-            mem_read            : in std_logic_vector(wordSize-1 downto 0);
-            mem_write           : in std_logic_vector(wordSize-1 downto 0);              
-            out_mem_addr        : in std_logic_vector(maxAddrBitIncIO downto 0);
-            out_mem_writeEnable : in std_logic; 
-            out_mem_readEnable  : in std_logic
+            in_mem_busy         : in std_ulogic; 
+            mem_read            : in std_ulogic_vector(wordSize-1 downto 0);
+            mem_write           : in std_ulogic_vector(wordSize-1 downto 0);              
+            out_mem_addr        : in std_ulogic_vector(maxAddrBitIncIO downto 0);
+            out_mem_writeEnable : in std_ulogic; 
+            out_mem_readEnable  : in std_ulogic
         );
     end component zpu_bus_trace;
 
@@ -145,11 +148,11 @@ end zpu_wrapper;
 
 architecture rtl of zpu_wrapper is
 
-    signal mem_write           : std_logic_vector(zpu_out.mem_write'range);
-    signal out_mem_addr        : std_logic_vector(zpu_out.mem_addr'range);
-    signal out_mem_writeEnable : std_logic;
-    signal out_mem_readEnable  : std_logic;
-    signal mem_writeMask       : std_logic_vector(zpu_out.mem_writeMask'range);
+    signal mem_write           : std_ulogic_vector(zpu_out.mem_write'range);
+    signal out_mem_addr        : std_ulogic_vector(zpu_out.mem_addr'range);
+    signal out_mem_writeEnable : std_ulogic;
+    signal out_mem_readEnable  : std_ulogic;
+    signal mem_writeMask       : std_ulogic_vector(zpu_out.mem_writeMask'range);
 
 begin
 
@@ -159,7 +162,7 @@ begin
             reset               => reset,
             --
             in_mem_busy         => zpu_in.mem_busy,
-            mem_read            => std_logic_vector(zpu_in.mem_read),
+            mem_read            => std_ulogic_vector(zpu_in.mem_read),
             interrupt           => zpu_in.interrupt,
             --
             mem_write           => mem_write,
@@ -195,10 +198,15 @@ use zpu.zpupkg.zpu_core;
 
 library grlib;
 use grlib.amba.all;
+use grlib.stdlib.report_version;
+use grlib.stdlib.tost;
 
 
 entity zpu_ahb is
-    Port ( 
+    generic(
+        hindex  : integer := 0
+    );
+    port ( 
         clk     : in  std_ulogic;
     	-- asynchronous reset signal
 	 	reset   : in  std_ulogic;
@@ -208,7 +216,7 @@ entity zpu_ahb is
         ahbo   : out ahb_mst_out_type;
         -- system
         break  : out std_ulogic
-        );
+    );
 end zpu_ahb;
 
 
@@ -219,14 +227,17 @@ architecture rtl of zpu_ahb is
    	 rtl'path_name &
     -- pragma translate_on
 	 "";
+  
+    constant REVISION          : amba_version_type := 0;
 
-    signal mem_write           : std_logic_vector(31 downto 0);
-    signal out_mem_addr        : std_logic_vector(31 downto 0);
-    signal out_mem_writeEnable : std_logic;
-    signal out_mem_readEnable  : std_logic;
-    signal mem_writeMask       : std_logic_vector(3 downto 0);
+    signal mem_read            : std_ulogic_vector(31 downto 0);
+    signal mem_write           : std_ulogic_vector(31 downto 0);
+    signal out_mem_addr        : std_ulogic_vector(31 downto 0);
+    signal out_mem_writeEnable : std_ulogic;
+    signal out_mem_readEnable  : std_ulogic;
+    signal mem_writeMask       : std_ulogic_vector(3 downto 0);
 
-    signal busy                : std_logic;
+    signal busy                : std_ulogic;
 
 begin
 
@@ -240,23 +251,31 @@ begin
 
     check: process( ahbi)
     begin
-        case ahbi.hresp is
-            when HRESP_OKAY =>
-                 null;
-            when HRESP_ERROR =>
-                report me_c & "HRESP_ERROR" severity error;
-            when HRESP_SPLIT =>
-                report me_c & "HRESP_SPLIT";
-            when HRESP_RETRY =>
-                report me_c & "HRESP_RETRY"; 
-            when others =>
-                if now /= (0 ps) then
-                    report me_c & "unknown ahbi.hresp" severity warning;
-                end if;
-        end case;
+        -- check only if we have the grant
+        if ahbi.hgrant(hindex) = '1' then
+            
+            case ahbi.hresp is
+                when HRESP_OKAY =>
+                     null;
+                when HRESP_ERROR =>
+                    report me_c & "HRESP_ERROR" severity error;
+                when HRESP_SPLIT =>
+                    report me_c & "HRESP_SPLIT";
+                when HRESP_RETRY =>
+                    report me_c & "HRESP_RETRY"; 
+                when others =>
+                    if now /= (0 ps) then
+                        report me_c & "unknown ahbi.hresp" severity warning;
+                    end if;
+            end case;
+        end if;
     end process check;
 
-    busy <= out_mem_readEnable or not ahbi.hready;
+    busy <= out_mem_readEnable or ( (not ahbi.hready)  or  (not ahbi.hgrant(hindex)) );
+    --busy <= ( out_mem_readEnable or  (not ahbi.hready) ) and  (not ahbi.hgrant(hindex)) ;
+    --busy <=  out_mem_readEnable or (not ahbi.hready); --original
+
+    mem_read <= std_ulogic_vector( ahbi.hrdata);
 
     zpu_i0: zpu_core 
         port map (
@@ -264,7 +283,7 @@ begin
             reset               => reset,
             --
             in_mem_busy         => busy,
-            mem_read            => ahbi.hrdata,
+            mem_read            => mem_read,
             interrupt           => or_reduce(ahbi.hirq),
             --
             mem_write           => mem_write,
@@ -278,12 +297,12 @@ begin
     ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable;
     ahbo.hlock   <= '0';
     ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
-    ahbo.haddr   <= out_mem_addr;-- & "0000";
+    ahbo.haddr   <= std_logic_vector( out_mem_addr);
     ahbo.hwrite  <= out_mem_writeEnable;
     ahbo.hsize   <= HSIZE_WORD;
     ahbo.hburst  <= HBURST_SINGLE;
     ahbo.hprot   <= "0001";
-    ahbo.hwdata  <= mem_write;
+    ahbo.hwdata  <= std_logic_vector( mem_write);
     ahbo.hirq    <= (others => '0');
     ahbo.hconfig <= (others => (others => '0')); 
     ahbo.hindex  <= 0;
@@ -293,16 +312,25 @@ begin
     -- pragma translate_off
     zpu_bus_trace_i0: zpu_bus_trace
     port map (
-        clk                     => clk,                 -- : in std_logic;
-        reset                   => reset,               -- : in std_logic;
-        --                      =>                      -- 
-        in_mem_busy             => busy,                -- : in std_logic; 
-        mem_read                => ahbi.hrdata,         -- : in std_logic_vector(wordSize-1 downto 0);
-        mem_write               => mem_write,           -- : in std_logic_vector(wordSize-1 downto 0);              
-        out_mem_addr            => out_mem_addr,        -- : in std_logic_vector(maxAddrBitIncIO downto 0);
-        out_mem_writeEnable     => out_mem_writeEnable, -- : in std_logic; 
-        out_mem_readEnable      => out_mem_readEnable   -- : in std_logic
+        clk                     => clk,                 -- : in std_ulogic;
+        reset                   => reset,               -- : in std_ulogic;
+        --
+        in_mem_busy             => busy,                -- : in std_ulogic; 
+        mem_read                => mem_read,            -- : in std_ulogic_vector(wordSize-1 downto 0);
+        mem_write               => mem_write,           -- : in std_ulogic_vector(wordSize-1 downto 0);              
+        out_mem_addr            => out_mem_addr,        -- : in std_ulogic_vector(maxAddrBitIncIO downto 0);
+        out_mem_writeEnable     => out_mem_writeEnable, -- : in std_ulogic; 
+        out_mem_readEnable      => out_mem_readEnable   -- : in std_ulogic
     );
     -- pragma translate_on
+
+    -- pragma translate_off
+      bootmsg : report_version
+      generic map (
+        "zpu" & tost(hindex) & ": Zylin CPU rev " & tost(REVISION)
+      );
+    -- pragma translate_on
+
+
 
 end architecture rtl;

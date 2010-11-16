@@ -71,6 +71,7 @@ package txt_util is
 
     -- convert std_logic_vector into a string in hex format
     function hstr(slv: std_logic_vector) return string;
+    function hstr(slv: std_ulogic_vector) return string;
 
 
     -- functions to manipulate strings
@@ -350,6 +351,11 @@ package body txt_util is
        end loop;
        return hex(1 to hexlen);
      end hstr;
+   
+   function hstr(slv: std_ulogic_vector) return string is
+   begin
+     return( hstr( std_logic_vector( slv)));
+   end hstr;
 
 
 
