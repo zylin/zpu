@@ -4,6 +4,7 @@ rtl_files    = \
 		../rtl_tb/txt_util.vhd \
 		../rtl/zpu_config.vhd \
 		../rtl/zpupkg.vhd \
+		../rtl/zpu_wrapper_package.vhd \
 		../rtl/*.vhd
 rtl_tb_files = ../rtl_tb/*.vhd
 vhdlfiles    = $(rtl_files) $(rtl_tb_files) 
