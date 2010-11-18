@@ -279,4 +279,18 @@ package fpga_components is
     end component dcm_ctrl_apb;
 
 
+    component debug_con_apb is
+      generic (
+        pindex : integer := 0;
+        paddr  : integer := 0;
+        pmask  : integer := 16#fff#
+        );
+      port (
+        rst  : in  std_ulogic;
+        clk  : in  std_ulogic;
+        apbi : in  apb_slv_in_type;
+        apbo : out apb_slv_out_type
+        );
+    end component debug_con_apb;
+
 end package fpga_components;

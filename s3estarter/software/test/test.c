@@ -34,10 +34,15 @@ uint32_t simulation_active;
 // combined print functions
 
 
-char combined_putchar(char c)
+char combined_putchar( char c)
 {
     uart_putchar( c);
     vga_putchar( c);
+}
+
+char debug_putchar( char c)
+{
+    *debug_con0 = (uint32_t) c;
 }
 
 
@@ -887,7 +892,7 @@ int main(void)
     uart_init();
 
     // set to our output function
-    putchar_fp = (simulation_active) ? uart_putchar : combined_putchar;
+    putchar_fp = (simulation_active) ? debug_putchar : combined_putchar;
 
     /*
     if (simulation_active) {

@@ -43,7 +43,7 @@
          </top_modules>
       </db_ref>
    </db_ref_list>
-   <WVObjectSize size="40" />
+   <WVObjectSize size="42" />
    <wvobject fp_name="divider158" type="divider">
       <obj_property name="label">ZPU</obj_property>
       <obj_property name="DisplayName">label</obj_property>
@@ -106,6 +106,61 @@
       <obj_property name="ElementShortName">sp[30:2]</obj_property>
       <obj_property name="ObjectShortName">sp[30:2]</obj_property>
       <obj_property name="Radix">HEXRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="divider173" type="divider">
+      <obj_property name="label">debug console</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="BkColor">128 128 255</obj_property>
+      <obj_property name="TextColor">230 230 230</obj_property>
+   </wvobject>
+   <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi" type="array" db_ref_id="1">
+      <obj_property name="ElementShortName">apbi</obj_property>
+      <obj_property name="ObjectShortName">apbi</obj_property>
+      <obj_property name="Radix">HEXRADIX</obj_property>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.psel" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.psel</obj_property>
+         <obj_property name="ObjectShortName">apbi.psel</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.penable" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.penable</obj_property>
+         <obj_property name="ObjectShortName">apbi.penable</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.paddr" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.paddr</obj_property>
+         <obj_property name="ObjectShortName">apbi.paddr</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.pwrite" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.pwrite</obj_property>
+         <obj_property name="ObjectShortName">apbi.pwrite</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.pwdata" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.pwdata</obj_property>
+         <obj_property name="ObjectShortName">apbi.pwdata</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.pirq" type="array" db_ref_id="1">
+         <obj_property name="ElementShortName">.pirq</obj_property>
+         <obj_property name="ObjectShortName">apbi.pirq</obj_property>
+         <obj_property name="Radix">HEXRADIX</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.testen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testen</obj_property>
+         <obj_property name="ObjectShortName">apbi.testen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.testrst" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testrst</obj_property>
+         <obj_property name="ObjectShortName">apbi.testrst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.scanen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.scanen</obj_property>
+         <obj_property name="ObjectShortName">apbi.scanen</obj_property>
+      </wvobject>
+      <wvobject fp_name="/top_tb/top_i0/box_i0/debug_con_apb_i0/apbi.testoen" type="logic" db_ref_id="1">
+         <obj_property name="ElementShortName">.testoen</obj_property>
+         <obj_property name="ObjectShortName">apbi.testoen</obj_property>
+      </wvobject>
    </wvobject>
    <wvobject fp_name="divider135" type="divider">
       <obj_property name="label">AHB</obj_property>

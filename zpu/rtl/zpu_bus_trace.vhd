@@ -69,6 +69,7 @@ architecture trace of zpu_bus_trace is
             when x"80000C1C" => return("eth EDCL IP");
             when x"80000C20" => return("eth hash table msb");
             when x"80000C24" => return("eth hash table lsb");
+            when x"80000d00" => return("debug console");
             when x"80000e00" => return("dcm ready");
             when x"80000e04" => return("dcm dec ps");
             when x"80000e08" => return("dcm inc ps");
@@ -95,6 +96,7 @@ architecture trace of zpu_bus_trace is
         case mem_addr is
             when x"80000100" => return( true); --"uart data";
             when x"80000104" => return( true); --"uart status";
+            when x"80000d00" => return( true); --"debug console";
             when others      => 
                 return( false);
         end case;

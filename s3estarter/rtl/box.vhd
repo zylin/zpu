@@ -6,6 +6,7 @@ use ieee.std_logic_1164.all;
 library s3estarter;
 use s3estarter.types.all;
 use s3estarter.fpga_components.clk_gen;
+use s3estarter.fpga_components.debug_con_apb;
 use s3estarter.fpga_components.dcm_ctrl_apb;
 
 
@@ -377,7 +378,6 @@ begin
     apbo(9)  <= apb_none; -- slow down synthesis
     apbo(10) <= apb_none; -- slow down synthesis
     apbo(11) <= apb_none; -- slow down synthesis
-    apbo(13) <= apb_none; -- slow down synthesis
 
     apbctrl_i0: apbctrl
         generic map (
@@ -488,6 +488,23 @@ begin
     ---------------------------------------------------------------------
 
 
+    ---------------------------------------------------------------------
+    -- debug console (for fast simulation output)
+    debug_con_apb_i0: debug_con_apb
+        generic map (
+            pindex => 13,     -- : integer := 0;
+            paddr  => 13,     -- : integer := 0;
+            pmask  => 16#fff# -- : integer := 16#fff#
+        )
+        port map (
+            rst    => reset_n,               -- : in  std_ulogic;
+            clk    => clk,                   -- : in  std_ulogic;
+            apbi   => apbctrl_i0_apbi,       -- : in  apb_slv_in_type;
+            apbo   => apbo(13)               -- : out apb_slv_out_type
+        );
+    ---------------------------------------------------------------------
+    
+    
     ---------------------------------------------------------------------
     -- dcm control
     dcm_ctrl_apb_i0: dcm_ctrl_apb
