@@ -89,7 +89,22 @@ architecture trace of zpu_bus_trace is
         end case;
     end function get_name;
 
+
+    function ignore_addr( mem_addr : std_ulogic_vector(maxAddrBitIncIO downto 0)) return boolean is
+    begin
+        case mem_addr is
+            when x"80000100" => return( true); --"uart data";
+            when x"80000104" => return( true); --"uart status";
+            when others      => 
+                return( false);
+        end case;
+    end function ignore_addr;
+
+
+
 begin
+    
+    
     process
         variable l : line;
     begin
@@ -98,12 +113,12 @@ begin
             -- ignore everything
             null;
         else
-            if out_mem_writeEnable = '1' then
+            if (out_mem_writeEnable = '1') and not ignore_addr( out_mem_addr) then
                 print(         "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
                 print( l_file, "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
             end if; -- mem_write
 
-            if out_mem_readEnable = '1' then
+            if (out_mem_readEnable = '1') and not ignore_addr( out_mem_addr) then
                 wait until in_mem_busy = '0';
                 print(         "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
                 print( l_file, "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
@@ -111,4 +126,5 @@ begin
 
         end if; -- reset
     end process;
+
 end architecture trace;
