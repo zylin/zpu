@@ -1,6 +1,8 @@
 //#include <stdio.h>
 
 #include <peripherie.h>
+#include <common.h>
+#include <uart.h>
 #include <lcd-routines.h>
 
 //#define LCD_ENABLE
@@ -29,237 +31,13 @@ uint32_t simulation_active;
 
 
 ////////////////////////////////////////
-// uart functions
+// combined print functions
 
 
-void uart_init( void)
+char combined_putchar(char c)
 {
-    uart0->scaler = UART_SCALER;
-    uart0->ctrl   = UART_CONTROL_TX_ENABLE | UART_CONTROL_RX_ENABLE;
-}
-
-char uart_getchar()
-{
-    loop_until_bit_is_set(uart0->status, UART_STATUS_DATA_READY);
-    return uart0->data;
-}
-
-void uart_putchar_raw( char c)
-{
-    #if UART_FIFOSIZE==1 || !defined(UART_FIFOSIZE)
-    loop_until_bit_is_set( uart0->status, UART_STATUS_TX_REG_EMPTY);
-    #else
-    loop_until_bit_is_clear( uart0->status, UART_STATUS_TX_FIFO_FULL);
-    #endif
-    uart0->data = c;
-}
-
-void uart_putchar( char c)
-{
-    if (c == '\n') 
-        uart_putchar_raw( '\r');
-    uart_putchar_raw( c);
-}
-
-void uart_putstr(const char *s)
-{
-    while (*s) 
-        uart_putchar( *s++);
-}
-        
-// http://asalt-vehicle.googlecode.com/svn› trunk› src› uart.c
-void uart_hex(unsigned char dataType, unsigned long data) 
-{
-    unsigned char count, i, temp;
-    char dataString[] = "0x        ";
-
-    if (dataType == 8) count = 2;
-    if (dataType == 16) count = 4;
-    if (dataType == 32) count = 8;
-
-    for(i=count; i>0; i--)
-    {
-        temp = data % 16;
-        if (temp<10) dataString [i+1] = temp + 0x30;
-        else         dataString [i+1] = (temp - 10) + 0x41;
-
-        data = data/16;
-    }
-
-    uart_putstr( dataString);
-}
-
-
-
-////////////////////////////////////////
-// specific stuff
-
-// http://www.mikrocontroller.net/articles/FAQ#itoa.28.29
-void itoa( int z, char* Buffer )
-{
-  int i = 0;
-  int j;
-  char tmp;
-  unsigned u;    // In u bearbeiten wir den Absolutbetrag von z.
-  
-    // ist die Zahl negativ?
-    // gleich mal ein - hinterlassen und die Zahl positiv machen
-    if( z < 0 ) {
-      Buffer[0] = '-';
-      Buffer++;
-      // -INT_MIN ist idR. größer als INT_MAX und nicht mehr 
-      // als int darstellbar! Man muss daher bei der Bildung 
-      // des Absolutbetrages aufpassen.
-      u = ( (unsigned)-(z+1) ) + 1; 
-    }
-    else { 
-      u = (unsigned)z;
-    }
-    // die einzelnen Stellen der Zahl berechnen
-    do {
-      Buffer[i++] = '0' + u % 10;
-      u /= 10;
-    } while( u > 0 );
- 
-    // den String in sich spiegeln
-    for( j = 0; j < i / 2; ++j ) {
-      tmp = Buffer[j];
-      Buffer[j] = Buffer[i-j-1];
-      Buffer[i-j-1] = tmp;
-    }
-    Buffer[i] = '\0';
-}
-
-
-
-uint8_t vga_line;
-uint8_t vga_column;
-
-void vga_init( void)
-{
-    vga0->background_color = 0x00000000;
-    vga0->foreground_color = 0x00ffffff;
-    vga_line               = 0;
-    vga_column             = 0;
-}
-
-
-
-void vga_clear( void)
-{
-    uint32_t count;
-    uint32_t count_max = 37*80;
-
-    for(count = 0; count< count_max; count++)
-        vga0->data = count<<8;
-
-    vga_line               = 0;
-    vga_column             = 0;
-}
-
-void vga_putchar( char c)
-{
-
-    vga0->data = (( vga_line * 80 + vga_column)<<8) | c;
-    if ( (c == '\n') || (vga_column == 79) )
-    {
-        if (vga_line<36) 
-            vga_line++;
-        else
-            vga_line = 0;
-
-        vga_column = 0;
-    }
-    else
-    {
-        vga_column++;
-    }
-        
-}
-
-void vga_putstr(char *s)
-{
-    while (*s)
-        vga_putchar( *s++);
-}
-
-
-void putstr(char *s)
-{
-    uart_putstr( s);
-    vga_putstr( s);
-}
-
-void puthex(unsigned char dataType, unsigned long data) 
-{
-    unsigned char count, i, temp;
-    char dataString[] = "0x        ";
-
-    if (dataType == 8) count = 2;
-    if (dataType == 16) count = 4;
-    if (dataType == 32) count = 8;
-
-    for(i=count; i>0; i--)
-    {
-        temp = data % 16;
-        if (temp<10) dataString [i+1] = temp + 0x30;
-        else         dataString [i+1] = (temp - 10) + 0x41;
-
-        data = data/16;
-    }
-    uart_putstr( dataString);
-    vga_putstr( dataString);
-}
-
-void putint(uint32_t data)
-{
-    char           str[20];
-
-    itoa( data, str);
-    putstr( str);
-}
-
-void lcd_putint(uint32_t data)
-{
-    char           str[20];
-
-    itoa( data, str);
-    lcd_putstr( str);
-}
-
-void vga_putbin(unsigned char dataType, unsigned long data) 
-{
-    unsigned char count, i, temp;
-    char dataString[] = "0b                                ";
-
-    for(i=dataType; i>0; i--)
-    {
-        temp = data % 2;
-        dataString [i+1] = temp + 0x30;
-        data = data/2;
-    }
-    vga_putstr( dataString);
-}
-
-
-void vga_puthex(unsigned char dataType, unsigned long data) 
-{
-    unsigned char count, i, temp;
-    char dataString[] = "0x        ";
-
-    if (dataType == 8) count = 2;
-    if (dataType == 16) count = 4;
-    if (dataType == 32) count = 8;
-
-    for(i=count; i>0; i--)
-    {
-        temp = data % 16;
-        if (temp<10) dataString [i+1] = temp + 0x30;
-        else         dataString [i+1] = (temp - 10) + 0x41;
-
-        data = data/16;
-    }
-    vga_putstr( dataString);
+    uart_putchar( c);
+    vga_putchar( c);
 }
 
 
@@ -376,12 +154,13 @@ uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
 void ether_init( void)
 {
     
-    ether0->status  = 0xffffffff; // init for simulation
-    ether0->mac_msb = 0xffff0a00;
+    ether0->status  = 0x00000000; // init for simulation
+    ether0->mac_msb = 0x00000a00;
     ether0->mac_lsb = 0x2a0bfefb;
     ether0->control = ETHER_CONTROL_RESET;
     loop_until_bit_is_clear( ether0->control, ETHER_CONTROL_RESET);
     ether_mdio_write( 0x1f, 0x00, 0x8000); // software reset
+    loop_until_bit_is_clear( ether_mdio_read( 0x1f, 0), ETHER_CONTROL_RESET);
     ether_mdio_write( 0x1f, 0x00, 0x2180); // autoneg off, speed 100, full duplex, col test
 }
   
@@ -400,17 +179,17 @@ void ether_test( void)
     ether0->rx_pointer = 0x00004321;
 
     uart_putstr( "\ngreth registers:");
-//  uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_hex(8, str);
-    uart_putstr( "\ncontrol:      "); uart_hex( 32, ether0->control);
-    uart_putstr( "\nstatus:       "); uart_hex( 32, ether0->status);
-    uart_putstr( "\nmac_msb:      "); uart_hex( 32, ether0->mac_msb);
-    uart_putstr( "\nmac_lsb:      "); uart_hex( 32, ether0->mac_lsb);
-    uart_putstr( "\nmdio_control: "); uart_hex( 32, ether0->mdio_control);
-    uart_putstr( "\ntx_pointer:   "); uart_hex( 32, ether0->tx_pointer);
-    uart_putstr( "\nrx_pointer:   "); uart_hex( 32, ether0->rx_pointer);
-    uart_putstr( "\nedcl_ip:      "); uart_hex( 32, ether0->edcl_ip);
-    uart_putstr( "\nhash_msb:     "); uart_hex( 32, ether0->hash_msb);
-    uart_putstr( "\nhash_lsb:     "); uart_hex( 32, ether0->hash_lsb);
+//  uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_puthex(8, str);
+    uart_putstr( "\ncontrol:      "); uart_puthex( 32, ether0->control);
+    uart_putstr( "\nstatus:       "); uart_puthex( 32, ether0->status);
+    uart_putstr( "\nmac_msb:      "); uart_puthex( 32, ether0->mac_msb);
+    uart_putstr( "\nmac_lsb:      "); uart_puthex( 32, ether0->mac_lsb);
+    uart_putstr( "\nmdio_control: "); uart_puthex( 32, ether0->mdio_control);
+    uart_putstr( "\ntx_pointer:   "); uart_puthex( 32, ether0->tx_pointer);
+    uart_putstr( "\nrx_pointer:   "); uart_puthex( 32, ether0->rx_pointer);
+    uart_putstr( "\nedcl_ip:      "); uart_puthex( 32, ether0->edcl_ip);
+    uart_putstr( "\nhash_msb:     "); uart_puthex( 32, ether0->hash_msb);
+    uart_putstr( "\nhash_lsb:     "); uart_puthex( 32, ether0->hash_lsb);
     uart_putchar('\n');
 
 } 
@@ -426,7 +205,7 @@ void ether_test_read_mdio( void)
     uart_putstr("\nmdio phy registers");
     for (mdio_phy=31; mdio_phy<32; mdio_phy++)
     {
-        uart_putstr("\n mdio phy: "); uart_hex( 8, mdio_phy);
+        uart_putstr("\n mdio phy: "); uart_puthex( 8, mdio_phy);
 
         for (mdio_reg=0; mdio_reg<32; mdio_reg++)
         {
@@ -434,8 +213,8 @@ void ether_test_read_mdio( void)
             if (mdio_reg==19) mdio_reg=20;
             if (mdio_reg==24) mdio_reg=27;
             uart_putstr("\n  reg: "); itoa( mdio_reg, str); uart_putstr( str);
-            uart_putstr("-> ");       uart_hex( 16, ether_mdio_read( mdio_phy, mdio_reg));
-//          uart_putstr("-> ");       uart_hex( 32, ether0->mdio_control);
+            uart_putstr("-> ");       uart_puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
+//          uart_putstr("-> ");       uart_puthex( 32, ether0->mdio_control);
         }
     }
     uart_putchar('\n');
@@ -454,7 +233,7 @@ void ether_test_tx_packet( void)
     uint32_t              data_length   = 64;
     
     uint32_t i;
-
+/*
     // setup the data
     //   fill buffer (ethernet address, type field, etc.)
     for (i=0; i<data_length; i++)
@@ -464,9 +243,9 @@ void ether_test_tx_packet( void)
     mac_header->dest_mac[0]            = 0x00; // ipconfig -all
     mac_header->dest_mac[1]            = 0x1b;
     mac_header->dest_mac[2]            = 0x21;
-    mac_header->dest_mac[3]            = 0x68;
-    mac_header->dest_mac[4]            = 0x4b;
-    mac_header->dest_mac[5]            = 0x0a;
+    mac_header->dest_mac[3]            = 0x67;
+    mac_header->dest_mac[4]            = 0xb8;
+    mac_header->dest_mac[5]            = 0xb8;
     mac_header->source_mac[0]          = 0xde;
     mac_header->source_mac[1]          = 0xad;
     mac_header->source_mac[2]          = 0xbe;
@@ -497,6 +276,11 @@ void ether_test_tx_packet( void)
     descr->address = (uint32_t) mac_header; 
     //   enable descriptor
     descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | data_length + 42;
+    */
+    
+    descr->address = (uint32_t) 0x00000000; 
+    //   enable descriptor
+    descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | 1514;
 
     // give descriptor to core
     ether0->tx_pointer = (uint32_t) descr;
@@ -959,7 +743,7 @@ void dcm_test_ps( void)
         dcm_ctrl0->psdec = 0;  while (dcm_ctrl0->psstatus == 0); 
     }
     
-    vga_clear();
+    putchar('\f');
     putstr("\n");if (low_found)  putstr("low found");  else putstr("low NOT found");
     putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
     putstr("\nlow:         "); putint( low_value);
@@ -1057,7 +841,7 @@ uint8_t ddr_scan_fast( void)
         dcm_ctrl0->psdec = 0;  while (dcm_ctrl0->psstatus == 0); 
     }
     
-    vga_clear();
+    putchar('\f'); 
     putstr("\n");if (data_valid) putstr("data valid"); else putstr("data NOT valid");
     putstr("\n");if (low_found)  putstr("low  found"); else putstr("low  NOT found");
     putstr("\n");if (high_found) putstr("high found"); else putstr("high NOT found");
@@ -1101,7 +885,9 @@ int main(void)
 
     timer_init();
     uart_init();
-        
+
+    // set to our output function
+    putchar_fp = (simulation_active) ? uart_putchar : combined_putchar;
 
     /*
     if (simulation_active) {
@@ -1130,10 +916,10 @@ int main(void)
     vga_init();
     ddr_init();
     //running_light_init();
-    //ether_init();
+    ether_init();
 
     putstr("test.c ");
-    (simulation_active) ? putstr("(on simulator)\n") : putstr("(on hardware)\n");
+    (simulation_active) ? putstr("(on sim)\n") : putstr("(on hardware)\n");
     putstr("compiled: " __DATE__ "  " __TIME__ "\n");
     
 
@@ -1142,9 +928,9 @@ int main(void)
     #endif
     
     putstr("\n\n");
-    //vga_clear();
+    // putchar('\f');
 
-
+    /*
     memory_info();
     sleep( 5);
     
@@ -1156,8 +942,10 @@ int main(void)
     putint( memory_detect_ramsize( 0x90000000) );
     putstr(" blocks");
     sleep( 5);
-    
-    vga_clear();
+    */
+
+    /*
+     putchar('\f');
     #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("enter main loop");
     #endif
@@ -1200,14 +988,17 @@ int main(void)
             #ifdef LCD_ENABLE
             lcd_clear(); lcd_string("switch test mode");
             #endif
-            vga_clear();
+             putchar('\f');
             test_mode = !(test_mode);
         }
 
     }
+    */
 
     //ether_test();
-    //ether_test_tx_packet();
+    uint8_t i;
+    for ( i=0; i<20; i++)
+        ether_test_tx_packet();
     //ether_test_read_mdio();
 
     //uart_test();

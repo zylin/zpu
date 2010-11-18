@@ -1,8 +1,8 @@
 DIR=..
 include ../include.mak
 
-C_FILES=hw.c timer.c uart.c vga.c
-OBJECTS=hw.o timer.o uart.o vga.o
+C_FILES=hw.c common.c timer.c uart.c vga.c
+OBJECTS=hw.o common.o timer.o uart.o vga.o
 
 all: libhal.a
 
