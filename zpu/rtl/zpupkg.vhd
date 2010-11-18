@@ -106,6 +106,7 @@ package zpupkg is
   component zpu_core is
     port (
       clk                 : in  std_ulogic;
+      clk_en              : in  std_ulogic := '1';
       reset               : in  std_ulogic;
       in_mem_busy         : in  std_ulogic;
       mem_read            : in  std_ulogic_vector(wordSize-1 downto 0);

@@ -95,6 +95,7 @@ begin
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
+            clk_en              => '1',
             reset               => reset,
             --
             in_mem_busy         => busy,
