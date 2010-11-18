@@ -1,26 +1,3 @@
-#restart -f
-
-#
-# generate library
-#
-vlib zpu
-
-
-#
-# compile stuff
-#
-
-quietly set vcom_lib zpu
-quietly set vcom_options -quiet
-
-vcom -work $vcom_lib $vcom_options ../rtl_tb/txt_util.vhd
-
-vcom -work $vcom_lib $vcom_options ../rtl/zpu_config.vhd
-vcom -work $vcom_lib $vcom_options ../rtl/zpupkg.vhd
-vcom -work $vcom_lib $vcom_options ../rtl/*.vhd
-
-vcom -work $vcom_lib $vcom_options ../rtl_tb/sim_small_fpga_top_noint.vhd
-
 #
 # helper functions
 #
