@@ -43,11 +43,11 @@ use work.zpupkg.all;
 
 entity zpu_core is
   port (
-    clk : in std_ulogic;
-
+    clk                 : in  std_ulogic;
+    clk_en              : in  std_ulogic := '1';
     -- reset signal
-    reset : in std_ulogic;
-
+    reset               : in  std_ulogic;
+    --
     -- this particular implementation of the ZPU does not
     -- have a clocked enable signal
     in_mem_busy         : in  std_ulogic;
@@ -56,20 +56,20 @@ entity zpu_core is
     out_mem_addr        : out std_ulogic_vector(maxAddrBitIncIO downto 0);
     out_mem_writeEnable : out std_ulogic;
     out_mem_readEnable  : out std_ulogic;
-
+    --
     -- this implementation of the ZPU *always* reads and writes entire
     -- 32 bit words, so mem_writeMask is tied to (others => '1').
-    mem_writeMask : out std_ulogic_vector(wordBytes-1 downto 0);
-
+    mem_writeMask       : out std_ulogic_vector(wordBytes-1 downto 0);
+    --
     -- Set to one to jump to interrupt vector
     -- The ZPU will communicate with the hardware that caused the
     -- interrupt via memory mapped IO or the interrupt flag can
     -- be cleared automatically
-    interrupt : in std_ulogic;
-
+    interrupt           : in  std_ulogic;
+    --
     -- Signal that the break instruction is executed, normally only used
     -- in simulation to stop simulation
-    break : out std_ulogic
+    break               : out std_ulogic
     );
 end zpu_core;
 
@@ -323,8 +323,7 @@ begin
   end process;
 
 
-  opcodeControl :
-  process                               --(clk, areset)
+  opcodeControl : process
     variable spOffset : unsigned(4 downto 0);
   begin
     wait until rising_edge(clk);
@@ -345,7 +344,8 @@ begin
       memAWrite           <= (others => '0');
       memBWrite           <= (others => '0');
       inInterrupt         <= '0';
-    else                                --clk'event and clk = '1') then
+
+    elsif clk_en = '1' then -- no reset 
       memAWriteEnable <= '0';
       memBWriteEnable <= '0';
       -- This saves ca. 100 LUT's, by explicitly declaring that the
@@ -353,8 +353,8 @@ begin
       -- not set.
       memAWrite       <= (others => DontCareValue);
       memBWrite       <= (others => DontCareValue);
---          out_mem_addr        <= (others => DontCareValue);
---          mem_write           <= (others => DontCareValue);
+--    out_mem_addr    <= (others => DontCareValue);
+--    mem_write       <= (others => DontCareValue);
       spOffset        := (others => DontCareValue);
       memAAddr        <= (others => DontCareValue);
       memBAddr        <= (others => DontCareValue);
@@ -369,161 +369,176 @@ begin
       opcode        <= sampledOpcode;
       if interrupt = '0' then
         inInterrupt <= '0';             -- no longer in an interrupt
-      end if;
+      end if; -- interrupt
 
       case state is
+
         when State_Execute =>
-          state <= State_Fetch;
+          state                                         <= State_Fetch;
           -- at this point:
           -- memBRead contains opcode word
           -- memARead contains top of stack
-          pc    <= pc + 1;
+          pc                                            <= pc + 1;
 
           -- trace
-          begin_inst                             <= '1';
-          trace_pc                               <= (others => '0');
-          trace_pc(maxAddrBit downto 0)          <= std_logic_vector(pc);
-          trace_opcode                           <= opcode;
-          trace_sp                               <= (others => '0');
-          trace_sp(maxAddrBit downto minAddrBit) <= std_logic_vector(sp);
-          trace_topOfStack                       <= std_logic_vector(memARead);
-          trace_topOfStackB                      <= std_logic_vector(memBRead);
+          begin_inst                                    <= '1';
+          trace_pc                                      <= (others => '0');
+          trace_pc(maxAddrBit downto 0)                 <= std_logic_vector(pc);
+          trace_opcode                                  <= opcode;
+          trace_sp                                      <= (others => '0');
+          trace_sp(maxAddrBit downto minAddrBit)        <= std_logic_vector(sp);
+          trace_topOfStack                              <= std_logic_vector(memARead);
+          trace_topOfStackB                             <= std_logic_vector(memBRead);
 
           -- during the next cycle we'll be reading the next opcode   
-          spOffset(4)          := not opcode(4);
-          spOffset(3 downto 0) := unsigned(opcode(3 downto 0));
+          spOffset(4)                                   := not opcode(4);
+          spOffset(3 downto 0)                          := unsigned(opcode(3 downto 0));
+                                                        
+          idim_flag                                     <= '0';
 
-          idim_flag <= '0';
           case decodedOpcode is
+          
             when Decoded_Interrupt =>
-              sp                             <= sp - 1;
-              memAAddr                       <= sp - 1;
-              memAWriteEnable                <= '1';
-              memAWrite                      <= (others => DontCareValue);
-              memAWrite(maxAddrBit downto 0) <= pc;
-              pc                             <= to_unsigned(32, maxAddrBit+1);  -- interrupt address
+              sp                                        <= sp - 1;
+              memAAddr                                  <= sp - 1;
+              memAWriteEnable                           <= '1';
+              memAWrite                                 <= (others => DontCareValue);
+              memAWrite(maxAddrBit downto 0)            <= pc;
+              pc                                        <= to_unsigned(32, maxAddrBit+1);  -- interrupt address
               report "ZPU jumped to interrupt!" severity note;
+
             when Decoded_Im =>
-              idim_flag       <= '1';
-              memAWriteEnable <= '1';
+              idim_flag                                 <= '1';
+              memAWriteEnable                           <= '1';
+
               if (idim_flag = '0') then
-                sp       <= sp - 1;
-                memAAddr <= sp-1;
+                sp                                      <= sp - 1;
+                memAAddr                                <= sp-1;
                 for i in wordSize-1 downto 7 loop
-                  memAWrite(i) <= opcode(6);
-                end loop;
-                memAWrite(6 downto 0) <= unsigned(opcode(6 downto 0));
+                  memAWrite(i)                          <= opcode(6);
+                end loop;                               
+                memAWrite(6 downto 0)                   <= unsigned(opcode(6 downto 0));
               else
-                memAAddr                       <= sp;
-                memAWrite(wordSize-1 downto 7) <= memARead(wordSize-8 downto 0);
-                memAWrite(6 downto 0)          <= unsigned(opcode(6 downto 0));
-              end if;
-            when Decoded_StoreSP =>
-              memBWriteEnable <= '1';
-              memBAddr        <= sp+spOffset;
-              memBWrite       <= memARead;
-              sp              <= sp + 1;
-              state           <= State_Resync;
+                memAAddr                                <= sp;
+                memAWrite(wordSize-1 downto 7)          <= memARead(wordSize-8 downto 0);
+                memAWrite(6 downto 0)                   <= unsigned(opcode(6 downto 0));
+              end if;                                   
+                                                        
+            when Decoded_StoreSP =>                     
+              memBWriteEnable                           <= '1';
+              memBAddr                                  <= sp+spOffset;
+              memBWrite                                 <= memARead;
+              sp                                        <= sp + 1;
+              state                                     <= State_Resync;
+
             when Decoded_LoadSP =>
-              sp       <= sp - 1;
-              memAAddr <= sp+spOffset;
+              sp                                        <= sp - 1;
+              memAAddr                                  <= sp+spOffset;
+
             when Decoded_Emulate =>
-              sp                             <= sp - 1;
-              memAWriteEnable                <= '1';
-              memAAddr                       <= sp - 1;
-              memAWrite                      <= (others => DontCareValue);
-              memAWrite(maxAddrBit downto 0) <= pc + 1;
-              -- The emulate address is:
-              --        98 7654 3210
-              -- 0000 00aa aaa0 0000
-              pc                             <= (others => '0');
-              pc(9 downto 5)                 <= unsigned(opcode(4 downto 0));
+              sp                                        <= sp - 1;
+              memAWriteEnable                           <= '1';
+              memAAddr                                  <= sp - 1;
+              memAWrite                                 <= (others => DontCareValue);
+              memAWrite(maxAddrBit downto 0)            <= pc + 1;
+              -- The emulate address is:                
+              --        98 7654 3210                    
+              -- 0000 00aa aaa0 0000                    
+              pc                                        <= (others => '0');
+              pc(9 downto 5)                            <= unsigned(opcode(4 downto 0));
+
             when Decoded_AddSP =>
-              memAAddr <= sp;
-              memBAddr <= sp+spOffset;
-              state    <= State_AddSP;
+              memAAddr                                  <= sp;
+              memBAddr                                  <= sp+spOffset;
+              state                                     <= State_AddSP;
+
             when Decoded_Break =>
               report "Break instruction encountered" severity note;
-              break <= '1';
+              break                                     <= '1';
+
             when Decoded_PushSP =>
-              memAWriteEnable                         <= '1';
-              memAAddr                                <= sp - 1;
-              sp                                      <= sp - 1;
-              memAWrite                               <= (others => DontCareValue);
-              memAWrite(maxAddrBit downto minAddrBit) <= sp;
+              memAWriteEnable                           <= '1';
+              memAAddr                                  <= sp - 1;
+              sp                                        <= sp - 1;
+              memAWrite                                 <= (others => DontCareValue);
+              memAWrite(maxAddrBit downto minAddrBit)   <= sp;
+
             when Decoded_PopPC =>
-              pc    <= memARead(maxAddrBit downto 0);
-              sp    <= sp + 1;
-              state <= State_Resync;
+              pc                                        <= memARead(maxAddrBit downto 0);
+              sp                                        <= sp + 1;
+              state                                     <= State_Resync;
+
             when Decoded_Add =>
-              sp    <= sp + 1;
-              state <= State_Add;
+              sp                                        <= sp + 1;
+              state                                     <= State_Add;
+
             when Decoded_Or =>
-              sp    <= sp + 1;
-              state <= State_Or;
+              sp                                        <= sp + 1;
+              state                                     <= State_Or;
 
             when Decoded_And =>
-              sp    <= sp + 1;
-              state <= State_And;
+              sp                                        <= sp + 1;
+              state                                     <= State_And;
 
             when Decoded_Load =>
               if (memARead(ioBit) = '1') then
-                out_mem_addr       <= std_ulogic_vector(memARead(maxAddrBitIncIO downto 0));
-                out_mem_readEnable <= '1';
-                state              <= State_ReadIO;
+                out_mem_addr                            <= std_ulogic_vector(memARead(maxAddrBitIncIO downto 0));
+                out_mem_readEnable                      <= '1';
+                state                                   <= State_ReadIO;
               else
-                memAAddr <= memARead(maxAddrBit downto minAddrBit);
+                memAAddr                                <= memARead(maxAddrBit downto minAddrBit);
               end if;
 
             when Decoded_Not =>
-              memAAddr        <= sp(maxAddrBit downto minAddrBit);
-              memAWriteEnable <= '1';
-              memAWrite       <= not memARead;
+              memAAddr                                  <= sp(maxAddrBit downto minAddrBit);
+              memAWriteEnable                           <= '1';
+              memAWrite                                 <= not memARead;
 
             when Decoded_Flip =>
-              memAAddr        <= sp(maxAddrBit downto minAddrBit);
-              memAWriteEnable <= '1';
+              memAAddr                                  <= sp(maxAddrBit downto minAddrBit);
+              memAWriteEnable                           <= '1';
               for i in 0 to wordSize-1 loop
-                memAWrite(i) <= memARead(wordSize-1-i);
+                memAWrite(i)                            <= memARead(wordSize-1-i);
               end loop;
 
             when Decoded_Store =>
-              memBAddr <= sp + 1;
-              sp       <= sp + 1;
+              memBAddr                                  <= sp + 1;
+              sp                                        <= sp + 1;
               if (memARead(ioBit) = '1') then
-                state <= State_WriteIO;
+                state                                   <= State_WriteIO;
               else
                 state <= State_Store;
               end if;
 
             when Decoded_PopSP =>
-              sp    <= memARead(maxAddrBit downto minAddrBit);
-              state <= State_Resync;
+              sp                                        <= memARead(maxAddrBit downto minAddrBit);
+              state                                     <= State_Resync;
 
             when Decoded_Nop =>
-              memAAddr <= sp;
+              memAAddr                                  <= sp;
 
             when others =>
               null;
-          end case;
+
+          end case; -- decodedOpcode
 
         when State_ReadIO =>
           if (in_mem_busy = '0') then
-            state           <= State_Fetch;
-            memAWriteEnable <= '1';
-            memAWrite       <= unsigned(mem_read);
+            state                                       <= State_Fetch;
+            memAWriteEnable                             <= '1';
+            memAWrite                                   <= unsigned(mem_read);
           end if;
 
         when State_WriteIO =>
-          sp                  <= sp + 1;
-          out_mem_writeEnable <= '1';
-          out_mem_addr        <= std_ulogic_vector(memARead(maxAddrBitIncIO downto 0));
-          mem_write           <= std_ulogic_vector(memBRead);
-          state               <= State_WriteIODone;
+          sp                                            <= sp + 1;
+          out_mem_writeEnable                           <= '1';
+          out_mem_addr                                  <= std_ulogic_vector(memARead(maxAddrBitIncIO downto 0));
+          mem_write                                     <= std_ulogic_vector(memBRead);
+          state                                         <= State_WriteIODone;
 
         when State_WriteIODone =>
           if (in_mem_busy = '0') then
-            state <= State_Resync;
+            state                                       <= State_Resync;
           end if;
 
         when State_Fetch =>
@@ -531,67 +546,68 @@ begin
           -- we'll fetch the opcode @ pc and thus it will
           -- be available for State_Execute the cycle after
           -- next
-          memBAddr <= pc(maxAddrBit downto minAddrBit);
-          state    <= State_FetchNext;
+          memBAddr                                      <= pc(maxAddrBit downto minAddrBit);
+          state                                         <= State_FetchNext;
 
         when State_FetchNext =>
           -- at this point memARead contains the value that is either
           -- from the top of stack or should be copied to the top of the stack
-          memAWriteEnable <= '1';
-          memAWrite       <= memARead;
-          memAAddr        <= sp;
-          memBAddr        <= sp + 1;
-          state           <= State_Decode;
+          memAWriteEnable                               <= '1';
+          memAWrite                                     <= memARead;
+          memAAddr                                      <= sp;
+          memBAddr                                      <= sp + 1;
+          state                                         <= State_Decode;
 
         when State_Decode =>
           if interrupt = '1' and inInterrupt = '0' and idim_flag = '0' then
             -- We got an interrupt, execute interrupt instead of next instruction
-            inInterrupt   <= '1';
-            decodedOpcode <= Decoded_Interrupt;
+            inInterrupt                                 <= '1';
+            decodedOpcode                               <= Decoded_Interrupt;
           end if;
           -- during the State_Execute cycle we'll be fetching SP+1
-          memAAddr <= sp;
-          memBAddr <= sp + 1;
-          state    <= State_Execute;
+          memAAddr                                      <= sp;
+          memBAddr                                      <= sp + 1;
+          state                                         <= State_Execute;
 
         when State_Store =>
-          sp              <= sp + 1;
-          memAWriteEnable <= '1';
-          memAAddr        <= memARead(maxAddrBit downto minAddrBit);
-          memAWrite       <= memBRead;
-          state           <= State_Resync;
+          sp                                            <= sp + 1;
+          memAWriteEnable                               <= '1';
+          memAAddr                                      <= memARead(maxAddrBit downto minAddrBit);
+          memAWrite                                     <= memBRead;
+          state                                         <= State_Resync;
 
         when State_AddSP =>
-          state <= State_Add;
+          state                                         <= State_Add;
 
         when State_Add =>
-          memAAddr        <= sp;
-          memAWriteEnable <= '1';
-          memAWrite       <= memARead + memBRead;
-          state           <= State_Fetch;
-
-        when State_Or =>
-          memAAddr        <= sp;
-          memAWriteEnable <= '1';
-          memAWrite       <= memARead or memBRead;
-          state           <= State_Fetch;
+          memAAddr                                      <= sp;
+          memAWriteEnable                               <= '1';
+          memAWrite                                     <= memARead + memBRead;
+          state                                         <= State_Fetch;
+                                                        
+        when State_Or =>                                
+          memAAddr                                      <= sp;
+          memAWriteEnable                               <= '1';
+          memAWrite                                     <= memARead or memBRead;
+          state                                         <= State_Fetch;
 
         when State_Resync =>
-          memAAddr <= sp;
-          state    <= State_Fetch;
-
-        when State_And =>
-          memAAddr        <= sp;
-          memAWriteEnable <= '1';
-          memAWrite       <= memARead and memBRead;
-          state           <= State_Fetch;
+          memAAddr                                      <= sp;
+          state                                         <= State_Fetch;
+                                                        
+        when State_And =>                              
+          memAAddr                                      <= sp;
+          memAWriteEnable                               <= '1';
+          memAWrite                                     <= memARead and memBRead;
+          state                                         <= State_Fetch;
 
         when others =>
           null;
 
-      end case;
+      end case; -- state
       
-    end if;
+    end if; -- clk_en, reset
+
   end process;
 
 
