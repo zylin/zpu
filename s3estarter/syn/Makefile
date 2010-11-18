@@ -3,6 +3,8 @@ DEVICE = xc3s500e-fg320-4
 #UCF_FILE = D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf
 UCF_FILE = s3estarter.ucf
 
+SOFTWARE = ../software/ethernet_speed
+#SOFTWARE = ../software/test
 
 
 all:	
@@ -37,8 +39,8 @@ check:
 
 
 update:
-	make test --directory ../software/test
-	data2mem -bm zpu_i0_memory.bmm -bd ../software/test/test.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
+	make all --directory $(SOFTWARE)
+	data2mem -bm zpu_i0_memory.bmm -bd $(SOFTWARE)/*.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
 
 
 program:
