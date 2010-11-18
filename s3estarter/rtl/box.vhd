@@ -129,6 +129,7 @@ architecture rtl of box is
 
 begin
     
+    ---------------------------------------------------------------------
     -- select clk and reset source 
 
     clk_gen_i0: clk_gen
@@ -161,20 +162,10 @@ begin
 
     reset           <= reset_shiftreg( reset_shiftreg'high);
     reset_n         <= not reset;
+    ---------------------------------------------------------------------
     
---  zpu_i0_zpu_out <= default_zpu_out_c;
---  rena3_out      <= default_rena3_controller_in_c; 
---  rena3_controller_i0: rena3_controller
---      port map (
---          -- system
---          clock          => clk,                           -- : std_ulogic;
---          -- rena3 (connection to chip)
---          rena3_in       => rena3_out,                     -- : in  rena3_controller_in_t;
---          rena3_out      => rena3_controller_io_rena3_out, -- : out rena3_controller_out_t;
---          -- connection to soc
---          zpu_in         => zpu_i0_zpu_out,                -- : in  zpu_out_t;
---          zpu_out        => rena3_controller_i0_zpu_out    -- : out zpu_in_t
---      );
+    ---------------------------------------------------------------------
+    --  zpu
     
     zpu_ahb_i0: zpu_ahb
     port map (
@@ -184,10 +175,10 @@ begin
         ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic
     );
+    ----------------------------------------------------------------------
     
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
-    ----------------------------------------------------------------------
 
     ahbmo(2) <= ahbm_none;
     ahbmo(3) <= ahbm_none;
@@ -198,7 +189,7 @@ begin
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             defmast    => 0,    -- default master
-            rrobin     => 1,    -- round robin arbitration
+            rrobin     => 0,    -- round robin arbitration
             timeout    => 11,
             nahbm      => 2, 
             nahbs      => 3,
@@ -224,7 +215,11 @@ begin
     debug_trace_box.hgrant_1 <= ahbctrl_i0_msti.hgrant(1); 
     debug_trace_box.ahbmo0_bureq <= ahbmo(0).hbusreq;
     debug_trace_box.ahbmo1_bureq <= ahbmo(1).hbusreq;
+    ----------------------------------------------------------------------
 
+
+    ---------------------------------------------------------------------
+    --  AHB RAM (internal 4k BRAM)
 
     ahbram_i0 : ahbram
         generic map (
@@ -240,7 +235,10 @@ begin
             ahbsi  => ahbctrl_i0_slvi,
             ahbso  => ahbso(1)
         );
+    ----------------------------------------------------------------------
 
+    ---------------------------------------------------------------------
+    --  DDR SDRAM controller (external RAM 32 MByte)
 
     -- fpga filled around 78%, clk (50 MHz after DCM)
     -- frequency  relation     timing score   test
@@ -333,13 +331,42 @@ begin
     debug_trace_box.sys_clk    <= clk;
     debug_trace_box.ddr_clk    <= clk_gen_i0_clk_fx;
     debug_trace_box.ddr_fb_clk <= ddrspa_i0_clkddro;
+    ---------------------------------------------------------------------
             
+    
+    ---------------------------------------------------------------------
+    -- ethernet (takes also an APB port)
+
+    greth_i0: greth
+        generic map (
+            hindex      => 1, 
+            pindex      => 12,
+            paddr       => 12,
+            pirq        => 12,
+            memtech     => inferred,
+            mdcscaler   => 20,
+            enable_mdio => 1,
+            fifosize    => 32,
+            nsync       => 1,
+            phyrstadr   => 31        -- depends on used hardware
+        )
+        port map (
+            rst         => reset_n,
+            clk         => clk,
+            ahbmi       => ahbctrl_i0_msti,
+            ahbmo       => ahbmo(1),
+            apbi        => apbctrl_i0_apbi,
+            apbo        => apbo(12),
+            ethi        => ethi,
+            etho        => etho
+        );
+    ---------------------------------------------------------------------
+
 
     ---------------------------------------------------------------------
     --  AHB/APB bridge
-    ----------------------------------------------------------------------
 
-    apbo(0)  <= apb_none; -- slow down synthesis
+    apbo(0)  <= apb_none; -- slow down synthesis (but sim looks better)
     apbo(3)  <= apb_none; -- slow down synthesis
     apbo(4)  <= apb_none; -- slow down synthesis
     apbo(5)  <= apb_none; -- slow down synthesis
@@ -365,8 +392,12 @@ begin
             apbi  => apbctrl_i0_apbi,    -- : out apb_slv_in_type;
             apbo  => apbo                -- : in  apb_slv_out_vector                
         );
+    ----------------------------------------------------------------------
     
+
+    ---------------------------------------------------------------------
     -- uart
+
     apbuart_i0: apbuart
         generic map (
             pindex     => 1,
@@ -384,11 +415,16 @@ begin
             uarti => uarti,
             uarto => uarto
         );
+    ---------------------------------------------------------------------
 
 
+
+    ---------------------------------------------------------------------
+    -- GP timer (grip.pdf p. 279)
+    
     gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
-    -- GP timer (grip.pdf p. 279)
+
     gptimer_i0: gptimer
         generic map (
             pindex  => 2,
@@ -407,7 +443,9 @@ begin
             gpti    => gpti,
             gpto    => gptimer_i0_gpto
         );
+    ---------------------------------------------------------------------
 
+    ---------------------------------------------------------------------
     -- SVGA
     apbvga_i0: apbvga
         generic map (
@@ -423,8 +461,10 @@ begin
             apbo    => apbo(6),
             vgao    => vgao
         );
+    ---------------------------------------------------------------------
 
 
+    ---------------------------------------------------------------------
     -- GPIO
     grgpio_i0: grgpio
         generic map (
@@ -442,31 +482,10 @@ begin
             gpioi  => gpioi, 
             gpioo  => gpioo
         );
+    ---------------------------------------------------------------------
 
-    -- ethernet
-    greth_i0: greth
-        generic map (
-            hindex      => 1, 
-            pindex      => 12,
-            paddr       => 12,
-            pirq        => 12,
-            memtech     => inferred,
-            mdcscaler   => 20,
-            enable_mdio => 1,
-            fifosize    => 32,
-            nsync       => 1
-        )
-        port map (
-            rst         => reset_n,
-            clk         => clk,
-            ahbmi       => ahbctrl_i0_msti,
-            ahbmo       => ahbmo(1),
-            apbi        => apbctrl_i0_apbi,
-            apbo        => apbo(12),
-            ethi        => ethi,
-            etho        => etho
-        );
 
+    ---------------------------------------------------------------------
     -- dcm control
     dcm_ctrl_apb_i0: dcm_ctrl_apb
         generic map (
@@ -492,10 +511,14 @@ begin
     debug_trace_box.psovfl   <= ddrspa_i0_psovfl;
     debug_trace_box.clk_in   <= fpga_clk.clk50;
     debug_trace_box.clk_out  <= clk;
+    ---------------------------------------------------------------------
 
 
-    stati.cerror <= (others => '0');
+    ---------------------------------------------------------------------
     -- AHB status register
+    
+    stati.cerror <= (others => '0');
+
     ahbstat_i0: ahbstat
         generic map (
             pindex => 15, 
@@ -511,6 +534,7 @@ begin
             apbi  => apbctrl_i0_apbi, 
             apbo  => apbo(15)
         );
+    ---------------------------------------------------------------------
 
     
 
