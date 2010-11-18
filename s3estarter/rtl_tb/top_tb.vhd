@@ -21,8 +21,8 @@ architecture testbench of top_tb is
 
     type     memory_model_t is (gaisler, micron);
 
-    constant memory_model      : memory_model_t := micron;
-    --constant memory_model      : memory_model_t := gaisler;
+    --constant memory_model      : memory_model_t := micron; -- isim
+    constant memory_model      : memory_model_t := gaisler; -- modelsim
 
     signal   simulation_run    : boolean := true;
 
@@ -404,24 +404,24 @@ begin
     end generate model_vhdl;
 
 
-    model_verilog: if memory_model = micron generate
-      -- timing -6f
-      mt46v32m16_i0: entity work.ddr
-        port map (
-            Clk   => tb_SD_CK_P,
-            Clk_n => tb_SD_CK_N,
-            Cke   => tb_SD_CKE,
-            Cs_n  => tb_SD_CS,
-            Ras_n => tb_SD_RAS,
-            Cas_n => tb_SD_CAS,
-            We_n  => tb_SD_WE,
-            Ba    => tb_SD_BA,
-            Addr  => tb_SD_A,
-            Dm    => tb_SD_DM,
-            Dq    => tb_SD_DQ,
-            Dqs   => tb_SD_DQS
-        );
-    end generate model_verilog;
+--  model_verilog: if memory_model = micron generate
+--    -- timing -6f
+--    mt46v32m16_i0: entity work.ddr
+--      port map (
+--          Clk   => tb_SD_CK_P,
+--          Clk_n => tb_SD_CK_N,
+--          Cke   => tb_SD_CKE,
+--          Cs_n  => tb_SD_CS,
+--          Ras_n => tb_SD_RAS,
+--          Cas_n => tb_SD_CAS,
+--          We_n  => tb_SD_WE,
+--          Ba    => tb_SD_BA,
+--          Addr  => tb_SD_A,
+--          Dm    => tb_SD_DM,
+--          Dq    => tb_SD_DQ,
+--          Dqs   => tb_SD_DQS
+--      );
+--  end generate model_verilog;
 
     tb_SD_DM  <= tb_SD_UDM  & tb_SD_LDM;
     tb_SD_DQS <= tb_SD_UDQS & tb_SD_LDQS;
