@@ -12,7 +12,7 @@ compile:
 	vhpcomp  --work techmap     ../../techmap/rtl/gencomp.vhd ../../techmap/rtl/ddr_unisim.vhd ../../techmap/rtl/*.vhd
 	vhpcomp  --work gaisler     ../../gaisler/rtl/misc.vhd ../../gaisler/rtl/uart.vhd ../../gaisler/rtl/charrom_package.vhd ../../gaisler/rtl/memctrl.vhd  ../../gaisler/rtl/greth_pkg.vhd  ../../gaisler/rtl/net.vhd ../../gaisler/rtl/*.vhd
 	vhpcomp  --work gaisler     ../../gaisler/rtl_tb/*.vhd
-	vhpcomp  --work zpu         ../../zpu/rtl/zpu_config.vhd ../../zpu/rtl/zpupkg.vhd ../../zpu/rtl_tb/txt_util.vhd ../../zpu/rtl/*.vhd
+	vhpcomp  --work zpu         ../../zpu/rtl_tb/txt_util.vhd ../../zpu/rtl/zpu_config.vhd ../../zpu/rtl/zpupkg.vhd ../../zpu/rtl/zpu_wrapper_package.vhd ../../zpu/rtl/*.vhd
 	vhpcomp  --work s3estarter  ../rtl/fpga_types.vhd ../rtl/fpga_components.vhd ../rtl/*.vhd
 	vlogcomp --work s3estarter --include ../rtl_tb/ --define sg6 --define x16 ../rtl_tb/ddr.v
 	vhpcomp  --work s3estarter  ../rtl_tb/*.vhd
