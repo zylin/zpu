@@ -17,18 +17,30 @@
 #include "greth_api.h"
 
 /* Bypass cache load  */
-static inline int load(int addr)
+//static inline int load(int addr)
+//{
+//    int tmp;        
+//    asm volatile(" lda [%1]1, %0 "
+//        : "=r"(tmp)
+//        : "r"(addr)
+//        );
+//    return tmp;
+//}
+static inline unsigned int load(unsigned int addr)
 {
-    int tmp;        
-//  asm volatile(" lda [%1]1, %0 "
-//      : "=r"(tmp)
-//      : "r"(addr)
-//      );
-    return tmp;
+    unsigned int data;
+    //uart_putstr("\nload: ");
+    //uart_puthex(32, addr); uart_putchar('\t');
+    data = *((volatile unsigned int *)addr);
+    //uart_puthex(32, data);
+    return( data);
 }
 
-static inline int save(unsigned int addr, unsigned int data)
+static inline void save(unsigned int addr, unsigned int data)
 {
+    //uart_putstr("\nsave: ");
+    //uart_puthex(32, addr); uart_putchar('\t');
+    //uart_puthex(32, data);
     *((volatile unsigned int *)addr) = data;
 }
 
@@ -46,6 +58,8 @@ static char *almalloc(int sz)
     }
     return(tmp);
 }
+
+
 
 int read_mii(int phyaddr, int addr, volatile greth_regs *regs)
 {
@@ -103,12 +117,16 @@ int greth_set_mac_address(struct greth_info *greth, unsigned char *addr)
     return 1;
 }
 
+
+
 int greth_init(struct greth_info *greth) {
 
     unsigned int tmp;
+    unsigned int tmp1, tmp2;
     int i;
-    int duplex, speed;
-    int gbit;
+    int duplex = 0;
+    int speed = 0;
+    int gbit = 0;
  
     tmp = load((int)&greth->regs->control);
     greth->gbit = (tmp >> 27) & 1;
@@ -128,9 +146,11 @@ int greth_init(struct greth_info *greth) {
      */
     tmp = load((int)&greth->regs->mdio);
     greth->phyaddr = ((tmp >> 11) & 0x1F);
-    
-    greth->txd = (struct descriptor *) almalloc(1024);
-    greth->rxd = (struct descriptor *) almalloc(1024);
+
+    //greth->txd = (struct descriptor *) almalloc(1024);
+    //greth->rxd = (struct descriptor *) almalloc(1024);
+    greth->txd = (struct descriptor *) (0xA0000000);
+    greth->rxd = (struct descriptor *) (0xA0001000);
     save((int)&greth->regs->tx_desc_p, (unsigned int) greth->txd);
     save((int)&greth->regs->rx_desc_p, (unsigned int) greth->rxd);
     greth->txpnt = 0;
@@ -144,24 +164,47 @@ int greth_init(struct greth_info *greth) {
             while ( (tmp=read_mii(greth->phyaddr,0, greth->regs)) & 0x8000);
             i = 0;
             if (tmp & 0x1000) { /* auto neg */
-                    while ( !(read_mii(greth->phyaddr,1, greth->regs) & 0x20 ) ) {
+                    while ( !( ( read_mii(greth->phyaddr,1, greth->regs) >> 5) & 1 ) ) {
                             i++;
                             if (i > 50000) {
-                                    /* printf("Auto-negotiation failed\n"); */
+                                    uart_putstr("Auto-negotiation failed\n");
                                     break;
                             }
                     }
-            }
-            tmp = read_mii(greth->phyaddr, 0, greth->regs);
+                    // link parameters with auto neg (no gbit detection)
+                    gbit = 0;
+                    tmp1 = read_mii(greth->phyaddr, 4, greth->regs);
+                    tmp2 = read_mii(greth->phyaddr, 5, greth->regs);
+                    if ((tmp1 & GRETH_MII_100TXFD) && (tmp2 & GRETH_MII_100TXFD)) 
+                    {
+                        speed  = 1; 
+                        duplex = 1; 
+                    }
+                    if ((tmp1 & GRETH_MII_100TXHD) && (tmp2 & GRETH_MII_100TXHD))
+                    {
+                        speed  = 1;
+                        duplex = 0; 
+                    }
+                    if ((tmp1 & GRETH_MII_10FD)    && (tmp2 & GRETH_MII_10FD))    
+                    { 
+                        duplex = 1;
+                    }
 
-            if (greth->gbit && !((tmp >> 13) & 1) && ((tmp >> 6) & 1)) {
-                    gbit = 1; speed = 0;
-            } else if (((tmp >> 13) & 1) && !((tmp >> 6) & 1)) {
-                    gbit = 0; speed = 1;
-            } else if (!((tmp >> 13) & 1) && !((tmp >> 6) & 1)) {
-                    gbit = 0; speed = 0;
+            } 
+            else
+            {
+                // link parameters w/o auto neg
+                tmp = read_mii(greth->phyaddr, 0, greth->regs);
+
+                if (greth->gbit && !((tmp >> 13) & 1) && ((tmp >> 6) & 1)) {
+                        gbit = 1; speed = 0;
+                } else if (((tmp >> 13) & 1) && !((tmp >> 6) & 1)) {
+                        gbit = 0; speed = 1;
+                } else if (!((tmp >> 13) & 1) && !((tmp >> 6) & 1)) {
+                        gbit = 0; speed = 0;
+                }
+                duplex = (tmp >> 8) & 1;
             }
-            duplex = (tmp >> 8) & 1;
             
             save((int)&greth->regs->control, (duplex << 4) | (speed << 7) | (gbit << 8));
     } else {
@@ -180,7 +223,12 @@ int greth_init(struct greth_info *greth) {
             
     }
     
-    
+    uart_putstr("GRETH(");
+    greth->gbit ? uart_putstr("10/100/1000"):uart_putstr("10/100");
+    uart_putstr(") Ethernet MAC at ["); uart_puthex(32, (unsigned int)(greth->regs));
+    uart_putstr("]. Running ");speed ? uart_putstr("100"):uart_putstr("10");
+    uart_putstr(" Mbps ");duplex ? uart_putstr("full"):uart_putstr("half");
+    uart_putstr(" duplex\n");
     
     
     /* printf("GRETH(%s) Ethernet MAC at [0x%x]. Running %d Mbps %s duplex\n", greth->gbit?"10/100/1000":"10/100" , \ */
@@ -188,8 +236,10 @@ int greth_init(struct greth_info *greth) {
 /*                                                          (speed == 0x2000) ? 100:10, duplex ? "full":"half"); */
     
     greth_set_mac_address(greth, greth->esa);
-
+    return 1;
 }
+
+
 
 inline int greth_tx(int size, char *buf, struct greth_info *greth) 
 {
@@ -208,7 +258,7 @@ inline int greth_tx(int size, char *buf, struct greth_info *greth)
     }
 
     greth->regs->control = load((int)&(greth->regs->control)) | GRETH_TXEN;
-  
+
     return 1;
 }
 
