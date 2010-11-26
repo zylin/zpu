@@ -52,7 +52,9 @@ begin
 
   comb : process(apbi)
     --variable v     : registers;
+    --pragma translate_off
     variable l1    : line;
+    --pragma translate_on
     variable first : boolean := true;
     variable ch    : character;
   begin
