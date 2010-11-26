@@ -2,6 +2,7 @@
 
 #include <peripherie.h>
 #include <common.h>
+#include <timer.h> // sleep
 #include <uart.h>
 #include <lcd-routines.h>
 
@@ -159,7 +160,7 @@ uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
 void ether_init( void)
 {
     
-    ether0->status  = 0x00000000; // init for simulation
+    ether0->status  = 0xffffffff; // 0xffffffff is necessary to reset status
     ether0->mac_msb = 0x00000a00;
     ether0->mac_lsb = 0x2a0bfefb;
     ether0->control = ETHER_CONTROL_RESET;
@@ -235,14 +236,14 @@ void ether_test_tx_packet( void)
 
     greth_tx_descriptor_t *descr        = (greth_tx_descriptor_t *) (0xa0000000);
     mac_header_t          *mac_header   = (mac_header_t *)          (0xa0000100);
-    uint32_t              data_length   = 64;
+    uint32_t              data_length   = 1464; // udp payload
     
     uint32_t i;
-/*
+  
     // setup the data
     //   fill buffer (ethernet address, type field, etc.)
-    for (i=0; i<data_length; i++)
-        mac_header->ip_header.udp_header.data[i] = data_length - i;
+//  for (i=0; i<data_length; i++)
+//      mac_header->ip_header.udp_header.data[i] = data_length - i;
 
     // setup ethernet packet
     mac_header->dest_mac[0]            = 0x00; // ipconfig -all
@@ -266,14 +267,14 @@ void ether_test_tx_packet( void)
     mac_header->ip_header.fragment_offset = FLAG_DF | 0;
     mac_header->ip_header.ttl             = 255;
     mac_header->ip_header.protocol_id     = PROTOCOL_UDP;
-    mac_header->ip_header.checksum        = 0x678d;
+    mac_header->ip_header.checksum        = 0x6215;
     mac_header->ip_header.source_ip       = (10<<24)+(0<<16)+(0<<8)+(2<<0);
     mac_header->ip_header.dest_ip         = (10<<24)+(0<<16)+(0<<8)+(1<<0);
 
     mac_header->ip_header.udp_header.source_port = 5050;
     mac_header->ip_header.udp_header.dest_port   = 5050;
     mac_header->ip_header.udp_header.length      = data_length + 8;
-    mac_header->ip_header.udp_header.checksum    = 0x9fe3;
+    mac_header->ip_header.udp_header.checksum    = 0xb8f7;
     
     
     // setup the descriptor
@@ -281,32 +282,29 @@ void ether_test_tx_packet( void)
     descr->address = (uint32_t) mac_header; 
     //   enable descriptor
     descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | data_length + 42;
-    */
+      
     
-    descr->address = (uint32_t) 0x00000000; 
-    //   enable descriptor
-    descr->control = ETHER_DESCRIPTOR_ENABLE | ETHER_DESCRIPTOR_WRAP | 1514;
-
     // give descriptor to core
     ether0->tx_pointer = (uint32_t) descr;
+    
 
     // set tx enable bit
     ether0->control = ETHER_CONTROL_TX_ENABLE | ETHER_CONTROL_FULL_DUPLEX;
 
     // wait for end of transmission
     loop_until_bit_is_clear( descr->control, ETHER_DESCRIPTOR_ENABLE);
+     
+    // check transmission status
+    // 3 bits (TE, TI, TA)
     
-    putstr("\ngreth->control :"); puthex( 32, ether0->control);
-    putstr("\ngreth->status  :"); puthex( 32, ether0->status);
-    putstr("\ndescr->control :"); puthex( 32, descr->control);
-
-    // ether_test_read_mdio();
     // check for errors in descriptor
     //ETHER_DESCRIPTOR_UNDERRUN_ERR
     //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
 
-    // check transmission status
-    // 3 bits (TE, TI, TA)
+    putstr("greth->control: "); puthex( 32, ether0->control); putchar('\n');
+    putstr("greth->status : "); puthex( 32, ether0->status);  putchar('\n');
+    putstr("descr->control: "); puthex( 32, descr->control);  putchar('\n');
+
 }
 
 
@@ -894,29 +892,6 @@ int main(void)
     // set to our output function
     putchar_fp = (simulation_active) ? debug_putchar : combined_putchar;
 
-    /*
-    if (simulation_active) {
-        
-        // 32 writes
-        memory_test_init( 0x90000000, 8);
-        
-        // 32 reads
-        uint8_t i;
-        uint32_t data;
-        uint32_t *memptr = 0x90000000;
-
-        data = 0;
-        for ( i=0; i<8; i++)
-        {
-            data += *memptr;
-            memptr++;
-        }
-        puthex(32, data); putc('\n');
-        abort();
-    }
-    */
-
-
     //lcd_init();
     vga_init();
     ddr_init();
@@ -924,9 +899,15 @@ int main(void)
     ether_init();
 
     putstr("test.c ");
-    (simulation_active) ? putstr("(on sim)\n") : putstr("(on hardware)\n");
-    putstr("compiled: " __DATE__ "  " __TIME__ "\n");
-    
+    if (simulation_active) 
+    {
+        putstr("(on sim)\n");
+    }
+    else
+    {
+        putstr("(on hardware)\n");
+        putstr("compiled: " __DATE__ "  " __TIME__ "\n");
+    }
 
     #ifdef LCD_ENABLE
     lcd_string("init done.");
@@ -1002,7 +983,7 @@ int main(void)
 
     //ether_test();
     uint8_t i;
-    for ( i=0; i<20; i++)
+    for ( i=0; i<3; i++)
         ether_test_tx_packet();
     //ether_test_read_mdio();
 

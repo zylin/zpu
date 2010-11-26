@@ -9,7 +9,9 @@ use zpu.zpu_config.all;
 library grlib;
 use grlib.amba.all;
 
+
 package zpu_wrapper_package is
+
 
     type zpu_in_t is record
         -- this particular implementation of the ZPU does not
@@ -31,6 +33,7 @@ package zpu_wrapper_package is
         mem_read  => (others => '0'),
         interrupt => '0'
     );
+
 
     type zpu_out_t is record
         mem_write           : std_ulogic_vector(wordSize-1 downto 0);			  
@@ -55,6 +58,7 @@ package zpu_wrapper_package is
         break           => '0'
     );
 
+
     component zpu_wrapper is
         Port ( 
             clk     : in  std_ulogic;
@@ -65,6 +69,7 @@ package zpu_wrapper_package is
             zpu_out : out zpu_out_t
             );
     end component zpu_wrapper;
+
 
     component  zpu_io is
         generic (
@@ -81,6 +86,7 @@ package zpu_wrapper_package is
             addr        : in  std_logic_vector(maxAddrBit downto minAddrBit) 
         ); 
     end component;
+
 
     component zpu_ahb is
         generic(
@@ -99,6 +105,7 @@ package zpu_wrapper_package is
         );
     end component zpu_ahb;
 
+
     component zpu_bus_trace is
         generic (
             log_file            : string := "bus_trace.txt"
@@ -115,6 +122,7 @@ package zpu_wrapper_package is
             out_mem_readEnable  : in std_ulogic
         );
     end component zpu_bus_trace;
+
 
 
 end package zpu_wrapper_package;

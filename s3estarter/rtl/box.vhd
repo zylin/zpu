@@ -170,6 +170,9 @@ begin
     --  zpu
     
     zpu_ahb_i0: zpu_ahb
+    generic map (
+        hindex => 0                -- : integer := 0
+    )
     port map (
         clk    => clk,             -- : in  std_ulogic;
         reset  => reset,           -- : in  std_ulogic;
@@ -192,7 +195,7 @@ begin
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             defmast    => 0,    -- default master
-            rrobin     => 0,    -- round robin arbitration
+            rrobin     => 1,    -- round robin arbitration
             timeout    => 11,
             nahbm      => 2, 
             nahbs      => 3,

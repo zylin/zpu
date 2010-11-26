@@ -211,6 +211,8 @@ end record;
     vect := vect_in;
     for i in vect'right to vect'left loop
       vect2(i) := vect(vect'left-i);
+--  for i in vect'high to vect'low loop
+--    vect2(i) := vect(vect'high-i);
     end loop;
     return(tz(vect2));
   end;
@@ -248,25 +250,37 @@ end record;
     
     if nahbm = 1 then
       mast := 0;
+
     elsif rrobin = 0 then
+      
       hpvec := (others => '0');
+      
       for i in 0 to nahbmx-1 loop
-        --masters which have received split are not granted
+      
+      --masters which have received split are not granted
         if ((rsplit(i) = '0') or (split = 0)) then
           hpvec(i) := msto(i).hbusreq;
         end if;
+      
       end loop;
+      
       --check if any bus requests are active (nvalid(2) set to true)
       --and determine the index (zcnt2) of the highest priority master
       zcnt2 := lz(hpvec)(log2(nahbmx) downto 0);
+      
       if zcnt2(log2(nahbmx)) = '0' then nvalid(2) := true; end if;
+      
       nmst(2) := conv_integer(not (zcnt2(log2(nahbmx)-1 downto 0)));
+
       --find the default master number
       for i in 0 to nahbmx-1 loop
+
         if not ((nmst(3) = defmast) and nvalid(3)) then 
           nmst(3) := i; nvalid(3) := true; 
         end if;        
+
       end loop;
+
     else
       rrvec := (others => '0');
       --mask requests up to and including current master. Concatenate

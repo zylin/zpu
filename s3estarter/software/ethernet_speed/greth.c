@@ -17,10 +17,11 @@
 #include <stdlib.h>
 //#include <time.h>       // clock
 #include <string.h>     // memcpy
-#include <stdio.h>      // printf
+//#include <stdio.h>      // printf
 
 #include <peripherie.h> 
 #include <../libhal/timer.h> // libhal/timer.c/clocks
+#include <uart.h>          // vga_clear, vga_putstr
 #include "greth_api.h"
 
 /* Set to 1 if using GRETH_GBIT, otherwise 0 */
@@ -32,15 +33,15 @@
 /* Set to 1 to run full duplex, 0 to run half duplex */
 #define GRETH_FULLDUPLEX 1
 
-#define GRETH_ADDR 0x80000b00
+#define GRETH_ADDR 0x80000c00
 
 /* Destination MAC address */
 #define DEST_MAC0  0x00
-#define DEST_MAC1  0x13
-#define DEST_MAC2  0x72
-#define DEST_MAC3  0xAE
-#define DEST_MAC4  0x72
-#define DEST_MAC5  0x21
+#define DEST_MAC1  0x1B
+#define DEST_MAC2  0x21
+#define DEST_MAC3  0x67
+#define DEST_MAC4  0xB8
+#define DEST_MAC5  0xB8
 
 /* Source MAC address */
 #define SRC_MAC0  0xDE
@@ -56,10 +57,17 @@ int main(void) {
 
     unsigned long long i;
     unsigned char buf[1514];
-//    uint32_t 
-    clock_t t1, t2;
+    uint32_t t1, t2; 
+    //clock_t  t1, t2;
     unsigned long long datasize;
-    double time, bitrate;
+    //double time, bitrate;
+    uint32_t time;
+    double bitrate;
+
+    // led debug init
+    gpio0->iodir = 0x000000ff;
+    //vga_clear();
+    uart_init();
 
     greth.regs = (greth_regs *) GRETH_ADDR;
 
@@ -85,25 +93,28 @@ int main(void) {
 
     memcpy(greth.esa, &buf[6], 6);
 
+    gpio0->ioout = 2;
+    // one loop takes 1572 cycles (31.44 ns)
+    // complete: 47.16 ms)
     for (i = 14; i < 1514; i++) {
-        buf[i] = i;
+        buf[i] = (unsigned char) i;
     }
 
-    // size: 3459    next block: 4131
+    gpio0->ioout = 3;
     greth_init(&greth);
-    
-    // size: 7590    next block: 35868
+   
+    gpio0->ioout = 4;
+    uart_putstr("\nSending 1500 Mbyte of data to ");
+    for (i=0; i<6; i++) {
+        uart_puthex(8, buf[i]);
+        if (i != 5) uart_putchar(':');
+    }
+    uart_putchar('\n');
 
-    printf("\nSending 1500 Mbyte of data to %.02x:%.02x:%.02x:%.02x:%.02x:%.02x\n", buf[0], buf[1], \
-                                                                                    buf[2], buf[3], \
-                                                                                    buf[4], buf[5]);
-
-    // size: 43458    next block: 337
     t1 = clocks(); //clock();
 
-    // size: 43795    next block: 179 
-    i = 0;
     while(i < (unsigned long long) 1024*1024) {
+        gpio0->ioout = (unsigned char) greth.txpnt & 0xff;
 
         // greth_tx() returns 1 if a free descriptor is found, otherwise 0 
         i += greth_tx(1514, buf, &greth);
@@ -111,16 +122,19 @@ int main(void) {
     }
     t2 = clocks(); //clock();
 
-    // size: 43974    next block: 164
-    time = (double)(t2 - t1)/CLOCKS_PER_SECOND;
-    printf("\nTime: %f\n", time);
+    //time = (double)(t2 - t1)/CLOCKS_PER_SECOND;
+    time = (t2 - t1);
+    uart_putstr("\nTime: ");
+    uart_putint( time);
+    uart_putchar('\n');
 
+    /*
     // size: 44138    next block: 408
     datasize = (unsigned long long)1024*1024*1500*8; // In bits 
     bitrate = (double) datasize/time;
     printf("Bitrate: %f Mbps\n", bitrate/(1024*1024));
     
     // size: 44546
-    
+    */
     return 0;
 }

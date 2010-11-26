@@ -277,8 +277,9 @@ package devices is
   
 -- FZD ID'S
   
-  constant FZD_DCM_CTRL         : amba_device_type := 16#001#;
-  constant FZD_DEBUG_CON        : amba_device_type := 16#002#;
+  constant FZD_ZPU_AHB_WRAPPER  : amba_device_type := 16#001#;
+  constant FZD_DCM_CTRL         : amba_device_type := 16#002#;
+  constant FZD_DEBUG_CON        : amba_device_type := 16#003#;
 
 -- grlib system device id's
 
@@ -671,6 +672,7 @@ package devices is
   
   constant FZD_DESC : vendor_description :=   "FZ Dresden-Rossendorf   ";
   constant fzd_device_table : device_table_type := (
+      FZD_ZPU_AHB_WRAPPER   => "ZPU AHB wrapper                ",
       FZD_DCM_CTRL          => "DCM phase shift control        ",
       FZD_DEBUG_CON         => "debug console                  ",
       others                => "Unknown Device                 ");

@@ -108,7 +108,8 @@ begin
     
     
     process
-        variable l : line;
+        variable l         : line;
+        variable read_addr : std_ulogic_vector(31 downto 0);
     begin
         wait until rising_edge( clk);
         if reset = '1' then
@@ -121,9 +122,10 @@ begin
             end if; -- mem_write
 
             if (out_mem_readEnable = '1') and not ignore_addr( out_mem_addr) then
+                read_addr := out_mem_addr;
                 wait until in_mem_busy = '0';
-                print(         "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
-                print( l_file, "mem read  on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(out_mem_addr) & ")" );
+                print(         "mem read  on address: 0x" & hstr(read_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(read_addr) & ")" );
+                print( l_file, "mem read  on address: 0x" & hstr(read_addr) & "   data : 0x" & hstr( mem_read) & "  (" & get_name(read_addr) & ")" );
             end if; -- mem_read
 
         end if; -- reset

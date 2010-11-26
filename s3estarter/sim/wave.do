@@ -1,53 +1,45 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -divider testbench
-add wave -noupdate -format Logic /top_tb/simulation_run
-add wave -noupdate -format Logic /top_tb/tb_clk_50mhz
-add wave -noupdate -format Logic /top_tb/tb_rot_center
+add wave -noupdate /top_tb/simulation_run
+add wave -noupdate /top_tb/tb_clk_50mhz
+add wave -noupdate /top_tb/tb_rot_center
 add wave -noupdate -divider box
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/reset
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clk
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/break
+add wave -noupdate /top_tb/top_i0/box_i0/reset
+add wave -noupdate /top_tb/top_i0/box_i0/clk
+add wave -noupdate /top_tb/top_i0/box_i0/break
+add wave -noupdate -divider ZPU
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/clk
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/in_mem_busy
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/out_mem_addr
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/out_mem_readenable
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/mem_read
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/out_mem_writeenable
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/mem_write
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/interrupt
+add wave -noupdate -color {Lime Green} -format Analog-Step -height 74 -max 4094.0 -min 4023.0 -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/sp
+add wave -noupdate -color {Violet Red} -format Analog-Step -height 74 -max 6585.0000000000009 -radix hexadecimal /top_tb/top_i0/box_i0/zpu_ahb_i0/zpu_i0/pc
+add wave -noupdate -divider wrapper
+add wave -noupdate /top_tb/top_i0/box_i0/zpu_ahb_i0/state
+add wave -noupdate /top_tb/top_i0/box_i0/zpu_ahb_i0/busy_to_zpu
+add wave -noupdate /top_tb/top_i0/box_i0/zpu_ahb_i0/clk_en
 add wave -noupdate -divider AHB
-add wave -noupdate -format Literal -radix hexadecimal -expand /top_tb/top_i0/box_i0/ahbctrl_i0_msti
-add wave -noupdate -format Literal -radix hexadecimal /top_tb/top_i0/box_i0/ahbmo
+add wave -noupdate -radix hexadecimal -expand -subitemconfig {/top_tb/top_i0/box_i0/ahbctrl_i0_msti.hgrant {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.hready {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.hresp {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.hrdata {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.hcache {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.hirq {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.testen {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.testrst {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.scanen {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/ahbctrl_i0_msti.testoen {-height 15 -radix hexadecimal}} /top_tb/top_i0/box_i0/ahbctrl_i0_msti
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/ahbmo
+add wave -noupdate -divider eth
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/txd
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/tx_en
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/tx_er
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/r.mdio_state
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/r.txdstate
+add wave -noupdate /top_tb/top_i0/box_i0/greth_i0/ethc0/r.rxdstate
 add wave -noupdate -divider gpio
-add wave -noupdate -format Literal -radix hexadecimal /top_tb/top_i0/box_i0/gpioi
-add wave -noupdate -format Literal -radix hexadecimal /top_tb/top_i0/box_i0/gpioo
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/gpioi
+add wave -noupdate -radix hexadecimal /top_tb/top_i0/box_i0/gpioo
 add wave -noupdate -divider LEDs
-add wave -noupdate -format Literal /top_tb/tb_led
-add wave -noupdate -divider clocks
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clk
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clk_gen_i0_clk_dv
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clk_gen_i0_clk_fx
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clk_gen_i0_clk_ready
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/clkddr
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/reset
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/reset_shiftreg
-add wave -noupdate -divider {DDR dcm}
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/clkin
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/rst
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/clk0
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/clk2x
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/clkfx
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddrspa_i0/ddr_phy0/ddr_phy0/xc3se/ddr_phy0/nops/read_dll/clkdv
-add wave -noupdate -divider {DDR Ram}
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_clk
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_clkb
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddr_clk_fb
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddr_clk_fb_out
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_cke
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_csb
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddr_web
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddr_rasb
-add wave -noupdate -format Logic /top_tb/top_i0/box_i0/ddr_casb
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_dm
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_dqs
-add wave -noupdate -format Literal -radix unsigned /top_tb/top_i0/box_i0/ddr_ad
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_ba
-add wave -noupdate -format Literal /top_tb/top_i0/box_i0/ddr_dq
+add wave -noupdate /top_tb/tb_led
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {6441530000 ps} 0} {{Cursor 2} {5052166 ps} 0}
+WaveRestoreCursors {{Cursor 1} {17379510000 ps} 0} {{Cursor 2} {7858092940 ps} 0}
 configure wave -namecolwidth 161
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -62,4 +54,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {439444 ps} {978593 ps}
+WaveRestoreZoom {0 ps} {3267550756 ps}
