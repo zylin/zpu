@@ -81,3 +81,10 @@ glob:zpu/sim/Makefile.zpu
 glob:global/sim/Makefile.global
 glob:grlib/sim/Makefile.grlib
 glob:s3estarter/sim/Makefile.s3estarter
+glob:*.cfi
+glob:rena3/doc/*.doc
+glob:2010-sei/*
+glob:s3estarter/sim_isim/*.log
+glob:s3estarter/sim_isim/tb.exe
+glob:s3estarter/sim_isim/isim.wdb
+glob:s3estarter/syn/iseconfig/*.projectmgr
