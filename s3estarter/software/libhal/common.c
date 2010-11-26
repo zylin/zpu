@@ -36,11 +36,12 @@ void putbin( unsigned char dataType, unsigned long data)
 // http://asalt-vehicle.googlecode.com/svn› trunk› src› uart.c
 void puthex( unsigned char dataType, unsigned long data) 
 {
-    unsigned char count = 32;
+    unsigned char count = 8; // number of chars 
     unsigned char i;
     unsigned char temp;
     char          dataString[] = "0x        ";
 
+    // dataType = bit width
     if (dataType == 8)  count = 2;
     if (dataType == 16) count = 4;
 

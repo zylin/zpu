@@ -18,8 +18,9 @@ test: $(test_vhdl)
 
 
 test.bin: $(c_files)
-	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o test.elf -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L../libhal -Wa,-adhls=test.lst -g
+	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o test.elf -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L../libhal -g
 	zpu-elf-size test.elf
+	zpu-elf-objdump -D -S test.elf > test.lst
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary test.elf test.bin
 
 $(test_vhdl): test.bin $(ROMGEN)
