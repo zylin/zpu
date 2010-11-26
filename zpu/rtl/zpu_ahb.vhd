@@ -15,6 +15,7 @@ library grlib;
 use grlib.amba.all;
 use grlib.stdlib.report_version;
 use grlib.stdlib.tost;
+use grlib.devices.all;
 
 
 entity zpu_ahb is
@@ -43,62 +44,193 @@ architecture rtl of zpu_ahb is
     -- pragma translate_on
 	 "";
   
-    constant REVISION          : amba_version_type := 0;
+    constant revision_c        : amba_version_type := 0;
 
-    signal mem_read            : std_ulogic_vector(31 downto 0);
-    signal mem_write           : std_ulogic_vector(31 downto 0);
-    signal out_mem_addr        : std_ulogic_vector(31 downto 0);
-    signal out_mem_writeEnable : std_ulogic;
-    signal out_mem_readEnable  : std_ulogic;
-    signal mem_writeMask       : std_ulogic_vector(3 downto 0);
+    constant hconfig_c         : ahb_config_type   := (
+        0      => ahb_device_reg ( VENDOR_FZD, FZD_ZPU_AHB_WRAPPER, 0, revision_c, 0),
+        others => (others => '0') 
+    );
 
-    signal busy                : std_ulogic;
+    type   state_t is ( IDLE, ADDR_PHASE, DATA_PHASE, NOGRANT, WAIT_FOR_GRANT);
+    signal state                : state_t;
+    signal last_state           : state_t;
+
+    signal mem_read             : std_ulogic_vector(31 downto 0);
+    signal mem_write            : std_ulogic_vector(31 downto 0);
+    signal out_mem_addr         : std_ulogic_vector(31 downto 0);
+    signal out_mem_writeEnable  : std_ulogic;
+    signal out_mem_readEnable   : std_ulogic;
+    signal mem_writeMask        : std_ulogic_vector(3 downto 0);
+
+    signal busy                 : std_ulogic;
+    signal busy_to_zpu          : std_ulogic;
+    signal clk_en               : std_ulogic;
+
+    signal data_to_ahb          : std_ulogic_vector(31 downto 0);
+    signal data_from_ahb        : std_ulogic_vector(31 downto 0);
+    signal write_flag           : std_ulogic;
 
 begin
 
-    -- TODO ahbi.hgrant
-    -- TODO ahbi.cache
-    -- TODO ahbi.hirq
-    -- TODO ahbi.testen
-    -- TODO ahbi.testrst
-    -- TODO ahbi.scanen
-    -- TODO ahbi.testoen
-
-    check: process( ahbi)
+    process
     begin
-        -- check only if we have the grant
-        if ahbi.hgrant(hindex) = '1' then
-            
-            case ahbi.hresp is
-                when HRESP_OKAY =>
-                     null;
-                when HRESP_ERROR =>
-                    report me_c & "HRESP_ERROR" severity error;
-                when HRESP_SPLIT =>
-                    report me_c & "HRESP_SPLIT";
-                when HRESP_RETRY =>
-                    report me_c & "HRESP_RETRY"; 
-                when others =>
-                    if now /= (0 ps) then
-                        report me_c & "unknown ahbi.hresp" severity warning;
-                    end if;
-            end case;
-        end if;
-    end process check;
 
-    busy <= out_mem_readEnable or ( (not ahbi.hready)  or  (not ahbi.hgrant(hindex)) );
-    --busy <= ( out_mem_readEnable or  (not ahbi.hready) ) and  (not ahbi.hgrant(hindex)) ;
+        wait until rising_edge( clk);
+        
+        --ahbo.haddr   <= std_logic_vector( out_mem_addr);    -- direct
+        --ahbo.hwdata  <= std_logic_vector( mem_write);       -- direct
+        --ahbo.hwrite  <= out_mem_writeEnable;                -- direct
+        --ahbo.htrans  <= HTRANS_IDLE;
+        --ahbo.hbusreq <= '0';
+
+        ahbo.hwrite <= '0';
+
+        case state is
+
+            when IDLE =>
+                if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
+                    state           <= ADDR_PHASE;
+                    ahbo.htrans     <= HTRANS_NONSEQ;
+                    busy            <= '1';
+                    ahbo.hbusreq    <= '1';
+                    ahbo.haddr      <= std_logic_vector( out_mem_addr);
+                    ahbo.hwrite     <= out_mem_writeEnable;  
+                    write_flag      <= out_mem_writeEnable;
+                    data_to_ahb     <= mem_write;
+                end if;
+                
+                if ahbi.hgrant( hindex) = '0' then
+                    last_state      <= state;
+                    state           <= NOGRANT;
+                end if;
+
+
+            when ADDR_PHASE =>
+                state               <= DATA_PHASE;
+                ahbo.htrans         <= HTRANS_IDLE;
+                data_from_ahb       <= (others => '0');
+                if write_flag = '1' then
+                    ahbo.hwdata     <= std_logic_vector( data_to_ahb);
+                else
+                    ahbo.hwdata     <= (others => '0');
+                end if;
+                
+                if ahbi.hgrant( hindex) = '0' then
+                    last_state      <= state;
+                    state           <= NOGRANT;
+                end if;
+
+
+            when DATA_PHASE =>
+                if write_flag = '1' then
+                    data_from_ahb   <= (others => '0');
+                else
+                    data_from_ahb   <= std_ulogic_vector( ahbi.hrdata);
+                end if;
+
+                if ahbi.hready = '1' then
+                    state           <= IDLE;
+                    ahbo.hbusreq    <= '0';
+                    busy            <= '0';
+                end if;
+                
+                if ahbi.hgrant( hindex) = '0' then
+                    last_state      <= state;
+                    state           <= NOGRANT;
+                end if;
+
+
+
+            when NOGRANT =>
+                if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
+                    state           <= WAIT_FOR_GRANT;
+                    busy            <= '1';
+                    clk_en          <= '0';
+                end if;
+                if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
+                    state           <= last_state;
+                end if;
+
+
+            when WAIT_FOR_GRANT =>
+                ahbo.hbusreq        <= '1';
+                if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
+                    clk_en          <= '1';
+                    state           <= ADDR_PHASE;
+                    ahbo.htrans     <= HTRANS_NONSEQ;
+                    busy            <= '1';
+                    ahbo.haddr      <= std_logic_vector( out_mem_addr);
+                    ahbo.hwrite     <= out_mem_writeEnable;  
+                    write_flag      <= out_mem_writeEnable;
+                    data_to_ahb     <= mem_write;
+                end if;
+
+        end case;
+
+
+        if reset = '1' then
+            state               <= IDLE;
+            busy                <= '0';
+            ahbo.hbusreq        <= '0';
+            ahbo.htrans         <= HTRANS_IDLE;
+            data_from_ahb       <= (others => '0');
+            clk_en              <= '1';
+            write_flag          <= '0';
+        end if; -- reset
+
+    end process;
+    
+    -- obey the following rules:
+    -- 
+    -- pipeline rule
+    -- stretch rule
+    -- arbitration rule
+    -- lock rule           --> not applicable
+    -- exception rule
+
+--  check: process( ahbi)
+--  begin
+--      -- check only if we have the grant
+--      if ahbi.hgrant( hindex) = '1' then
+--          
+--          case ahbi.hresp is
+--              when HRESP_OKAY =>
+--                   null;
+--              when HRESP_ERROR =>
+--                  report me_c & "HRESP_ERROR" severity error;
+--              when HRESP_SPLIT =>
+--                  report me_c & "HRESP_SPLIT";
+--              when HRESP_RETRY =>
+--                  report me_c & "HRESP_RETRY"; 
+--              when others =>
+--                  if now /= (0 ps) then
+--                      report me_c & "unknown ahbi.hresp" severity warning;
+--                  end if;
+--          end case;
+--      end if;
+--  end process check;
+
+    -- inputs to zpu core
+
+    -- hgrant
+    -- hresp
+    -- hready
+    -- hrdata
+
+    --busy <= out_mem_readEnable or ( (not ahbi.hready)  or  (not ahbi.hgrant( hindex)) );
+    --busy <= ( out_mem_readEnable or  (not ahbi.hready) ) and  (not ahbi.hgrant( hindex)) ;
     --busy <=  out_mem_readEnable or (not ahbi.hready); --original
 
-    mem_read <= std_ulogic_vector( ahbi.hrdata);
+    mem_read <= data_from_ahb;
+    busy_to_zpu <= busy or out_mem_readEnable or out_mem_writeEnable;
 
     zpu_i0: zpu_core 
         port map (
             clk                 => clk,
-            clk_en              => '1',
+            clk_en              => clk_en,
             reset               => reset,
             --
-            in_mem_busy         => busy,
+            in_mem_busy         => busy_to_zpu,
             mem_read            => mem_read,
             interrupt           => or_reduce(ahbi.hirq),
             --
@@ -110,17 +242,19 @@ begin
             break               => break
         );
 
-    ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable;
-    ahbo.hlock   <= '0';
-    ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
-    ahbo.haddr   <= std_logic_vector( out_mem_addr);
-    ahbo.hwrite  <= out_mem_writeEnable;
-    ahbo.hsize   <= HSIZE_WORD;
-    ahbo.hburst  <= HBURST_SINGLE;
-    ahbo.hprot   <= "0001";
-    ahbo.hwdata  <= std_logic_vector( mem_write);
+    -- outputs to master interface
+    --ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable when state = IDLE else '0';
+    --ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
+    
+
+    ahbo.hsize   <= HSIZE_WORD;                         -- constant
+    ahbo.hburst  <= HBURST_SINGLE;                      -- constant 
+    ahbo.hprot   <= "0001";                             -- constant
+
+    ahbo.hlock   <= '0';                                -- constant
+    
     ahbo.hirq    <= (others => '0');
-    ahbo.hconfig <= (others => (others => '0')); 
+    ahbo.hconfig <= hconfig_c; 
     ahbo.hindex  <= 0;
 
     --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
@@ -143,7 +277,7 @@ begin
     -- pragma translate_off
       bootmsg : report_version
       generic map (
-        "zpu" & tost(hindex) & ": Zylin CPU rev " & tost(REVISION)
+        "zpu" & tost( hindex) & ": Zylin CPU rev " & tost( revision_c)
       );
     -- pragma translate_on
 
