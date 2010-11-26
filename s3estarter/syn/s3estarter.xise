@@ -328,6 +328,20 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="s3estarter"/>
     </file>
+    <file xil_pn:name="../../zpu/rtl/zpu_ahb.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="zpu"/>
+    </file>
+    <file xil_pn:name="../rtl/debug_con_apb.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+    </file>
+    <file xil_pn:name="../../zpu/rtl/zpu_wrapper_package.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="zpu"/>
+    </file>
   </files>
 
   <properties>
