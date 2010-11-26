@@ -17,13 +17,15 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 
 all: compile simulate
 
+
 compile: lib
-	make compile --directory ../../global/sim
-	make compile --directory ../../gaisler/sim
-	make compile --directory ../../grlib/sim
-	make compile --directory ../../tools/sim
-	make compile --directory ../../zpu/sim
-	vcom -2008 -quiet -work $(library) $(vhdlfiles) | ccze -A
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+
+compile_others:
+	make compile --directory ../../global/sim | ccze -A
+	make compile --directory ../../grlib/sim | ccze -A
+	make compile --directory ../../gaisler/sim | ccze -A
+	make compile --directory ../../tools/sim | ccze -A
 
 simulate:
 	export top=$(top); \
@@ -35,6 +37,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	rm -rf $(library) 
+	rm -f Makefile.$(library)
 
 
 # default patterns

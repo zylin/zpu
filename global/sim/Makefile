@@ -7,8 +7,17 @@ vhdlfiles    = $(rtl_files)
 
 all: compile
 
-compile: lib
-	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
+remake: lib Makefile.$(library)
+
+Makefile.$(library): $(vhdlfiles) $(library)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+	vmake $(library) > Makefile.$(library)
+	# patch winpath -> cygpath
+	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
+
+
+compile:
+	make -f Makefile.$(library)
 
 
 clean:
@@ -16,6 +25,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	rm -rf $(library) 
+	rm Makefile.$(library)
 
 
 # default patterns

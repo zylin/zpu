@@ -18,12 +18,21 @@ help:
 	@echo "clean     - clean up"
 	@echo
 
+remake: lib Makefile.$(library)
+
+Makefile.$(library): $(vhdlfiles) $(library)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+	vmake $(library) > Makefile.$(library)
+	# patch winpath -> cygpath
+	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
+
+
+compile:
+	make compile --directory ../../grlib/sim
+	make -f Makefile.$(library)
+
 sim:
 	vsim -gui -do run.do
-
-compile: lib
-	make compile --directory ../../grlib/sim
-	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
 
 clean:
 	rm -rf $(library) 
@@ -31,7 +40,7 @@ clean:
 	rm -f *.wlf
 	rm -f trace.txt
 	rm -f log.txt
-
+	rm -f Makefile.$(library)
 
 # default patterns
 

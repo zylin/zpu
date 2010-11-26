@@ -1,8 +1,10 @@
 library      = techmap
 
 rtl_files    = ../rtl/gencomp.vhd \
-               ../rtl/ddr_unisim.vhd \
+	       ../rtl/allddr.vhd \
                ../rtl/*.vhd
+
+#               ../rtl/ddr_unisim.vhd \
 
 rtl_tb_files = ../rtl_tb/*.vhd
 
@@ -11,12 +13,13 @@ vhdlfiles    = $(rtl_files)
 
 all: compile
 
-compile: lib
-	vcom -2008 -quiet -work $(library) $(vhdlfiles) | ccze -A
 
-#simulate:
-#	export top=$(top); \
-#	vsim -quiet -gui $(library).$(top) -do run.do
+remake: lib compile
+
+
+compile:
+	make compile --directory ../../grlib/sim
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
 
 
 clean:
@@ -24,6 +27,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	rm -rf $(library) 
+	rm -f Makefile.$(library)
 
 
 # default patterns

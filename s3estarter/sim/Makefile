@@ -14,15 +14,22 @@ vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 
 all: compile simulate
 
-compile_others:
-	#make --directory ../software/test/ test
-	make --directory ../software/ethernet_speed
-	make compile --directory ../../rena3/sim
+remake: lib Makefile.$(library)
 
-compile: lib
-	#vlog -work verilog "c:/Program_Files_BLa/Xilinx/12.2/ISE_DS/ISE/verilog/src/glbl.v"
-	#vlog -work verilog +incdir+../rtl_tb/ +define+sg6 +define+x16 $(verilogfiles)
-	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+Makefile.$(library): $(vhdlfiles) $(library)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+	vmake $(library) > Makefile.$(library)
+	# patch winpath -> cygpath
+	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
+
+
+compile:
+	make -f Makefile.$(library)
+
+compile_others:
+	make --directory ../software/test/ test | ccze -A
+	make compile --directory ../../zpu/sim | ccze -A
+	#make --directory ../software/ethernet_speed
 
 simulate:
 	export top=$(top); \
