@@ -88,3 +88,4 @@ glob:s3estarter/sim_isim/*.log
 glob:s3estarter/sim_isim/tb.exe
 glob:s3estarter/sim_isim/isim.wdb
 glob:s3estarter/syn/iseconfig/*.projectmgr
+glob:datenerfassung/
