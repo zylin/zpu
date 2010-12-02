@@ -102,6 +102,8 @@ struct greth_info {
 
 };
 
+char combined_putchar( char c);
+
 int read_mii(int phyaddr, int addr, volatile greth_regs *regs);
 
 void write_mii(int phyaddr, int addr, int data, volatile greth_regs *regs);

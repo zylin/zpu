@@ -14,7 +14,17 @@
 /* 2008-02-01: GRETH API separated from test  - Marko Isomaki */
 
 #include <stdlib.h>  // malloc
+#include <common.h>  // putstr, puthex
 #include "greth_api.h"
+
+
+#define MAX_DESC (63) // one descriptor needs 8 bytes
+
+char combined_putchar( char c)
+{
+    uart_putchar( c);
+    vga_putchar( c);
+}
 
 /* Bypass cache load  */
 //static inline int load(int addr)
@@ -29,18 +39,12 @@
 static inline unsigned int load(unsigned int addr)
 {
     unsigned int data;
-    //uart_putstr("\nload: ");
-    //uart_puthex(32, addr); uart_putchar('\t');
     data = *((volatile unsigned int *)addr);
-    //uart_puthex(32, data);
     return( data);
 }
 
 static inline void save(unsigned int addr, unsigned int data)
 {
-    //uart_putstr("\nsave: ");
-    //uart_puthex(32, addr); uart_putchar('\t');
-    //uart_puthex(32, data);
     *((volatile unsigned int *)addr) = data;
 }
 
@@ -112,8 +116,8 @@ int greth_set_mac_address(struct greth_info *greth, unsigned char *addr)
     greth->esa[3] = addr[3];
     greth->esa[4] = addr[4];
     greth->esa[5] = addr[5];
-    save((int)&greth->regs->esa_msb, addr[0] << 8 | addr[1]);
-    save((int)&greth->regs->esa_lsb, addr[2] << 24 | addr[3] << 16 | addr[4] << 8 | addr[5]);
+    save((unsigned long)&greth->regs->esa_msb, addr[0] << 8 | addr[1]);
+    save((unsigned long)&greth->regs->esa_lsb, addr[2] << 24 | addr[3] << 16 | addr[4] << 8 | addr[5]);
     return 1;
 }
 
@@ -150,7 +154,7 @@ int greth_init(struct greth_info *greth) {
     //greth->txd = (struct descriptor *) almalloc(1024);
     //greth->rxd = (struct descriptor *) almalloc(1024);
     greth->txd = (struct descriptor *) (0xA0000000);
-    greth->rxd = (struct descriptor *) (0xA0001000);
+    greth->rxd = (struct descriptor *) (0xA0000000);
     save((int)&greth->regs->tx_desc_p, (unsigned int) greth->txd);
     save((int)&greth->regs->rx_desc_p, (unsigned int) greth->rxd);
     greth->txpnt = 0;
@@ -167,7 +171,7 @@ int greth_init(struct greth_info *greth) {
                     while ( !( ( read_mii(greth->phyaddr,1, greth->regs) >> 5) & 1 ) ) {
                             i++;
                             if (i > 50000) {
-                                    uart_putstr("Auto-negotiation failed\n");
+                                    putstr("Auto-negotiation failed\n");
                                     break;
                             }
                     }
@@ -223,23 +227,25 @@ int greth_init(struct greth_info *greth) {
             
     }
     
-    uart_putstr("GRETH(");
-    greth->gbit ? uart_putstr("10/100/1000"):uart_putstr("10/100");
-    uart_putstr(") Ethernet MAC at ["); uart_puthex(32, (unsigned int)(greth->regs));
-    uart_putstr("]. Running ");speed ? uart_putstr("100"):uart_putstr("10");
-    uart_putstr(" Mbps ");duplex ? uart_putstr("full"):uart_putstr("half");
-    uart_putstr(" duplex\n");
-    
-    
-    /* printf("GRETH(%s) Ethernet MAC at [0x%x]. Running %d Mbps %s duplex\n", greth->gbit?"10/100/1000":"10/100" , \ */
-/*                                                          (unsigned int)(greth->regs),  \ */
-/*                                                          (speed == 0x2000) ? 100:10, duplex ? "full":"half"); */
+    putstr("GRETH(");
+    greth->gbit ? putstr("10/100/1000") : putstr("10/100");
+    putstr(") Ethernet MAC at [0x"); puthex(32, (unsigned int)(greth->regs));
+    putstr("]. Running ");speed ? putstr("100") : putstr("10");
+    putstr(" Mbps ");duplex ? putstr("full") : putstr("half");
+    putstr(" duplex\n");
     
     greth_set_mac_address(greth, greth->esa);
     return 1;
 }
 
+void init_greth_tx( struct greth_info *greth) 
+{
+    unsigned int i;
 
+    for (i = 0 ; i <= MAX_DESC; i++)
+        save( (int)&(greth->txd[i].ctrl), 0);
+ 
+}
 
 inline int greth_tx(int size, char *buf, struct greth_info *greth) 
 {
@@ -249,7 +255,7 @@ inline int greth_tx(int size, char *buf, struct greth_info *greth)
 
     greth->txd[greth->txpnt].addr = (int) buf;
  
-    if (greth->txpnt == 127) {
+    if (greth->txpnt == MAX_DESC) {
         greth->txd[greth->txpnt].ctrl =  GRETH_BD_WR | GRETH_BD_EN | size;
         greth->txpnt = 0;
     } else {
@@ -257,10 +263,11 @@ inline int greth_tx(int size, char *buf, struct greth_info *greth)
         greth->txpnt++;
     }
 
-    greth->regs->control = load((int)&(greth->regs->control)) | GRETH_TXEN;
+greth->regs->control = load((int)&(greth->regs->control)) | GRETH_TXEN;
 
-    return 1;
+return 1;
 }
+
 
 inline int greth_rx(char *buf, struct greth_info *greth) 
 {
@@ -268,7 +275,7 @@ inline int greth_rx(char *buf, struct greth_info *greth)
         return 0;
     }
     greth->rxd[greth->rxpnt].addr = (int)buf;
-    if (greth->rxpnt == 127) {
+    if (greth->rxpnt == MAX_DESC) {
         greth->rxd[greth->rxpnt].ctrl = GRETH_BD_WR | GRETH_BD_EN;
         greth->rxpnt = 0;
     } else {  
@@ -285,7 +292,7 @@ inline int greth_checkrx(int *size, struct rxstatus *rxs, struct greth_info *gre
     tmp = load((int)&(greth->rxd[greth->rxchkpnt].ctrl));
     if (!((tmp >> 11) & 1)) {
         *size = tmp & GRETH_BD_LEN;
-        if (greth->rxchkpnt == 127) {
+        if (greth->rxchkpnt == MAX_DESC) {
             greth->rxchkpnt = 0;
         } else {
             greth->rxchkpnt++;
@@ -301,7 +308,7 @@ inline int greth_checktx(struct greth_info *greth)
   int tmp;
   tmp = load((int)&(greth->txd[greth->txchkpnt].ctrl));
   if (!((tmp >> 11) & 1)) {
-    if (greth->txchkpnt == 127) {
+    if (greth->txchkpnt == MAX_DESC) {
       greth->txchkpnt = 0;
     } else {
       greth->txchkpnt++;

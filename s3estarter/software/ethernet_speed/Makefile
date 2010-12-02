@@ -1,7 +1,10 @@
+COMPILER_OPTIONS=-I../include -ffunction-sections -fdata-sections 
+OBJCOPY_OPTIONS=--strip-debug --discard-locals
 DIR=..
 include $(DIR)/include.mak
 
-OBJECTS=greth_api.o greth.o
+#OBJECTS=greth_api.o greth.o
+c_files=greth_api.c greth.c
 
 test_vhdl= ../../../zpu/rtl/dualport_ram.vhd
 
@@ -15,12 +18,11 @@ $(test_vhdl): greth.bin $(ROMGEN)
 	cat >> $(test_vhdl) ../support/dualport_ram.vhd_footer
 
 %.bin: %.elf
-	$(OBJCOPY) $(OBJCOPYFLAGS) -O binary $< $@  
+	$(OBJCOPY) $(OBJCOPY_OPTIONS) -O binary $< $@  
 
-greth.elf: $(OBJECTS)
-	$(CC) $(CFLAGS) greth_api.c greth.c -o greth.elf -L$(DIR)/libhal -lhal -Wl,--relax -Wl,--gc-sections  -g
-	#$(LD) $(LDFLAGS) -o $@ -L$(DIR)/libhal --start-group $(OBJECTS) -lhal --end-group
-	$(OBJDUMP) -h greth.o > greth.lst
+%.elf: $(c_files)
+	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o $@ -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L$(DIR)/libhal -g | ccze -A
+	$(OBJDUMP) -D -S greth.elf > greth.lst
 	$(SIZE) $@
 
 clean:

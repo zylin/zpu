@@ -16,12 +16,13 @@
 
 #include <stdlib.h>
 //#include <time.h>       // clock
-#include <string.h>     // memcpy
-//#include <stdio.h>      // printf
+#include <string.h>         // memcpy
+//#include <stdio.h>        // printf
 
 #include <peripherie.h> 
-#include <../libhal/timer.h> // libhal/timer.c/clocks
-#include <uart.h>          // vga_clear, vga_putstr
+#include <common.h>         // putchar_fp
+#include <timer.h>          // libhal/timer.c/clocks
+#include <uart.h>           // vga_clear, vga_putstr
 #include "greth_api.h"
 
 /* Set to 1 if using GRETH_GBIT, otherwise 0 */
@@ -56,85 +57,141 @@ struct greth_info greth;
 int main(void) {
 
     unsigned long long i;
-    unsigned char buf[1514];
-    uint32_t t1, t2; 
-    //clock_t  t1, t2;
-    unsigned long long datasize;
-    //double time, bitrate;
-    uint32_t time;
-    double bitrate;
+    unsigned long long end;
 
+    struct buf_st {
+        unsigned char buf[1514];
+    } __attribute((packed));
+    typedef struct buf_st buf_t;
+
+    buf_t   *buf_pt = (buf_t *) (0xA0000280);
+
+    uint32_t sec1, sec2; 
+    uint32_t msec1, msec2; 
+    int32_t  sec, msec;
+    unsigned long long datasize;
+    double time, bitrate;
+
+    uint32_t simulation_active;
+
+    // check if on simulator or on hardware
+    simulation_active = gpio0->iodata & (1<<31);
+    
     // led debug init
     gpio0->iodir = 0x000000ff;
-    //vga_clear();
+
+    vga_init();
+    timer_init();
     uart_init();
+
+    putchar_fp = (simulation_active) ? &debug_putchar : &combined_putchar;
+
+
+    putstr("\f" __FILE__);
+    if (simulation_active) 
+    {
+        putstr(" (on sim)\n");
+    }
+    else
+    {
+        putstr(" (on hardware)\n");
+        putstr("compiled: " __DATE__ "  " __TIME__ "\n");
+    }
+
+
 
     greth.regs = (greth_regs *) GRETH_ADDR;
 
     /* Dest. addr */
-    buf[0] = DEST_MAC0;
-    buf[1] = DEST_MAC1;
-    buf[2] = DEST_MAC2;
-    buf[3] = DEST_MAC3;
-    buf[4] = DEST_MAC4;
-    buf[5] = DEST_MAC5;
+    buf_pt->buf[0] = DEST_MAC0;
+    buf_pt->buf[1] = DEST_MAC1;
+    buf_pt->buf[2] = DEST_MAC2;
+    buf_pt->buf[3] = DEST_MAC3;
+    buf_pt->buf[4] = DEST_MAC4;
+    buf_pt->buf[5] = DEST_MAC5;
 
     /* Source addr */
-    buf[6]  = SRC_MAC0;
-    buf[7]  = SRC_MAC1;
-    buf[8]  = SRC_MAC2;
-    buf[9]  = SRC_MAC3;
-    buf[10] = SRC_MAC4;
-    buf[11] = SRC_MAC5;
+    buf_pt->buf[6]  = SRC_MAC0;
+    buf_pt->buf[7]  = SRC_MAC1;
+    buf_pt->buf[8]  = SRC_MAC2;
+    buf_pt->buf[9]  = SRC_MAC3;
+    buf_pt->buf[10] = SRC_MAC4;
+    buf_pt->buf[11] = SRC_MAC5;
 
     /* Length 1500 */
-    buf[12] = 0x05;
-    buf[13] = 0xDC;
+    buf_pt->buf[12] = 0x05;
+    buf_pt->buf[13] = 0xDC;
 
-    memcpy(greth.esa, &buf[6], 6);
+    gpio0->ioout = 1;
+    
+    memcpy(greth.esa, &(buf_pt->buf[6]), 6);
 
     gpio0->ioout = 2;
     // one loop takes 1572 cycles (31.44 ns)
     // complete: 47.16 ms)
-    for (i = 14; i < 1514; i++) {
-        buf[i] = (unsigned char) i;
+    if ( !(simulation_active))
+    {
+        for (i = 14; i < 1514; i++) {
+            buf_pt->buf[i] = (unsigned char) i;
+        }
     }
 
     gpio0->ioout = 3;
-    greth_init(&greth);
+    greth_init( &greth);
+    init_greth_tx( &greth);
    
     gpio0->ioout = 4;
-    uart_putstr("\nSending 1500 Mbyte of data to ");
+    putstr("\nSending 1500 Mbyte of data to ");
     for (i=0; i<6; i++) {
-        uart_puthex(8, buf[i]);
-        if (i != 5) uart_putchar(':');
+        puthex(8, buf_pt->buf[i]);
+        if (i != 5) putchar(':');
     }
-    uart_putchar('\n');
+    putchar('\n');
 
-    t1 = clocks(); //clock();
+    end = (simulation_active) ? 3 : 1024*1024; 
+    //end = 1024;
+    putchar('('); putint( end); putstr(" packets)\n");
+    i   = 0;
 
-    while(i < (unsigned long long) 1024*1024) {
+    sec1  = seconds(); 
+    msec1 = msecs();
+
+    while(i < end) {
         gpio0->ioout = (unsigned char) greth.txpnt & 0xff;
 
         // greth_tx() returns 1 if a free descriptor is found, otherwise 0 
-        i += greth_tx(1514, buf, &greth);
+        i += greth_tx(1514, buf_pt, &greth);
 
     }
-    t2 = clocks(); //clock();
+    msec2 = msecs();
+    sec2  = seconds(); 
+    
+    gpio0->ioout = 0xff;
 
-    //time = (double)(t2 - t1)/CLOCKS_PER_SECOND;
-    time = (t2 - t1);
-    uart_putstr("\nTime: ");
-    uart_putint( time);
-    uart_putchar('\n');
-
-    /*
-    // size: 44138    next block: 408
+    sec  = (sec1  - sec2);  // timer counts down
+    msec = (msec1 - msec2); // timer counts down
+    if ( msec < 0)
+    {
+       msec += 1000;
+       sec  += 1;
+    }
+    putstr("\nTime: "); putint( sec); putchar('.'); putint( msec); putstr(" sec\n");
+    
+    time = sec + msec/1000;
+    
     datasize = (unsigned long long)1024*1024*1500*8; // In bits 
     bitrate = (double) datasize/time;
-    printf("Bitrate: %f Mbps\n", bitrate/(1024*1024));
-    
-    // size: 44546
-    */
+    putstr("Bitrate: ");
+    putint( (long) bitrate/(1024) );
+    putstr(" kbps\n");
+
     return 0;
 }
+
+/*
+
+Übertragungsrate beim Senden von 1500 Mbyte (1048576) Pakets:
+Dauer: 130.529 Sekunden
+Bitrate: 94523 kb/s
+
+*/
