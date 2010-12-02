@@ -41,11 +41,6 @@ char combined_putchar( char c)
     vga_putchar( c);
 }
 
-char debug_putchar( char c)
-{
-    *debug_con0 = (uint32_t) c;
-}
-
 
 void running_light_init( void)
 {
@@ -185,17 +180,17 @@ void ether_test( void)
     ether0->rx_pointer = 0x00004321;
 
     uart_putstr( "\ngreth registers:");
-//  uart_putstr( "\ncontrol:      "); itoa( ether0->control,      str); uart_puthex(8, str);
-    uart_putstr( "\ncontrol:      "); uart_puthex( 32, ether0->control);
-    uart_putstr( "\nstatus:       "); uart_puthex( 32, ether0->status);
-    uart_putstr( "\nmac_msb:      "); uart_puthex( 32, ether0->mac_msb);
-    uart_putstr( "\nmac_lsb:      "); uart_puthex( 32, ether0->mac_lsb);
-    uart_putstr( "\nmdio_control: "); uart_puthex( 32, ether0->mdio_control);
-    uart_putstr( "\ntx_pointer:   "); uart_puthex( 32, ether0->tx_pointer);
-    uart_putstr( "\nrx_pointer:   "); uart_puthex( 32, ether0->rx_pointer);
-    uart_putstr( "\nedcl_ip:      "); uart_puthex( 32, ether0->edcl_ip);
-    uart_putstr( "\nhash_msb:     "); uart_puthex( 32, ether0->hash_msb);
-    uart_putstr( "\nhash_lsb:     "); uart_puthex( 32, ether0->hash_lsb);
+//  uart_putstr( "\ncontrol:      0x"); itoa( ether0->control,      str); uart_puthex(8, str);
+    uart_putstr( "\ncontrol:      0x"); uart_puthex( 32, ether0->control);
+    uart_putstr( "\nstatus:       0x"); uart_puthex( 32, ether0->status);
+    uart_putstr( "\nmac_msb:      0x"); uart_puthex( 32, ether0->mac_msb);
+    uart_putstr( "\nmac_lsb:      0x"); uart_puthex( 32, ether0->mac_lsb);
+    uart_putstr( "\nmdio_control: 0x"); uart_puthex( 32, ether0->mdio_control);
+    uart_putstr( "\ntx_pointer:   0x"); uart_puthex( 32, ether0->tx_pointer);
+    uart_putstr( "\nrx_pointer:   0x"); uart_puthex( 32, ether0->rx_pointer);
+    uart_putstr( "\nedcl_ip:      0x"); uart_puthex( 32, ether0->edcl_ip);
+    uart_putstr( "\nhash_msb:     0x"); uart_puthex( 32, ether0->hash_msb);
+    uart_putstr( "\nhash_lsb:     0x"); uart_puthex( 32, ether0->hash_lsb);
     uart_putchar('\n');
 
 } 
@@ -211,7 +206,7 @@ void ether_test_read_mdio( void)
     uart_putstr("\nmdio phy registers");
     for (mdio_phy=31; mdio_phy<32; mdio_phy++)
     {
-        uart_putstr("\n mdio phy: "); uart_puthex( 8, mdio_phy);
+        uart_putstr("\n mdio phy: 0x"); uart_puthex( 8, mdio_phy);
 
         for (mdio_reg=0; mdio_reg<32; mdio_reg++)
         {
@@ -219,8 +214,8 @@ void ether_test_read_mdio( void)
             if (mdio_reg==19) mdio_reg=20;
             if (mdio_reg==24) mdio_reg=27;
             uart_putstr("\n  reg: "); itoa( mdio_reg, str); uart_putstr( str);
-            uart_putstr("-> ");       uart_puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
-//          uart_putstr("-> ");       uart_puthex( 32, ether0->mdio_control);
+            uart_putstr("-> 0x");       uart_puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
+//          uart_putstr("-> 0x");       uart_puthex( 32, ether0->mdio_control);
         }
     }
     uart_putchar('\n');
@@ -301,9 +296,9 @@ void ether_test_tx_packet( void)
     //ETHER_DESCRIPTOR_UNDERRUN_ERR
     //ETHER_DESCRIPTOR_ATTEMEPT_LIMIT_ERR
 
-    putstr("greth->control: "); puthex( 32, ether0->control); putchar('\n');
-    putstr("greth->status : "); puthex( 32, ether0->status);  putchar('\n');
-    putstr("descr->control: "); puthex( 32, descr->control);  putchar('\n');
+    putstr("greth->control: 0x"); puthex( 32, ether0->control); putchar('\n');
+    putstr("greth->status : 0x"); puthex( 32, ether0->status);  putchar('\n');
+    putstr("descr->control: 0x"); puthex( 32, descr->control);  putchar('\n');
 
 }
 
@@ -321,8 +316,8 @@ void memory_test( void)
 
     memptr = memoryw;
 
-    putstr("write address: ");   puthex( 32, (uint32_t) memptr);
-    putstr("  length: ");        puthex( 32, length);
+    putstr("write address: 0x");   puthex( 32, (uint32_t) memptr);
+    putstr("  length: 0x");        puthex( 32, length);
     putstr("\n\n");
 
     for ( i=0; i<length; i++)
@@ -337,14 +332,14 @@ void memory_test( void)
             read = *memptr;
             if (!simulation_active)
             {
-                putstr("read  address: ");        puthex( 32, (uint32_t) memptr);
-                putstr("  expect: ");             puthex( 32, i);
-                putstr("  got: ");                puthex( 32, read);
+                putstr("read  address: 0x");        puthex( 32, (uint32_t) memptr);
+                putstr("  expect: 0x");             puthex( 32, i);
+                putstr("  got: 0x");                puthex( 32, read);
                 (i == read) ? putstr(" ok") :  putstr(" error");
                 putstr("\n");
             } else
             {
-                putstr("  got: ");                  puthex( 32, read);
+                putstr("  got: 0x");                  puthex( 32, read);
                 putstr("\n");
             }
 
@@ -407,7 +402,7 @@ int memory_test_dot( int mode)
 
     vga_init();
     // print status line
-    itoa( dcm_ctrl0->psvalue, str); vga_putstr("phase shift  -  value: "); vga_putstr( str); vga_putstr("  status: ");  vga_puthex( 8, dcm_ctrl0->psstatus); vga_putstr("     ");
+    itoa( dcm_ctrl0->psvalue, str); vga_putstr("phase shift  -  value: "); vga_putstr( str); vga_putstr("  status: 0x");  vga_puthex( 8, dcm_ctrl0->psstatus); vga_putstr("     ");
     
     count_bad = 0;
     s         = 0x90000000;
@@ -420,7 +415,7 @@ int memory_test_dot( int mode)
         {
             if ((i%64) == 0)
             {
-                vga_putstr("\n"); vga_puthex( 32, s); vga_putstr(" ");
+                vga_putstr("\n0x"); vga_puthex( 32, s); vga_putstr(" ");
             }
             error = memory_test_complete( s, chunks);
             vga_putchar( '0' + error);
@@ -433,7 +428,7 @@ int memory_test_dot( int mode)
         mem = s;
         for (i=0; i<32; i++)
         {
-            vga_putstr("\n"); vga_puthex( 32, mem); vga_putchar(' ');
+            vga_putstr("\n0x"); vga_puthex( 32, mem); vga_putchar(' ');
             data = *mem;
             vga_putbin( 32, data); vga_putchar(' ');
             if (mem == data) vga_putstr("ok  ");
@@ -514,8 +509,8 @@ void memory_info( void)
     value = ddr0->sdram_control;
 
     putstr("\n\nauto t_RERESH :");  itoa( value & 0x7fff, str); putstr( str);
-    putstr("\nclock enable  :");  puthex(  8, value >> 15 & 0x01);
-    putstr("\ninitalize     :");  puthex(  8, value >> 16 & 0x01);
+    putstr("\nclock enable  :0x");  puthex(  8, value >> 15 & 0x01);
+    putstr("\ninitalize     :0x");  puthex(  8, value >> 16 & 0x01);
     putstr("\ncolumn size   :");  
         switch (value >> 21 & 0x03)
         {
@@ -537,7 +532,7 @@ void memory_info( void)
     putstr("\nt_RCD         :");  itoa( 1 + (value >> 26 & 0x01), str); putstr( str);
     putstr("\nt_RFC         :");  itoa( 3 + (value >> 27 & 0x07), str); putstr( str);
     putstr("\nt_RP          :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
-    putstr("\nrefresh en.   :");  puthex(  8, value >> 31 & 0x01);
+    putstr("\nrefresh en.   :0x");  puthex(  8, value >> 31 & 0x01);
 
    
     value = ddr0->sdram_config;
@@ -545,7 +540,7 @@ void memory_info( void)
     putstr("\n\nDDR frequency :");  itoa( value & 0x0fff, str); putstr( str);
     putstr("\nDDR data width:");  itoa( 1<<(3+(value >> 12 & 0x07)), str); putstr( str);
     mobile = value >> 15 & 0x01;
-    putstr("\nmobile support:");  puthex(  8, mobile);
+    putstr("\nmobile support:0x");  puthex(  8, mobile);
 
     if (mobile) {
     
@@ -591,18 +586,18 @@ void memory_info( void)
         putstr("\nt_XSR         :");  itoa( (value >> 20 & 0x0f), str); putstr( str);
         putstr("\nt_CKE         :");  itoa( 1 + (value >> 24 & 0x01), str); putstr( str);
         putstr("\nCAS latency   :");  itoa( 2 + (value >> 30 & 0x01), str); putstr( str);
-        putstr("\nmobile enabled:");  puthex(  8, value >> 31 & 0x01);
+        putstr("\nmobile enabled:0x");  puthex(  8, value >> 31 & 0x01);
       
      
         value = ddr0->phy_config_0;
-        putstr("\n\nphy config 0  :");  puthex(32 , value);
+        putstr("\n\nphy config 0  :0x");  puthex(32 , value);
 
         value = ddr0->phy_config_1;
-        putstr("\n\nphy config 1  :");  puthex(32 , value);
+        putstr("\n\nphy config 1  :0x");  puthex(32 , value);
     }
         
     value = ddr0->status_read;
-    putstr("\n\nstatus read   :");  puthex(32 , value);
+    putstr("\n\nstatus read   :0x");  puthex(32 , value);
 
 
 }
@@ -619,8 +614,8 @@ void mem_dump( void)
     for ( i=0x90000000; i<=0x90000080; i+=0x00000004) // ddr content
     {
         memptr = (uint32_t *) i;
-        putstr("address: ");   puthex( 32, (uint32_t) memptr);
-        putstr(" data: ");     puthex( 32,           *memptr);
+        putstr("address: 0x");   puthex( 32, (uint32_t) memptr);
+        putstr(" data: 0x");     puthex( 32,           *memptr);
         putstr("\n");
     }
 }
@@ -655,7 +650,7 @@ void dcm_test_ps( void)
     putstr("\n\nDCM phase shift testing");
     
     i = memory_test_dot( WORD_MODE);
-    putstr("\ninitial: "); putint( dcm_ctrl0->psvalue); putstr(" "); puthex( 32, i);
+    putstr("\ninitial: "); putint( dcm_ctrl0->psvalue); putstr(" 0x"); puthex( 32, i);
 
     #ifdef LCD_ENABLE
     lcd_clear(); lcd_string("go down");
