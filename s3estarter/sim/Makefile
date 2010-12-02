@@ -27,9 +27,10 @@ compile:
 	make -f Makefile.$(library)
 
 compile_others:
-	make --directory ../software/test/ test | ccze -A
+	#make --directory ../software/test/ test | ccze -A
+	make --directory ../software/ethernet_speed | ccze -A
+
 	make compile --directory ../../zpu/sim | ccze -A
-	#make --directory ../software/ethernet_speed
 
 simulate:
 	export top=$(top); \
