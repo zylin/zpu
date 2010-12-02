@@ -1,8 +1,9 @@
 
-char (* putchar_fp) (char c);
+#include "peripherie.h"
 
 ////////////////////////////////////////
 // common stuff
+
 
 
 char putchar( char c)
@@ -39,7 +40,7 @@ void puthex( unsigned char dataType, unsigned long data)
     unsigned char count = 8; // number of chars 
     unsigned char i;
     unsigned char temp;
-    char          dataString[] = "0x        ";
+    char          dataString[] = "        ";
 
     // dataType = bit width
     if (dataType == 8)  count = 2;
@@ -48,12 +49,12 @@ void puthex( unsigned char dataType, unsigned long data)
     for(i=count; i>0; i--)
     {
         temp = data % 16;
-        if (temp<10) dataString [i+1] = temp + 0x30;
-        else         dataString [i+1] = (temp - 10) + 0x41;
+        if (temp<10) dataString [i-1] = temp + 0x30;
+        else         dataString [i-1] = (temp - 10) + 0x41;
 
         data = data/16;
     }
-    dataString[count+2] = '\0';
+    dataString[count] = '\0';
     putstr( dataString);
 }
 

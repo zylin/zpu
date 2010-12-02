@@ -227,7 +227,11 @@ typedef struct {
 } dcm_ctrl_t;
 
 
+char debug_putchar( char c);
 
+
+// function pointer for putchar
+extern char (* putchar_fp) ( char);
 
 ////////////////////
 // hardware units
