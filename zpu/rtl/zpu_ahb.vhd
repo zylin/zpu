@@ -88,6 +88,7 @@ begin
         case state is
 
             when IDLE =>
+                write_flag          <= '0';
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     state           <= ADDR_PHASE;
                     ahbo.htrans     <= HTRANS_NONSEQ;
@@ -97,34 +98,34 @@ begin
                     ahbo.hwrite     <= out_mem_writeEnable;  
                     write_flag      <= out_mem_writeEnable;
                     data_to_ahb     <= mem_write;
-                end if;
+
+                    if ahbi.hgrant( hindex) = '0' then
+                        clk_en          <= '0';
+                        last_state      <= ADDR_PHASE;
+                        state           <= WAIT_FOR_GRANT;
+                    end if;
+
+                else
                 
-                if ahbi.hgrant( hindex) = '0' then
-                    last_state      <= state;
-                    state           <= NOGRANT;
+                    if ahbi.hgrant( hindex) = '0' then
+                        last_state      <= state;
+                        state           <= NOGRANT;
+                    end if;
                 end if;
 
 
             when ADDR_PHASE =>
                 state               <= DATA_PHASE;
                 ahbo.htrans         <= HTRANS_IDLE;
-                data_from_ahb       <= (others => '0');
+                ahbo.hwdata         <= (others => '0');
+
                 if write_flag = '1' then
                     ahbo.hwdata     <= std_logic_vector( data_to_ahb);
-                else
-                    ahbo.hwdata     <= (others => '0');
                 end if;
                 
-                if ahbi.hgrant( hindex) = '0' then
-                    last_state      <= state;
-                    state           <= NOGRANT;
-                end if;
-
 
             when DATA_PHASE =>
-                if write_flag = '1' then
-                    data_from_ahb   <= (others => '0');
-                else
+                if write_flag = '0' then -- read
                     data_from_ahb   <= std_ulogic_vector( ahbi.hrdata);
                 end if;
 
@@ -146,6 +147,9 @@ begin
                     state           <= WAIT_FOR_GRANT;
                     busy            <= '1';
                     clk_en          <= '0';
+                    ahbo.haddr      <= std_logic_vector( out_mem_addr);
+                    write_flag      <= out_mem_writeEnable;
+                    data_to_ahb     <= mem_write;
                 end if;
                 if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
                     state           <= last_state;
@@ -158,11 +162,7 @@ begin
                     clk_en          <= '1';
                     state           <= ADDR_PHASE;
                     ahbo.htrans     <= HTRANS_NONSEQ;
-                    busy            <= '1';
-                    ahbo.haddr      <= std_logic_vector( out_mem_addr);
-                    ahbo.hwrite     <= out_mem_writeEnable;  
-                    write_flag      <= out_mem_writeEnable;
-                    data_to_ahb     <= mem_write;
+                    ahbo.hwrite     <= write_flag;  
                 end if;
 
         end case;
@@ -173,7 +173,6 @@ begin
             busy                <= '0';
             ahbo.hbusreq        <= '0';
             ahbo.htrans         <= HTRANS_IDLE;
-            data_from_ahb       <= (others => '0');
             clk_en              <= '1';
             write_flag          <= '0';
         end if; -- reset
@@ -221,7 +220,7 @@ begin
     --busy <= ( out_mem_readEnable or  (not ahbi.hready) ) and  (not ahbi.hgrant( hindex)) ;
     --busy <=  out_mem_readEnable or (not ahbi.hready); --original
 
-    mem_read <= data_from_ahb;
+    mem_read    <= data_from_ahb;
     busy_to_zpu <= busy or out_mem_readEnable or out_mem_writeEnable;
 
     zpu_i0: zpu_core 
