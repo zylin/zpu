@@ -3,8 +3,8 @@ DEVICE = xc3s500e-fg320-4
 #UCF_FILE = D:/home/bl5599/projects/s3estarter/syn/s3estarter.ucf
 UCF_FILE = s3estarter.ucf
 
-#SOFTWARE = ../software/ethernet_speed
-SOFTWARE = ../software/test
+SOFTWARE = ../software/ethernet_speed
+#SOFTWARE = ../software/test
 
 
 all:	
