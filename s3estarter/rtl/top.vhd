@@ -208,8 +208,6 @@ architecture rtl of top is
     signal top_fpga_clk        : fpga_clk_in_t;
     signal top_fpga_rotary_sw  : fpga_rotary_sw_in_t;
     
-    signal box_i0_fpga_led     : fpga_led_out_t;
-            
     signal top_fpga_uarti      : uart_in_type;
     signal box_i0_uarto        : uart_out_type;
     

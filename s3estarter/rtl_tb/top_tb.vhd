@@ -266,13 +266,11 @@ begin
             FX2_CLKIO       => tb_FX2_CLKIO       , -- : inout std_ulogic;
             FX2_CLKOUT      => tb_FX2_CLKOUT      , -- : inout std_ulogic;
 
-            --FX2_IO          => tb_FX2_IO          , -- : inout std_ulogic_vector(40 downto 0);
+            FX2_IO          => tb_FX2_IO          , -- : inout std_ulogic_vector(40 downto 1);
 
             LCD_E           => tb_LCD_E           , -- : inout std_ulogic;
             LCD_RS          => tb_LCD_RS          , -- : inout std_ulogic;
             LCD_RW          => tb_LCD_RW          , -- : inout std_ulogic;
-
---          LED             => tb_LED             , -- : inout std_ulogic_vector(7 downto 0);
 
             PS2_CLK         => tb_PS2_CLK         , -- : inout std_ulogic;
             PS2_DATA        => tb_PS2_DATA        , -- : inout std_ulogic;
@@ -332,6 +330,7 @@ begin
             XC_GCK0         => tb_XC_GCK0         , -- : inout std_ulogic;
             GCLK10          => tb_GCLK10            -- : inout std_ulogic
         );
+    tb_LED        <= tb_FX2_IO(20 downto 13);
 
     -- phy emulator model
     tb_E_MDIO     <= 'H'; -- pullup
