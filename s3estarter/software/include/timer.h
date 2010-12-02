@@ -19,9 +19,11 @@ void msleep(uint32_t msec);
 void sleep(uint32_t sec);
 
 
-// deliver the clocks from timer 0.1
-uint32_t clocks( void);
+// deliver the milli seconds from timer 0.1
+uint32_t msecs( void);
 
+// deliver the seconds from timer 0.2
+uint32_t seconds( void);
 
 // just a loop
 void wait( uint32_t value);

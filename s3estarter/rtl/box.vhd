@@ -437,7 +437,7 @@ begin
             pirq    => 3,
             sepirq  => 0, -- use separate interupts for each timer
             sbits   => 8, -- prescaler bits
-            ntimers => 2, -- number of timers
+            ntimers => 3, -- number of timers
             nbits   => 20 -- timer bits
         )
         port map (

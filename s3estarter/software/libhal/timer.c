@@ -56,10 +56,17 @@ void sleep(uint32_t sec)
 }
 
 
-// deliver the clocks from timer 0.1
-uint32_t clocks( void)
+
+// deliver the milliseconds from timer 0.1
+uint32_t msecs( void)
 {
     return( timer0->e[1].value);
+}
+
+// deliver the seconds from timer 0.2
+uint32_t seconds( void)
+{
+    return( timer0->e[2].value);
 }
 
 
@@ -76,10 +83,20 @@ void wait( uint32_t value)
 void timer_init( void)
 {
     timer0->scaler_reload = TIMER_PRESCALER-1; // set prescaler
+    
+    // set timer 0.2 in chain mode to timer 0.1
+    // so it counts in seconds
+    timer0->e[2].reload = 0xffffffff;
+    timer0->e[2].ctrl   = TIMER_ENABLE | TIMER_RESTART | TIMER_LOAD | TIMER_CHAIN;
+    
+    // set timer 0.1 in chain mode to timer 0.0 
+    // so it counts in msec
+    timer0->e[1].reload = 1000;
+    timer0->e[1].ctrl   = TIMER_ENABLE | TIMER_RESTART | TIMER_LOAD | TIMER_CHAIN;
    
-    // set timer 0.1 to free running in msec 
-    timer0->e[1].reload = (F_CPU/TIMER_PRESCALER/CLOCKS_PER_SECOND);
-    timer0->e[1].ctrl   = TIMER_ENABLE | TIMER_RESTART | TIMER_LOAD;
+    // set timer 0.0 to free running in msec 
+    timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/CLOCKS_PER_SECOND);
+    timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_RESTART | TIMER_LOAD;
 }
 
 
