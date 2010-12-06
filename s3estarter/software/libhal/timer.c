@@ -1,5 +1,7 @@
 #include <peripherie.h>
 
+#include <timer.h>
+
 ////////////////////////////////////////
 // timer functions
 
@@ -67,6 +69,20 @@ uint32_t msecs( void)
 uint32_t seconds( void)
 {
     return( timer0->e[2].value);
+}
+// deliver the time (in seconds and fraction) from timer
+uint32_t get_time( void)
+{
+    uint32_t value;
+
+    TIMER_STOP;
+
+    // combine values (seconds.milliseconds)
+    value = timer0->e[2].value * 1000 + timer0->e[1].value;
+
+    TIMER_RUN;
+
+    return( value);
 }
 
 

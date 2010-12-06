@@ -25,6 +25,9 @@ uint32_t msecs( void);
 // deliver the seconds from timer 0.2
 uint32_t seconds( void);
 
+// deliver the time (in seconds and fraction) from timer
+uint32_t get_time( void);
+
 // just a loop
 void wait( uint32_t value);
 
@@ -32,5 +35,7 @@ void wait( uint32_t value);
 // initialisation for the timer
 void timer_init( void);
 
+#define TIMER_STOP  timer0->e[1].ctrl   &= ~TIMER_ENABLE;
+#define TIMER_RUN   timer0->e[1].ctrl   |= TIMER_ENABLE;
 
 #endif // TIMER_H
