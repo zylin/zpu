@@ -20,12 +20,17 @@ $(test_vhdl): greth.bin $(ROMGEN)
 %.bin: %.elf
 	$(OBJCOPY) $(OBJCOPY_OPTIONS) -O binary $< $@  
 
-%.elf: $(c_files)
+%.elf: $(c_files) libhal
 	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o $@ -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L$(DIR)/libhal -g | ccze -A
 	$(OBJDUMP) -D -S greth.elf > greth.lst
 	$(SIZE) $@
+
+libhal:
+	cd ../libhal; make
 
 clean:
 	rm -f *.o
 	rm -f *.elf
 	rm -f *.bin
+
+.phony:	libhal
