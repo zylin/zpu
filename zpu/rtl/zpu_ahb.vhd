@@ -108,8 +108,8 @@ begin
                 else
                 
                     if ahbi.hgrant( hindex) = '0' then
-                        last_state      <= state;
-                        state           <= NOGRANT;
+                        last_state  <= state;
+                        state       <= NOGRANT;
                     end if;
                 end if;
 
@@ -118,6 +118,7 @@ begin
                 state               <= DATA_PHASE;
                 ahbo.htrans         <= HTRANS_IDLE;
                 ahbo.hwdata         <= (others => '0');
+                ahbo.hbusreq        <= '0';
 
                 if write_flag = '1' then
                     ahbo.hwdata     <= std_logic_vector( data_to_ahb);
@@ -131,13 +132,13 @@ begin
 
                 if ahbi.hready = '1' then
                     state           <= IDLE;
-                    ahbo.hbusreq    <= '0';
                     busy            <= '0';
-                end if;
                 
-                if ahbi.hgrant( hindex) = '0' then
-                    last_state      <= state;
-                    state           <= NOGRANT;
+                    if ahbi.hgrant( hindex) = '0' then
+                        last_state  <= IDLE;
+                        state       <= NOGRANT;
+                    end if;
+
                 end if;
 
 
@@ -146,6 +147,7 @@ begin
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     state           <= WAIT_FOR_GRANT;
                     busy            <= '1';
+                    ahbo.hbusreq    <= '1';
                     clk_en          <= '0';
                     ahbo.haddr      <= std_logic_vector( out_mem_addr);
                     write_flag      <= out_mem_writeEnable;
@@ -157,7 +159,6 @@ begin
 
 
             when WAIT_FOR_GRANT =>
-                ahbo.hbusreq        <= '1';
                 if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
                     clk_en          <= '1';
                     state           <= ADDR_PHASE;
