@@ -18,8 +18,6 @@
 #include "greth_api.h"
 
 
-#define MAX_DESC (63) // one descriptor needs 8 bytes
-
 char combined_putchar( char c)
 {
     uart_putchar( c);
@@ -247,6 +245,7 @@ void init_greth_tx( struct greth_info *greth)
  
 }
 
+
 inline int greth_tx(int size, char *buf, struct greth_info *greth) 
 {
     if ((load((int)&(greth->txd[greth->txpnt].ctrl)) >> 11) & 1) {
@@ -308,6 +307,7 @@ inline int greth_checktx(struct greth_info *greth)
   int tmp;
   tmp = load((int)&(greth->txd[greth->txchkpnt].ctrl));
   if (!((tmp >> 11) & 1)) {
+    // descriptor is ready
     if (greth->txchkpnt == MAX_DESC) {
       greth->txchkpnt = 0;
     } else {
@@ -315,6 +315,7 @@ inline int greth_checktx(struct greth_info *greth)
     }
     return 1;
   } else {
+      // descriptor is not ready
       return 0;
   }
 }

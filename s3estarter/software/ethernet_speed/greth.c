@@ -57,7 +57,7 @@ struct greth_info greth;
 int main(void) {
 
     unsigned long long i;
-    unsigned long long end;
+    unsigned long long packets;
 
     struct buf_st {
         unsigned char buf[1514];
@@ -66,11 +66,9 @@ int main(void) {
 
     buf_t   *buf_pt = (buf_t *) (0xA0000280);
 
-    uint32_t sec1, sec2; 
-    uint32_t msec1, msec2; 
-    int32_t  sec, msec;
+    uint32_t time, time1, time2; 
     unsigned long long datasize;
-    double time, bitrate;
+    unsigned long long bitrate;
 
     uint32_t simulation_active;
 
@@ -148,41 +146,39 @@ int main(void) {
     }
     putchar('\n');
 
-    end = (simulation_active) ? 3 : 1024*1024; 
-    //end = 1024;
-    putchar('('); putint( end); putstr(" packets)\n");
+    packets = (simulation_active) ? 64 : 1024*1024; 
+    //packets = 10 * 1024;
+    putchar('('); putint( packets); putstr(" packets)\n\n");
     i   = 0;
 
-    sec1  = seconds(); 
-    msec1 = msecs();
+    gpio0->ioout = 5;
 
-    while(i < end) {
-        gpio0->ioout = (unsigned char) greth.txpnt & 0xff;
+    time1 = get_time();
 
+    while (i < packets) {
+        gpio0->ioout = 0xff & (i >> 8);
         // greth_tx() returns 1 if a free descriptor is found, otherwise 0 
-        i += greth_tx(1514, buf_pt, &greth);
-
+        i += greth_tx(1514, &(buf_pt->buf[0]), &greth);
     }
-    msec2 = msecs();
-    sec2  = seconds(); 
+
+    // wait until all descriptors are sent
+    i   = 0;
+    while (i <= MAX_DESC) {
+        gpio0->ioout = 0xff & i;
+        i += greth_checktx( &greth);
+    }
+    
+    time2 = get_time();
     
     gpio0->ioout = 0xff;
 
-    sec  = (sec1  - sec2);  // timer counts down
-    msec = (msec1 - msec2); // timer counts down
-    if ( msec < 0)
-    {
-       msec += 1000;
-       sec  += 1;
-    }
-    putstr("\nTime: "); putint( sec); putchar('.'); putint( msec); putstr(" sec\n");
+    time = time1 - time2; // timer counts down
+    putstr("Time    : "); putpfloat( time );
+    putstr(" sec\n");
     
-    time = sec + msec/1000;
-    
-    datasize = (unsigned long long)1024*1024*1500*8; // In bits 
-    bitrate = (double) datasize/time;
-    putstr("Bitrate: ");
-    putint( (long) bitrate/(1024) );
+    datasize = (unsigned long long)packets*1500*8; // In bits 
+    bitrate  = (unsigned long long)(datasize*1000)/time; // time is in milliseconds
+    putstr("Bitrate : "); putint( (long) bitrate/(1024) ); // 1024 = k
     putstr(" kbps\n");
 
     return 0;

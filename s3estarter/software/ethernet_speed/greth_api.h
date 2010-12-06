@@ -56,6 +56,10 @@
 #define GRETH_RXBD_NUM_MASK (GRETH_RXBD_NUM-1)
 #define GRETH_RX_BUF_SIZE 2048
 
+
+#define MAX_DESC (63) // one descriptor needs 8 bytes
+
+
 /* Ethernet configuration registers */
 typedef struct _greth_regs {
     volatile int    control;        
