@@ -106,4 +106,11 @@ void putint( unsigned long data)
 }
 
 
-
+// p means pseudo float 
+// (an integer with 3 significant digits after the point)
+void putpfloat( unsigned long data)
+{
+    putint( data/1000);
+    putchar( '.');
+    putint( data%1000 );
+}
