@@ -153,8 +153,15 @@ begin
                     write_flag      <= out_mem_writeEnable;
                     data_to_ahb     <= mem_write;
                 end if;
+
                 if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
                     state           <= last_state;
+                    if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
+                        clk_en          <= '1';
+                        state           <= ADDR_PHASE;
+                        ahbo.htrans     <= HTRANS_NONSEQ;
+                        ahbo.hwrite     <= write_flag;  
+                    end if;
                 end if;
 
 
@@ -258,6 +265,35 @@ begin
     ahbo.hindex  <= 0;
 
     --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
+
+
+
+
+    ---------------------------------------------------------------------------
+    -- checks
+
+    -- pragma translate_off
+    check_busy_stuck_on_high: process
+        variable high_count: natural;
+    begin
+        wait until rising_edge( clk);
+        if busy_to_zpu = '0' then
+            high_count := 0;
+        else
+            high_count := high_count + 1;
+        end if;
+
+        assert high_count < 200
+            report me_c & "busy to zpu stuck high"
+            severity error;
+    end process;
+
+    -- pragma translate_on
+
+
+
+    ---------------------------------------------------------------------------
+    -- zpu bus tracer
 
     -- pragma translate_off
     zpu_bus_trace_i0: zpu_bus_trace
