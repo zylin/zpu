@@ -45,11 +45,11 @@ library zpu;
 use zpu.zpu_config.all;
 use zpu.zpupkg.all;
 
-entity fpga_top is
-end fpga_top;
+entity sim_small_fpga_top_noint is
+end sim_small_fpga_top_noint;
 
 
-architecture behave of fpga_top is
+architecture behave of sim_small_fpga_top_noint is
 
 
   signal clk   : std_ulogic;
