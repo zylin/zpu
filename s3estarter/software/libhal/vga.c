@@ -20,7 +20,7 @@ uint8_t vga_column;
 void vga_init( void)
 {
     vga0->background_color = 0x00000000;
-    vga0->foreground_color = 0x00ffffff;
+    vga0->foreground_color = 0x0000ff00;
     vga_line               = 0;
     vga_column             = 0;
 }
