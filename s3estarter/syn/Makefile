@@ -62,6 +62,9 @@ clean:
 
 dir:	
 	mkdir -p xst
+	mkdir -p xst/projnav.tmp
+	#cp *.xst xst
+	#cp *.prj xst
 
 xst:    $(MODULE).ngc
 translate: $(MODULE).ngd
@@ -70,7 +73,7 @@ par:    $(MODULE).ncd
 
 #.PHONY: xst
 
-$(MODULE).ngc:	
+$(MODULE).ngc: dir	
 	cd xst ; xst -ifn $(MODULE).xst -ofn $(MODULE).syr
 
 
