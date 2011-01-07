@@ -49,7 +49,7 @@ entity box is
         ddr_ba          : out   std_logic_vector (1 downto 0);  -- ddr bank address
         ddr_dq          : inout std_logic_vector (15 downto 0); -- ddr data
                                          
-        debug_trace     : out   debug_signals_t;
+        debug_trace     : out   debug_signals_t := default_debug_signals;
         debug_trace_box : out   debug_signals_t;
         debug_trace_dcm : out   debug_signals_t;
         -- to stop simulation
@@ -62,6 +62,7 @@ end entity box;
 
 library ieee;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.or_reduce; -- synopsis
 
 
 library zpu;
@@ -77,9 +78,11 @@ library grlib;
 use grlib.amba.all;
 
 library gaisler;
-use gaisler.misc.all; -- types
-use gaisler.uart.all; -- types
-use gaisler.net.all;  -- types
+use gaisler.misc.all;  -- types
+use gaisler.uart.all;  -- types
+use gaisler.net.all;   -- types
+use gaisler.leon3.all; -- types
+use gaisler.leon3.irqmp;
 use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
 use gaisler.misc.ahbram;
@@ -128,6 +131,14 @@ architecture rtl of box is
 
     signal stati                         : ahbstat_in_type;
 
+    signal irqi                          : irq_out_vector(0 to 0);
+    signal irqmp_i0_irqo                 : irq_in_vector(0 to 0);
+
+    signal tck                           : std_ulogic := '0';
+    signal tms                           : std_ulogic := '0';
+    signal tdi                           : std_ulogic := '0';
+    signal tdo                           : std_ulogic := '0';
+
 begin
     
     ---------------------------------------------------------------------
@@ -171,14 +182,15 @@ begin
     
     zpu_ahb_i0: zpu_ahb
     generic map (
-        hindex => 0                -- : integer := 0
-    )
-    port map (
-        clk    => clk,             -- : in  std_ulogic;
-        reset  => reset,           -- : in  std_ulogic;
-        ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
-        ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
-        break  => break            -- : out std_ulogic
+        hindex => 0                                -- : integer := 0
+    )                                              
+    port map (                                     
+        clk    => clk,                             -- : in  std_ulogic;
+        reset  => reset,                           -- : in  std_ulogic;
+        ahbi   => ahbctrl_i0_msti,                 -- : in  ahb_mst_in_type; 
+        ahbo   => ahbmo(0),                        -- : out ahb_mst_out_type;
+        irq    => or_reduce(irqmp_i0_irqo(0).irl), -- : in  std_ulogic;
+        break  => break                            -- : out std_ulogic
     );
     ---------------------------------------------------------------------
     
@@ -186,7 +198,6 @@ begin
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
 
-    ahbmo(2) <= ahbm_none;
     ahbmo(3) <= ahbm_none;
     ahbso(3) <= ahbs_none;
     --ahbmo(15 downto 2) <= (others => ahbm_none); -- slow down syntesis
@@ -197,7 +208,7 @@ begin
             defmast    => 0,    -- default master
             rrobin     => 1,    -- round robin arbitration
             timeout    => 11,
-            nahbm      => 2, 
+            nahbm      => 3, 
             nahbs      => 3,
             disirq     => 1,    -- disable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
@@ -223,6 +234,26 @@ begin
     debug_trace_box.ahbmo1_bureq <= ahbmo(1).hbusreq;
     ----------------------------------------------------------------------
 
+    
+    ---------------------------------------------------------------------
+    --  AHB UART (with debug support)
+
+    ahbuart_i0 : ahbuart
+    generic map (
+      hindex    => 2,                -- : integer := 0;
+      pindex    => 1,                -- : integer := 0;
+      paddr     => 1                 -- : integer := 0;
+    )                                
+    port map (                       
+      rst       => reset_n,          -- : in  std_ulogic;
+      clk       => clk,              -- : in  std_ulogic;
+      uarti     => uarti,            -- : in  uart_in_type;
+      uarto     => uarto,            -- : out uart_out_type;
+      apbi      => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
+      apbo      => apbo(1),          -- : out apb_slv_out_type;
+      ahbi      => ahbctrl_i0_msti,  -- : in  ahb_mst_in_type;
+      ahbo      => ahbmo(2)          -- : out ahb_mst_out_type
+    );
 
     ---------------------------------------------------------------------
     --  AHB RAM (internal 4k BRAM)
@@ -374,7 +405,6 @@ begin
     --  AHB/APB bridge
 
     apbo(0)  <= apb_none; -- slow down synthesis (but sim looks better)
-    apbo(3)  <= apb_none; -- slow down synthesis
     apbo(4)  <= apb_none; -- slow down synthesis
     apbo(5)  <= apb_none; -- slow down synthesis
     apbo(7)  <= apb_none; -- slow down synthesis
@@ -403,24 +433,25 @@ begin
 
     ---------------------------------------------------------------------
     -- uart
+    -- apb slot 1 is used by ahbuart
 
-    apbuart_i0: apbuart
-        generic map (
-            pindex     => 1,
-            paddr      => 1,
-            console    => 1, -- fast simulation output
-            parity     => 0, -- no parity
-            flow       => 0, -- no hardware handshake
-            fifosize   => 1
-        )
-        port map (
-            rst   => reset_n,
-            clk   => clk,
-            apbi  => apbctrl_i0_apbi,
-            apbo  => apbo(1),
-            uarti => uarti,
-            uarto => uarto
-        );
+--  apbuart_i0: apbuart
+--      generic map (
+--          pindex     => 1,
+--          paddr      => 1,
+--          console    => 1, -- fast simulation output
+--          parity     => 0, -- no parity
+--          flow       => 0, -- no hardware handshake
+--          fifosize   => 1
+--      )
+--      port map (
+--          rst   => reset_n,
+--          clk   => clk,
+--          apbi  => apbctrl_i0_apbi,
+--          apbo  => apbo(1),
+--          uarti => uarti,
+--          uarto => uarto
+--      );
     ---------------------------------------------------------------------
 
 
@@ -449,7 +480,24 @@ begin
             gpto    => gptimer_i0_gpto
         );
     ---------------------------------------------------------------------
-
+    
+    ---------------------------------------------------------------------
+    -- Interrupt controller
+    irqi(0) <= (pwd => '0', irl => "0000", intack => '0', fpen => '0');
+    irqmp_i0 : irqmp
+        generic map (
+            pindex  => 3,
+            paddr   => 3
+        )
+        port map (
+            rst     => reset_n,         -- : in  std_ulogic;
+            clk     => clk,             -- : in  std_ulogic;
+            apbi    => apbctrl_i0_apbi, -- : in  apb_slv_in_type;
+            apbo    => apbo(3),         -- : out apb_slv_out_type;
+            irqi    => irqi,            -- : in  irq_out_vector(0 to ncpu-1);
+            irqo    => irqmp_i0_irqo    -- : out irq_in_vector(0 to ncpu-1)
+        );
+            
 
     ---------------------------------------------------------------------
     -- SVGA
