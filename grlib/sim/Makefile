@@ -5,11 +5,14 @@ rtl_files    = ../rtl/version.vhd \
                ../rtl/stdlib.vhd \
                ../rtl/amba.vhd \
                ../rtl/devices.vhd \
-               ../rtl/*.vhd
+               ../rtl/ahbctrl.vhd \
+               ../rtl/apbctrl.vhd \
+	       ../rtl/report_version.vhd 
 
-rtl_tb_files = ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/stdio.vhd
 
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 
 all: compile
@@ -23,8 +26,11 @@ Makefile.$(library): $(vhdlfiles) $(library)
 	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
 
 
-compile:
-	make -f Makefile.$(library)
+compile: lib $(vhdltargets)
+
+$(vhdltargets): $(vhdlfiles)
+	vcom -quiet  -2008 -work $(library) $(vhdlfiles)
+	# $(vhdltargets)
 
 
 clean:

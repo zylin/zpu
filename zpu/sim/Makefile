@@ -1,13 +1,22 @@
 library      = zpu
 
-rtl_files    = \
-		../rtl_tb/txt_util.vhd \
+rtl_files    =  ../rtl_tb/txt_util.vhd \
 		../rtl/zpu_config.vhd \
 		../rtl/zpupkg.vhd \
 		../rtl/zpu_wrapper_package.vhd \
-		../rtl/*.vhd
-rtl_tb_files = ../rtl_tb/*.vhd
+		../rtl/trace.vhd \
+		../rtl/zpu_wrapper.vhd \
+		../rtl/dualport_ram.vhd \
+		../rtl/zpu_ahb.vhd \
+		../rtl/zpu_core.vhd \
+		../rtl/timer.vhd \
+		../rtl/zpu_bus_trace.vhd \
+		../rtl/zpu_io.vhd
+
+rtl_tb_files = ../rtl_tb/sim_small_fpga_top_noint.vhd
+
 vhdlfiles    = $(rtl_files) $(rtl_tb_files) 
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 help:
 	@echo "defined targets:"
@@ -18,18 +27,16 @@ help:
 	@echo "clean     - clean up"
 	@echo
 
-remake: lib Makefile.$(library)
-
-Makefile.$(library): $(vhdlfiles) $(library)
-	vcom -quiet -2008 -work $(library) $(vhdlfiles)
-	vmake $(library) > Makefile.$(library)
-	# patch winpath -> cygpath
-	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
 
 
-compile:
+compile: lib deplibs $(vhdltargets)
+
+deplibs:
 	make compile --directory ../../grlib/sim
-	make -f Makefile.$(library)
+
+$(vhdltargets): $(vhdlfiles)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+
 
 sim:
 	vsim -gui -do run.do

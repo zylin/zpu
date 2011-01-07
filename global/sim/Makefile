@@ -1,23 +1,18 @@
 library      = global
 
-rtl_files    = ../rtl/*.vhd
+rtl_files    = ../rtl/global_signals.vhd
 
 vhdlfiles    = $(rtl_files)
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 
 all: compile
 
-remake: lib Makefile.$(library)
+compile: lib $(vhdltargets)
 
-Makefile.$(library): $(vhdlfiles) $(library)
+$(vhdltargets): $(vhdlfiles)
 	vcom -quiet -2008 -work $(library) $(vhdlfiles)
-	vmake $(library) > Makefile.$(library)
-	# patch winpath -> cygpath
-	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
 
-
-compile:
-	make -f Makefile.$(library)
 
 
 clean:
@@ -25,7 +20,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	rm -rf $(library) 
-	rm Makefile.$(library)
+	rm -f Makefile.$(library)
 
 
 # default patterns

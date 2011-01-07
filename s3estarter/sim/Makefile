@@ -1,36 +1,42 @@
 library      = s3estarter
 top          = top_tb
 
-rtl_files    = ../rtl/fpga_types.vhd \
+rtl_files    = ../rtl/types.vhd \
 	       ../rtl/fpga_components.vhd \
-               ../rtl/*.vhd
+	       ../rtl/clk_gen.vhd \
+	       ../rtl/dcm_ctrl_apb.vhd \
+	       ../rtl/debug_con_apb.vhd \
+	       ../rtl/box.vhd \
+	       ../rtl/ibox_test.vhd \
+	       ../rtl/top.vhd \
+	       ../rtl/s3estarter.vhd
 
-rtl_tb_files = ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/mt46v16m16.vhd \
+	       ../rtl_tb/phy.vhd \
+	       ../rtl_tb/top_tb.vhd
 
 verilogfiles = ../rtl_tb/ddr.v
 
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 
 all: compile simulate
 
-remake: lib Makefile.$(library)
 
-Makefile.$(library): $(vhdlfiles) $(library)
-	vcom -quiet -2008 -work $(library) $(vhdlfiles)
-	vmake $(library) > Makefile.$(library)
-	# patch winpath -> cygpath
-	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
+compile: lib deplibs $(vhdltargets)
 
-
-compile:
-	make -f Makefile.$(library)
-
-compile_others:
+deplibs:
 	#make --directory ../software/test/ test | ccze -A
 	make --directory ../software/ethernet_speed | ccze -A
 
-	make compile --directory ../../zpu/sim | ccze -A
+	make compile --directory ../../zpu/sim     | ccze -A
+	make compile --directory ../../global/sim  | ccze -A
+	make compile --directory ../../gaisler/sim | ccze -A
+
+$(vhdltargets): $(vhdlfiles)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+
 
 simulate:
 	export top=$(top); \

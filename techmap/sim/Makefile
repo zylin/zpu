@@ -2,13 +2,27 @@ library      = techmap
 
 rtl_files    = ../rtl/gencomp.vhd \
 	       ../rtl/allddr.vhd \
-               ../rtl/*.vhd
-
-#               ../rtl/ddr_unisim.vhd \
+	       ../rtl/allmem.vhd \
+	       ../rtl/allpads.vhd \
+	       ../rtl/alltap.vhd \
+	       ../rtl/generic_syncram.vhd \
+	       ../rtl/syncram_2p.vhd \
+	       ../rtl/netcomp.vhd \
+	       ../rtl/tap.vhd \
+	       ../rtl/ddrphy.vhd \
+	       ../rtl/outpad.vhd \
+	       ../rtl/unisim_inpad.vhd \
+	       ../rtl/unisim_iddr_reg.vhd \
+	       ../rtl/spartan3e_ddr_phy.vhd \
+	       ../rtl/spartan3_tap.vhd \
+	       ../rtl/clkpad.vhd \
+	       ../rtl/iopad.vhd \
+	       ../rtl/syncram.vhd \
 
 rtl_tb_files = ../rtl_tb/*.vhd
 
 vhdlfiles    = $(rtl_files)
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 
 all: compile
@@ -17,9 +31,13 @@ all: compile
 remake: lib compile
 
 
-compile:
+compile: dependlib lib $(vhdltargets)
+
+$(vhdltargets): $(vhdlfiles)
+	vcom -quiet  -2008 -work $(library) $(vhdlfiles)
+
+dependlib:
 	make compile --directory ../../grlib/sim
-	vcom -quiet -2008 -work $(library) $(vhdlfiles)
 
 
 clean:

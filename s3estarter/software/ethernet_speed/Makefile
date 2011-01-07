@@ -3,34 +3,35 @@ OBJCOPY_OPTIONS=--strip-debug --discard-locals
 DIR=..
 include $(DIR)/include.mak
 
-#OBJECTS=greth_api.o greth.o
-c_files=greth_api.c greth.c
+#OBJECTS = greth_api.o greth.o
+c_files  = greth_api.c greth.c
+LIBS     = ../libhal/libhal.a
+LIBDIR   = ../libhal/
 
-test_vhdl= ../../../zpu/rtl/dualport_ram.vhd
+test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
 
 
-all: $(test_vhdl)
+all: libhal $(test_vhdl)
  
+%.elf: $(LIBS) $(c_files) 
+	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o $@ -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L$(LIBDIR) -g | ccze -A
+	$(OBJDUMP) -D -S $@ > greth.lst
+	$(SIZE) $@
+
+%.bin: %.elf
+	$(OBJCOPY) $(OBJCOPY_OPTIONS) -O binary $< $@  
+
 $(test_vhdl): greth.bin $(ROMGEN)
 	# concat parts
 	cat > $(test_vhdl) ../support/dualport_ram.vhd_header
 	$(ROMGEN) greth.bin >> $(test_vhdl)
 	cat >> $(test_vhdl) ../support/dualport_ram.vhd_footer
 
-%.bin: %.elf
-	$(OBJCOPY) $(OBJCOPY_OPTIONS) -O binary $< $@  
-
-%.elf: $(c_files) libhal
-	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o $@ -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L$(DIR)/libhal -g | ccze -A
-	$(OBJDUMP) -D -S greth.elf > greth.lst
-	$(SIZE) $@
-
 libhal:
-	cd ../libhal; make
+	make --directory $(DIR)/libhal
 
 clean:
 	rm -f *.o
 	rm -f *.elf
 	rm -f *.bin
 
-.phony:	libhal
