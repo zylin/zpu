@@ -59,8 +59,8 @@ entity top is
         FPGA_M1         : inout std_logic;
         FPGA_M2         : inout std_logic;
         FPGA_INIT_B     : inout std_logic;
-        FPGA_RDWR_B     : inout std_logic;
-        FPGA_HSWAP      : inout std_logic;
+        FPGA_RDWR_B     : in    std_logic;
+        FPGA_HSWAP      : in    std_logic;
 
         -- ==== FX2 Connector (FX2) ====
         FX2_CLKIN       : inout std_logic;
@@ -69,9 +69,9 @@ entity top is
 
         FX2_IO          : inout std_logic_vector(40 downto 1);
 
-        --FX2_IO          : inout std_ulogic_vector(4 downto 1); -- shred with J1
-        --FX2_IO          : inout std_ulogic_vector(8 downto 5); -- shred with J2
-        --FX2_IO          : inout std_ulogic_vector(12 downto 9); -- shred with J4
+        --FX2_IO          : inout std_ulogic_vector(4 downto 1); -- shared with J1
+        --FX2_IO          : inout std_ulogic_vector(8 downto 5); -- shared with J2
+        --FX2_IO          : inout std_ulogic_vector(12 downto 9); -- shared with J4
 
         -- The discrete LEDs are shared with the following 8 FX2 connections
         --FX2_IO          : inout std_ulogic_vector(20 downto 13);
@@ -193,12 +193,12 @@ use gaisler.net.all;  -- types
 
 architecture rtl of top is
 
-    constant spi_ss_b_disable    : std_ulogic := '1';
-    constant dac_cs_disable      : std_ulogic := '1';
-    constant amp_cs_disable      : std_ulogic := '1';
-    constant ad_conv_disable     : std_ulogic := '0';
+    constant spi_ss_b_disable    : std_ulogic := '1'; -- 1 = disable SPI serial flash
+    constant dac_cs_disable      : std_ulogic := '1'; -- 1 = disable DAC 
+    constant amp_cs_disable      : std_ulogic := '1'; -- 1 = disable programmable pre-amplifier
+    constant ad_conv_disable     : std_ulogic := '0'; -- 0 = disable ADC
     constant sf_ce0_disable      : std_ulogic := '1';
-    constant fpga_init_b_disable : std_ulogic := '1';
+    constant fpga_init_b_disable : std_ulogic := '1'; -- 1 = disable pflatform flash PROM
 
     -- connect ldc to fpga
     constant sf_ce0_lcd_to_fpga  : std_ulogic := '1';
@@ -248,36 +248,59 @@ architecture rtl of top is
 begin
     
     -- drive unused outputs
-    AD_CONV         <= ad_conv_disable;
-    AMP_CS          <= amp_cs_disable;
-    AMP_SHDN        <= '1'; 
-                    
-    DAC_CLR         <= '0';
-    DAC_CS          <= dac_cs_disable;
-                    
-    DS_WIRE         <= 'Z';
-                    
-    RS232_DTE_TXD   <= '0';
-                    
-    SF_A            <= (others => '0');
-    SF_BYTE         <= '0';
-    SF_CE0          <= sf_ce0_lcd_to_fpga;
-    SF_OE           <= '1';
-    SF_WE           <= '0';
-                    
-    SPI_MOSI        <= '0';
-    SPI_SCK         <= '0';
-    SPI_SS_B        <= spi_ss_b_disable;
-    SPI_ALT_CS_JP11 <= spi_ss_b_disable;
+    AD_CONV              <= ad_conv_disable;
+    AMP_CS               <= amp_cs_disable;
+    AMP_SHDN             <= '1'; 
+                         
+    DAC_CLR              <= '0';
+    DAC_CS               <= dac_cs_disable;
+                         
+    DS_WIRE              <= 'Z';
 
-    XC_CMD          <= "00";
-    XC_CPLD_EN      <= '0';
+    -- set M[2:0]=000 to enable platfrom flash PROM (XCF04S)
+    FPGA_M0              <= 'Z';
+    FPGA_M1              <= 'Z';
+    FPGA_M2              <= 'Z'; 
+    FPGA_INIT_B          <= fpga_init_b_disable;
+                        
+    FX2_CLKIN            <= 'Z';
+    FX2_CLKIO            <= 'Z';
+    FX2_CLKOUT           <= 'Z'; -- could also be used as input/ differential input
+
+    FX2_IO(40 downto 33) <= (others => 'Z');
     
+    GCLK10               <= 'Z';
+
+    PS2_CLK              <= 'Z';
+    PS2_DATA             <= 'Z';
+                    
+    RS232_DTE_TXD        <= '0';
+                         
+    SF_A                 <= (others => '0');
+    SF_D(15 downto 12)   <= (others => 'Z');
+    SF_D( 7 downto  1)   <= (others => 'Z');
+    SF_BYTE              <= '0';
+    SF_CE0               <= sf_ce0_lcd_to_fpga;
+    SF_OE                <= '1';
+    SF_WE                <= '0';
+                         
+    SPI_MOSI             <= '0';
+    SPI_SCK              <= '0';
+    SPI_SS_B             <= spi_ss_b_disable;
+    SPI_ALT_CS_JP11      <= spi_ss_b_disable;
+                         
+    XC_CMD               <= "00";
+    XC_CPLD_EN           <= '0';
+    XC_D(2 downto 0)     <= (others => 'Z');
+    XC_GCK0              <= 'Z';
+
     
+    -- clock connections
     top_fpga_clk.clk50        <= CLK_50MHZ;
     top_fpga_clk.aux          <= CLK_AUX;
     top_fpga_clk.sma          <= CLK_SMA;
 
+    -- input devices
     top_fpga_rotary_sw.a      <= ROT_A; 
     top_fpga_rotary_sw.b      <= ROT_B;
     top_fpga_rotary_sw.center <= ROT_CENTER;

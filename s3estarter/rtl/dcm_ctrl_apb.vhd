@@ -149,6 +149,8 @@ begin
     psen                    <= v.psen;
     psincdec                <= v.psincdec;
 
+    -- generate debug signals
+    debug_trace             <= default_debug_signals;
     debug_trace.psready     <= v.psready;
     debug_trace.pserror     <= v.pserror;
   end process;

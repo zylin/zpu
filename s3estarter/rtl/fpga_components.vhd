@@ -134,8 +134,8 @@ package fpga_components is
             FPGA_M1         : inout std_logic;
             FPGA_M2         : inout std_logic;
             FPGA_INIT_B     : inout std_logic;
-            FPGA_RDWR_B     : inout std_logic;
-            FPGA_HSWAP      : inout std_logic;
+            FPGA_RDWR_B     : in    std_logic;
+            FPGA_HSWAP      : in    std_logic;
 
             -- ==== FX2 Connector (FX2) ====
             FX2_CLKIN       : inout std_logic;
