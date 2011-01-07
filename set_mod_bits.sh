@@ -17,3 +17,8 @@ find -iname *.c -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.h -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname Makefile -type f -executable -print0 | xargs -0 chmod -x
+
+# svn stuff
+find -type f -name "*.vhd" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find -type f -name "*.h" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find -type f -name "*.c" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
