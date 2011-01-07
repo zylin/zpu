@@ -5,7 +5,6 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_misc.or_reduce; -- synopsys stuff
 
 library zpu;
 use zpu.zpu_wrapper_package.all;
@@ -30,6 +29,7 @@ entity zpu_ahb is
         -- ahb
         ahbi   : in  ahb_mst_in_type; 
         ahbo   : out ahb_mst_out_type;
+        irq    : in  std_ulogic;
         -- system
         break  : out std_ulogic
     );
@@ -81,7 +81,6 @@ begin
         --ahbo.hwdata  <= std_logic_vector( mem_write);       -- direct
         --ahbo.hwrite  <= out_mem_writeEnable;                -- direct
         --ahbo.htrans  <= HTRANS_IDLE;
-        --ahbo.hbusreq <= '0';
 
         ahbo.hwrite <= '0';
 
@@ -145,10 +144,10 @@ begin
 
             when NOGRANT =>
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
+                    clk_en          <= '0';
                     state           <= WAIT_FOR_GRANT;
                     busy            <= '1';
                     ahbo.hbusreq    <= '1';
-                    clk_en          <= '0';
                     ahbo.haddr      <= std_logic_vector( out_mem_addr);
                     write_flag      <= out_mem_writeEnable;
                     data_to_ahb     <= mem_write;
@@ -239,7 +238,7 @@ begin
             --
             in_mem_busy         => busy_to_zpu,
             mem_read            => mem_read,
-            interrupt           => or_reduce(ahbi.hirq),
+            interrupt           => irq,
             --
             mem_write           => mem_write,
             out_mem_addr        => out_mem_addr,
@@ -250,7 +249,6 @@ begin
         );
 
     -- outputs to master interface
-    --ahbo.hbusreq <= out_mem_readEnable or out_mem_writeEnable when state = IDLE else '0';
     --ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
     
 

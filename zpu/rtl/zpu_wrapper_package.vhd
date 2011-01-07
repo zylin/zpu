@@ -100,6 +100,7 @@ package zpu_wrapper_package is
             -- ahb
             ahbi   : in  ahb_mst_in_type; 
             ahbo   : out ahb_mst_out_type;
+            irq    : in  std_ulogic;
             -- system
             break  : out std_ulogic
         );
