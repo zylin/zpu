@@ -46,7 +46,7 @@
 
 <xsl:template name="brams">
     <xsl:for-each select="item">
-            <xsl:if test="@stringID='MAP_BRAM'">
+            <xsl:if test="@stringID='MAP_BRAM' or @stringID='MAP_BRAM_FIFO'">
                 <xsl:value-of select="@value" />
 <!--                <xsl:value-of select="@ACCUMULATED" />-->
             </xsl:if>
