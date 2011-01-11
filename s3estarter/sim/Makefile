@@ -27,8 +27,8 @@ all: compile simulate
 compile: lib deplibs $(vhdltargets)
 
 deplibs:
-	#make --directory ../software/test/ test | ccze -A
-	make --directory ../software/ethernet_speed | ccze -A
+	make --directory ../software/test/ test | ccze -A
+	#make --directory ../software/ethernet_speed | ccze -A
 
 	make compile --directory ../../zpu/sim     | ccze -A
 	make compile --directory ../../global/sim  | ccze -A

@@ -28,7 +28,7 @@
 
 uint32_t simulation_active;
 
-
+volatile uint32_t running_direction;
 
 
 ////////////////////////////////////////
@@ -42,10 +42,27 @@ char combined_putchar( char c)
 }
 
 
+// zpu interrupt function
+void _zpu_interrupt( void)
+{
+    running_direction = !running_direction;
+    irqmp0->irq_clear = BUTTON_WEST; // clear interrupt
+    return;
+}
+
+
 void running_light_init( void)
 {
     // enable output drivers
-    gpio0->iodir |= 0x000000FF;
+    gpio0->iodir      |= 0x000000FF;
+    running_direction  = 0;
+
+    // enable interrupt on key west
+    //gpio0->irqpol      |= BUTTON_WEST; // 0=act_low, 1=act_high / 0=falling edge, 1=rising_edge
+    gpio0->irqedge     |= BUTTON_WEST; // 0=level, 1=edge sensitive
+    gpio0->irqmask     |= BUTTON_WEST; // set this after polarity and edge to avoid interrupt
+
+    irqmp0->irq_mask   = BUTTON_WEST;  // enable global interrupts
 }
 
 
@@ -63,7 +80,15 @@ void running_light( uint32_t simulation_active)
     {
     
         gpio0->ioout = 0x000000ff & pattern;
-        pattern = (pattern << 1) | (pattern >> 31);
+        if (running_direction)
+        {
+            pattern = (pattern << 1) | (pattern >> 31);
+        }
+        else
+        {
+            pattern = (pattern << 31) | (pattern >> 1);
+        }
+
 
         if (simulation_active)
         {
@@ -890,8 +915,8 @@ int main(void)
     //lcd_init();
     vga_init();
     ddr_init();
-    //running_light_init();
-    ether_init();
+    running_light_init();
+    //ether_init();
 
     putstr("test.c ");
     if (simulation_active) 
@@ -977,9 +1002,9 @@ int main(void)
     */
 
     //ether_test();
-    uint8_t i;
-    for ( i=0; i<3; i++)
-        ether_test_tx_packet();
+    //uint8_t i;
+    //for ( i=0; i<3; i++)
+    //    ether_test_tx_packet();
     //ether_test_read_mdio();
 
     //uart_test();

@@ -227,11 +227,28 @@ typedef struct {
 } dcm_ctrl_t;
 
 
+// debug console (for simulation)
 char debug_putchar( char c);
-
 
 // function pointer for putchar
 extern char (* putchar_fp) ( char);
+
+
+// iqr
+typedef struct {
+    volatile uint32_t irq_level;   // 0x00
+    volatile uint32_t irq_pending; // 0x04
+    volatile uint32_t irq_force;   // 0x08
+    volatile uint32_t irq_clear;   // 0x0c
+    volatile uint32_t mp_status;   // 0x10
+    volatile uint32_t broadcast;   // 0x14 (NCPU > 1)
+    volatile uint32_t dummy[10];   // 0x18 - 0x3c
+    volatile uint32_t irq_mask;    // 0x40
+    // open: interrupt force, extended interrupt acknowledge
+} irqmp_t;
+
+
+
 
 ////////////////////
 // hardware units
@@ -250,6 +267,7 @@ extern char (* putchar_fp) ( char);
 
 extern apbuart_t         *uart0;
 extern gptimer_t         *timer0;
+extern irqmp_t           *irqmp0;
 extern apbvga_t          *vga0;
 extern grgpio_t          *gpio0;
 extern greth_t           *ether0;

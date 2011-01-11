@@ -4,17 +4,14 @@ rtl_files    = ../rtl/gencomp.vhd \
 	       ../rtl/allddr.vhd \
 	       ../rtl/allmem.vhd \
 	       ../rtl/allpads.vhd \
-	       ../rtl/alltap.vhd \
 	       ../rtl/generic_syncram.vhd \
 	       ../rtl/syncram_2p.vhd \
 	       ../rtl/netcomp.vhd \
-	       ../rtl/tap.vhd \
 	       ../rtl/ddrphy.vhd \
 	       ../rtl/outpad.vhd \
 	       ../rtl/unisim_inpad.vhd \
 	       ../rtl/unisim_iddr_reg.vhd \
 	       ../rtl/spartan3e_ddr_phy.vhd \
-	       ../rtl/spartan3_tap.vhd \
 	       ../rtl/clkpad.vhd \
 	       ../rtl/iopad.vhd \
 	       ../rtl/syncram.vhd \

@@ -210,7 +210,7 @@ begin
             timeout    => 11,
             nahbm      => 3, 
             nahbs      => 3,
-            disirq     => 1,    -- disable interrupt routing
+            disirq     => 0,    -- enable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
             assertwarn => 1,    -- enable assertions for warnings
             asserterr  => 1     -- enable assertions for errors
@@ -524,9 +524,9 @@ begin
         generic map (
             pindex  => 8, 
             paddr   => 8, 
-            imask   => 16#0000#, -- interrupt mask (+ enable per software)
-            syncrst => 1,        -- only synchronous reset
-            nbits   => 32        -- number of port bits
+            imask   => 16#00000FF0#, -- interrupt mask (+ enable per software)
+            syncrst => 1,            -- only synchronous reset
+            nbits   => 32            -- number of port bits
         )
         port map (
             rst    => reset_n, 

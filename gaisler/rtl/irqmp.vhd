@@ -277,21 +277,23 @@ begin
 -- reset
 
     if rst = '0' then
-      v.imask := (others => (others => '0'));
+      v.imask  := (others => (others => '0'));
+      v.ilevel := (others => '0');
       v.iforce := (others => (others => '0'));
-      v.ipend := (others => '0');
+      v.ipend  := (others => '0');
       if ncpu > 1 then
         v.ibroadcast := (others => '0');
       end if;
       v2.ipend := (others => '0');
       v2.imask := (others => (others => '0'));
-      v2.irl := (others => (others => '0'));
+      v2.irl   := (others => (others => '0'));
     end if;
 
     apbo.prdata <= prdata;
     for i in 0 to ncpu-1 loop
-      irqo(i).irl <= r.irl(i); irqo(i).rst <= r.cpurst(i);
-      irqo(i).run <= cpurun(i);
+      irqo(i).irl    <= r.irl(i);
+      irqo(i).rst    <= r.cpurst(i);
+      irqo(i).run    <= cpurun(i);
       irqo(i).rstvec <= (others => '0');  -- Alternate reset vector
     end loop;
 

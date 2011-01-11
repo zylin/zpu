@@ -214,7 +214,7 @@ begin
     tb_BTN_EAST   <= '0';
     tb_BTN_NORTH  <= '0';
     tb_BTN_SOUTH  <= '0';
-    tb_BTN_WEST   <= '0';
+    tb_BTN_WEST   <= '0', '1' after 600 us, '0' after 650 us;
 
 
     tb_SD_CK_FB   <= transport tb_SD_CK_P after 3 ns; -- time is wild guess
