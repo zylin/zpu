@@ -40,7 +40,7 @@ architecture rtl of debug_con_apb is
   constant REVISION : integer := 0;
 
   constant pconfig : apb_config_type := (
-    0 => ahb_device_reg (VENDOR_FZD, FZD_DEBUG_CON, 0, REVISION, 0),
+    0 => ahb_device_reg (VENDOR_HZDR, HZDR_DEBUG_CON, 0, REVISION, 0),
     1 => apb_iobar(paddr, pmask));
 
 --type registers is record

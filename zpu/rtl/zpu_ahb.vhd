@@ -47,7 +47,7 @@ architecture rtl of zpu_ahb is
     constant revision_c        : amba_version_type := 0;
 
     constant hconfig_c         : ahb_config_type   := (
-        0      => ahb_device_reg ( VENDOR_FZD, FZD_ZPU_AHB_WRAPPER, 0, revision_c, 0),
+        0      => ahb_device_reg ( VENDOR_HZDR, HZDR_ZPU_AHB_WRAPPER, 0, revision_c, 0),
         others => (others => '0') 
     );
 

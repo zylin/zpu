@@ -41,8 +41,8 @@ end;
 
 architecture rtl of dcm_ctrl_apb is
 
-    constant VENDOR   : integer := VENDOR_FZD;
-    constant DEVICE   : integer := FZD_DCM_CTRL;
+    constant VENDOR   : integer := VENDOR_HZDR;
+    constant DEVICE   : integer := HZDR_DCM_CTRL;
     constant CONFIG   : integer := 0;
     constant REVISION : integer := 0;
     constant INTR     : integer := 0;
