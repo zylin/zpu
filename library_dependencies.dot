@@ -1,0 +1,8 @@
+digraph G {
+    s3estarter -> gaisler
+    s3estarter -> zpu
+    s3estarter -> global
+    gaisler -> techmap
+    zpu -> grlib
+    techmap -> grlib
+}
