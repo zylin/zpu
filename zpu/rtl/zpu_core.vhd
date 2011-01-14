@@ -156,8 +156,8 @@ architecture behave of zpu_core is
 
 
 
-  signal sampledOpcode : std_logic_vector(OpCode_Size-1 downto 0);
-  signal opcode        : std_logic_vector(OpCode_Size-1 downto 0);
+  signal sampledOpcode : std_ulogic_vector(OpCode_Size-1 downto 0);
+  signal opcode        : std_ulogic_vector(OpCode_Size-1 downto 0);
 
   signal decodedOpcode        : DecodedOpcodeType;
   signal sampledDecodedOpcode : DecodedOpcodeType;
@@ -263,21 +263,21 @@ begin
   -- to make things a bit easier to read
   decodeControl :
   process(memBRead, tOpcode_sel)
-    variable tOpcode : std_logic_vector(OpCode_Size-1 downto 0);
+    variable tOpcode : std_ulogic_vector(OpCode_Size-1 downto 0);
   begin
 
     -- simplify opcode selection a bit so it passes more synthesizers
     case (tOpcode_sel) is
 
-      when 0 => tOpcode := std_logic_vector(memBRead(31 downto 24));
+      when 0 => tOpcode := std_ulogic_vector(memBRead(31 downto 24));
 
-      when 1 => tOpcode := std_logic_vector(memBRead(23 downto 16));
+      when 1 => tOpcode := std_ulogic_vector(memBRead(23 downto 16));
 
-      when 2 => tOpcode := std_logic_vector(memBRead(15 downto 8));
+      when 2 => tOpcode := std_ulogic_vector(memBRead(15 downto 8));
 
-      when 3 => tOpcode := std_logic_vector(memBRead(7 downto 0));
+      when 3 => tOpcode := std_ulogic_vector(memBRead(7 downto 0));
 
-      when others => tOpcode := std_logic_vector(memBRead(7 downto 0));
+      when others => tOpcode := std_ulogic_vector(memBRead(7 downto 0));
     end case;
 
     sampledOpcode <= tOpcode;
@@ -384,7 +384,7 @@ begin
           begin_inst                                    <= '1';
           trace_pc                                      <= (others => '0');
           trace_pc(maxAddrBit downto 0)                 <= std_logic_vector(pc);
-          trace_opcode                                  <= opcode;
+          trace_opcode                                  <= std_logic_vector(opcode);
           trace_sp                                      <= (others => '0');
           trace_sp(maxAddrBit downto minAddrBit)        <= std_logic_vector(sp);
           trace_topOfStack                              <= std_logic_vector(memARead);
@@ -523,6 +523,7 @@ begin
           end case; -- decodedOpcode
 
         when State_ReadIO =>
+          memAAddr                                      <= sp;
           if (in_mem_busy = '0') then
             state                                       <= State_Fetch;
             memAWriteEnable                             <= '1';

@@ -38,7 +38,7 @@ use ieee.numeric_std.all;
 
 package zpu_config is
 	-- generate trace output
-	constant	Generate_Trace		: boolean := true; -- BLa
+	constant	Generate_Trace		: boolean := false;
 	constant 	wordPower			: integer := 5;
 	-- during simulation, set this to '0' to get matching trace.txt 
 	constant	DontCareValue		: std_logic := '0';

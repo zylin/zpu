@@ -149,60 +149,60 @@ package zpupkg is
 
 
   -- opcode decode constants
-  constant OpCode_Im               : std_logic_vector(7 downto 7) := "1";
-  constant OpCode_StoreSP          : std_logic_vector(7 downto 5) := "010";
-  constant OpCode_LoadSP           : std_logic_vector(7 downto 5) := "011";
-  constant OpCode_Emulate          : std_logic_vector(7 downto 5) := "001";
-  constant OpCode_AddSP            : std_logic_vector(7 downto 4) := "0001";
-  constant OpCode_Short            : std_logic_vector(7 downto 4) := "0000";
+  constant OpCode_Im               : std_ulogic_vector(7 downto 7) := "1";
+  constant OpCode_StoreSP          : std_ulogic_vector(7 downto 5) := "010";
+  constant OpCode_LoadSP           : std_ulogic_vector(7 downto 5) := "011";
+  constant OpCode_Emulate          : std_ulogic_vector(7 downto 5) := "001";
+  constant OpCode_AddSP            : std_ulogic_vector(7 downto 4) := "0001";
+  constant OpCode_Short            : std_ulogic_vector(7 downto 4) := "0000";
   --
-  constant OpCode_Break            : std_logic_vector(3 downto 0) := "0000";
-  constant OpCode_NA4              : std_logic_vector(3 downto 0) := "0001";
-  constant OpCode_PushSP           : std_logic_vector(3 downto 0) := "0010";
-  constant OpCode_NA3              : std_logic_vector(3 downto 0) := "0011";
+  constant OpCode_Break            : std_ulogic_vector(3 downto 0) := "0000";
+  constant OpCode_NA4              : std_ulogic_vector(3 downto 0) := "0001";
+  constant OpCode_PushSP           : std_ulogic_vector(3 downto 0) := "0010";
+  constant OpCode_NA3              : std_ulogic_vector(3 downto 0) := "0011";
   --
-  constant OpCode_PopPC            : std_logic_vector(3 downto 0) := "0100";
-  constant OpCode_Add              : std_logic_vector(3 downto 0) := "0101";
-  constant OpCode_And              : std_logic_vector(3 downto 0) := "0110";
-  constant OpCode_Or               : std_logic_vector(3 downto 0) := "0111";
+  constant OpCode_PopPC            : std_ulogic_vector(3 downto 0) := "0100";
+  constant OpCode_Add              : std_ulogic_vector(3 downto 0) := "0101";
+  constant OpCode_And              : std_ulogic_vector(3 downto 0) := "0110";
+  constant OpCode_Or               : std_ulogic_vector(3 downto 0) := "0111";
   --
-  constant OpCode_Load             : std_logic_vector(3 downto 0) := "1000";
-  constant OpCode_Not              : std_logic_vector(3 downto 0) := "1001";
-  constant OpCode_Flip             : std_logic_vector(3 downto 0) := "1010";
-  constant OpCode_Nop              : std_logic_vector(3 downto 0) := "1011";
+  constant OpCode_Load             : std_ulogic_vector(3 downto 0) := "1000";
+  constant OpCode_Not              : std_ulogic_vector(3 downto 0) := "1001";
+  constant OpCode_Flip             : std_ulogic_vector(3 downto 0) := "1010";
+  constant OpCode_Nop              : std_ulogic_vector(3 downto 0) := "1011";
   --
-  constant OpCode_Store            : std_logic_vector(3 downto 0) := "1100";
-  constant OpCode_PopSP            : std_logic_vector(3 downto 0) := "1101";
-  constant OpCode_NA2              : std_logic_vector(3 downto 0) := "1110";
-  constant OpCode_NA               : std_logic_vector(3 downto 0) := "1111";
+  constant OpCode_Store            : std_ulogic_vector(3 downto 0) := "1100";
+  constant OpCode_PopSP            : std_ulogic_vector(3 downto 0) := "1101";
+  constant OpCode_NA2              : std_ulogic_vector(3 downto 0) := "1110";
+  constant OpCode_NA               : std_ulogic_vector(3 downto 0) := "1111";
   --
-  constant OpCode_Lessthan         : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(36, 6));
-  constant OpCode_Lessthanorequal  : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(37, 6));
-  constant OpCode_Ulessthan        : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(38, 6));
-  constant OpCode_Ulessthanorequal : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(39, 6));
-  --
-  constant OpCode_Swap             : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(40, 6));
-  constant OpCode_Mult             : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(41, 6));
-  --
-  constant OpCode_Lshiftright      : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(42, 6));
-  constant OpCode_Ashiftleft       : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(43, 6));
-  constant OpCode_Ashiftright      : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(44, 6));
-  constant OpCode_Call             : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(45, 6));
-  --
-  constant OpCode_Eq               : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(46, 6));
-  constant OpCode_Neq              : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(47, 6));
-  --
-  constant OpCode_Sub              : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(49, 6));
-  constant OpCode_Loadb            : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(51, 6));
-  constant OpCode_Storeb           : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(52, 6));
-  --
-  constant OpCode_Eqbranch         : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(55, 6));
-  constant OpCode_Neqbranch        : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(56, 6));
-  constant OpCode_Poppcrel         : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(57, 6));
-  --
-  constant OpCode_Pushspadd        : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(61, 6));
-  constant OpCode_Mult16x16        : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(62, 6));
-  constant OpCode_Callpcrel        : std_logic_vector(5 downto 0) := std_logic_vector(to_unsigned(63, 6));
+  constant OpCode_Lessthan         : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(36, 6));
+  constant OpCode_Lessthanorequal  : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(37, 6));
+  constant OpCode_Ulessthan        : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(38, 6));
+  constant OpCode_Ulessthanorequal : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(39, 6));
+  --                                                                      
+  constant OpCode_Swap             : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(40, 6));
+  constant OpCode_Mult             : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(41, 6));
+  --                                                                     
+  constant OpCode_Lshiftright      : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(42, 6));
+  constant OpCode_Ashiftleft       : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(43, 6));
+  constant OpCode_Ashiftright      : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(44, 6));
+  constant OpCode_Call             : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(45, 6));
+  --                                                                    
+  constant OpCode_Eq               : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(46, 6));
+  constant OpCode_Neq              : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(47, 6));
+  --                                                                   
+  constant OpCode_Sub              : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(49, 6));
+  constant OpCode_Loadb            : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(51, 6));
+  constant OpCode_Storeb           : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(52, 6));
+  --                                                                  
+  constant OpCode_Eqbranch         : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(55, 6));
+  constant OpCode_Neqbranch        : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(56, 6));
+  constant OpCode_Poppcrel         : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(57, 6));
+  --                                                                 
+  constant OpCode_Pushspadd        : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(61, 6));
+  constant OpCode_Mult16x16        : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(62, 6));
+  constant OpCode_Callpcrel        : std_ulogic_vector(5 downto 0) := std_ulogic_vector(to_unsigned(63, 6));
   --
   --
   constant OpCode_Size             : integer                      := 8;
