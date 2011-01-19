@@ -22,6 +22,10 @@ find -iname *.do -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname *.tar.gz -type f -executable -print0 | xargs -0 chmod -x
 
+
+# fix group
+find -not -group None -print0 | xargs -0 chown :None
+
 # svn stuff
 DIR=beam_position_monitor
 find $DIR -type f -name "*.vhd" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
