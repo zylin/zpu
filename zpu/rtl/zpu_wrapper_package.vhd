@@ -13,6 +13,9 @@ use grlib.amba.all;
 package zpu_wrapper_package is
 
 
+    --
+    -- type definitions and default constants
+    --
     type zpu_in_t is record
         -- this particular implementation of the ZPU does not
         -- have a clocked enable signal
@@ -58,6 +61,11 @@ package zpu_wrapper_package is
         break           => '0'
     );
 
+
+
+    --
+    -- component declarations
+    --
 
     component zpu_wrapper is
         Port ( 
@@ -105,6 +113,22 @@ package zpu_wrapper_package is
             break  : out std_ulogic
         );
     end component zpu_ahb;
+
+
+    component dualport_ram_ahb_wrapper is
+        generic (
+            hindex  : integer := 0;
+            haddr   : integer := 0;
+            hmask   : integer := 16#fff#
+        );
+        port (
+            clk    : in std_ulogic;
+            reset  : in std_ulogic;
+            -- ahb
+            ahbsi   : in  ahb_slv_in_type;
+            ahbso   : out ahb_slv_out_type
+        );
+    end component dualport_ram_ahb_wrapper;
 
 
     component zpu_bus_trace is

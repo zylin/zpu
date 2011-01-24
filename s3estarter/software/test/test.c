@@ -6,7 +6,7 @@
 #include <uart.h>
 #include <lcd-routines.h>
 
-//#define LCD_ENABLE
+#define LCD_ENABLE
 
 ////////////////////////////////////////
 // common defines
@@ -73,7 +73,7 @@ void running_light( uint32_t simulation_active)
 {
 //  unsigned int pattern = 0x01800180;
 	unsigned int pattern = 0x80300700;
-    uint32_t count = 32;
+    uint32_t count = 31;
 
             
     while (1)
@@ -143,6 +143,287 @@ void uart_test( void)
 
 }
 
+
+
+#define MAX_COMMANDS       (16)
+#define MAX_COMMAND_LENGTH (10)
+#define MAX_HELP_LENGTH    (32)
+#define BUFFER_LENGTH      (32)
+#define CR                 '\r'
+#define LF                 '\n'
+#define BS                 '\b'
+#define DEL                (0x7f)
+
+
+typedef void (*command_ptr_t) (void);
+
+static char          command_list[MAX_COMMANDS][MAX_COMMAND_LENGTH];
+static char          help_list   [MAX_COMMANDS][MAX_HELP_LENGTH];
+static command_ptr_t command_ptr_list[MAX_COMMANDS];
+
+uint8_t       buffer[BUFFER_LENGTH];
+uint8_t       command_number;
+uint8_t       buffer_position;
+command_ptr_t exec_function;
+
+
+
+void monitor_init( void)
+{
+    buffer_position = 0;
+    command_number  = 0;
+    exec_function   = 0;
+}
+
+
+void monitor_add_command(char* new_command, char* new_help, command_ptr_t new_command_ptr) {
+    strcpy( command_list[ command_number], new_command);
+    strcpy( help_list[    command_number], new_help);
+    command_ptr_list[ command_number] = new_command_ptr;
+    command_number++;
+}
+
+void monitor_prompt( void) { 
+    putstr("> ");
+}
+
+
+void process_buffer( void) {
+    uint8_t command_index;
+    uint8_t i;
+
+    i = 0;
+
+    while ( !((buffer[i] == ' ') || (buffer[i] == 0)) ) i++;
+    
+    if (!i) {
+        monitor_prompt();
+        return;
+    }
+
+    for ( command_index = 0; command_index < command_number; command_index++) {
+        if ( !strncmp( command_list[ command_index], buffer, i) ) {
+            exec_function = command_ptr_list[ command_index];
+            return;
+        }
+    }
+    putstr("command not found.\n");
+    monitor_prompt();
+}
+
+uint8_t monitor_run;
+
+void monitor_mainloop( void) 
+{
+  
+    if (exec_function) {
+        exec_function();
+        exec_function = 0;
+        monitor_prompt();
+    }
+}
+
+
+void monitor_input(uint8_t c) {
+    
+    // carrige return
+    if (c == CR) {
+        putchar( LF);
+        buffer[ buffer_position++] = 0;
+        process_buffer();
+        buffer_position = 0;
+
+    // backspace or delete
+    } else if ( (c == BS) || (c == DEL)) {
+        if (buffer_position > 0) {
+            putchar( BS);
+            putchar( ' ');
+            putchar( BS);
+            buffer_position--;
+        }
+    } else {
+        // add to buffer
+        if ((c >= 0x20) && (buffer_position < (BUFFER_LENGTH-1))) {
+            putchar( c);
+            buffer[ buffer_position++] = c;
+        }
+    }
+}
+
+char* monitor_get_argument_string(uint8_t num)
+{
+    uint8_t index;
+    uint8_t arg;
+
+    // example line:
+    // "   command   arg1   arg2 arg3 "
+
+    index = 0;
+
+    // search for first char (non space)
+    while (( buffer[ index] != 0) && (buffer[ index] == ' ')) index++;
+
+    for ( arg = 0; arg < num; arg++)
+    {
+        // next space 
+        while (( buffer[ index] != 0) && (buffer[ index] != ' ')) index++;
+        // next non space
+        while (( buffer[ index] != 0) && (buffer[ index] == ' ')) index++;
+    }
+    return &buffer[ index];
+}
+
+int monitor_get_argument_int(uint8_t num)
+{
+    char *endptr;
+    return strtol( monitor_get_argument_string(num), &endptr, 10);
+}
+
+uint32_t monitor_get_argument_hex(uint8_t num)
+{
+    char *endptr;
+    return strtoul( monitor_get_argument_string(num), &endptr, 16);
+}
+
+
+void wmem_function( void);
+void x_function( void);
+void clear_function( void);
+void led_function( void);
+void quit_function( void);
+void help_function( void);
+
+//
+//  react on serial commands
+//
+void uart_monitor( void)
+{
+    uint8_t c;
+
+    //putstr("debug monitor\n");
+    putchar( '\n');
+
+    monitor_init();
+
+    monitor_add_command("mem",   "like x",         x_function);
+    monitor_add_command("wmem",  "write word",     wmem_function);
+    monitor_add_command("x",     "eXamine memory", x_function);
+    monitor_add_command("clear", "clear screen",   clear_function);
+    monitor_add_command("led",   "start LED test", led_function);
+    monitor_add_command("quit",  "", quit_function);
+    monitor_add_command("help",  "", help_function);
+
+    monitor_prompt();
+
+    monitor_run = TRUE;
+
+    while( monitor_run)
+    {
+        while ( uart_check_receiver() ) {
+            monitor_input( uart_getchar() );
+        }
+
+        monitor_mainloop();
+    }
+}
+
+
+void quit_function( void)
+{
+    monitor_run = FALSE;
+}
+
+
+void help_function( void)
+{
+    uint8_t command_index;
+    uint8_t i;
+
+    putchar( LF);
+    putstr("supported commands:\n\n");
+    for ( command_index = 0; command_index < command_number; command_index++) {
+        putstr( command_list[ command_index]); 
+        if (strlen( help_list[ command_index]) > 0 )
+        {
+            for (i = strlen( command_list[ command_index]); i < MAX_COMMAND_LENGTH; i++) putchar(' ');
+            putstr( " - ");
+            putstr( help_list[ command_index]); 
+        }
+        putchar('\n');
+    }
+    putchar( LF);
+}
+
+
+void x_function( void)
+{
+    uint32_t  addr;
+    uint32_t  count;
+    uint32_t  index;
+    uint32_t* ptr;
+
+    addr  = monitor_get_argument_hex(1);
+    count = monitor_get_argument_hex(2);
+
+    // set minimum count, if count is not set
+    if (count == 0) count = 16;
+    
+    // we can only read at 32 bit aligned addresses
+    ptr = (uint32_t*)(addr & 0xfffffffc);
+
+    for (index = 0; index < count; index++)
+    {
+        if ( (index % 4) == 0) 
+        {
+            putstr("\n0x"); puthex(32, (uint32_t)ptr); putstr(" : ");
+        }
+        putstr("0x"); puthex( 32, *ptr); putchar(' ');
+        *ptr++;
+    }
+    putchar( '\n');
+}
+
+void wmem_function( void)
+{
+    uint32_t  addr;
+    uint32_t  value;
+    uint32_t* ptr;
+    
+    addr  = monitor_get_argument_hex(1);
+    value = monitor_get_argument_hex(2);
+
+    ptr  = (uint32_t*)addr; // automatic word aligned
+    *ptr = value;
+}
+
+void clear_function( void) {
+    putchar('\f');
+}
+
+
+void led_function( void) {
+    running_light( TRUE);
+}
+
+/*    
+    const uint8_t line_max = 32;
+
+    uint8_t index;
+    char line[line_max];
+    char c;
+
+
+    while (1)
+    {
+        index = 0;
+        while ((c = uart_getchar()) != '\n' && index < line_max)
+        {
+            line[index] = c;
+            index++;
+        }
+        line[index] = 0;
+
+*/
 
 
 //
@@ -406,7 +687,7 @@ int memory_test_complete( uint32_t start, uint32_t length)
     for ( i=0; i<length; i++)
     {
         data = *memory;
-        if (memory != data) error++;
+        if ((uint32_t)memory != data) error++;
         memory++;
     }
     return( error);
@@ -450,14 +731,14 @@ int memory_test_dot( int mode)
     }
     else
     {
-        mem = s;
+        mem = (uint32_t*) s;
         for (i=0; i<32; i++)
         {
             vga_putstr("\n0x"); vga_puthex( 32, mem); vga_putchar(' ');
             data = *mem;
             vga_putbin( 32, data); vga_putchar(' ');
-            if (mem == data) vga_putstr("ok  ");
-            else             vga_putstr("FAIL");
+            if ((uint32_t)mem == data) vga_putstr("ok  ");
+            else                       vga_putstr("FAIL");
             mem++;
         }
     }
@@ -505,16 +786,16 @@ uint32_t memory_detect_ramsize( uint32_t start)
 
 
     // fill with known values, beginning from top
-    for (memory = start + 0x0F000000; memory >= start; memory -= blocksize)
+    for (memory = (uint32_t*)(start + 0x0F000000); (uint32_t)memory >= start; memory -= blocksize)
     {
-        *memory = memory;
+        *memory = (uint32_t)memory;
     }
 
     size = 0;
     // check for know values, beginning from bottom
-    for (memory = start; memory <= start + 0x0F000000; memory += blocksize)
+    for (memory = (uint32_t*)start; (uint32_t)memory <= start + 0x0F000000; memory += blocksize)
     {
-        if (*memory == memory)
+        if (*memory == (uint32_t)memory)
             size++;
     }
     
@@ -912,11 +1193,16 @@ int main(void)
     // set to our output function
     putchar_fp = (simulation_active) ? debug_putchar : combined_putchar;
 
-    //lcd_init();
+    #ifdef LCD_ENABLE
+    lcd_init();
+    #endif
     vga_init();
     ddr_init();
     running_light_init();
     //ether_init();
+
+    putstr("\n\n");
+    putchar('\f');
 
     putstr("test.c ");
     if (simulation_active) 
@@ -933,8 +1219,6 @@ int main(void)
     lcd_string("init done.");
     #endif
     
-    putstr("\n\n");
-    // putchar('\f');
 
     /*
     memory_info();
@@ -1008,6 +1292,7 @@ int main(void)
     //ether_test_read_mdio();
 
     //uart_test();
+    uart_monitor();
     
     running_light( simulation_active);
     

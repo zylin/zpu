@@ -199,7 +199,7 @@ begin
     --  AHB CONTROLLER
 
     ahbmo(3) <= ahbm_none;
-    ahbso(3) <= ahbs_none;
+    --ahbso(3) <= ahbs_none;
     --ahbmo(15 downto 2) <= (others => ahbm_none); -- slow down syntesis
     --ahbso(15 downto 2) <= (others => ahbs_none); -- slow down syntesis
 
@@ -208,8 +208,6 @@ begin
             defmast    => 0,    -- default master
             rrobin     => 1,    -- round robin arbitration
             timeout    => 11,
-            nahbm      => 3, 
-            nahbs      => 3,
             disirq     => 0,    -- enable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
             assertwarn => 1,    -- enable assertions for warnings
@@ -236,24 +234,24 @@ begin
 
     
     ---------------------------------------------------------------------
-    --  AHB UART (with debug support)
+    --  AHB UART (for grmon debug support)
 
-    ahbuart_i0 : ahbuart
-    generic map (
-      hindex    => 2,                -- : integer := 0;
-      pindex    => 1,                -- : integer := 0;
-      paddr     => 1                 -- : integer := 0;
-    )                                
-    port map (                       
-      rst       => reset_n,          -- : in  std_ulogic;
-      clk       => clk,              -- : in  std_ulogic;
-      uarti     => uarti,            -- : in  uart_in_type;
-      uarto     => uarto,            -- : out uart_out_type;
-      apbi      => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
-      apbo      => apbo(1),          -- : out apb_slv_out_type;
-      ahbi      => ahbctrl_i0_msti,  -- : in  ahb_mst_in_type;
-      ahbo      => ahbmo(2)          -- : out ahb_mst_out_type
-    );
+--  ahbuart_i0 : ahbuart
+--  generic map (
+--    hindex    => 2,                -- : integer := 0;
+--    pindex    => 1,                -- : integer := 0;
+--    paddr     => 1                 -- : integer := 0;
+--  )                                
+--  port map (                       
+--    rst       => reset_n,          -- : in  std_ulogic;
+--    clk       => clk,              -- : in  std_ulogic;
+--    uarti     => uarti,            -- : in  uart_in_type;
+--    uarto     => uarto,            -- : out uart_out_type;
+--    apbi      => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
+--    apbo      => apbo(1),          -- : out apb_slv_out_type;
+--    ahbi      => ahbctrl_i0_msti,  -- : in  ahb_mst_in_type;
+--    ahbo      => ahbmo(2)          -- : out ahb_mst_out_type
+--  );
 
     ---------------------------------------------------------------------
     --  AHB RAM (internal 4k BRAM)
@@ -272,6 +270,38 @@ begin
             ahbsi  => ahbctrl_i0_slvi,
             ahbso  => ahbso(1)
         );
+    ----------------------------------------------------------------------
+
+
+    ---------------------------------------------------------------------
+    --  AHB ROM (instruction memory)
+
+--  ahbrom_i0 : entity gaisler.ahbrom
+--      generic map (
+--          hindex   => 3,
+--          haddr    => 16#000#
+--      )
+--      port map (
+--          rst    => reset_n,
+--          clk    => clk,
+--          ahbsi  => ahbctrl_i0_slvi,
+--          ahbso  => ahbso(3)
+--      );
+    ----------------------------------------------------------------------
+    ---------------------------------------------------------------------
+    --  AHB ZPU memory (instruction+data memory)
+
+--  dualport_ram_ahb_wrapper_i0 : entity zpu.dualport_ram_ahb_wrapper
+--      generic map (
+--          hindex   => 3,
+--          haddr    => 16#000#
+--      )
+--      port map (
+--          clk    => clk,
+--          reset  => reset,
+--          ahbsi  => ahbctrl_i0_slvi,
+--          ahbso  => ahbso(3)
+--      );
     ----------------------------------------------------------------------
 
 
@@ -322,7 +352,7 @@ begin
             fabtech        => spartan3e,
             memtech        => DEFMEMTECH,
             hindex         => 2,
-            haddr          => 16#900#,
+            haddr          => 16#400#,
             hmask          => 16#F00#,
             ddrbits        => 16,     
             MHz            => 100,
@@ -433,25 +463,25 @@ begin
 
     ---------------------------------------------------------------------
     -- uart
-    -- apb slot 1 is used by ahbuart
+    -- apb slot 1 is switched with ahbuart
 
---  apbuart_i0: apbuart
---      generic map (
---          pindex     => 1,
---          paddr      => 1,
---          console    => 1, -- fast simulation output
---          parity     => 0, -- no parity
---          flow       => 0, -- no hardware handshake
---          fifosize   => 1
---      )
---      port map (
---          rst   => reset_n,
---          clk   => clk,
---          apbi  => apbctrl_i0_apbi,
---          apbo  => apbo(1),
---          uarti => uarti,
---          uarto => uarto
---      );
+    apbuart_i0: apbuart
+        generic map (
+            pindex     => 1,
+            paddr      => 1,
+            console    => 1, -- fast simulation output
+            parity     => 0, -- no parity
+            flow       => 0, -- no hardware handshake
+            fifosize   => 16
+        )
+        port map (
+            rst   => reset_n,
+            clk   => clk,
+            apbi  => apbctrl_i0_apbi,
+            apbo  => apbo(1),
+            uarti => uarti,
+            uarto => uarto
+        );
     ---------------------------------------------------------------------
 
 

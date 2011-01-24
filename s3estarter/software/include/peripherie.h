@@ -263,7 +263,7 @@ typedef struct {
 #define UART_BAUD_RATE  (115200)
 //#define UART_BAUD_RATE  (9600)
 #define UART_SCALER     (F_CPU/(8*UART_BAUD_RATE))
-#define UART_FIFOSIZE   (1)
+#define UART_FIFOSIZE   (16)
 
 extern apbuart_t         *uart0;
 extern gptimer_t         *timer0;

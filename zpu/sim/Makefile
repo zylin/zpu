@@ -7,6 +7,7 @@ rtl_files    =  ../rtl_tb/txt_util.vhd \
 		../rtl/trace.vhd \
 		../rtl/zpu_wrapper.vhd \
 		../rtl/dualport_ram.vhd \
+		../rtl/dualport_ram_ahb_wrapper.vhd \
 		../rtl/zpu_ahb.vhd \
 		../rtl/zpu_core.vhd \
 		../rtl/timer.vhd \

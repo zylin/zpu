@@ -31,6 +31,7 @@ rtl_files    = ../rtl/misc.vhd \
 	       ../rtl/charrom.vhd \
 	       ../rtl/eth_rstgen.vhd \
 	       ../rtl/grethc.vhd \
+	       ../rtl/ahbrom.vhd \
 	       ../rtl/grgpio.vhd
 
 rtl_tb_files = ../rtl_tb/sim.vhd
@@ -46,7 +47,7 @@ compile: lib deplibs $(vhdltargets)
 
 deplibs:
 	make compile --directory ../../techmap/sim
-	#make compile --directory ../../grlib/sim # included in techmap
+	make compile --directory ../../grlib/sim
 
 $(vhdltargets): $(vhdlfiles)
 	vcom -quiet -2008 -work $(library) $(vhdlfiles)

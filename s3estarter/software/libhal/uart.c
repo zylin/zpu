@@ -22,6 +22,12 @@ void uart_init( void)
 }
 
 
+unsigned int uart_check_receiver()
+{
+    return ( bit_is_set( uart0->status, UART_STATUS_DATA_READY) != 0);
+}
+
+
 char uart_getchar()
 {
     loop_until_bit_is_set(uart0->status, UART_STATUS_DATA_READY);
