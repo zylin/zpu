@@ -5,6 +5,7 @@ find -iname *.vhd -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.txt -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.pdf -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.png -type f -executable -print0 | xargs -0 chmod -x
+find -iname *.vym -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname *.ucf -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.bmm -type f -executable -print0 | xargs -0 chmod -x
