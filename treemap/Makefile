@@ -1,8 +1,10 @@
-TOP = top
-DIR = ../s3estarter/syn/xst
+TOP        = top
+DIR        = ../s3estarter/syn/xst
+SCREENSHOT = s3estarter_ressources
 
-#TOP = spartan6_top
-#DIR = ../beam_position_monitor/hardware/board_sp601/synthese/xst
+#TOP        = spartan6_top
+#DIR        = ../beam_position_monitor/hardware/board_sp601/synthese/xst
+#SCREENSHOT = bpm_ressources
 
 
 # derived Variables
@@ -18,6 +20,7 @@ help:
 	@echo "run     - run Treeviz"
 	@echo "convert - convert data"
 	@echo "util    - grep for utilization"
+	@echo "combine - two screenshots for better overview"
 	@echo "clean   - tidy up"
 
 run:	ressources.xml
@@ -38,12 +41,16 @@ util_hier: $(MAPREPORT)
 
 
 
-ressources.xml: $(MAPREPORTXML)
+ressources.xml: $(MAPREPORTXML) convert.xsl
 	saxon-xslt $(MAPREPORTXML)  convert.xsl > tmp.xml
 	# prune empty lines with sed
 	sed -e '/^[ ]*$$/d' tmp.xml > ressources.xml
 	# cleanup
 	rm -f tmp.xml
+
+
+combine: $(SCREENSHOT)_fein.png $(SCREENSHOT)_grob.png
+	combine -blend 33 $(SCREENSHOT)_fein.png $(SCREENSHOT)_grob.png $(SCREENSHOT)_mixed.png
 
 
 clean:
