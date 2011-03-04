@@ -34,8 +34,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-use ieee.std_logic_arith.all;
+use ieee.numeric_std.all;
 
 package zpu_config is
 	-- generate trace output
@@ -52,5 +51,5 @@ package zpu_config is
 	-- start byte address of stack. 
 	-- point to top of RAM - 2*words
 	constant 	spStart				: std_logic_vector(maxAddrBitIncIO downto 0) :=
-					conv_std_logic_vector((2**(maxAddrBitBRAM+1))-8, maxAddrBitIncIO+1);
+					std_logic_vector(to_unsigned((2**(maxAddrBitBRAM+1))-8, maxAddrBitIncIO+1));
 end zpu_config;
