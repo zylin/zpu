@@ -35,6 +35,7 @@ architecture trace of zpu_bus_trace is
     function get_name( mem_addr : std_ulogic_vector(maxAddrBitIncIO downto 0)) return string is
     begin
         case mem_addr is
+            when x"80000000" => return("debug console");
             when x"80000100" => return("uart data");
             when x"80000104" => return("uart status");
             when x"80000108" => return("uart control");
@@ -67,16 +68,16 @@ architecture trace of zpu_bus_trace is
             when x"80000280" => return("timer 7 counter value");
             when x"80000284" => return("timer 7 reload value");
             when x"80000288" => return("timer 7 control");
+            when x"80000400" => return("gpio data"); 
+            when x"80000404" => return("gpio output"); 
+            when x"80000408" => return("gpio direction");
+            when x"8000040c" => return("gpio interrupt mask"); 
+            when x"80000410" => return("gpio interrupt polarity"); 
+            when x"80000414" => return("gpio interrupt edge"); 
+            when x"80000418" => return("gpio bypss"); 
             when x"80000600" => return("vga data");
             when x"80000604" => return("vga background color");
             when x"80000608" => return("vga foreground color");
-            when x"80000800" => return("gpio data"); 
-            when x"80000804" => return("gpio output"); 
-            when x"80000808" => return("gpio direction");
-            when x"8000080c" => return("gpio interrupt mask"); 
-            when x"80000810" => return("gpio interrupt polarity"); 
-            when x"80000814" => return("gpio interrupt edge"); 
-            when x"80000818" => return("gpio bypss"); 
             when x"80000C00" => return("eth control");
             when x"80000C04" => return("eth status/interrupt");
             when x"80000C08" => return("eth MAC address msb");
@@ -87,7 +88,6 @@ architecture trace of zpu_bus_trace is
             when x"80000C1C" => return("eth EDCL IP");
             when x"80000C20" => return("eth hash table msb");
             when x"80000C24" => return("eth hash table lsb");
-            when x"80000d00" => return("debug console");
             when x"80000e00" => return("dcm ready");
             when x"80000e04" => return("dcm dec ps");
             when x"80000e08" => return("dcm inc ps");
@@ -112,9 +112,9 @@ architecture trace of zpu_bus_trace is
     function ignore_addr( mem_addr : std_ulogic_vector(maxAddrBitIncIO downto 0)) return boolean is
     begin
         case mem_addr is
+            when x"80000000" => return( true); --"debug console";
             when x"80000100" => return( true); --"uart data";
             when x"80000104" => return( true); --"uart status";
-            when x"80000d00" => return( true); --"debug console";
             when others      => 
                 return( false);
         end case;
