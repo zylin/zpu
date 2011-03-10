@@ -108,6 +108,9 @@ architecture behave of zpu_core is
   signal trace_sp          : std_logic_vector(maxAddrBitIncIO downto minAddrBit);
   signal trace_topOfStack  : std_logic_vector(wordSize-1 downto 0);
   signal trace_topOfStackB : std_logic_vector(wordSize-1 downto 0);
+  --
+  signal sim_pc            : std_logic_vector(maxAddrBitIncIO+1 downto 0);
+  signal sim_sp            : std_logic_vector(maxAddrBitIncIO+2 downto 0);
 
 -- state machine.
   type State_Type is
@@ -389,6 +392,12 @@ begin
           trace_sp(maxAddrBit downto minAddrBit)        <= std_logic_vector(sp);
           trace_topOfStack                              <= std_logic_vector(memARead);
           trace_topOfStackB                             <= std_logic_vector(memBRead);
+          --
+          -- special alignment byte -> word
+          sim_pc                                        <= (others => '0');
+          sim_pc                                        <= std_logic_vector(pc) & "00";
+          sim_sp                                        <= (others => '0');
+          sim_sp(sp'high downto 2)                      <= std_logic_vector(sp);
 
           -- during the next cycle we'll be reading the next opcode   
           spOffset(4)                                   := not opcode(4);
