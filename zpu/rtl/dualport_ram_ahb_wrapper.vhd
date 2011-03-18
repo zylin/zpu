@@ -73,8 +73,8 @@ begin
   dualport_ram_i0: dualport_ram
     port map (
       clk             => clk,              -- : in  std_logic;
-      memAWriteEnable => we,             -- : in  std_logic;
-      memAAddr        => addr,           -- : in  std_logic_vector(maxAddrBitBRAM downto minAddrBit);
+      memAWriteEnable => we,               -- : in  std_logic;
+      memAAddr        => addr,             -- : in  std_logic_vector(maxAddrBitBRAM downto minAddrBit);
       memAWrite       => ahbsi.hwdata,     -- : in  std_logic_vector(wordSize-1 downto 0);
       memARead        => s.data,           -- : out std_logic_vector(wordSize-1 downto 0);
       memBWriteEnable => '0',              -- : in  std_logic;
@@ -112,7 +112,11 @@ begin
         
         ahbso.hready <= v.hready;
         ahbso.hrdata <= s.data;
-        addr         <= v.haddr;
+        if is_x( v.haddr) then
+            addr     <= (others => '0');
+        else
+            addr     <= v.haddr;
+        end if;
         we           <= v.we;
         r_in         <= v;
     end process;
