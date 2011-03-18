@@ -56,7 +56,7 @@ package devices is
   constant VENDOR_CETON      : amba_vendor_type := 16#CB#;
   constant VENDOR_ACTEL      : amba_vendor_type := 16#AC#;
   constant VENDOR_APPLECORE  : amba_vendor_type := 16#AE#;
-  constant VENDOR_HZDR        : amba_vendor_type := 16#55#;
+  constant VENDOR_HZDR       : amba_vendor_type := 16#55#;
 
 -- Gaisler Research device id's
 
@@ -281,6 +281,7 @@ package devices is
   constant HZDR_ZPU_MEM_WRAPPER : amba_device_type := 16#002#;
   constant HZDR_DCM_CTRL        : amba_device_type := 16#003#;
   constant HZDR_DEBUG_CON       : amba_device_type := 16#004#;
+  constant HZDR_TRIGGER_GEN     : amba_device_type := 16#005#;
 
 -- grlib system device id's
 
@@ -677,6 +678,7 @@ package devices is
       HZDR_ZPU_MEM_WRAPPER  => "ZPU Memory wrapper             ",
       HZDR_DCM_CTRL         => "DCM phase shift control        ",
       HZDR_DEBUG_CON        => "debug console                  ",
+      HZDR_TRIGGER_GEN      => "trigger generator              ",
       others                => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,
