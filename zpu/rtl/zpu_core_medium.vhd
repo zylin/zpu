@@ -250,7 +250,7 @@ begin
       if reset = '1' then
         state           <= State_Idle;
         break           <= '0';
-        sp              <= unsigned(spStart(maxAddrBitIncIO downto minAddrBit));
+        sp              <= spStart(maxAddrBitIncIO downto minAddrBit);
         pc              <= (others => '0');
         idim_flag       <= '0';
         begin_inst      <= '0';

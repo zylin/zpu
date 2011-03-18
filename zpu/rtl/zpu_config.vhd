@@ -47,9 +47,10 @@ package zpu_config is
 	-- This is the msb address bit. bytes=2^(maxAddrBitIncIO+1)
 	constant 	maxAddrBitIncIO		: integer := 31; -- BLa: 31 -- was: 27
 	constant 	maxAddrBitBRAM		: integer := 13; -- was: 16
+    constant    bram_words          : integer := 5120;
 		
 	-- start byte address of stack. 
 	-- point to top of RAM - 2*words
-	constant 	spStart				: std_logic_vector(maxAddrBitIncIO downto 0) :=
-					std_logic_vector(to_unsigned((2**(maxAddrBitBRAM+1))-8, maxAddrBitIncIO+1));
+	constant 	spStart				: unsigned(maxAddrBitIncIO downto 0) :=
+					to_unsigned((2**(maxAddrBitBRAM+1))-8, maxAddrBitIncIO+1);
 end zpu_config;
