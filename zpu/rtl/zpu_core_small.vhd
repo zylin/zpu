@@ -41,7 +41,7 @@ use work.zpu_config.all;
 use work.zpupkg.all;
 
 
-entity zpu_core is
+entity zpu_core_small is
   port (
     clk                 : in  std_ulogic;
     clk_en              : in  std_ulogic := '1';
@@ -71,9 +71,9 @@ entity zpu_core is
     -- in simulation to stop simulation
     break               : out std_ulogic
     );
-end zpu_core;
+end entity zpu_core_small;
 
-architecture behave of zpu_core is
+architecture rtl of zpu_core_small is
 
 
   signal memAWriteEnable : std_logic;
@@ -622,4 +622,4 @@ begin
 
 
 
-end behave;
+end rtl;

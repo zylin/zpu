@@ -103,7 +103,7 @@ package zpupkg is
   end component trace;
 
 
-  component zpu_core is
+  component zpu_core_small is
     port (
       clk                 : in  std_ulogic;
       clk_en              : in  std_ulogic := '1';
@@ -118,7 +118,25 @@ package zpupkg is
       interrupt           : in  std_ulogic;
       break               : out std_ulogic
       );
-  end component zpu_core;
+  end component zpu_core_small;
+
+
+  component zpu_core_medium is
+    port (
+      clk                 : in  std_ulogic;
+      clk_en              : in  std_ulogic := '1';
+      reset               : in  std_ulogic;
+      in_mem_busy         : in  std_ulogic;
+      mem_read            : in  std_ulogic_vector(wordSize-1 downto 0);
+      mem_write           : out std_ulogic_vector(wordSize-1 downto 0);
+      out_mem_addr        : out std_ulogic_vector(maxAddrBitIncIO downto 0);
+      out_mem_writeEnable : out std_ulogic;
+      out_mem_readEnable  : out std_ulogic;
+      mem_writeMask       : out std_ulogic_vector(wordBytes-1 downto 0);
+      interrupt           : in  std_ulogic;
+      break               : out std_ulogic
+      );
+  end component zpu_core_medium;
 
 
   component timer is

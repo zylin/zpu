@@ -36,11 +36,6 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use ieee.numeric_std.all;
 
----- Uncomment the following library declaration if instantiating
----- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 library zpu;
 use zpu.zpu_config.all;
 use zpu.zpupkg.all;
@@ -107,7 +102,7 @@ architecture behave of sim_small_fpga_top_noint is
 
 begin
 
-  zpu : zpu_core port map (
+  zpu : zpu_core_small port map (
     clk                 => clk ,
     reset               => reset,
     in_mem_busy         => mem_busy,

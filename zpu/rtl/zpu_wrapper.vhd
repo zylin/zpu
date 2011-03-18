@@ -7,7 +7,7 @@ use ieee.std_logic_1164.all;
 
 library zpu;
 use zpu.zpu_wrapper_package.all;
-use zpu.zpupkg.zpu_core;
+use zpu.zpupkg.zpu_core_small;
 
 
 entity zpu_wrapper is
@@ -32,7 +32,7 @@ architecture rtl of zpu_wrapper is
 
 begin
 
-    zpu_i0: zpu_core 
+    zpu_i0: zpu_core_small 
         port map (
             clk                 => clk,
             reset               => reset,
