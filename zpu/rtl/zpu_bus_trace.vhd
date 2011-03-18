@@ -116,6 +116,7 @@ architecture trace of zpu_bus_trace is
             when x"80000100" => return( true); --"uart data";
             when x"80000104" => return( true); --"uart status";
             when others      => 
+                if (mem_addr >= x"00000000") and (mem_addr <= x"00003fff") then return( true); end if; --"bram");
                 return( false);
         end case;
     end function ignore_addr;
@@ -135,6 +136,8 @@ begin
             null;
         else
             if (out_mem_writeEnable = '1') and not ignore_addr( out_mem_addr) then
+                wait until in_mem_busy = '0';
+                wait until rising_edge( clk);
                 print(         "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
                 print( l_file, "mem write on address: 0x" & hstr(out_mem_addr) & "   data : 0x" & hstr( mem_write) & "  (" & get_name(out_mem_addr) & ")" );
             end if; -- mem_write
