@@ -8,7 +8,8 @@ use ieee.std_logic_1164.all;
 
 library zpu;
 use zpu.zpu_wrapper_package.all;
-use zpu.zpupkg.zpu_core;
+use zpu.zpupkg.zpu_core_small;
+use zpu.zpupkg.zpu_core_medium;
 
 library grlib;
 use grlib.amba.all;
@@ -19,7 +20,8 @@ use grlib.devices.all;
 
 entity zpu_ahb is
     generic(
-        hindex  : integer := 0
+        hindex    : integer := 0;
+        zpu_small : boolean := true
     );
     port ( 
         clk     : in  std_ulogic;
@@ -51,24 +53,27 @@ architecture rtl of zpu_ahb is
         others => (others => '0') 
     );
 
-    type   state_t is ( IDLE, ADDR_PHASE, DATA_PHASE, NOGRANT, WAIT_FOR_GRANT);
+    type   state_t is ( IDLE, ADDR_PHASE, DATA_PHASE, READY, NOGRANT, WAIT_FOR_GRANT);
     signal state                : state_t;
-    signal last_state           : state_t;
+    signal save_state           : state_t;
 
+    signal clk_en               : std_ulogic;
+    signal clk_en_to_zpu        : std_ulogic;
+    signal busy_to_trace        : std_ulogic;
+
+    signal data_to_ahb          : std_ulogic_vector(31 downto 0);
+    signal data_from_ahb        : std_ulogic_vector(31 downto 0);
+    signal write_flag           : std_ulogic;
+    signal mem_request          : std_ulogic;
+    signal mem_ack              : std_ulogic;
+
+    -- zpu core connection signals
     signal mem_read             : std_ulogic_vector(31 downto 0);
     signal mem_write            : std_ulogic_vector(31 downto 0);
     signal out_mem_addr         : std_ulogic_vector(31 downto 0);
     signal out_mem_writeEnable  : std_ulogic;
     signal out_mem_readEnable   : std_ulogic;
     signal mem_writeMask        : std_ulogic_vector(3 downto 0);
-
-    signal busy                 : std_ulogic;
-    signal busy_to_zpu          : std_ulogic;
-    signal clk_en               : std_ulogic;
-
-    signal data_to_ahb          : std_ulogic_vector(31 downto 0);
-    signal data_from_ahb        : std_ulogic_vector(31 downto 0);
-    signal write_flag           : std_ulogic;
 
 begin
 
@@ -77,37 +82,36 @@ begin
 
         wait until rising_edge( clk);
         
-        --ahbo.haddr   <= std_logic_vector( out_mem_addr);    -- direct
-        --ahbo.hwdata  <= std_logic_vector( mem_write);       -- direct
-        --ahbo.hwrite  <= out_mem_writeEnable;                -- direct
-        --ahbo.htrans  <= HTRANS_IDLE;
-
         ahbo.hwrite <= '0';
 
         case state is
 
             when IDLE =>
                 write_flag          <= '0';
+                mem_request         <= '0';
+                mem_ack             <= '0';
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     state           <= ADDR_PHASE;
+                    write_flag      <= out_mem_writeEnable;
+                    data_to_ahb     <= mem_write;
+                    mem_request     <= '1';
+                    --
                     ahbo.htrans     <= HTRANS_NONSEQ;
-                    busy            <= '1';
                     ahbo.hbusreq    <= '1';
                     ahbo.haddr      <= std_logic_vector( out_mem_addr);
                     ahbo.hwrite     <= out_mem_writeEnable;  
-                    write_flag      <= out_mem_writeEnable;
-                    data_to_ahb     <= mem_write;
 
                     if ahbi.hgrant( hindex) = '0' then
                         clk_en          <= '0';
-                        last_state      <= ADDR_PHASE;
+                        save_state      <= ADDR_PHASE;
                         state           <= WAIT_FOR_GRANT;
                     end if;
 
                 else
-                
+            
+                    -- check if we have grant
                     if ahbi.hgrant( hindex) = '0' then
-                        last_state  <= state;
+                        save_state  <= state;
                         state       <= NOGRANT;
                     end if;
                 end if;
@@ -127,18 +131,25 @@ begin
             when DATA_PHASE =>
                 if write_flag = '0' then -- read
                     data_from_ahb   <= std_ulogic_vector( ahbi.hrdata);
+                else -- write
                 end if;
 
                 if ahbi.hready = '1' then
-                    state           <= IDLE;
-                    busy            <= '0';
+                    state           <= READY;
+                    mem_request     <= '0';
+                    mem_ack         <= '1';
+                    clk_en          <= '1';
                 
+                    -- check if we have grant
                     if ahbi.hgrant( hindex) = '0' then
-                        last_state  <= IDLE;
+                        save_state  <= IDLE;
                         state       <= NOGRANT;
                     end if;
 
                 end if;
+
+            when READY =>
+                state           <= IDLE;
 
 
 
@@ -146,7 +157,7 @@ begin
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     clk_en          <= '0';
                     state           <= WAIT_FOR_GRANT;
-                    busy            <= '1';
+                    mem_request     <= '1';
                     ahbo.hbusreq    <= '1';
                     ahbo.haddr      <= std_logic_vector( out_mem_addr);
                     write_flag      <= out_mem_writeEnable;
@@ -154,7 +165,7 @@ begin
                 end if;
 
                 if (ahbi.hgrant( hindex) = '1') and (ahbi.hready = '1') then
-                    state           <= last_state;
+                    state           <= save_state;
                     if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                         clk_en          <= '1';
                         state           <= ADDR_PHASE;
@@ -177,11 +188,14 @@ begin
 
         if reset = '1' then
             state               <= IDLE;
-            busy                <= '0';
+            save_state          <= IDLE;
             ahbo.hbusreq        <= '0';
             ahbo.htrans         <= HTRANS_IDLE;
             clk_en              <= '1';
             write_flag          <= '0';
+            mem_request         <= '0';
+            data_to_ahb         <= (others => '0');
+            data_from_ahb       <= (others => '0');
         end if; -- reset
 
     end process;
@@ -223,20 +237,24 @@ begin
     -- hready
     -- hrdata
 
-    --busy <= out_mem_readEnable or ( (not ahbi.hready)  or  (not ahbi.hgrant( hindex)) );
-    --busy <= ( out_mem_readEnable or  (not ahbi.hready) ) and  (not ahbi.hgrant( hindex)) ;
-    --busy <=  out_mem_readEnable or (not ahbi.hready); --original
+    mem_read      <= data_from_ahb;
+    process(clk_en, mem_request, state, out_mem_readEnable, out_mem_writeEnable)
+    begin
+      clk_en_to_zpu <= clk_en and (not mem_request);
+      if state = IDLE and (out_mem_writeEnable = '1' or out_mem_readEnable = '1') then
+        clk_en_to_zpu <= '0';
+      end if;
+    end process;
 
-    mem_read    <= data_from_ahb;
-    busy_to_zpu <= busy or out_mem_readEnable or out_mem_writeEnable;
 
-    zpu_i0: zpu_core 
+    zpu_size_i0: if zpu_small generate 
+      zpu_i0: zpu_core_small 
         port map (
             clk                 => clk,
-            clk_en              => clk_en,
+            clk_en              => clk_en_to_zpu,
             reset               => reset,
             --
-            in_mem_busy         => busy_to_zpu,
+            in_mem_busy         => '0',
             mem_read            => mem_read,
             interrupt           => irq,
             --
@@ -247,10 +265,31 @@ begin
             mem_writeMask       => mem_writeMask,
             break               => break
         );
+    end generate zpu_size_i0;
+
+
+    zpu_size_i1: if not zpu_small generate 
+      zpu_i0: zpu_core_medium
+        port map (
+            clk                 => clk,
+            clk_en              => clk_en_to_zpu,
+            reset               => reset,
+            --
+            in_mem_busy         => '0',
+            mem_read            => mem_read,
+            interrupt           => irq,
+            --
+            mem_write           => mem_write,
+            out_mem_addr        => out_mem_addr,
+            out_mem_writeEnable => out_mem_writeEnable,
+            out_mem_readEnable  => out_mem_readEnable,
+            mem_writeMask       => mem_writeMask,
+            break               => break
+        );
+    end generate zpu_size_i1;
+
 
     -- outputs to master interface
-    --ahbo.htrans  <= HTRANS_NONSEQ when (out_mem_readEnable = '1') or (out_mem_writeEnable = '1') else HTRANS_IDLE;
-    
 
     ahbo.hsize   <= HSIZE_WORD;                         -- constant
     ahbo.hburst  <= HBURST_SINGLE;                      -- constant 
@@ -262,30 +301,26 @@ begin
     ahbo.hconfig <= hconfig_c; 
     ahbo.hindex  <= 0;
 
-    --zpu_out.mem_writeMask       <= std_ulogic_vector(mem_writeMask);
-
-
 
 
     ---------------------------------------------------------------------------
     -- checks
 
     -- pragma translate_off
-    check_busy_stuck_on_high: process
+    check_clk_en_stuck_on_low: process
         variable high_count: natural;
     begin
         wait until rising_edge( clk);
-        if busy_to_zpu = '0' then
+        if clk_en_to_zpu = '1' then
             high_count := 0;
         else
             high_count := high_count + 1;
         end if;
 
-        assert high_count < 200
-            report me_c & "busy to zpu stuck high"
+        assert high_count < 100
+            report me_c & "clk enable to zpu stuck low"
             severity error;
     end process;
-
     -- pragma translate_on
 
 
@@ -294,12 +329,13 @@ begin
     -- zpu bus tracer
 
     -- pragma translate_off
+    busy_to_trace <= not clk_en_to_zpu;
     zpu_bus_trace_i0: zpu_bus_trace
     port map (
         clk                     => clk,                 -- : in std_ulogic;
         reset                   => reset,               -- : in std_ulogic;
         --
-        in_mem_busy             => busy,                -- : in std_ulogic; 
+        in_mem_busy             => busy_to_trace,       -- : in std_ulogic; 
         mem_read                => mem_read,            -- : in std_ulogic_vector(wordSize-1 downto 0);
         mem_write               => mem_write,           -- : in std_ulogic_vector(wordSize-1 downto 0);              
         out_mem_addr            => out_mem_addr,        -- : in std_ulogic_vector(maxAddrBitIncIO downto 0);

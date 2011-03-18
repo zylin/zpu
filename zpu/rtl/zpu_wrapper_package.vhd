@@ -98,7 +98,8 @@ package zpu_wrapper_package is
 
     component zpu_ahb is
         generic(
-            hindex  : integer := 0
+            hindex    : integer := 0;
+            zpu_small : boolean := true
         );
         port ( 
             clk     : in  std_ulogic;
