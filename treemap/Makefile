@@ -1,10 +1,14 @@
-TOP        = top
-DIR        = ../s3estarter/syn/xst
-SCREENSHOT = s3estarter_ressources
+#TOP        = top
+#DIR        = ../s3estarter/syn/xst
+#SCREENSHOT = s3estarter_ressources
 
 #TOP        = spartan6_top
 #DIR        = ../beam_position_monitor/hardware/board_sp601/synthese/xst
 #SCREENSHOT = bpm_ressources
+
+TOP        = top
+DIR        = ../central_trigger_generator/syn/xst
+SCREENSHOT = central_trigger_ressources
 
 
 # derived Variables
@@ -18,12 +22,13 @@ end   = $(shell grep --line-number  "^Peak Memory Usage:" $(DIR)/$(TOP)_map.mrp 
 
 help:
 	@echo "run     - run Treeviz"
-	@echo "convert - convert data"
+	@echo "convert - convert data (on unix)"
 	@echo "util    - grep for utilization"
 	@echo "combine - two screenshots for better overview"
 	@echo "clean   - tidy up"
 
 run:	ressources.xml
+	@echo "save screeshot as $(SCREENSHOT)_grob.png and $(SCREENSHOT)_fein.png"
 	java -jar Treeviz/dist/Treeviz.jar $<
 
 convert: ressources.xml
@@ -50,7 +55,7 @@ ressources.xml: $(MAPREPORTXML) convert.xsl
 
 
 combine: $(SCREENSHOT)_fein.png $(SCREENSHOT)_grob.png
-	combine -blend 33 $(SCREENSHOT)_fein.png $(SCREENSHOT)_grob.png $(SCREENSHOT)_mixed.png
+	composite -blend 33 $(SCREENSHOT)_fein.png $(SCREENSHOT)_grob.png $(SCREENSHOT)_mixed.png
 
 
 clean:
