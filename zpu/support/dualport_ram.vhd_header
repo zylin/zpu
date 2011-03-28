@@ -56,8 +56,7 @@ end dualport_ram;
 architecture dualport_ram_arch of dualport_ram is
 
 
---type ram_type is array(natural range 0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
-type ram_type is array(natural range 0 to bram_words-1) of std_logic_vector(wordSize-1 downto 0);
+type ram_type is array(natural range 0 to ((2**(maxAddrBitBRAM+1))/4)-1) of std_logic_vector(wordSize-1 downto 0);
 
 shared variable ram : ram_type :=
 (
