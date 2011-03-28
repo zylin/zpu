@@ -1,10 +1,19 @@
 library      = s3estarter
 top          = top_tb
 
-rtl_files    = ../rtl/fpga_types.vhd \
-               ../rtl/*.vhd
+rtl_files    = ../rtl/types.vhd \
+	       ../rtl/fpga_components.vhd \
+	       ../rtl/clk_gen.vhd \
+	       ../rtl/dcm_ctrl_apb.vhd \
+	       ../rtl/debug_con_apb.vhd \
+	       ../rtl/box.vhd \
+	       ../rtl/ibox_test.vhd \
+	       ../rtl/top.vhd \
+	       ../rtl/s3estarter.vhd
 
-rtl_tb_files = ../rtl_tb/*.vhd
+rtl_tb_files = ../rtl_tb/mt46v16m16.vhd \
+	       ../rtl_tb/phy.vhd \
+	       ../rtl_tb/top_tb.vhd
 
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
 
@@ -13,6 +22,21 @@ all: compile simulate
 
 compile: lib
 	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+
+compile: lib deplibs $(vhdltargets)
+
+deplibs:
+	make --directory ../software/test/ test | ccze -A
+	#make --directory ../software/ethernet_speed | ccze -A
+
+	make compile --directory ../../zpu/sim     | ccze -A
+	make compile --directory ../../global/sim  | ccze -A
+	make compile --directory ../../gaisler/sim | ccze -A
+
+$(vhdltargets): $(vhdlfiles)
+	@echo "------------------------------------------------------------"
+	vcom -quiet -2008 -work $(library) $(vhdlfiles) | ccze -A
+
 
 simulate:
 	export top=$(top); \
