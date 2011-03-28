@@ -140,7 +140,7 @@ begin
     -- pragma translate_off
     bootmsg : report_version 
       generic map ("zpumem" & tost(hindex) &
-        ": ZPU Memory AHB Wrapper, " & tost((2**maxAddrBitBRAM)/1024 ) & " kbytes");
+        ": ZPU Memory AHB Wrapper, " & tost((2**maxAddrBitBRAM)/1024 ) & " kbytes addressable (" & tost( bram_words) & " words)");
     -- pragma translate_on
 
 end architecture rtl;

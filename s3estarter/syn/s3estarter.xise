@@ -337,6 +337,16 @@
       <association xil_pn:name="Implementation"/>
       <library xil_pn:name="gaisler"/>
     </file>
+    <file xil_pn:name="../../zpu/rtl/dualport_ram_ahb_wrapper.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="zpu"/>
+    </file>
+    <file xil_pn:name="../../zpu/rtl/zpu_core.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="Implementation"/>
+      <library xil_pn:name="zpu"/>
+    </file>
   </files>
 
   <properties>

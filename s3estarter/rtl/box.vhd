@@ -20,6 +20,10 @@ use global.global_signals.all;
 
 
 entity box is
+    generic (
+        use_ahbuart_g   : boolean := false;
+        use_ethernet_g  : boolean := false
+    );
     port (
         fpga_clk        : in    fpga_clk_in_t;
         fpga_rotary_sw  : in    fpga_rotary_sw_in_t;
@@ -66,12 +70,11 @@ use ieee.std_logic_misc.or_reduce; -- synopsis
 
 
 library zpu;
-use zpu.zpu_wrapper_package.zpu_wrapper;
-use zpu.zpu_wrapper_package.zpu_io;
-use zpu.zpu_wrapper_package.zpu_ahb;
 use zpu.zpu_wrapper_package.all; -- types
 use zpu.zpu_config.all;
 use zpu.zpupkg.all;
+use zpu.zpu_wrapper_package.zpu_ahb;
+use zpu.zpu_wrapper_package.dualport_ram_ahb_wrapper; -- for big zpu
 
 
 library grlib;
@@ -236,22 +239,24 @@ begin
     ---------------------------------------------------------------------
     --  AHB UART (for grmon debug support)
 
---  ahbuart_i0 : ahbuart
---  generic map (
---    hindex    => 2,                -- : integer := 0;
---    pindex    => 1,                -- : integer := 0;
---    paddr     => 1                 -- : integer := 0;
---  )                                
---  port map (                       
---    rst       => reset_n,          -- : in  std_ulogic;
---    clk       => clk,              -- : in  std_ulogic;
---    uarti     => uarti,            -- : in  uart_in_type;
---    uarto     => uarto,            -- : out uart_out_type;
---    apbi      => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
---    apbo      => apbo(1),          -- : out apb_slv_out_type;
---    ahbi      => ahbctrl_i0_msti,  -- : in  ahb_mst_in_type;
---    ahbo      => ahbmo(2)          -- : out ahb_mst_out_type
---  );
+    which_uart_0 : if use_ahbuart_g generate
+        ahbuart_i0 : ahbuart
+        generic map (
+          hindex    => 2,                -- : integer := 0;
+          pindex    => 1,                -- : integer := 0;
+          paddr     => 1                 -- : integer := 0;
+        )                                
+        port map (                       
+          rst       => reset_n,          -- : in  std_ulogic;
+          clk       => clk,              -- : in  std_ulogic;
+          uarti     => uarti,            -- : in  uart_in_type;
+          uarto     => uarto,            -- : out uart_out_type;
+          apbi      => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
+          apbo      => apbo(1),          -- : out apb_slv_out_type;
+          ahbi      => ahbctrl_i0_msti,  -- : in  ahb_mst_in_type;
+          ahbo      => ahbmo(2)          -- : out ahb_mst_out_type
+        );
+    end generate which_uart_0;
 
     ---------------------------------------------------------------------
     --  AHB RAM (internal 4k BRAM)
@@ -291,17 +296,17 @@ begin
     ---------------------------------------------------------------------
     --  AHB ZPU memory (instruction+data memory)
 
---  dualport_ram_ahb_wrapper_i0 : entity zpu.dualport_ram_ahb_wrapper
---      generic map (
---          hindex   => 3,
---          haddr    => 16#000#
---      )
---      port map (
---          clk    => clk,
---          reset  => reset,
---          ahbsi  => ahbctrl_i0_slvi,
---          ahbso  => ahbso(3)
---      );
+    dualport_ram_ahb_wrapper_i0 : dualport_ram_ahb_wrapper
+        generic map (
+            hindex   => 3,
+            haddr    => 16#000#
+        )
+        port map (
+            clk    => clk,
+            reset  => reset,
+            ahbsi  => ahbctrl_i0_slvi,
+            ahbso  => ahbso(3)
+        );
     ----------------------------------------------------------------------
 
 
@@ -405,42 +410,44 @@ begin
     ---------------------------------------------------------------------
     -- ethernet (takes also an APB port)
 
-    greth_i0: greth
-        generic map (
-            hindex      => 1, 
-            pindex      => 12,
-            paddr       => 12,
-            pirq        => 12,
-            memtech     => inferred,
-            mdcscaler   => 20,
-            enable_mdio => 1,
-            fifosize    => 32,
-            nsync       => 1,
-            phyrstadr   => 31        -- depends on used hardware
-        )
-        port map (
-            rst         => reset_n,
-            clk         => clk,
-            ahbmi       => ahbctrl_i0_msti,
-            ahbmo       => ahbmo(1),
-            apbi        => apbctrl_i0_apbi,
-            apbo        => apbo(12),
-            ethi        => ethi,
-            etho        => etho
-        );
+    use_ethernet : if use_ethernet_g generate
+        greth_i0: greth
+            generic map (
+                hindex      => 1, 
+                pindex      => 12,
+                paddr       => 12,
+                pirq        => 12,
+                memtech     => inferred,
+                mdcscaler   => 20,
+                enable_mdio => 1,
+                fifosize    => 32,
+                nsync       => 1,
+                phyrstadr   => 31        -- depends on used hardware
+            )
+            port map (
+                rst         => reset_n,
+                clk         => clk,
+                ahbmi       => ahbctrl_i0_msti,
+                ahbmo       => ahbmo(1),
+                apbi        => apbctrl_i0_apbi,
+                apbo        => apbo(12),
+                ethi        => ethi,
+                etho        => etho
+            );
+    end generate use_ethernet;
     ---------------------------------------------------------------------
 
 
     ---------------------------------------------------------------------
     --  AHB/APB bridge
 
-    apbo(0)  <= apb_none; -- slow down synthesis (but sim looks better)
     apbo(4)  <= apb_none; -- slow down synthesis
     apbo(5)  <= apb_none; -- slow down synthesis
     apbo(7)  <= apb_none; -- slow down synthesis
     apbo(9)  <= apb_none; -- slow down synthesis
     apbo(10) <= apb_none; -- slow down synthesis
     apbo(11) <= apb_none; -- slow down synthesis
+    apbo(13) <= apb_none; -- slow down synthesis (but sim looks better)
 
     apbctrl_i0: apbctrl
         generic map (
@@ -460,28 +467,47 @@ begin
         );
     ----------------------------------------------------------------------
     
+    
+    ---------------------------------------------------------------------
+    -- debug console (for fast simulation output)
+    debug_con_apb_i0: debug_con_apb
+        generic map (
+            pindex => 0,      -- : integer := 0;
+            paddr  => 0,      -- : integer := 0;
+            pmask  => 16#fff# -- : integer := 16#fff#
+        )
+        port map (
+            rst    => reset_n,               -- : in  std_ulogic;
+            clk    => clk,                   -- : in  std_ulogic;
+            apbi   => apbctrl_i0_apbi,       -- : in  apb_slv_in_type;
+            apbo   => apbo(0)                -- : out apb_slv_out_type
+        );
+    ---------------------------------------------------------------------
+    
 
     ---------------------------------------------------------------------
     -- uart
     -- apb slot 1 is switched with ahbuart
 
-    apbuart_i0: apbuart
-        generic map (
-            pindex     => 1,
-            paddr      => 1,
-            console    => 1, -- fast simulation output
-            parity     => 0, -- no parity
-            flow       => 0, -- no hardware handshake
-            fifosize   => 16
-        )
-        port map (
-            rst   => reset_n,
-            clk   => clk,
-            apbi  => apbctrl_i0_apbi,
-            apbo  => apbo(1),
-            uarti => uarti,
-            uarto => uarto
-        );
+    which_uart_1 : if use_ahbuart_g = false generate
+        apbuart_i0: apbuart
+            generic map (
+                pindex     => 1,
+                paddr      => 1,
+                console    => 1, -- fast simulation output
+                parity     => 0, -- no parity
+                flow       => 0, -- no hardware handshake
+                fifosize   => 16
+            )
+            port map (
+                rst   => reset_n,
+                clk   => clk,
+                apbi  => apbctrl_i0_apbi,
+                apbo  => apbo(1),
+                uarti => uarti,
+                uarto => uarto
+            );
+    end generate which_uart_1;
     ---------------------------------------------------------------------
 
 
@@ -530,7 +556,7 @@ begin
             
 
     ---------------------------------------------------------------------
-    -- SVGA
+    -- SVGA (textmode)
     apbvga_i0: apbvga
         generic map (
             memtech => DEFMEMTECH,
@@ -569,23 +595,6 @@ begin
     ---------------------------------------------------------------------
 
 
-    ---------------------------------------------------------------------
-    -- debug console (for fast simulation output)
-    debug_con_apb_i0: debug_con_apb
-        generic map (
-            pindex => 13,     -- : integer := 0;
-            paddr  => 13,     -- : integer := 0;
-            pmask  => 16#fff# -- : integer := 16#fff#
-        )
-        port map (
-            rst    => reset_n,               -- : in  std_ulogic;
-            clk    => clk,                   -- : in  std_ulogic;
-            apbi   => apbctrl_i0_apbi,       -- : in  apb_slv_in_type;
-            apbo   => apbo(13)               -- : out apb_slv_out_type
-        );
-    ---------------------------------------------------------------------
-    
-    
     ---------------------------------------------------------------------
     -- dcm control
     dcm_ctrl_apb_i0: dcm_ctrl_apb

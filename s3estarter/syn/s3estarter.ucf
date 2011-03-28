@@ -68,24 +68,24 @@ TIMESPEC "ts_read_sys" = FROM "ddr_read_clk" to "CLK_50MHZ" TIG;
 ### placement constraints
 ###
 
-# internal memory for zpu 8x4 bit = 32 bit width
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram3" AREA_GROUP = "ZPU_MEM3" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram4" AREA_GROUP = "ZPU_MEM4" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram5" AREA_GROUP = "ZPU_MEM5" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram6" AREA_GROUP = "ZPU_MEM6" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
-INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
-# planahead has problems with "" around range
-AREA_GROUP "ZPU_MEM1" RANGE = RAMB16_X1Y1:RAMB16_X1Y1 ;
-AREA_GROUP "ZPU_MEM2" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;
-AREA_GROUP "ZPU_MEM3" RANGE = RAMB16_X1Y3:RAMB16_X1Y3 ;
-AREA_GROUP "ZPU_MEM4" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;
-AREA_GROUP "ZPU_MEM5" RANGE = RAMB16_X1Y5:RAMB16_X1Y5 ;
-AREA_GROUP "ZPU_MEM6" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;
-AREA_GROUP "ZPU_MEM7" RANGE = RAMB16_X1Y7:RAMB16_X1Y7 ;
-AREA_GROUP "ZPU_MEM8" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;
+### internal memory for zpu 8x4 bit = 32 bit width
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram3" AREA_GROUP = "ZPU_MEM3" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram4" AREA_GROUP = "ZPU_MEM4" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram5" AREA_GROUP = "ZPU_MEM5" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram6" AREA_GROUP = "ZPU_MEM6" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
+##INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
+### planahead has problems with "" around range
+##AREA_GROUP "ZPU_MEM1" RANGE = RAMB16_X1Y1:RAMB16_X1Y1 ;
+##AREA_GROUP "ZPU_MEM2" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;
+##AREA_GROUP "ZPU_MEM3" RANGE = RAMB16_X1Y3:RAMB16_X1Y3 ;
+##AREA_GROUP "ZPU_MEM4" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;
+##AREA_GROUP "ZPU_MEM5" RANGE = RAMB16_X1Y5:RAMB16_X1Y5 ;
+##AREA_GROUP "ZPU_MEM6" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;
+##AREA_GROUP "ZPU_MEM7" RANGE = RAMB16_X1Y7:RAMB16_X1Y7 ;
+##AREA_GROUP "ZPU_MEM8" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;
 
 
 
@@ -283,8 +283,8 @@ NET "SD_A<12>"          LOC = "P2"  | IOSTANDARD = SSTL2_I ;
 NET "SD_BA<0>"          LOC = "K5"  | IOSTANDARD = SSTL2_I ;
 NET "SD_BA<1>"          LOC = "K6"  | IOSTANDARD = SSTL2_I ;
 NET "SD_CAS"            LOC = "C2"  | IOSTANDARD = SSTL2_I ;
-NET "SD_CK_N"           LOC = "J4"  | IOSTANDARD = SSTL2_I ;
-NET "SD_CK_P"           LOC = "J5"  | IOSTANDARD = SSTL2_I ;
+NET "SD_CK_N"           LOC = "J4"  | IOSTANDARD = SSTL2_I ; #DIFF_SSTL2_I ;
+NET "SD_CK_P"           LOC = "J5"  | IOSTANDARD = SSTL2_I ; #DIFF_SSTL2_I ;
 NET "SD_CKE"            LOC = "K3"  | IOSTANDARD = SSTL2_I ;
 NET "SD_CS"             LOC = "K4"  | IOSTANDARD = SSTL2_I ;
 NET "SD_DQ<0>"          LOC = "L2"  | IOSTANDARD = SSTL2_I | PULLUP ;
