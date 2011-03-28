@@ -31,6 +31,17 @@ glob:tdc/paper/*.*
 
 glob:ct-lab.zip
 
+# generated Makefiles
+glob:s3estarter/sim/Makefile.s3estarter
+glob:tools/sim/Makefile.tools
+glob:zpu/sim/Makefile.zpu
+glob:global/sim/Makefile.global
+glob:grlib/sim/Makefile.grlib
+
+# c stuff
+glob:*.o
+glob:*.a
+
 # syn stuff
 glob:*/syn/xst/*
 glob:*.mcs
@@ -39,6 +50,7 @@ glob:*.prm
 
 # rena3 special
 glob:rena3/doc/*.xls
+glob:rena3/doc/*.doc
 glob:rena3/sim/log.txt
 glob:rena3/sim/trace.txt
 
@@ -48,6 +60,11 @@ glob:s3estarter/sim/bus_trace.txt
 glob:s3estarter/sim/dumpdata.txt
 glob:s3estarter/sim_isim/bus_trace.txt
 glob:s3estarter/sim_isim/dumpdata.txt
+glob:s3estarter/sim_isim/isim/
+glob:s3estarter/sim_isim/*.log
+glob:s3estarter/sim_isim/tb.exe
+glob:s3estarter/sim_isim/isim.wdb
+glob:s3estarter/syn/iseconfig/*.projectmgr
 glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
 glob:s3estarter/doc/Untersuchung des DDR.doc
 glob:s3estarter/doc/ddr_tests/
@@ -59,12 +76,18 @@ glob:esnug_c/sim/test/*_log.txt
 glob:esnug_c/sim/test/pipe1xx
 glob:esnug_c/sim/test/xxx_*.txt
 
-# special projects
+# special (unhandled) projects
 glob:treemap/Treeviz/*
-glob:treemap/Treeviz-0.35/*
-glob:sp601/sp601_restore_flash/*
-
-#others
+glob:treemap/Treeviz-0.35/
+glob:treemap/Treeviz_037/
+glob:sp601/sp601_restore_flash/
+glob:datenerfassung_hpdi32/
+glob:ecostest/
+glob:edk_test/
+glob:labview_se3/
+glob:ultraschall_fft/
+glob:xst_errors/
+glob:2010-sei/
 glob:bpm/
 glob:rubygem/
 glob:soc-lm32/
@@ -73,19 +96,6 @@ glob:ddr_ram_cores/
 
 # handled by SVN
 glob:beam_position_monitor/
-glob:s3estarter/sim_isim/isim/
-glob:*.o
-glob:*.a
-glob:tools/sim/Makefile.tools
-glob:zpu/sim/Makefile.zpu
-glob:global/sim/Makefile.global
-glob:grlib/sim/Makefile.grlib
-glob:s3estarter/sim/Makefile.s3estarter
+glob:central_trigger_generator/
+
 glob:*.cfi
-glob:rena3/doc/*.doc
-glob:2010-sei/*
-glob:s3estarter/sim_isim/*.log
-glob:s3estarter/sim_isim/tb.exe
-glob:s3estarter/sim_isim/isim.wdb
-glob:s3estarter/syn/iseconfig/*.projectmgr
-glob:datenerfassung/
