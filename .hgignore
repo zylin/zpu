@@ -68,6 +68,7 @@ glob:s3estarter/syn/iseconfig/*.projectmgr
 glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
 glob:s3estarter/doc/Untersuchung des DDR.doc
 glob:s3estarter/doc/ddr_tests/
+glob:s3estarter/doc/512Mb_*
 
 # esnug simulation special
 glob:esnug_c/sim/test/*_diff.txt
@@ -77,22 +78,21 @@ glob:esnug_c/sim/test/pipe1xx
 glob:esnug_c/sim/test/xxx_*.txt
 
 # special (unhandled) projects
-glob:treemap/Treeviz/*
-glob:treemap/Treeviz-0.35/
-glob:treemap/Treeviz_037/
-glob:sp601/sp601_restore_flash/
 glob:datenerfassung_hpdi32/
+glob:ddr_ram_cores/
 glob:ecostest/
 glob:edk_test/
 glob:labview_se3/
+glob:profinet/
+glob:programmer/
+glob:singlepulser/
+glob:sp601/sp601_restore_flash/
+glob:spartanMC/
+glob:treemap/Treeviz/*
+glob:treemap/Treeviz-0.35/
+glob:treemap/Treeviz_037/
 glob:ultraschall_fft/
 glob:xst_errors/
-glob:2010-sei/
-glob:bpm/
-glob:rubygem/
-glob:soc-lm32/
-glob:src/
-glob:ddr_ram_cores/
 
 # handled by SVN
 glob:beam_position_monitor/
