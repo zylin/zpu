@@ -1,0 +1,138 @@
+\documentclass{beamer}
+\usepackage[ngerman]{babel}
+\usepackage[latin1]{inputenc}
+
+% for flow chart
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,trees,positioning}
+
+\usetheme{default}
+
+\usecolortheme{default}
+\usefonttheme{default}
+\useinnertheme{default}
+\useoutertheme{default}
+
+% Seitenzahlen in Fußzeile einfügen
+\setbeamertemplate{fpptline}[frame number]
+
+%
+% Metainformationen
+%
+\title[]{hints \& tricks on FPGA projects}
+\subtitle[]{}
+
+\author[B. Lange]{Bert Lange}
+\institute[FZD Dresden-Rossendorf]{Forschungszentrum Dresden-Rossendorf}
+\date[29.09.10]{29. September 2010}
+\logo{\pgfimage[width=10mm,height=10mm]{fzd_logo}}
+
+\titlegraphic{\includegraphics[width=50mm]{fzd_logo_text}}
+
+% pdf eigenschaften
+\subject{}
+\keywords{FPGA, Xilinx}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\frame{
+    \titlepage
+}
+
+\frame{
+    \frametitle{Inhaltsverzeichnis}
+    \tableofcontents
+%    [pausesections]
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Designflow}
+%
+% 
+%
+
+\begin{frame}{Designflow}{Simulation \& Synthese}
+
+
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, rounded corners, 
+    minimum height=2em, minimum width=6em]
+
+\begin{columns}
+    \column{.5\textwidth}
+
+        \begin{tikzpicture}[auto, node distance=12mm, >=latex']
+
+            \node [block, ] (ein) {Eingabe};
+            \node [block, below of=ein, ] (syn) {Synthese};
+            \node [block, below of=syn, ] (tst) {Test};
+
+            \draw [->] (ein) -- (syn);
+            \draw [->] (syn) -- (tst);
+            \draw (tst) -| ++(2,1) [->] |- (ein);
+
+        \end{tikzpicture}
+
+    \column{.5\textwidth}
+        
+        \begin{tikzpicture}[auto, node distance=12mm, >=latex']
+
+            \node [block, ] (ein) {Eingabe};
+                \node [ right of=ein,] (end) {};
+            \node [block, below of=ein, ] (sim) {Simulation};
+            \node [block, below of=sim, ] (syn) {Synthese};
+            \node [block, below of=syn, ] (tst) {Test};
+
+            \draw [->] (ein) -- (sim);
+            \draw (sim) -| ++(2,1) [->] |- (ein);
+            \draw [->] (sim) -- (syn);
+            \draw [->] (syn) -- (tst);
+            %\draw (tst) -| ++(3,1) [->] |- ++(-1,2.6);
+            \draw (tst) -| ++(3,1) [->] |- (end);
+
+        \end{tikzpicture}
+
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Projektstruktur}
+
+\begin{frame}{Projektstruktur}{}
+
+\tikzstyle{block1} = [draw, fill=blue!20, rectangle, rounded corners, 
+    minimum height=2em, minimum width=6em]
+\begin{columns}
+    \column{.5\textwidth}
+
+
+        \begin{tikzpicture}[auto, node distance=15mm, >=latex']
+        \node[block1, ] (tb) {Testbench
+                \node[block1, ] (sys1) {System
+                        \node[block1, ] (tb) {Module};
+                };
+        };
+        \node[block1, ] (sys2) {System};
+        \end{tikzpicture}
+
+    \column{.5\textwidth}
+
+
+\end{columns}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Typverwendung in Modulschnittstellen}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{numerische Bibliotheken}
+
+\begin{frame}{Titel}{Untertitel}
+    Inhalt
+\end{frame}
+
+
+\end{document}

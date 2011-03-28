@@ -56,7 +56,7 @@ entity trace is
 		sp			: in std_logic_vector(maxAddrBitIncIO downto 2);
 		memA		: in std_logic_vector(wordSize-1 downto 0);
 		memB		: in std_logic_vector(wordSize-1 downto 0);
-		busy  : in std_logic;
+		busy        : in std_logic;
 		intSp		: in std_logic_vector(stack_bits-1 downto 0)
 		);
 end trace;
@@ -89,8 +89,8 @@ begin
 
 counter := (others => '0');
    -- print header for the logfile
-   print(l_file, "#pc,opcode,sp,top_of_stack ");
-   print(l_file, "#----------");
+   print(l_file, "#pc, opcode, sp, top_of_stack, memA, memB, intSp, counter");
+   print(l_file, "#--------------------------------------------------------");
    print(l_file, " ");
 
 	wait until clk = '1';

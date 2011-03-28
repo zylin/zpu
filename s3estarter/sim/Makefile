@@ -15,13 +15,15 @@ rtl_tb_files = ../rtl_tb/mt46v16m16.vhd \
 	       ../rtl_tb/phy.vhd \
 	       ../rtl_tb/top_tb.vhd
 
+verilogfiles = ../rtl_tb/ddr.v
+
 vhdlfiles    = $(rtl_files) $(rtl_tb_files)
+vhdltargets  := $(foreach n, $(vhdlfiles), ./$(library)/$(basename $(notdir $n))/_primary.dat)
 
 
 all: compile simulate
 
-compile: lib
-	vcom -2008 -work $(library) $(vhdlfiles) | ccze -A
+
 
 compile: lib deplibs $(vhdltargets)
 
@@ -44,10 +46,10 @@ simulate:
 
 
 clean:
+	rm -rf $(library) 
 	rm -f transcript
 	rm -f *.wlf
 	rm -f wlf*
-	rm -rf $(library) 
 
 
 # default patterns

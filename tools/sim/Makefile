@@ -8,13 +8,17 @@ vhdlfiles    = $(rtl_tb_files) $(rtl_files)
 
 all: lib compile
 
-lib:    $(library)
+remake: lib Makefile.$(library)
 
-$(library):
-	vlib $(library)
+Makefile.$(library): $(vhdlfiles) $(library)
+	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+	vmake $(library) > Makefile.$(library)
+	# patch winpath -> cygpath
+	sed -e 's/\(C:.*\)/$$(shell cygpath --unix "\1" | sed "s\/ \/\\\\\\\\ \/g" )/g' -i Makefile.$(library)
 
-compile: lib
-	vcom -quiet -work $(library) $(vhdlfiles) | ccze -A
+
+compile:
+	make -f Makefile.$(library)
 
 simulate:
 	vsim -gui $(library).$(top) -do run.do
@@ -22,3 +26,13 @@ simulate:
 
 clean:
 	rm -rf tools
+	rm -f Makefile.$(library)
+
+
+# default patterns
+
+lib:    $(library)
+
+$(library):
+	vlib $(library)
+

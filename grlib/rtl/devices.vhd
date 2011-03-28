@@ -56,6 +56,7 @@ package devices is
   constant VENDOR_CETON      : amba_vendor_type := 16#CB#;
   constant VENDOR_ACTEL      : amba_vendor_type := 16#AC#;
   constant VENDOR_APPLECORE  : amba_vendor_type := 16#AE#;
+  constant VENDOR_HZDR       : amba_vendor_type := 16#55#;
 
 -- Gaisler Research device id's
 
@@ -273,6 +274,14 @@ package devices is
 
   constant CONTRIB_CORE1        : amba_device_type := 16#001#;
   constant CONTRIB_CORE2        : amba_device_type := 16#002#;
+  
+-- HZDR ID'S
+  
+  constant HZDR_ZPU_AHB_WRAPPER : amba_device_type := 16#001#;
+  constant HZDR_ZPU_MEM_WRAPPER : amba_device_type := 16#002#;
+  constant HZDR_DCM_CTRL        : amba_device_type := 16#003#;
+  constant HZDR_DEBUG_CON       : amba_device_type := 16#004#;
+  constant HZDR_TRIGGER_GEN     : amba_device_type := 16#005#;
 
 -- grlib system device id's
 
@@ -662,6 +671,20 @@ package devices is
       vendordesc        => APPLECORE_DESC,
       device_table      => applecore_device_table
       );
+  
+  constant HZDR_DESC : vendor_description :=   "http://www.hzdr.de      ";
+  constant hzdr_device_table : device_table_type := (
+      HZDR_ZPU_AHB_WRAPPER  => "ZPU AHB wrapper                ",
+      HZDR_ZPU_MEM_WRAPPER  => "ZPU Memory wrapper             ",
+      HZDR_DCM_CTRL         => "DCM phase shift control        ",
+      HZDR_DEBUG_CON        => "debug console                  ",
+      HZDR_TRIGGER_GEN      => "trigger generator              ",
+      others                => "Unknown Device                 ");
+  constant hzdr_lib : vendor_library_type := (
+      vendorid 	       => VENDOR_HZDR,
+      vendordesc       => HZDR_DESC,
+      device_table     => hzdr_device_table
+      );
 
   constant UNKNOWN_DESC : vendor_description :=  "Unknown vendor          ";
 
@@ -691,6 +714,7 @@ package devices is
     VENDOR_CETON       => ceton_lib,
     VENDOR_ACTEL       => actel_lib,
     VENDOR_NASA        => nasa_lib,
+    VENDOR_HZDR        => hzdr_lib,
     others             => unknown_lib);
 
   type system_table_type is array (0 to 4095) of device_description;

@@ -222,7 +222,10 @@ begin
 -- reset operation
 
     if rst = '0' then
-      v.imask := (others => '0'); v.bypass := (others => '0');
+      v.imask  := (others => '0'); 
+      v.bypass := (others => '0');
+      v.edge   := (others => '0');
+      v.level  := (others => '0');
       if oepol = 1 then v.dir := (others => '0');
       else v.dir := (others => '1'); end if;
       v.dout := (others => '0');
