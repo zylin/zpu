@@ -18,6 +18,9 @@ find -iname modelsim.ini -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.c -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.h -type f -executable -print0 | xargs -0 chmod -x
 
+find -iname *.in   -type f -executable -print0 | xargs -0 chmod -x
+find -iname *.help -type f -executable -print0 | xargs -0 chmod -x
+
 find -iname Makefile -type f -executable -print0 | xargs -0 chmod -x
 find -iname *.do -type f -executable -print0 | xargs -0 chmod -x
 
