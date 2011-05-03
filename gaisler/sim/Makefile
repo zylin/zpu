@@ -14,6 +14,7 @@ rtl_files    = ../rtl/misc.vhd \
 	       ../rtl/ethernet_mac.vhd \
 	       ../rtl/irqmp.vhd \
 	       ../rtl/ahbram.vhd \
+	       ../rtl/ahbdpram.vhd \
 	       ../rtl/dcom_uart.vhd \
 	       ../rtl/gptimer.vhd \
 	       ../rtl/ahbstat.vhd \
@@ -32,6 +33,7 @@ rtl_files    = ../rtl/misc.vhd \
 	       ../rtl/eth_rstgen.vhd \
 	       ../rtl/grethc.vhd \
 	       ../rtl/ahbrom.vhd \
+	       ../rtl/i2cmst.vhd \
 	       ../rtl/grgpio.vhd
 
 rtl_tb_files = ../rtl_tb/sim.vhd
@@ -48,6 +50,7 @@ compile: lib deplibs $(vhdltargets)
 deplibs:
 	make compile --directory ../../techmap/sim
 	make compile --directory ../../grlib/sim
+	make compile --directory ../../opencores/sim
 
 $(vhdltargets): $(vhdlfiles)
 	vcom -quiet -2008 -work $(library) $(vhdlfiles)

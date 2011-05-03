@@ -78,6 +78,10 @@ architecture trace of zpu_bus_trace is
             when x"80000600" => return("vga data");
             when x"80000604" => return("vga background color");
             when x"80000608" => return("vga foreground color");
+            when x"80000700" => return("i2c clock prescaler");
+            when x"80000704" => return("i2c control");
+            when x"80000708" => return("i2c data");
+            when x"8000070c" => return("i2c command/status");
             when x"80000C00" => return("eth control");
             when x"80000C04" => return("eth status/interrupt");
             when x"80000C08" => return("eth MAC address msb");

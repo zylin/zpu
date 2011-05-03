@@ -6,6 +6,8 @@ rtl_files    = ../rtl/gencomp.vhd \
 	       ../rtl/allpads.vhd \
 	       ../rtl/generic_syncram.vhd \
 	       ../rtl/syncram_2p.vhd \
+	       ../rtl/syncram_dp.vhd \
+	       ../rtl/memory_unisim.vhd \
 	       ../rtl/netcomp.vhd \
 	       ../rtl/ddrphy.vhd \
 	       ../rtl/outpad.vhd \
