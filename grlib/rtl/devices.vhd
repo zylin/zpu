@@ -277,11 +277,12 @@ package devices is
   
 -- HZDR ID'S
   
-  constant HZDR_ZPU_AHB_WRAPPER : amba_device_type := 16#001#;
-  constant HZDR_ZPU_MEM_WRAPPER : amba_device_type := 16#002#;
-  constant HZDR_DCM_CTRL        : amba_device_type := 16#003#;
-  constant HZDR_DEBUG_CON       : amba_device_type := 16#004#;
-  constant HZDR_TRIGGER_GEN     : amba_device_type := 16#005#;
+  constant HZDR_ZPU_AHB_WRAPPER       : amba_device_type := 16#001#;
+  constant HZDR_ZPU_MEM_WRAPPER       : amba_device_type := 16#002#;
+  constant HZDR_DCM_CTRL              : amba_device_type := 16#003#;
+  constant HZDR_DEBUG_CON             : amba_device_type := 16#004#;
+  constant HZDR_TRIGGER_GEN           : amba_device_type := 16#005#;
+  constant HZDR_BEAM_POSITION_MONITOR : amba_device_type := 16#006#;
 
 -- grlib system device id's
 
@@ -674,12 +675,13 @@ package devices is
   
   constant HZDR_DESC : vendor_description :=   "http://www.hzdr.de      ";
   constant hzdr_device_table : device_table_type := (
-      HZDR_ZPU_AHB_WRAPPER  => "ZPU AHB wrapper                ",
-      HZDR_ZPU_MEM_WRAPPER  => "ZPU Memory wrapper             ",
-      HZDR_DCM_CTRL         => "DCM phase shift control        ",
-      HZDR_DEBUG_CON        => "debug console                  ",
-      HZDR_TRIGGER_GEN      => "trigger generator              ",
-      others                => "Unknown Device                 ");
+      HZDR_ZPU_AHB_WRAPPER        => "ZPU AHB wrapper                ",
+      HZDR_ZPU_MEM_WRAPPER        => "ZPU Memory wrapper             ",
+      HZDR_DCM_CTRL               => "DCM phase shift control        ",
+      HZDR_DEBUG_CON              => "debug console                  ",
+      HZDR_TRIGGER_GEN            => "trigger generator              ",
+      HZDR_BEAM_POSITION_MONITOR  => "beam position monitor          ",
+      others                      => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,
       vendordesc       => HZDR_DESC,

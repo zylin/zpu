@@ -2,13 +2,13 @@
 #DIR        = ../s3estarter/syn/xst
 #SCREENSHOT = s3estarter_ressources
 
-#TOP        = spartan6_top
-#DIR        = ../beam_position_monitor/hardware/board_sp601/synthese/xst
-#SCREENSHOT = bpm_ressources
+TOP        = spartan6_top
+DIR        = ../beam_position_monitor/hardware/board_sp601/synthese_s3e/xst
+SCREENSHOT = bpm_ressources_se3
 
-TOP        = top
-DIR        = ../central_trigger_generator/syn/xst
-SCREENSHOT = central_trigger_ressources
+#TOP        = top
+#DIR        = ../central_trigger_generator/syn/xst
+#SCREENSHOT = central_trigger_ressources
 
 
 # derived Variables
