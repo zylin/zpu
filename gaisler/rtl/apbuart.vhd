@@ -513,11 +513,15 @@ begin
 
 -- drive outputs
 
-    uarto.txd <= r.txd; uarto.rtsn <= r.rtsn;
+    uarto.txd    <= r.txd; 
+    uarto.rtsn   <= r.rtsn;
     uarto.scaler <= "000000" & r.scaler;
-    apbo.prdata <= rdata; apbo.pirq <= irq;
-    apbo.pindex <= pindex;
-    uarto.txen <= r.txen; uarto.rxen <= r.rxen;
+    apbo.prdata  <= rdata; 
+    apbo.pirq    <= irq;
+    apbo.pindex  <= pindex;
+    uarto.txen   <= r.txen; 
+    uarto.rxen   <= r.rxen;
+    uarto.flow   <= 'Z'; -- added BLa, to avoid sim warnings
 
   end process;
 
