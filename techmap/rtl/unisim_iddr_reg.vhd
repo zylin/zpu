@@ -76,7 +76,7 @@ begin
          Port map( Q1 => Q1, Q2 => preQ2, C => C1, CE => CE,                 
            	   D => D, R => R,    S => S);
 
-       q3reg : process (C1, preQ2, R)
+       q3reg : process (C1, R)
        begin
           if R='1' then --asynchronous reset, active high
             Q2 <= '0';
@@ -90,7 +90,7 @@ begin
 
       -- CE and S inputs inactive for virtex 2
       
-      q1reg : process (C1, D, R)
+      q1reg : process (C1, R)
       begin
         if R='1' then --asynchronous reset, active high
           Q1 <= '0';
@@ -99,7 +99,7 @@ begin
         end if;
       end process;
 
-      q2reg : process (C1, D, R)
+      q2reg : process (C1, R)
       begin
         if R='1' then --asynchronous reset, active high
          preQ2 <= '0';
@@ -108,7 +108,7 @@ begin
         end if;
       end process;
 
-      q3reg : process (C1, preQ2, R)
+      q3reg : process (C1, R)
       begin
         if R='1' then --asynchronous reset, active high
           Q2 <= '0';
@@ -190,7 +190,7 @@ begin
 
   V4 : if (tech = virtex4) or (tech = virtex5) or (tech = virtex6) generate
 
-    d2reg : process (C1, D2, R)
+    d2reg : process (C1, R)
        begin
          if R='1' then --asynchronous reset, active high
            preD2 <= '0';
@@ -213,7 +213,7 @@ begin
 
   V2 : if tech = virtex2 or tech = spartan3 or tech = spartan6 generate
 
-      d2reg : process (C1, D2, R)
+      d2reg : process (C1, R)
       begin
         if R='1' then --asynchronous reset, active high
           preD2 <= '0';

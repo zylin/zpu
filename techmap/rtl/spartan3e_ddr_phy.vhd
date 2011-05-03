@@ -1125,7 +1125,7 @@ begin
   end process;
 
   rdel : if rstdelay /= 0 generate
-    rcnt : process (clk_0r)
+    rcnt : process (clk_0r, lockl)
     variable cnt : std_logic_vector(15 downto 0);
     variable vlock, co : std_ulogic;
     begin
