@@ -308,7 +308,7 @@ begin
         when others =>
           sampledDecodedOpcode <= Decoded_Nop;
       end case;  -- tOpcode(3 downto 0)
-    end if; tOpcode
+    end if; -- tOpcode
   end process;
 
 
