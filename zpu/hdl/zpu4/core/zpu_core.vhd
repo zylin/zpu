@@ -65,7 +65,7 @@ use work.zpupkg.all;
 entity zpu_core is
   port (
     clk                 : in  std_logic;
-    areset              : in  std_logic;
+    reset               : in  std_logic;
     enable              : in  std_logic;
     in_mem_busy         : in  std_logic;
     mem_read            : in  std_logic_vector(wordSize-1 downto 0);
@@ -230,7 +230,7 @@ begin
   decSp    <= sp - 1;
 
 
-  opcodeControl : process(clk, areset)
+  opcodeControl : process(clk, reset)
     variable tOpcode        : std_logic_vector(OpCode_Size-1 downto 0);
     variable spOffset       : unsigned(4 downto 0);
     variable tSpOffset      : unsigned(4 downto 0);
@@ -239,7 +239,7 @@ begin
     variable tDecodedOpcode : InsnArray;
     variable tMultResult    : unsigned(wordSize*2-1 downto 0);
   begin
-    if areset = '1' then
+    if reset = '1' then
       state <= State_Idle;
       break <= '0';
       sp    <= unsigned(spStart(maxAddrBitIncIO downto minAddrBit));

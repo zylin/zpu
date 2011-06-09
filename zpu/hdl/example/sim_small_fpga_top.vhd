@@ -115,7 +115,7 @@ begin
 
 	zpu: zpu_core port map (
 		clk => clk ,
-	 	areset => areset,
+	 	reset => areset,
 	 	enable => enable,
  		in_mem_busy => mem_busy, 
  		mem_read => mem_read,

@@ -45,7 +45,7 @@ entity zpu_core is
   port ( 
     clk                 : in std_logic;
     -- asynchronous reset signal
-    areset              : in std_logic;
+    reset               : in std_logic;
     -- this particular implementation of the ZPU does not
     -- have a clocked enable signal
     enable              : in  std_logic;
@@ -312,11 +312,11 @@ begin
   end process;
 
 
-  opcodeControl: process(clk, areset)
+  opcodeControl: process(clk, reset)
     variable spOffset : unsigned(4 downto 0);
   begin
 
-    if areset = '1' then
+    if reset = '1' then
       state               <= State_Resync;
       break               <= '0';
       sp                  <= unsigned(spStart(maxAddrBit downto minAddrBit));
