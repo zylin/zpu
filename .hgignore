@@ -15,6 +15,7 @@ _vmake
 _temp*
 transcript
 tcl_stacktrace.txt
+.stamp
 
 # c stuff
 *.elf
@@ -88,11 +89,14 @@ glob:programmer/
 glob:singlepulser/
 glob:sp601/sp601_restore_flash/
 glob:spartanMC/
-glob:treemap/Treeviz/*
-glob:treemap/Treeviz-0.35/
-glob:treemap/Treeviz_037/
+glob:treemap/Treeviz/
+glob:treemap/Treeviz*/
 glob:ultraschall_fft/
 glob:xst_errors/
+glob:planahead/
+glob:kwikstik/Freescale_MQX_3.7/
+glob:kwikstik/Hands-on Projekts/
+glob:snippets/
 
 # handled by SVN
 glob:beam_position_monitor/

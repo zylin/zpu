@@ -2,9 +2,13 @@
 #DIR        = ../s3estarter/syn/xst
 #SCREENSHOT = s3estarter_ressources
 
-TOP        = spartan6_top
-DIR        = ../beam_position_monitor/hardware/board_sp601/synthese_s3e/xst
-SCREENSHOT = bpm_ressources_se3
+#TOP        = top
+#DIR        = ../beam_position_monitor/hardware/board_sp601_amba/synthese/xst
+#SCREENSHOT = bpm_sp601_amba
+
+TOP        = top
+DIR        = ../beam_position_monitor/hardware/board_sp605/synthese/xst
+SCREENSHOT = bpm_sp605
 
 #TOP        = top
 #DIR        = ../central_trigger_generator/syn/xst

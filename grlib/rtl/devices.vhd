@@ -283,6 +283,8 @@ package devices is
   constant HZDR_DEBUG_CON             : amba_device_type := 16#004#;
   constant HZDR_TRIGGER_GEN           : amba_device_type := 16#005#;
   constant HZDR_BEAM_POSITION_MONITOR : amba_device_type := 16#006#;
+  constant HZDR_DEBUG_BUFFER_CONTROL  : amba_device_type := 16#007#;
+  constant HZDR_EA_DOGS102            : amba_device_type := 16#008#;
 
 -- grlib system device id's
 
@@ -681,6 +683,8 @@ package devices is
       HZDR_DEBUG_CON              => "debug console                  ",
       HZDR_TRIGGER_GEN            => "trigger generator              ",
       HZDR_BEAM_POSITION_MONITOR  => "beam position monitor          ",
+      HZDR_DEBUG_BUFFER_CONTROL   => "debug buffer control           ",
+      HZDR_EA_DOGS102             => "EA DOGS 102 display driver     ",
       others                      => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,

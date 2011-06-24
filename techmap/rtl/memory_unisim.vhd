@@ -1030,3 +1030,7 @@ begin
 	           enable(0), write(0));
   end generate;
 end;
+
+-- just to make make happy (generate a memory_unisim/_primary.dat)
+entity memory_unisim is
+end;
