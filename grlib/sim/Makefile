@@ -30,6 +30,7 @@ compile: lib $(vhdltargets)
 
 $(vhdltargets): $(vhdlfiles)
 	vcom -quiet  -2008 -work $(library) $(vhdlfiles)
+	@touch .stamp
 	# $(vhdltargets)
 
 

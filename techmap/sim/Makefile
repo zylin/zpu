@@ -16,7 +16,7 @@ rtl_files    = ../rtl/gencomp.vhd \
 	       ../rtl/spartan3e_ddr_phy.vhd \
 	       ../rtl/clkpad.vhd \
 	       ../rtl/iopad.vhd \
-	       ../rtl/syncram.vhd \
+	       ../rtl/syncram.vhd 
 
 rtl_tb_files = ../rtl_tb/*.vhd
 
