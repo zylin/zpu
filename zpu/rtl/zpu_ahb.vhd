@@ -28,7 +28,6 @@ entity zpu_ahb is
         clk     : in  std_ulogic;
     	-- asynchronous reset signal
 	 	reset   : in  std_ulogic;
-
         -- ahb
         ahbi   : in  ahb_mst_in_type; 
         ahbo   : out ahb_mst_out_type;

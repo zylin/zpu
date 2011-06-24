@@ -11,11 +11,11 @@ use zpu.zpupkg.zpu_core_small;
 
 
 entity zpu_wrapper is
-    Port ( 
+    port ( 
         clk     : in  std_ulogic;
     	-- reset signal
 	 	reset   : in  std_ulogic;
-
+        --
         zpu_in  : in  zpu_in_t;
         zpu_out : out zpu_out_t
         );
