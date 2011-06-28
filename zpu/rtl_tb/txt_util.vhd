@@ -70,7 +70,7 @@ package txt_util is
     function str(int: integer) return string;
 
     -- convert std_logic_vector into a string in hex format
-    function hstr(slv: std_logic_vector) return string;
+--  function hstr(slv: std_logic_vector) return string;
     function hstr(slv: std_ulogic_vector) return string;
 
 
@@ -313,11 +313,11 @@ package body txt_util is
 
 
    -- converts a std_logic_vector into a hex string.
-   function hstr(slv: std_logic_vector) return string is
+   function hstr(slv: std_ulogic_vector) return string is
        variable hexlen: integer;
-       variable longslv : std_logic_vector(67 downto 0) := (others => '0');
+       variable longslv : std_ulogic_vector(67 downto 0) := (others => '0');
        variable hex : string(1 to 16);
-       variable fourbit : std_logic_vector(3 downto 0);
+       variable fourbit : std_ulogic_vector(3 downto 0);
      begin
        hexlen := (slv'left+1)/4;
        if (slv'left+1) mod 4 /= 0 then
@@ -352,10 +352,10 @@ package body txt_util is
        return hex(1 to hexlen);
      end hstr;
    
-   function hstr(slv: std_ulogic_vector) return string is
-   begin
-     return( hstr( std_logic_vector( slv)));
-   end hstr;
+-- function hstr(slv: std_ulogic_vector) return string is
+-- begin
+--   return( hstr( std_logic_vector( slv)));
+-- end hstr;
 
 
 

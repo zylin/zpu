@@ -81,7 +81,7 @@ package sim is
   end component;  
 
   procedure hexread(L : inout line; value:out bit_vector);
-  procedure hexread(L : inout line; value:out std_logic_vector);
+  procedure hexread(L : inout line; value:out std_ulogic_vector);
   function ishex(c : character) return boolean;
   function buskeep(signal v : in std_logic_vector) return std_logic_vector;
   function buskeep(signal c : in std_logic) return std_logic;
@@ -431,12 +431,13 @@ package body sim is
     value := TO_X01(tmp);
   end hexread;
 
-  procedure hexread(L:inout line; value:out std_logic_vector) is
-    variable tmp: std_ulogic_vector(value'length-1 downto 0);	--'
-  begin
-    hexread(L, tmp);
-    value := std_logic_vector(tmp);
-  end hexread;
+-- VHDL 2008: slv is subtype of sulv
+--procedure hexread(L:inout line; value:out std_logic_vector) is
+--  variable tmp: std_ulogic_vector(value'length-1 downto 0);	--'
+--begin
+--  hexread(L, tmp);
+--  value := std_logic_vector(tmp);
+--end hexread;
 
   function ishex(c:character) return boolean is
   variable tmp : bit_vector(3 downto 0);
