@@ -56,7 +56,6 @@ Several of the links will only work if you have checked out the zpu/zpu tree fro
 <li> <a href="#misc">Miscellaneous</a>
   <ul> 
   <li> <a href="#tuning">Speeding up the ZPU</a>
-  <li> <a href="#hwdebugger">JTAG/hardware debugger for GDB</a>
   <li> <a href="#codesize">Optimizing for code size</a>
   <li> <a href="#ecos">Installing eCos build tools</a>
   <li> <a href="#memorymap">Memory map</a>
@@ -1609,29 +1608,6 @@ session</I></P>
 <a name="misc"/>
 <h1>Misc</h1>
 TODO Stuff that could probably find a better home.
-
-<a name="hwdebugger"/>
-<h2>JTAG/hardware debugger for GDB</h2>
-The Zylin <a href="http://www.zylin.com/zy1000.html">ZY1000</a> JTAG debugger supports
-the ZPU. Contact <a href="http://www.zylin.com">Zylin</a> for pricing and details.
-<p>
-There are two debug modes in which the ZY1000 can operate:
-<ul>
-<li>Classic. Here the ZY1000 controls the CPU and examines the state. The ZY1000 has a built in
-GDB server that GDB talks to.
-<li>Small footprint. If there isn't enough space on the device for the ZPU *and* the JTAG
-controller, then the ZY1000 can run the ZPU externally. The JTAG communication channel is
-then used to peek/poke peripherals and inside the FPGA instead of the ZPU there is then
-a JTAG controller that peeks and pokes the peripherals of the ZPU. There are advantages
-and disadvantages of this approach: it may be unfamiliar to embedded developers and  
-the timing is different from the "real" ZPU(interrupts are delayed, execution speed
-differse, etc.) On the other hand there are other things
-which are simpler: much more RAM can be available for the ZPU during development,
-better debug consoles(faster), additional peripheral(timers, etc.) is available. This
-approach is somewhat unique to the ZPU as the ZPU is simple enough that it can be
-implemented efficiently in this manner. 
-</ul>
-
 
 <a name="tuning"/>
 <h2>Speeding up the ZPU</h2>
