@@ -56,7 +56,11 @@ begin
 	timer_we <= writeEnable and addr(12);
 	
 	process(areset, clk)
-	variable taddr  : std_logic_vector(maxAddrBit downto 0);
+	variable taddr    : std_logic_vector(maxAddrBit downto 0);
+    -- pragma translate_off
+    variable line_out : line := new string'("");
+    variable char     : character;
+    -- pragma translate_on
 	begin
 		taddr := (others => '0');
 		taddr(maxAddrBit downto minAddrBit) := addr;
@@ -69,17 +73,25 @@ begin
 				-- external interface (fixed address)
 				--<JK> extend compare to avoid waring messages
 				if ("1" & addr & lowAddrBits)=x"80a000c" then
-					report "Write to UART[0]" & " :0x" & hstr(write);
 					-- Write to UART
-					-- report "" & character'image(conv_integer(memBint)) severity note;
-				    print(l_file, character'val(to_integer(unsigned(write))));
+					report "Write to UART[0]" & " :0x" & hstr(write);
+                    -- pragma translate_off
+				    char := character'val(to_integer(unsigned(write)));
+                    if char = lf then
+                        std.textio.writeline( l_file, line_out);
+                    else
+                        std.textio.write( line_out, char);
+                    end if;
+                    -- pragma translate_on
+
 				elsif addr(12)='1' then
 					report "Write to TIMER" & " :0x" & hstr(write);
 --				    report "xxx" severity failure;
 -- 					timer_we <= '1';
+
 				else
-					print(l_file, character'val(to_integer(unsigned(write))));
-					report "Illegal IO write @" & "0x" & hstr(taddr) severity warning;
+					
+                    report "Illegal IO write @" & "0x" & hstr(taddr) severity warning;
 				end if;
 				
 			end if;
