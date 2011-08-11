@@ -285,6 +285,7 @@ package devices is
   constant HZDR_BEAM_POSITION_MONITOR : amba_device_type := 16#006#;
   constant HZDR_DEBUG_BUFFER_CONTROL  : amba_device_type := 16#007#;
   constant HZDR_EA_DOGS102            : amba_device_type := 16#008#;
+  constant HZDR_DEBUG_TRACER          : amba_device_type := 16#009#;
 
 -- grlib system device id's
 
@@ -685,6 +686,7 @@ package devices is
       HZDR_BEAM_POSITION_MONITOR  => "beam position monitor          ",
       HZDR_DEBUG_BUFFER_CONTROL   => "debug buffer control           ",
       HZDR_EA_DOGS102             => "EA DOGS 102 display driver     ",
+      HZDR_DEBUG_TRACER           => "debug tracer memory            ",
       others                      => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,
