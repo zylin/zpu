@@ -37,6 +37,7 @@ find -not -group None -print0 | xargs -0 chown :None
 
 # svn stuff
 DIR=beam_position_monitor
-find $DIR -type f -name "*.vhd" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
-find $DIR -type f -name "*.h" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
-find $DIR -type f -name "*.c" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "Makefile" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.vhd"    -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.h"      -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.c"      -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
