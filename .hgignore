@@ -103,3 +103,7 @@ glob:beam_position_monitor/
 glob:central_trigger_generator/
 
 glob:*.cfi
+glob:zpu/support/zpuromgen.exe
+glob:s3estarter/software/support/zpuromgen.exe
+glob:s3estarter/software/support/ahbrom.exe
+glob:gaisler/support/ahbrom.exe
