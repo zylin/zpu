@@ -87,6 +87,8 @@ begin
         variable v: reg_t;
     begin
         v            := r;
+        ahbso.hready <= v.hready;
+
         v.hready     := '1';
         v.we         := '0';
 
@@ -110,7 +112,6 @@ begin
 
         v.data       := ahbsi.hwdata;
         
-        ahbso.hready <= v.hready;
         ahbso.hrdata <= s.data;
         if is_x( v.haddr) then
             addr     <= (others => '0');
