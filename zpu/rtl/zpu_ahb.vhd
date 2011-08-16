@@ -317,7 +317,7 @@ begin
             high_count := high_count + 1;
         end if;
 
-        assert high_count < 100
+        assert high_count < 500
             report me_c & "clk enable to zpu stuck low"
             severity error;
     end process;

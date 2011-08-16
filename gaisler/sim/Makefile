@@ -6,6 +6,7 @@ rtl_files    = ../rtl/misc.vhd \
                ../rtl/net.vhd \
                ../rtl/charrom_package.vhd \
                ../rtl/memctrl.vhd \
+               ../rtl/spimctrl.vhd \
 	       ../rtl/grethpkg.vhd \
 	       ../rtl/leon3.vhd \
 	       ../rtl/libdcom.vhd \
