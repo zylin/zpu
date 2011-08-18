@@ -1,0 +1,2 @@
+Digitalmultimeter mit schnellem Durchgangsprüfer
+Mixed-Signal_Oszilloskop (I2C, SPI)

@@ -1,0 +1,25 @@
+* Portierung uIP auf ZPU/greth/Spartan 3e
+
+
+* Entwicklung eines UDP-Stacks (in C) für ZPU (FPGA) und ARM-Cores
+  Ziele:
+	ggf. Portierung des vorhandenen Debug-Monitor 
+	Ansteuerung des Debug-Monitors per UDP
+	Ermittlung der maximal möglichen Transferrate auf der jeweiligen Plattform
+
+
+* Evaluierung von Entwicklungssystemen [STM32 (STMicroelectronics), NuMicro (Nuvoton), MSP430 (Texas Instruments) und/oder C8051/CP2201 (Sillicon Laboratories)]
+   Ziele: 
+	Welche Entwicklungssysteme laufen auf welcher Plattform (64bit?)
+	Lassen sich die Evaluation-Boards aus einer virtuellen Maschine heraus programmieren/debuggen?
+    Welche Schnittstellen/Peripherie steht zur Verfügung?
+	Wie lassen sich die verschiedenen Systeme schnell und günstig mit einem FPGA koppeln?
+
+
+* Inbetriebnahme/Portierung von eCos auf die o.g. Entwicklungssysteme
+  Ziele:
+	Ermittlung der Leistungsfähigkeit und des Ressourcenverbrauch (Flash, RAM) von ECOS auf den 
+	verschiedenen Entwicklungsplattformen
+
+* Evaluierung der PCIe Connnectivität des SP605
+    Xilinx Core bzw. grlib 

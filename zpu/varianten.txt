@@ -1,0 +1,36 @@
+avalanche -> verilog version
+
+example -> simzpu_dmips.do     -> sim_small_fpga_top_noint + bram_dmips.vhd
+        -> simzpu_small.do     -> sim_small_fpga_top_noint + helloworld.vhd
+        -> simzpu_interrupt.do -> sim_small_fpga_top       + interrupt.vhd
+
+example_ghdl -> dmipssmalltrace
+             -> dmipstrace
+             -> simzpu_medium
+
+example_medium -> simzpu_medium.do -> sim_fpga_top + dram_hello.vhd
+                                                     dram_dmips.vhd
+
+sim -> sinnlose(?) do-files für dmips
+
+spi -> SPI-Controller in verilog, wofür?
+
+wishbone -> wishbone wrapper/system
+
+zealot -> eigentlich das, wo man hin will
+          Dateien sind ordentlich sortiert
+          Code sehr gut dokumentiert (overcommented)
+          Einsatz von Prozeduren
+          trace mit deasm
+
+          aber die Portbezeichner sind unleserlich 
+          CamelCase - Componeneten :-/
+          teilweise zu kurze Bezeichner
+          viele generics
+          keine do-files
+
+zpu4 -> core -> core + core_small
+     -> src  -> im Prinzip phi-system
+     -> test -> build-Ergebnisse der software
+
+zy2000 -> zpusytem mit schnellem counter?
