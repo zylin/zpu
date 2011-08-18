@@ -1,0 +1,63 @@
+Problem: die guten/aktuellen Boards gibt es nur mit kostenpflichtigem ecosPRO Support
+
+TODO: Nachschauen, welche Boards von der CVS-Version von ecos unterstützt werden:
+http://ecos.sourceware.org/anoncvs.html
+CortexM3 -> Stellaris EK-LM3SS811 --> auch nur 8k RAM
+CortexM3 -> Olimex LPC 1766 STK
+
+
+
+Stamp9261 von Taskit
+====================
+http://www.taskit.de/produkte/stamp/index.htm?gclid=CJ28pvq4nqcCFUjxzAodSVDecw
+- 100polige Hirose FX8-Stecker (StampAdaptor), wo zu beziehen?
++ 32Bit Prozessorbus am StampAdaptor
+- Ethernet StampAdaptors
+Referenzchip (DM9000A) angeblich nur bei DacomWest zu finden
+* Briefmarke ab 99€
+* Starterkit ab 550€
+
+
+Stamp9G20 von Taskit
+====================
+http://www.taskit.de/produkte/stamp9g20/index.htm
+- 100polige Hirose FX8
++ 16Bit Prozessorbus
+
+
+AIM 711
+=======
+http://www.visionsystems.de/produkte/325.html
+SO-DIMM Formfaktor
++ ECOS ready
+- nur 8bit Bus
+
+
+Eddy v2.1-Serie
+===============
+http://www.trenz-electronic.de/de/produkte/arm-cpu-module/systembase/eddy-v21.html
+mit Linux
+- ecos nur als ecos pro support
++ 16Bit Datenbus (19Bit Adressen)
++ werben mit langer Verfügbarkeit
+Preis 51€
+Starterkit 160€
+
+
+CSB737 von Cogent
+=================
+SODIMM Formfaktor
++ 16Bit Daten/ 25Bit Adressbus
+
+
+Abcheckliste
+http://www.gumstix.com/store/catalog/product_info.php?products_id=251
+
+auf der Eddy CPU ist ein KSZ8041NL
+Ethernet Controller von Micrel
+
+ein AT91SAM9260. Der hat bereits ein MAC.
+
+Fazit: Mit Eddy-S2M/PIN V2 ist man für 79 Euro dabei, wenn man etwas
+mit Ethernet, Seriell, USB und MMC machen will.
+
