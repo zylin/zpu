@@ -1,0 +1,27 @@
+Mezzanineboard tesen
+------------------------------------------------------------
+    * Sichtprüfung
+    * Stromverbrauch messen (extern einspeisen?)
+    * anstecken, Stromverbrauch (Differenz vom Trägerboard)
+
+
+ADC
+----------------------------------------
+    * läßt sich der komplette Wertebreich vom FPGA auslesen
+
+DDS
+----------------------------------------
+    * reagieren die Steuerpins auf den FPGA
+    * lassen sich die Konfigurationsregister auslesen
+    * lassen sich die Konfigurationsregister schreiben
+    * werden die gewünschten Frequenzen erzeugt (1 MHz, 10 MHz, 50 MHz, 100 MHz)
+    * Klirrfaktor bestimmen
+    * kann die Synchronisation vom FPGA detektiert werden?
+
+
+Testgenerator
+----------------------------------------
+    * reagieren die Steuerpins auf den FPGA
+    * werden positive Testpulse erzeugt
+    * werden negative Testpulse erzeugt
+    * läßt sich die Pulshöhe steuern
