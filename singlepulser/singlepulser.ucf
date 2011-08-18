@@ -1,4 +1,0 @@
-
-NET "clk"  LOC = "P6"  ;
-NET "pulse_in"  LOC = "P7"  ;
-NET "pulse_out"  LOC = "P19"  ;
