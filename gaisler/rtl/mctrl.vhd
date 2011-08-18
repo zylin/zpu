@@ -1047,6 +1047,14 @@ begin
   end generate;
 
   sd1 : if not SDRAMEN generate
+    -- added BLa
+    memo.sa                   <= (others => '0');
+    memo.sddata(63 downto 0)  <= (others => '0');
+    rrsbdrive                 <= (others => '0');
+    memo.ce                   <= '0';
+    memo.sdram_en             <= '0';
+    memo.rs_edac_en           <= '0';
+    -- to avoid synthesis warnings
 	sdo <= ("00", "11", '1', '1', '1', "11111111");
         sdmo.prdata <= (others => '0');
         sdmo.address <= (others => '0'); sdmo.busy <= '0';
