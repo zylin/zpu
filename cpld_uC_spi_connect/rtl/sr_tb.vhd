@@ -42,8 +42,8 @@ architecture testbench of sr_tb is
             port_count_out : positive := 10
         );
         port(
-            di             : in  std_logic;
-            do             : out std_logic;
+            sdi            : in  std_logic;
+            sdo            : out std_logic;
             clk            : in  std_logic;
             latch_or_shift : in  std_logic; -- 1=latch, 0=shift
             port_in        : in  std_ulogic_vector( port_count_in -1 downto 0);
@@ -53,13 +53,13 @@ architecture testbench of sr_tb is
     
 
    --inputs
-   signal di             : std_ulogic := '0';
+   signal sdi            : std_ulogic := '0';
    signal clk            : std_ulogic := '0';
    signal latch_or_shift : std_ulogic := '0';
    signal port_in        : std_ulogic_vector(3 downto 0) := (others => '0');
 
     --outputs
-   signal do       : std_ulogic;
+   signal sdo      : std_ulogic;
    signal port_out : std_ulogic_vector(9 downto 0);
 
    procedure clocking is
@@ -72,8 +72,8 @@ begin
  
     -- instantiate the unit under test (uut)
    uut: sr port map (
-          di             => di,
-          do             => do,
+          sdi            => sdi,
+          sdo            => sdo,
           clk            => clk,
           latch_or_shift => latch_or_shift,
           port_in        => port_in,

@@ -1,0 +1,47 @@
+
+# Xilinx XC9536XL-VQ44-10C
+
+NET F1_07_GCK3      LOC = P1;
+NET F1_06           LOC = P2;
+NET F1_08           LOC = P3;
+# GND
+NET F1_09           LOC = P5;
+NET F1_10           LOC = P6;
+NET F1_11           LOC = P7;
+NET F1_12           LOC = P8;
+# TDI
+# TMS
+# TCK
+NET F1_13           LOC = P12;
+NET F1_14           LOC = P13; # LED ye
+NET F1_15           LOC = P14; # LED ye
+# VCCint 3.3V
+NET F1_16           LOC = P16; # LED ye
+# GND                   
+NET F1_17           LOC = P18; # LED ye
+NET F2_17           LOC = P19; # LED rd
+NET F2_16           LOC = P20; # LED rd
+NET F2_15           LOC = P21; # LED rd
+NET F2_14           LOC = P22; # LED rd
+NET F2_13           LOC = P23;
+# TDO
+# GND
+# VCCio 2.5/3.3V
+NET F2_12           LOC = P27;
+NET F2_11           LOC = P28;
+NET F2_10           LOC = P29;
+NET F2_09           LOC = P30;
+NET F2_08           LOC = P31;
+NET F2_07           LOC = P32;
+NET F2_06_GSR       LOC = P33; # button
+NET F2_05_GTS2      LOC = P34;
+# VCCint 3.3V
+NET F2_03_IO_GTS1   LOC = P36;
+NET F2_04           LOC = P37;
+NET F2_02           LOC = P38;
+NET F2_01           LOC = P39;
+NET F1_01           LOC = P40;
+NET F1_02           LOC = P41;
+NET F1_04           LOC = P42;
+NET F1_03_GCK1      LOC = P43; # clk from NE555
+NET F1_05_GCK2      LOC = P44;

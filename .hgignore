@@ -107,3 +107,4 @@ glob:zpu/support/zpuromgen.exe
 glob:s3estarter/software/support/zpuromgen.exe
 glob:s3estarter/software/support/ahbrom.exe
 glob:gaisler/support/ahbrom.exe
+glob:cpld_uC_spi_connect/synthese/ise/*
