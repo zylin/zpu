@@ -102,7 +102,13 @@ counter := (others => '0');
 		if begin_inst = '1' then
 			t(maxAddrBitIncIO downto 2):=sp;
 			t2:=pc;
-     		print(l_file, "0x" & hstr(t2) & " 0x" & hstr(opcode) & " 0x" & hstr(t) & " 0x" & hstr(memA) & " 0x" & hstr(memB) & " 0x" & hstr(intSp) & " 0x" & hstr(std_logic_vector(counter)));
+     		print(l_file, "0x" & hstr(std_ulogic_vector(t2)) & 
+                         " 0x" & hstr(std_ulogic_vector(opcode)) & 
+                         " 0x" & hstr(std_ulogic_vector(t)) & 
+                         " 0x" & hstr(std_ulogic_vector(memA)) & 
+                         " 0x" & hstr(std_ulogic_vector(memB)) & 
+                         " 0x" & hstr(std_ulogic_vector(intSp)) & 
+                         " 0x" & hstr(std_ulogic_vector(counter)));
 		end if;
 		
      	wait until clk = '0';
