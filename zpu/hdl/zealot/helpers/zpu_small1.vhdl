@@ -64,6 +64,14 @@ entity ZPU_Small1 is
    port(
       clk_i      : in  std_logic;  -- CPU clock
       rst_i      : in  std_logic;  -- Reset
+
+      -- Emulation pins:
+      emureq_i     : in std_logic;
+      emuexec_i    : in std_logic;
+      emuack_o     : out std_logic;
+      emurdy_o     : out std_logic;
+      emuir        : in std_logic_vector(OPCODE_W-1 downto 0);
+
       break_o    : out std_logic;  -- Break executed
       dbg_o      : out zpu_dbgo_t; -- Debug info
       rs232_tx_o : out std_logic;  -- UART Tx
@@ -125,7 +133,13 @@ begin
          D_CARE_VAL => D_CARE_VAL)
       port map(
          clk_i => clk_i, reset_i => rst_i, interrupt_i => '0',
+         emureq_i => emureq_i,
+         emuexec_i => emuexec_i,
+         emuack_o => emuack_o,
+         emurdy_o => emurdy_o,
+         emuir => emuir,
          break_o => break_o, dbg_o => dbg_o,
+
          -- BRAM (text, data, bss and stack)
          a_we_o => a_we, a_addr_o => a_addr, a_o => a_write, a_i => a_read,
          b_we_o => b_we, b_addr_o => b_addr, b_o => b_write, b_i => b_read,

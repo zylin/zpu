@@ -1,0 +1,22 @@
+Test Access Port implementation for the ZPU (alpha)
+----------------------------------------------------------------------------
+08/2011 Martin Strubel <hackfin@section5.ch>
+
+Brief:
+- Implements JTAG interface (on FPGA custom pins) for the zealot small core.
+  Zealot medium (and others) under scrutiny.
+- Important: Clock synchronization between TCK and core clock domain has
+  to be taken care of by the parenting module, in particular for the
+  emuexec_i pin. That means: From the emuexec rising edge signal from the TAP
+  you have to create a one core clock cycle wide emuexec_i pulse.
+- If you want to swap the debug interface, just write a new tapxxx.vhd
+- The software debug interface may change, and it may be different for various
+  implementations of the ZPU.
+  Possible solution:
+  * Create and register various ZPU core IDs (IDCODE instruction)
+  * Take care of the ZPU variant in the zpu emulation library:
+    $ZPU/zpu/sw/emulation/
+  * Likewise, handle various debug interfaces (direct/indirect JTAG, etc.)
+  * Implement different debug targets in gdbproxy, callable like
+    'gdbproxy zpu_<special_interface_name>', and just use different
+    libzpuemu configurations.

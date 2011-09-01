@@ -7,6 +7,7 @@
 // This software is free to use by anyone for any purpose.
 //
 
+#include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 

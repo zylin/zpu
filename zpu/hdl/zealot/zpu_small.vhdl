@@ -60,6 +60,14 @@ entity ZPUSmallCore is
       clk_i        : in  std_logic; -- System Clock
       reset_i      : in  std_logic; -- Synchronous Reset
       interrupt_i  : in  std_logic; -- Interrupt
+      -- Emulation pins:
+      emureq_i     : in std_logic;  -- Emulation request from TAP
+      emuexec_i    : in std_logic;  -- exec pulse. 1 clk cycle wide!
+      emuack_o     : out std_logic; -- Emulation ACK to TAP
+      emurdy_o     : out std_logic; -- Emulation ready
+      pulse_o      : out std_logic;  -- Debug pulse for event counter
+      emuir        : in std_logic_vector(OPCODE_W-1 downto 0);
+
       break_o      : out std_logic; -- Breakpoint opcode executed
       dbg_o        : out zpu_dbgo_t; -- Debug outputs (i.e. trace log)
       -- BRAM (text, data, bss and stack)
@@ -95,6 +103,8 @@ architecture Behave of ZPUSmallCore is
    signal sp_r           : unsigned(MAX_ADDR_BIT downto BYTE_BITS):=SP_START;
    signal idim_r         : std_logic:='0';
 
+   signal idim_save_r    : std_logic;
+
    -- BRAM (text, data, bss and stack)
    -- a_r is a register for the top of the stack [SP]
    -- Note: as this is a stack CPU this is a very important register.
@@ -110,7 +120,7 @@ architecture Behave of ZPUSmallCore is
    -- State machine.
    type state_t is (st_fetch, st_write_io_done, st_execute, st_add, st_or,
                     st_and, st_store, st_read_io, st_write_io, st_fetch_next,
-                    st_add_sp, st_decode, st_resync);
+                    st_add_sp, st_decode, st_resync, st_emulation);
    signal state          : state_t:=st_resync;
 
    -- Decoded Opcode
@@ -123,6 +133,13 @@ architecture Behave of ZPUSmallCore is
 
    signal opcode         : unsigned(OPCODE_W-1 downto 0); -- Decoded
    signal opcode_r       : unsigned(OPCODE_W-1 downto 0); -- Registered
+
+   -- '1' when we are in IC emulation
+   signal in_emu         : std_logic := '0';
+   signal break          : std_logic := '0'; -- emulation cause: breakpoint
+   signal ready          : std_logic := '0';
+   signal exec           : std_logic := '0'; -- Exec strobe
+   signal reset_exec     : std_logic := '0'; -- exec pulse reset
 
    -- IRQ flag
    signal in_irq_r       : std_logic:='0';
@@ -142,20 +159,26 @@ begin
    -------------------------
    -- Note: We use Port B memory to fetch the opcodes.
    decode_control:
-   process(b_i, pc_r)
+   process(b_i, pc_r, in_emu, exec, emuir)
       variable topcode : unsigned(OPCODE_W-1 downto 0);
    begin
-      -- Select the addressed byte inside the fetched word
-      case (to_integer(pc_r(BYTE_BITS-1 downto 0))) is
-           when 0 =>
-                topcode:=b_i(31 downto 24);
-           when 1 =>
-                topcode:=b_i(23 downto 16);
-           when 2 =>
-                topcode:=b_i(15 downto 8);
-           when others => -- 3
-                topcode:=b_i(7 downto 0);
-      end case;
+      -- When in emulation, get opcode from emuir
+      if in_emu = '1' and exec = '1' then
+         topcode := unsigned(emuir);
+      else
+         -- Select the addressed byte inside the fetched word
+         case (to_integer(pc_r(BYTE_BITS-1 downto 0))) is
+              when 0 =>
+                   topcode:=b_i(31 downto 24);
+              when 1 =>
+                   topcode:=b_i(23 downto 16);
+              when 2 =>
+                   topcode:=b_i(15 downto 8);
+              when others => -- 3
+                   topcode:=b_i(7 downto 0);
+         end case;
+      end if;
+
       opcode <= topcode;
 
       if (topcode(7 downto 7)=OPCODE_IM) then
@@ -192,11 +215,25 @@ begin
                    d_opcode <= dec_store;
               when OPCODE_POPSP =>
                    d_opcode <= dec_pop_sp;
+              -- when OPCODE_POPINT => -- Used to return from emulation
+                   -- d_opcode <= dec_emuleave;
               when others => -- OPCODE_NOP and others
                    d_opcode <= dec_nop;
          end case;
       end if;
    end process decode_control;
+
+trigger_exec:
+   process (clk_i, reset_exec)
+   begin
+      if rising_edge(clk_i) then
+         if emuexec_i = '1' then
+            exec <= '1';
+         elsif reset_exec = '1' then
+            exec <= '0';
+         end if;
+      end if;
+   end process;
 
    data_o <= b_i;
    opcode_control:
@@ -204,7 +241,6 @@ begin
       variable sp_offset : unsigned(4 downto 0);
    begin
       if rising_edge(clk_i) then
-         break_o      <= '0';
          write_en_o   <= '0';
          read_en_o    <= '0';
          dbg_o.b_inst <= '0';
@@ -238,6 +274,9 @@ begin
             if interrupt_i='0' then
                in_irq_r <= '0'; -- no longer in an interrupt
             end if;
+
+
+            reset_exec <= '0';
    
             case state is
                  when st_execute =>
@@ -245,7 +284,9 @@ begin
                       -- At this point:
                       -- b_i contains opcode word
                       -- a_i contains top of stack
-                      pc_r <= pc_r+1;
+                      if in_emu ='0' then
+                         pc_r <= pc_r+1;
+                      end if;
           
                       -- Debug info (Trace)
                       dbg_o.b_inst <= '1';
@@ -256,6 +297,7 @@ begin
                       dbg_o.sp(MAX_ADDR_BIT downto BYTE_BITS) <= sp_r;
                       dbg_o.stk_a <= a_i;
                       dbg_o.stk_b <= b_i;
+                      dbg_o.idim <= idim_r;
        
                       -- During the next cycle we'll be reading the next opcode
                       sp_offset(4):=not opcode_r(4);
@@ -324,8 +366,20 @@ begin
                                 b_addr_r <= sp_r+sp_offset;
                                 state    <= st_add_sp;
                            when dec_break =>
-                                --report "Break instruction encountered" severity failure;
-                                break_o <= '1';
+                                -- Hit breakpoint, enter emulation
+                                if in_emu = '0' then
+                                   in_emu <= '1';
+                                   break <= '1';
+                                   idim_save_r <= idim_r; -- save idim flag
+                                   state <= st_emulation;
+                                else
+                                   -- Leave emulation:
+                                   idim_r <= idim_save_r; -- restore idim flag
+                                   break <= '0';
+                                   in_emu <= '0';
+                                   b_addr_r <= pc_r(MAX_ADDR_BIT downto BYTE_BITS);
+                                   state    <= st_fetch_next;
+                                end if;
                            when dec_push_sp =>
                                 -- Push(SP)
                                 sp_r     <= sp_r-1;
@@ -413,6 +467,13 @@ begin
                       -- we'll fetch the opcode @ pc and thus it will
                       -- be available for st_execute the cycle after
                       -- next
+
+                      -- If we just entered emulation, save idim flag
+                      -- and mark we're in emulation.
+                      if emureq_i = '1' and in_emu = '0' then
+                         in_emu <= '1';
+                         idim_save_r <= idim_r; -- save idim flag
+                      end if;
                       b_addr_r <= pc_r(MAX_ADDR_BIT downto BYTE_BITS);
                       state    <= st_fetch_next;
                  when st_fetch_next =>
@@ -423,8 +484,12 @@ begin
                       a_addr_r <= sp_r;
                       b_addr_r <= sp_r+1;
                       state    <= st_decode;
+                      reset_exec <= '1';
                  when st_decode =>
-                      if interrupt_i='1' and in_irq_r='0' and idim_r='0' then
+                      state    <= st_execute;
+                      if in_emu = '1' then
+                         state    <= st_emulation;
+                      elsif interrupt_i='1' and in_irq_r='0' and idim_r='0' then
                          -- We got an interrupt, execute interrupt instead of next instruction
                          in_irq_r   <= '1';
                          d_opcode_r <= dec_interrupt;
@@ -432,7 +497,6 @@ begin
                       -- during the st_execute cycle we'll be fetching SP+1
                       a_addr_r <= sp_r;
                       b_addr_r <= sp_r+1;
-                      state    <= st_execute;
                  when st_store =>
                       sp_r     <= sp_r+1;
                       a_we_r   <= '1';
@@ -459,6 +523,15 @@ begin
                  when st_resync =>
                       a_addr_r <= sp_r;
                       state    <= st_fetch;
+                 when st_emulation =>
+                      a_addr_r <= sp_r;
+                      b_addr_r <= sp_r+1;
+
+                      if exec = '1' then
+                         state    <= st_execute;
+                      else
+                         state    <= st_emulation;
+                      end if;
                  when others =>
                       null;
             end case;
@@ -466,6 +539,15 @@ begin
       end if; -- rising_edge(clk_i)
    end process opcode_control;
    addr_o <= addr_r;
+
+-- Emulation flag export:
+
+   ready <= '1' when state = st_emulation else '0';
+   emuack_o <= in_emu;
+   emurdy_o <= ready and not exec;
+   break_o <= break;
+   pulse_o <= exec;
+
 
 end architecture Behave; -- Entity: ZPUSmallCore
 

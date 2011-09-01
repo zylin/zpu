@@ -1,0 +1,12 @@
+Simple atomic I/O emulation library layer for ZPU [DRAFT]
+----------------------------------------------------------------------------
+08/2011 Martin Strubel <hackfin@section5.ch>
+
+Brief:
+- Supports basic I/O set for debugging
+- Depends on a JTAG library defining a few simple commands
+- Not yet generic enough
+- Should in future take care of different ZPU implementations,
+  optimizations and debug interfaces. Currently, it supports the ICEbearPlus
+  JTAG library only.
+- TBD: Indirect JTAG interface

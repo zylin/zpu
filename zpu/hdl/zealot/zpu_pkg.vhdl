@@ -56,6 +56,7 @@ package zpupkg is
       sp     : unsigned(31 downto 0);
       stk_a  : unsigned(31 downto 0);
       stk_b  : unsigned(31 downto 0);
+      idim   : std_logic; -- Debugging: idim flag
    end record;
 
    component Trace is
@@ -66,6 +67,7 @@ package zpupkg is
       port(
          clk_i      : in std_logic;
          dbg_i      : in zpu_dbgo_t;
+         emu_i      : in std_logic;
          stop_i     : in std_logic;
          busy_i     : in std_logic
          );
@@ -81,6 +83,15 @@ package zpupkg is
          clk_i        : in  std_logic; -- System Clock
          reset_i      : in  std_logic; -- Synchronous Reset
          interrupt_i  : in  std_logic; -- Interrupt
+
+         -- Emulation pins:
+         emureq_i     : in std_logic;
+         emuexec_i    : in std_logic;  -- exec pulse. 1 clk cycle wide!
+         emuack_o     : out std_logic;
+         emurdy_o     : out std_logic;
+         pulse_o      : out std_logic;  -- Debug pulse for event counter
+         emuir        : in std_logic_vector(OPCODE_W-1 downto 0);
+
          break_o      : out std_logic; -- Breakpoint opcode executed
          dbg_o        : out zpu_dbgo_t; -- Debug outputs (i.e. trace log)
          -- BRAM (text, data, bss and stack)

@@ -63,6 +63,7 @@ entity Trace is
    port(
       clk_i      : in std_logic;
       dbg_i      : in zpu_dbgo_t;
+      emu_i      : in std_logic; -- Emulation trigger
       stop_i     : in std_logic;
       busy_i     : in std_logic
       );
@@ -76,6 +77,7 @@ begin
    receive_data:
    process
       variable l       : line;
+      variable l0      : line;
       variable stk_min : unsigned(31 downto 0):=(others => '1');
       variable stk_ini : unsigned(31 downto 0);
       variable first   : boolean:=true;
@@ -204,7 +206,7 @@ begin
             else -- OPCODE_SHORT
                case dbg_i.opcode(3 downto 0) is
                     when OPCODE_BREAK =>
-                         write(l,string'("break"));
+                         write(l,string'("break/rte"));
                     when OPCODE_PUSHSP =>
                          write(l,string'("pushsp"));
                     when OPCODE_POPPC =>
@@ -247,7 +249,19 @@ begin
                first:=false;
             end if;
          end if;
-         wait until clk_i='0' or stop_i='1';
+         wait until clk_i='0' or stop_i='1' or emu_i'event;
+         if emu_i'event then
+            if emu_i = '1' then
+               write(l0, "-- Enable Emulation --");
+               writeline(l_file,l0);
+               print(output,"Enter Emulation at PC 0x"&hstr(dbg_i.pc(ADDR_W-1 downto 0)));
+            else
+               write(l0, "-- Disable Emulation --");
+               writeline(l_file,l0);
+               print(output,"Leave Emulation at PC 0x"&hstr(dbg_i.pc(ADDR_W-1 downto 0)));
+            end if;
+            wait until clk_i='0';
+         end if;
          if stop_i='1' then
             print(output,"Minimum SP: 0x"&hstr(stk_min)&" Size: 0x"&hstr(stk_ini-stk_min));
             wait;
