@@ -23,3 +23,5 @@
 
 * Evaluierung der PCIe Connnectivität des SP605
     Xilinx Core bzw. grlib 
+
+* Evaluierung von Actel-Smartfusion
