@@ -158,6 +158,8 @@ begin
 
    do_io:
    process(clk_i)
+        variable line_out : line := new string'("");
+        variable char     : character;
    begin
       if rising_edge(clk_i) then
          if reset_i/='1' then
@@ -167,9 +169,12 @@ begin
                   -- Write to UART
                   print("- Write to UART Tx: 0x" &hstr(data_i)&" ("&
                         character'val(to_integer(data_i) mod 256)&")");
-                  if to_integer(data_i)<256 then
-                     print(l_file,character'val(to_integer(data_i)));
-                  end if;
+                    char := character'val(to_integer(data_i));
+                    if char = lf then
+                        std.textio.writeline(l_file, line_out);
+                    else
+                        std.textio.write(line_out, char);
+                    end if;
                elsif is_timer='1' and ENA_LOG then
                   print("- Write to TIMER: 0x"&hstr(data_i));
                else
