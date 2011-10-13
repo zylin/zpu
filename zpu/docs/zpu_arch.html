@@ -1068,55 +1068,112 @@ For now if you are starting a design, zpu4 or zealot are probably the safest.  z
 <a name="performance"/>
 <h2>Performance Summary</h2>
 
-TODO fill in performance table.
+TODO fill in performance table for Altera and Lattice.
+<p>
+Tests are done with the <a href="#zealot">Zealot</a>
+ SoC-System and Xilinx ISE 12.2 with standard settings.
 <p>
 <TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
     <TR VALIGN=TOP>
       <TD WIDTH=85> <P><B>CORE/Config</B></P> </TD>
-      <TD WIDTH=85> <P><B>Spartan3e</B></P> </TD>
-      <TD WIDTH=85> <P><B>Cyclone3</B></P> </TD>
-      <TD WIDTH=85> <P><B>DMIPS @ 50MHz</B></P> </TD>
+      <TD WIDTH=85> <P><B>Spartan-3</B></P> </TD>
+      <TD WIDTH=85> <P><B>Spartan-3E</B></P> </TD>
+      <TD WIDTH=85> <P><B>Spartan-6</B></P> </TD>
+      <TD WIDTH=85> <P><B>Virtex-5</B></P> </TD>
+      <TD WIDTH=85> <P><B>Cyclone-3</B></P> </TD>
+      <TD WIDTH=85> <P><B>DMIPS</B></P> </TD>
     </TR>
     
 <TR VALIGN=TOP>
-<TD WIDTH=85> <PRE>
+<TD WIDTH=85> <P>
 zpu4 small
-maxAddrBit=?
-...
+maxAddrBit=16
+</P> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Spartan-3 -->
+591 LUT
+389 REG
+  0 MULT18x18
+ 16 BRAM
+ 90 fmax
 </PRE> </TD>
 <TD WIDTH=85> <PRE>
-? LUT
-? REG
-? MULT18x18
-? BRAM
-? fmax
+<!-- Spartan-3E -->
+626 LUT
+389 REG
+  0 MULT18x18
+ 16 BRAM
+100 fmax
 </PRE> </TD>
 <TD WIDTH=85> <PRE>
+<!-- Spartan-6 -->
+639 LUT
+372 REG
+  0 MULT18x18
+ 16 BRAM
+100 fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Virtex-5 -->
+560 LUT
+388 REG
+  0 MULT18x18
+  8 BRAM (RAMB36)
+140 fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Cyclone -->
 ? LUT
 ? REG
 ? MULT18x18
 ? M4K
 ? fmax
 </PRE> </TD>
-<TD WIDTH=85> <P>???</P> </TD>
+<TD WIDTH=85> <!-- DMIPS --> <P>0.5</P> </TD>
 </TR>
 
 <TR VALIGN=TOP> <TD WIDTH=85> <P>zpu4 medium</P> </TD>
 <TD WIDTH=85> <PRE>
-? LUT
-? REG
-? MULT18x18
-? BRAM
-? fmax
+<!-- Spartan-3 -->
+1760 LUT
+ 514 REG
+   3 MULT18x18
+  16 BRAM (RAMB16)
+  75 fmax
 </PRE> </TD>
 <TD WIDTH=85> <PRE>
+<!-- Spartan-3E -->
+1754 LUT
+ 509 REG
+   3 MULT18x18
+  16 BRAM (RAMB16)
+  75 fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Spartan-6 -->
+1162 LUT
+ 481 REG
+   3 MULT (DSP48A1)
+  16 BRAM (RAMB16)
+  80 fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Virtex-5 -->
+1292 LUT
+ 490 REG
+   3 MULT (DSP48E)
+   8 BRAM (RAMB36)
+ 125 fmax
+</PRE> </TD>
+<TD WIDTH=85> <PRE>
+<!-- Cyclone -->
 ? LUT
 ? REG
 ? MULT18x18
 ? M4K
 ? fmax
 </PRE> </TD>
-<TD WIDTH=85> <P>???</P> </TD>
+<TD WIDTH=85><!-- DMIPS --><P>2.6</P> </TD>
 </TR>
 
   </TABLE>
@@ -1128,7 +1185,7 @@ Found in <a href="../hdl/zpu4/core/zpu_core_small.vhd">zpu/zpu/hdl/zpu4/core/zpu
 The small ZPU4 implements the minimum instruction set. It is optimized for size and simplicity
 serving as a reference in both regards.
 <p>
-It uses a BRAM (dual port RAM w/read/write to both ports) as data & code storage and
+It uses a RAM (dual port RAM w/read/write to both ports) as data & code storage and
 is implemented as a simple state machine. 
 <p>
 Essentially it has three states:
