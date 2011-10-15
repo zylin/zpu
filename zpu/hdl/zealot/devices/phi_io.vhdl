@@ -158,8 +158,10 @@ begin
 
    do_io:
    process(clk_i)
+        --synopsys translate off
         variable line_out : line := new string'("");
         variable char     : character;
+        --synopsys translate on
    begin
       if rising_edge(clk_i) then
          if reset_i/='1' then
