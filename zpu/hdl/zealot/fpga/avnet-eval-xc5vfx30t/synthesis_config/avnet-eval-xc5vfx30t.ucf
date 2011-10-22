@@ -1,0 +1,469 @@
+############################################################
+# Avnet Virtex 5 FX Evaluation Board constraints file
+#
+# Familiy: Virtex5 
+# Device:  XC5VFX30T
+# Package: FF665
+# Speed:   -1
+#
+#
+# Bank 0  3.3V
+# Bank 1  3.3V
+# Bank 2  3.3V
+# Bank 3  3.3V
+# Bank 4  2.5V or 3.3V (JP2, VIO_EXP1_DP), here 2.5V
+# Bank 11 1.8V
+# Bank 12 3.3V
+# Bank 13 1.8V
+# Bank 15 3.3V
+# Bank 16 2.5V or 3.3V (JP3, VIO_EXP1_SE), here 2.5V
+# Bank 17 1.8V
+# Bank 18 2.5V or 3.3V (JP2, VIO_EXP1_DP), here 2.5V
+
+
+############################################################
+## clock/timing constraints
+############################################################
+
+TIMESPEC "TS_clk_100" = PERIOD "clk_100" 100 MHz;
+
+
+############################################################
+## pin placement constraints
+############################################################
+
+NET "clk_100MHz"                         LOC= E18  | IOSTANDARD = LVCMOS33 | TNM_NET = "clk_100";
+NET "clk_socket"                         LOC= E13  | IOSTANDARD = LVCMOS33;
+NET "user_clk_p"                         LOC= AB15 ;
+NET "user_clk_n"                         LOC= AC16 ;
+
+# RS232
+NET "RS232_RX"                           LOC= K8   | IOSTANDARD = LVCMOS33;
+NET "RS232_TX"                           LOC= L8   | IOSTANDARD = LVCMOS33;
+NET "RS232_RTS"                          LOC= N8   | IOSTANDARD = LVCMOS33; # Jumper J3
+NET "RS232_CTS"                          LOC= R8   | IOSTANDARD = LVCMOS33; # Jumper J4
+
+# RS232_USB
+NET "RS232_USB_RX"                       LOC= AA10 | IOSTANDARD = LVCMOS33;
+NET "RS232_USB_TX"                       LOC= AA19 | IOSTANDARD = LVCMOS33;
+NET "RS232_USB_reset_n"                  LOC= Y20  | IOSTANDARD = LVCMOS33;
+
+# GPIO LEDs, active low
+NET "GPIO_LED_n<0>"                      LOC= AF22 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<1>"                      LOC= AF23 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<2>"                      LOC= AF25 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<3>"                      LOC= AE25 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<4>"                      LOC= AD25 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<5>"                      LOC= AE26 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<6>"                      LOC= AD26 | IOSTANDARD = LVCMOS18 | PULLUP;
+NET "GPIO_LED_n<7>"                      LOC= AC26 | IOSTANDARD = LVCMOS18 | PULLUP;
+
+# GPIO DIP_Switches
+NET "GPIO_DIPswitch<0>"                  LOC= AD13 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<1>"                  LOC= AE13 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<2>"                  LOC= AF13 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<3>"                  LOC= AD15 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<4>"                  LOC= AD14 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<5>"                  LOC= AF14 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<6>"                  LOC= AE15 | IOSTANDARD = LVCMOS18;
+NET "GPIO_DIPswitch<7>"                  LOC= AF15 | IOSTANDARD = LVCMOS18;
+
+# Push Buttons
+NET "GPIO_button<0>"                     LOC= AF20 | IOSTANDARD = LVCMOS18 | PULLUP; #PB1
+NET "GPIO_button<1>"                     LOC= AE20 | IOSTANDARD = LVCMOS18 | PULLUP; #PB2
+NET "GPIO_button<2>"                     LOC= AD19 | IOSTANDARD = LVCMOS18 | PULLUP; #PB3
+NET "GPIO_button<3>"                     LOC= AD20 | IOSTANDARD = LVCMOS18 | PULLUP; #PB4
+
+# FLASH_8Mx16
+NET "FLASH_A<31>"                        LOC= Y11  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<30>"                        LOC= H9   | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<29>"                        LOC= G10  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<28>"                        LOC= H21  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<27>"                        LOC= G20  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<26>"                        LOC= H11  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<25>"                        LOC= G11  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<24>"                        LOC= H19  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<23>"                        LOC= H18  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<22>"                        LOC= G12  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<21>"                        LOC= F13  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<20>"                        LOC= G19  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<19>"                        LOC= F18  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<18>"                        LOC= F14  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<17>"                        LOC= F15  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<16>"                        LOC= F17  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<15>"                        LOC= G17  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<14>"                        LOC= G14  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<13>"                        LOC= H13  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<12>"                        LOC= G16  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<11>"                        LOC= G15  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<10>"                        LOC= Y18  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<9>"                         LOC= AA18 | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<8>"                         LOC= Y10  | IOSTANDARD = LVCMOS33;
+NET "FLASH_A<7>"                         LOC= W11  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<0>"                        LOC= AA15 | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<1>"                        LOC= Y15  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<2>"                        LOC= W14  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<3>"                        LOC= Y13  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<4>"                        LOC= W16  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<5>"                        LOC= Y16  | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<6>"                        LOC= AA14 | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<7>"                        LOC= AA13 | IOSTANDARD = LVCMOS33;
+NET "FLASH_DQ<8>"                        LOC= AB12 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<9>"                        LOC= AC11 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<10>"                       LOC= AB20 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<11>"                       LOC= AB21 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<12>"                       LOC= AB11 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<13>"                       LOC= AB10 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<14>"                       LOC= AA20 | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_DQ<15>"                       LOC= Y21  | IOSTANDARD = LVCMOS25; # with level shifter
+NET "FLASH_WEN"                          LOC= AA17 | IOSTANDARD = LVCMOS33;
+NET "FLASH_OEN<0>"                       LOC= AA12 | IOSTANDARD = LVCMOS33;
+NET "FLASH_CEN<0>"                       LOC= Y12  | IOSTANDARD = LVCMOS33;
+NET "FLASH_rp_n"                         LOC= D13  | IOSTANDARD = LVCMOS33;
+NET "FLASH_byte_n"                       LOC= Y17  | IOSTANDARD = LVCMOS33;
+NET "FLASH_adv_n"                        LOC= F19  | IOSTANDARD = LVCMOS33;
+NET "FLASH_clk"                          LOC= E12  | IOSTANDARD = LVCMOS33;
+NET "FLASH_wait"                         LOC= D16  | IOSTANDARD = LVCMOS33;
+
+# DDR2_SDRAM_16Mx32
+NET "DDR2_ODT<0>"                        LOC= AF24 | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<0>"                          LOC= U25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<1>"                          LOC= T25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<2>"                          LOC= T24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<3>"                          LOC= T23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<4>"                          LOC= U24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<5>"                          LOC= V24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<6>"                          LOC= Y23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<7>"                          LOC= W23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<8>"                          LOC= AA25 | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<9>"                          LOC= AB26 | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<10>"                         LOC= AB25 | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<11>"                         LOC= AB24 | IOSTANDARD = SSTL18_II;
+NET "DDR2_A<12>"                         LOC= AA23 | IOSTANDARD = SSTL18_II;
+NET "DDR2_BA<0>"                         LOC= U21  | IOSTANDARD = SSTL18_II;
+NET "DDR2_BA<1>"                         LOC= V22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_CAS_N"                         LOC= W24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_CKE"                           LOC= T22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_CS_N"                          LOC= AD24 | IOSTANDARD = SSTL18_II;
+NET "DDR2_RAS_N"                         LOC= Y22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_WE_N"                          LOC= AA22 | IOSTANDARD = SSTL18_II;
+NET "DDR2_DM<0>"                         LOC= U26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DM<1>"                         LOC= N24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DM<2>"                         LOC= M24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DM<3>"                         LOC= M25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_P<0>"                      LOC= W26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_P<1>"                      LOC= L23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_P<2>"                      LOC= K22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_P<3>"                      LOC= J21  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_N<0>"                      LOC= W25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_N<1>"                      LOC= L22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_N<2>"                      LOC= K23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQS_N<3>"                      LOC= K21  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<0>"                         LOC= R22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<1>"                         LOC= R23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<2>"                         LOC= P23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<3>"                         LOC= P24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<4>"                         LOC= R25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<5>"                         LOC= P25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<6>"                         LOC= R26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<7>"                         LOC= P26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<8>"                         LOC= M26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<9>"                         LOC= N26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<10>"                        LOC= K25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<11>"                        LOC= L24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<12>"                        LOC= K26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<13>"                        LOC= J26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<14>"                        LOC= J25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<15>"                        LOC= N21  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<16>"                        LOC= M21  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<17>"                        LOC= J23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<18>"                        LOC= H23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<19>"                        LOC= H22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<20>"                        LOC= G22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<21>"                        LOC= F22  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<22>"                        LOC= F23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<23>"                        LOC= E23  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<24>"                        LOC= G24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<25>"                        LOC= F24  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<26>"                        LOC= G25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<27>"                        LOC= H26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<28>"                        LOC= G26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<29>"                        LOC= F25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<30>"                        LOC= E25  | IOSTANDARD = SSTL18_II;
+NET "DDR2_DQ<31>"                        LOC= E26  | IOSTANDARD = SSTL18_II;
+NET "DDR2_CK_p<0>"                       LOC= V21  | IOSTANDARD = DIFF_SSTL18_II;
+NET "DDR2_CK_p<1>"                       LOC= N22  | IOSTANDARD = DIFF_SSTL18_II;
+NET "DDR2_CK_n<0>"                       LOC= W21  | IOSTANDARD = DIFF_SSTL18_II;
+NET "DDR2_CK_n<1>"                       LOC= M22  | IOSTANDARD = DIFF_SSTL18_II;
+
+# Ethernet MAC
+NET "GMII_txer"                          LOC= A22  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_clk"                        LOC= E17  | IOSTANDARD = LVCMOS33 | PERIOD=40000 ps;
+NET "GMII_rx_clk"                        LOC= E20  | IOSTANDARD = LVCMOS33 | PERIOD=40000 ps;
+NET "GMII_gtc_clk"                       LOC= A19  | IOSTANDARD = LVCMOS33;
+NET "GMII_crs"                           LOC= A25  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_dv"                            LOC= C21  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<0>"                    LOC= D24  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<1>"                    LOC= D23  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<2>"                    LOC= D21  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<3>"                    LOC= C26  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<4>"                    LOC= D20  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<5>"                    LOC= C23  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<6>"                    LOC= B25  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_data<7>"                    LOC= C22  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_col"                           LOC= A24  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_rx_er"                         LOC= B24  | IOSTANDARD = LVCMOS33 | IOBDELAY=NONE;
+NET "GMII_tx_en"                         LOC= A23  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<0>"                    LOC= D19  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<1>"                    LOC= C19  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<2>"                    LOC= A20  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<3>"                    LOC= B20  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<4>"                    LOC= B19  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<5>"                    LOC= A15  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<6>"                    LOC= B22  | IOSTANDARD = LVCMOS33;
+NET "GMII_tx_data<7>"                    LOC= B21  | IOSTANDARD = LVCMOS33;
+NET "GBE_rst_n"                          LOC= B26  | IOSTANDARD = LVCMOS33;
+NET "GBE_mdc"                            LOC= D26  | IOSTANDARD = LVCMOS33;
+NET "GBE_mdio"                           LOC= D25  | IOSTANDARD = LVCMOS33;
+NET "GBE_int_n"                          LOC= C24  | IOSTANDARD = LVCMOS33;
+NET "GBE_mclk"                           LOC= F20  | IOSTANDARD = LVCMOS33;
+
+# SysACE CompactFlash
+NET "SAM_CLK"                            LOC= F12  | IOSTANDARD = LVCMOS33;
+NET "SAM_A<0>"                           LOC= Y5   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<1>"                           LOC= V7   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<2>"                           LOC= W6   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<3>"                           LOC= W5   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<4>"                           LOC= K6   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<5>"                           LOC= J5   | IOSTANDARD = LVCMOS33;
+NET "SAM_A<6>"                           LOC= J6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<0>"                           LOC= F5   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<1>"                           LOC= U7   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<2>"                           LOC= V6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<3>"                           LOC= U5   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<4>"                           LOC= U6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<5>"                           LOC= T5   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<6>"                           LOC= T7   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<7>"                           LOC= R6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<8>"                           LOC= R7   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<9>"                           LOC= R5   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<10>"                          LOC= P6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<11>"                          LOC= P8   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<12>"                          LOC= N6   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<13>"                          LOC= M7   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<14>"                          LOC= K5   | IOSTANDARD = LVCMOS33;
+NET "SAM_D<15>"                          LOC= L7   | IOSTANDARD = LVCMOS33;
+NET "SAM_CEN"                            LOC= G4   | IOSTANDARD = LVCMOS33;
+NET "SAM_OEN"                            LOC= Y6   | IOSTANDARD = LVCMOS33;
+NET "SAM_WEN"                            LOC= Y4   | IOSTANDARD = LVCMOS33;
+NET "SAM_MPIRQ"                          LOC= H4   | IOSTANDARD = LVCMOS33;
+NET "SAM_BRDY"                           LOC= G5   | IOSTANDARD = LVCMOS33;
+NET "SAM_RESET_n"                        LOC= H6   | IOSTANDARD = LVCMOS33;
+
+# Expansion Header
+NET "EXP1_SE_IO<0>"                      LOC= A8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<1>"                      LOC= A12  | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<2>"                      LOC= B10  | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<3>"                      LOC= A10  | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<4>"                      LOC= B9   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<5>"                      LOC= A9   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<6>"                      LOC= A5   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<7>"                      LOC= B11  | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<8>"                      LOC= B6   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<9>"                      LOC= A7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<10>"                     LOC= D8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<11>"                     LOC= C9   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<12>"                     LOC= B7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<13>"                     LOC= A4   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<14>"                     LOC= B5   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<15>"                     LOC= C8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<16>"                     LOC= C7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<17>"                     LOC= A3   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<18>"                     LOC= C6   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<19>"                     LOC= B4   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<20>"                     LOC= D6   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<21>"                     LOC= D9   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<22>"                     LOC= E8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<23>"                     LOC= D5   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<24>"                     LOC= F7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<25>"                     LOC= E7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<26>"                     LOC= E5   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<27>"                     LOC= E6   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<28>"                     LOC= F8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<29>"                     LOC= H7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<30>"                     LOC= G7   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<31>"                     LOC= H8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<32>"                     LOC= G9   | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_IO<33>"                     LOC= J8   | IOSTANDARD = LVCMOS25;
+NET "EXP1_DIFF_P<0>"                     LOC= AF9  ;
+NET "EXP1_DIFF_N<0>"                     LOC= AF10 ;
+NET "EXP1_DIFF_P<1>"                     LOC= AF12 ;
+NET "EXP1_DIFF_N<1>"                     LOC= AE12 ;
+NET "EXP1_DIFF_P<2>"                     LOC= AF7  ;
+NET "EXP1_DIFF_N<2>"                     LOC= AF8  ;
+NET "EXP1_DIFF_P<3>"                     LOC= AE11 ;
+NET "EXP1_DIFF_N<3>"                     LOC= AD11 ;
+NET "EXP1_DIFF_P<4>"                     LOC= AF4  ;
+NET "EXP1_DIFF_N<4>"                     LOC= AF3  ;
+NET "EXP1_DIFF_P<5>"                     LOC= AD10 ;
+NET "EXP1_DIFF_N<5>"                     LOC= AE10 ;
+NET "EXP1_DIFF_P<6>"                     LOC= AE8  ;
+NET "EXP1_DIFF_N<6>"                     LOC= AE7  ;
+NET "EXP1_DIFF_P<7>"                     LOC= AC8  ;
+NET "EXP1_DIFF_N<7>"                     LOC= AD8  ;
+NET "EXP1_DIFF_P<8>"                     LOC= AD9  ;
+NET "EXP1_DIFF_N<8>"                     LOC= AC9  ;
+NET "EXP1_DIFF_P<9>"                     LOC= AE6  ;
+NET "EXP1_DIFF_N<9>"                     LOC= AF5  ;
+NET "EXP1_DIFF_P<10>"                    LOC= AB6  ;
+NET "EXP1_DIFF_N<10>"                    LOC= AB7  ;
+NET "EXP1_DIFF_P<11>"                    LOC= AC6  ;
+NET "EXP1_DIFF_N<11>"                    LOC= AD5  ;
+NET "EXP1_DIFF_P<12>"                    LOC= AD6  ;
+NET "EXP1_DIFF_N<12>"                    LOC= AC7  ;
+NET "EXP1_DIFF_P<13>"                    LOC= AE5  ;
+NET "EXP1_DIFF_N<13>"                    LOC= AD4  ;
+NET "EXP1_DIFF_P<14>"                    LOC= AB9  ;
+NET "EXP1_DIFF_N<14>"                    LOC= AA9  ;
+NET "EXP1_DIFF_P<15>"                    LOC= AC12 ;
+NET "EXP1_DIFF_N<15>"                    LOC= AC13 ;
+NET "EXP1_DIFF_P<16>"                    LOC= AA7  ;
+NET "EXP1_DIFF_N<16>"                    LOC= AA8  ;
+NET "EXP1_DIFF_P<17>"                    LOC= AA5  ;
+NET "EXP1_DIFF_N<17>"                    LOC= AB5  ;
+NET "EXP1_DIFF_P<18>"                    LOC= AB19 ;
+NET "EXP1_DIFF_N<18>"                    LOC= AC19 ;
+NET "EXP1_DIFF_P<19>"                    LOC= Y7   ;
+NET "EXP1_DIFF_N<19>"                    LOC= Y8   ;
+NET "EXP1_DIFF_P<20>"                    LOC= W9   ;
+NET "EXP1_DIFF_N<20>"                    LOC= W8   ;
+NET "EXP1_DIFF_P<21>"                    LOC= V8   ;
+NET "EXP1_DIFF_N<21>"                    LOC= V9   ;
+NET "EXP1_SE_CLK_OUT"                    LOC= B12  | IOSTANDARD = LVCMOS25;
+NET "EXP1_SE_CLK_IN"                     LOC= E10  | IOSTANDARD = LVCMOS33;
+NET "EXP1_DIFF_CLK_OUT_P"                LOC= AC18 ;
+NET "EXP1_DIFF_CLK_OUT_N"                LOC= AB17 ;
+NET "EXP1_DIFF_CLK_IN_P"                 LOC= AB14 ;
+NET "EXP1_DIFF_CLK_IN_N"                 LOC= AC14 ;
+#NET "EXP1_RCLK_DIFF_P"                   LOC= AB6  ;
+#NET "EXP1_RCLK_DIFF_N"                   LOC= AB7  ;
+
+# CPU Debug Trace
+NET "ATDD<8>"                            LOC= C16  | IOSTANDARD = LVCMOS33;
+NET "ATDD<9>"                            LOC= A17  | IOSTANDARD = LVCMOS33;
+NET "ATDD<10>"                           LOC= B15  | IOSTANDARD = LVCMOS33;
+NET "ATDD<11>"                           LOC= E15  | IOSTANDARD = LVCMOS33;
+NET "ATDD<12>"                           LOC= A14  | IOSTANDARD = LVCMOS33;
+NET "ATDD<13>"                           LOC= D18  | IOSTANDARD = LVCMOS33;
+NET "ATDD<14>"                           LOC= A13  | IOSTANDARD = LVCMOS33;
+NET "ATDD<15>"                           LOC= C13  | IOSTANDARD = LVCMOS33;
+NET "ATDD<16>"                           LOC= D14  | IOSTANDARD = LVCMOS33;
+NET "ATDD<17>"                           LOC= C17  | IOSTANDARD = LVCMOS33;
+NET "ATDD<18>"                           LOC= E16  | IOSTANDARD = LVCMOS33;
+NET "ATDD<19>"                           LOC= C14  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS10"                         LOC= B16  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS20"                         LOC= E21  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS1E"                         LOC= B14  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS2E"                         LOC= B17  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS3"                          LOC= C18  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS4"                          LOC= G21  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS5"                          LOC= A18  | IOSTANDARD = LVCMOS33;
+NET "TRACE_TS6"                          LOC= F10  | IOSTANDARD = LVCMOS33;
+NET "TRACE_CLK"                          LOC= D15  | IOSTANDARD = LVCMOS33;
+NET "CPU_HRESET"                         LOC= E11  | IOSTANDARD = LVCMOS33;
+NET "CPU_TDO"                            LOC= K7   | IOSTANDARD = LVCMOS33;
+NET "CPU_TMS"                            LOC= L5   | IOSTANDARD = LVCMOS33;
+NET "CPU_TDI"                            LOC= M6   | IOSTANDARD = LVCMOS33;
+NET "CPU_TRST"                           LOC= N7   | IOSTANDARD = LVCMOS33;
+NET "CPU_TCK"                            LOC= T8   | IOSTANDARD = LVCMOS33;
+NET "CPU_HALT_n"                         LOC= W4   | IOSTANDARD = LVCMOS33;
+
+
+# voltage termination
+CONFIG PROHIBIT = AA24;
+CONFIG PROHIBIT = AE23;
+CONFIG PROHIBIT = AF17;
+CONFIG PROHIBIT = V26;
+CONFIG PROHIBIT = E22;
+CONFIG PROHIBIT = L25;
+
+# unused pins
+CONFIG PROHIBIT = F9;
+CONFIG PROHIBIT = D10;
+CONFIG PROHIBIT = C12;
+CONFIG PROHIBIT = C11;
+CONFIG PROHIBIT = D11;
+CONFIG PROHIBIT = AB16;
+CONFIG PROHIBIT = AB22;
+CONFIG PROHIBIT = AC17;
+CONFIG PROHIBIT = AC21;
+CONFIG PROHIBIT = AE22;
+CONFIG PROHIBIT = AD23;
+CONFIG PROHIBIT = AC24;
+CONFIG PROHIBIT = AC23;
+CONFIG PROHIBIT = AC22;
+CONFIG PROHIBIT = AB22;
+CONFIG PROHIBIT = AE21;
+CONFIG PROHIBIT = AD21;
+CONFIG PROHIBIT = AF19;
+CONFIG PROHIBIT = AF18;
+CONFIG PROHIBIT = AE18;
+CONFIG PROHIBIT = AD18;
+CONFIG PROHIBIT = AE17;
+CONFIG PROHIBIT = AE16;
+CONFIG PROHIBIT = AD16;
+CONFIG PROHIBIT = G6;
+CONFIG PROHIBIT = H24;
+CONFIG PROHIBIT = J24;
+CONFIG PROHIBIT = N23;
+CONFIG PROHIBIT = N15;
+CONFIG PROHIBIT = P14;
+CONFIG PROHIBIT = V23;
+CONFIG PROHIBIT = Y26;
+CONFIG PROHIBIT = Y25;
+CONFIG PROHIBIT = P21;
+CONFIG PROHIBIT = R21;
+CONFIG PROHIBIT = U22;
+
+# grounded pins from gigabit transcievers
+CONFIG PROHIBIT = K4;
+CONFIG PROHIBIT = K3;
+CONFIG PROHIBIT = J1;
+CONFIG PROHIBIT = K1;
+CONFIG PROHIBIT = M1;
+CONFIG PROHIBIT = L1;
+CONFIG PROHIBIT = T3;
+CONFIG PROHIBIT = T4;
+CONFIG PROHIBIT = R1;
+CONFIG PROHIBIT = T1;
+CONFIG PROHIBIT = V1;
+CONFIG PROHIBIT = U1;
+CONFIG PROHIBIT = D3;
+CONFIG PROHIBIT = D4;
+CONFIG PROHIBIT = C1;
+CONFIG PROHIBIT = D1;
+CONFIG PROHIBIT = E1;
+CONFIG PROHIBIT = F1;
+CONFIG PROHIBIT = AB3;
+CONFIG PROHIBIT = AB4;
+CONFIG PROHIBIT = AA1;
+CONFIG PROHIBIT = AB1;
+CONFIG PROHIBIT = AC1;
+CONFIG PROHIBIT = AD1;
+CONFIG PROHIBIT = H2;
+CONFIG PROHIBIT = J2;
+CONFIG PROHIBIT = N2;
+CONFIG PROHIBIT = M2;
+CONFIG PROHIBIT = P2;
+CONFIG PROHIBIT = R2;
+CONFIG PROHIBIT = V2;
+CONFIG PROHIBIT = W2;
+CONFIG PROHIBIT = B2;
+CONFIG PROHIBIT = C2;
+CONFIG PROHIBIT = G2;
+CONFIG PROHIBIT = F2;
+CONFIG PROHIBIT = Y2;
+CONFIG PROHIBIT = AA2;
+CONFIG PROHIBIT = AD2;
+CONFIG PROHIBIT = AE2;
+
