@@ -9,7 +9,6 @@ Several of the links will only work if you have checked out the zpu/zpu tree fro
 <li> <a href="#introduction">Introduction</a>
   <ul> 
   <li> <a href="#license">License</a>
-  <li> <a href="#survey">Survey</a>
   <li> <a href="#features">Features</a>
   <li> <a href="#status">Status</a>
   <li> <a href="#download">Download</a>
@@ -119,12 +118,6 @@ as such, then they need to be contributed back.
 is free to decide that the ZPU shall have a BSD license for HDL + GPL
 for the rest.</P>
 
-<a name="survey"/>
-<h2>Survey</h2> 
-<P>Please take the time to fill in this short survey so we can gather
-information about where the ZPU can be the most useful:</P>
-<P><A HREF="http://www.zylin.com/zpusurvey.html">http://www.zylin.com/zpusurvey.html</A></P>
-
 <a name="features"/>
 <h2>Features</h2> 
 <UL>
@@ -155,7 +148,7 @@ Once www.opencores.org grows a GIT hosting service, the plan is to replicate
 the GIT repository there.
 
 <p>
-The GCC ZPU toolchain is available from "git://www.ecosforge.net:8100/zpu/toolchain.git". The ZPU GCC toolchain is BIG(over 100mBytes), otherwise it would have been hosted at repo.or.cz too.
+The GCC ZPU toolchain is available from <a href ="http://repo.or.cz/w/zpugcc.git" target ="_blank">http://repo.or.cz/w/zpugcc.git</a>. The ZPU GCC toolchain is BIG (over 100 MBytes).
 <a name="patch"/>
 <h2>GIT</h2> 
 For more advanced use of GIT, you will need to hit the books and read up 
@@ -1002,7 +995,7 @@ rather uncommon operations. These 32 registers are mapped to memory locations 0x
 value of these memory locations onto the stack, call _zpu_interrupt and
 restore them.
 <p>
-See zpu/hdl/zpu4/test/interrupt/ for C code and zpu/hdl/example/simzpu_interrupt.do
+See <a href="../hdl/zpu4/test/interrupt/">zpu/hdl/zpu4/test/interrupt/</a> for C code and <a href ="../hdl/example/simzpu_interrupt.do">zpu/hdl/example/simzpu_interrupt.do</a>
 for simulation example.
 
 <a name="startup"/>
@@ -1068,7 +1061,7 @@ For now if you are starting a design, zpu4 or zealot are probably the safest.  z
 <a name="performance"/>
 <h2>Performance Summary</h2>
 
-TODO fill in performance table for Altera and Lattice.
+<a href="#todo">TODO</a> fill in performance table for Altera and Lattice.
 <p>
 Tests are done with the <a href="#zealot">Zealot</a>
  SoC-System and Xilinx ISE 12.2 with standard settings.
@@ -1229,7 +1222,7 @@ The key features are:
 
 <ul>
 <li>Includes a very basic <a href="#memorymap">PHI I/O</a> synthesizable core.
-It implements the 64 bits clocks counter (timer) and the UART. This is enough
+It implements the 64 bits clocks counter (timer), GPIO and the UART. This is enough
 to run the DMIPS benchmark and a hello world application. I tested the UART
 @ 9600 bps and @ 115200 bps.</li>
 <li>The ZPU can be customized using generics. It allows the use of more
@@ -1247,6 +1240,7 @@ execution.</li>
 <li>Includes ready to use memory images for a hello world program and the
 DMIPS benchmark.</li>
 <li>Memory and trace blocks outside ZPU. This provides better modularity.</li>
+<li>Much better documented code than the original version.</li>
 </ul>
 
 Simulation and implementation files are provided. You need 16 kB of BRAMs
@@ -1913,6 +1907,7 @@ while developing the ZPU.
         <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2><B>Description</B></FONT></FONT></P>
       </TD>
     </TR>
+
     <TR VALIGN=TOP>
       <TD WIDTH=85>
         <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0000</FONT></FONT></P>
@@ -1935,6 +1930,43 @@ while developing the ZPU.
         running</FONT></FONT></P>
       </TD>
     </TR>
+
+
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0004</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">GPIO data</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit [31:0] input  data 31:0</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit [31:0] output data 31:0</FONT></FONT></P>
+      </TD>
+    </TR>
+
+    <TR VALIGN=TOP>
+      <TD WIDTH=85>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A0008</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=42>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Read/</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Write</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=136>
+        <P LANG="en-US" CLASS="western" ALIGN=CENTER><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">GPIO direction</FONT></FONT></P>
+      </TD>
+      <TD WIDTH=283>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">Bit [31:0] data direction 31:0</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0 output</FONT></FONT></P>
+        <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">1 input (default)</FONT></FONT></P>
+      </TD>
+    </TR>
+
     <TR VALIGN=TOP>
       <TD WIDTH=85>
         <P LANG="en-US" CLASS="western"><FONT FACE="Arial, sans-serif"><FONT SIZE=2 STYLE="font-size: 9pt">0x080A000C</FONT></FONT></P>
@@ -2277,7 +2309,7 @@ while developing the ZPU.
 <li>fix the TODO in this doc that are just doc fixes
 <li>organize the TODO list by priority and assign responsibility... if there are takers.
 <li>converge on a single IO for core implementations.
-<li>fill in performance table.
+<li>fill in performance table for Altera and Lattice.
 <li>re-org CVS to make it easy to keep appropriate SW, RTL(verilog and VHDL) , scripts, verification stuff together.  separation of tools, core, common, and ref design
 <li>provide FPGA scripts.
 <li>provide HDL regression environment.
