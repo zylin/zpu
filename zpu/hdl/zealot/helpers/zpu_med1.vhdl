@@ -67,7 +67,11 @@ entity ZPU_Med1 is
       break_o    : out std_logic;  -- Break executed
       dbg_o      : out zpu_dbgo_t; -- Debug info
       rs232_tx_o : out std_logic;  -- UART Tx
-      rs232_rx_i : in  std_logic); -- UART Rx
+      rs232_rx_i : in  std_logic;  -- UART Rx
+      gpio_in    : in  std_logic_vector(31 downto 0);
+      gpio_out   : out std_logic_vector(31 downto 0);
+      gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
+      );
 end entity ZPU_Med1;
 
 architecture Structural of ZPU_Med1 is
@@ -114,12 +118,25 @@ begin
    -- I/O: Phi layout
    io_map: ZPUPhiIO
       generic map(
-         BRDIVISOR => BRDIVISOR, LOG_FILE => "zpu_med1_io.log")
+         BRDIVISOR => BRDIVISOR, 
+         LOG_FILE  => "zpu_med1_io.log"
+         )
       port map(
-         clk_i => clk_i, reset_i => rst_i, busy_o => io_busy, we_i => io_we,
-         re_i => io_re, data_i => mem_write, data_o => io_read,
-         addr_i => io_addr, rs232_rx_i => rs232_rx_i, rs232_tx_o => rs232_tx_o,
-         br_clk_i => '1');
+         clk_i      => clk_i, 
+         reset_i    => rst_i, 
+         busy_o     => io_busy, 
+         we_i       => io_we,
+         re_i       => io_re, 
+         data_i     => mem_write, 
+         data_o     => io_read,
+         addr_i     => io_addr, 
+         rs232_rx_i => rs232_rx_i, 
+         rs232_tx_o => rs232_tx_o,
+         br_clk_i   => '1',
+         gpio_in    => gpio_in,
+         gpio_out   => gpio_out,
+         gpio_dir   => gpio_dir
+         );
    io_addr  <= mem_addr(4 downto 2);
    -- Here we decode 0x8xxxx as I/O and not just 0x80A00xx
    -- Note: We define the address space as 256 kB, so writing to 0x80A00xx

@@ -29,6 +29,19 @@ TIMESPEC "TS_clk_100" = PERIOD "clk_100" 100 MHz;
 
 
 ############################################################
+## design placement constraints
+############################################################
+#
+# the following constraint are need if you want to synthesize
+# zpu_medium with 125 MHz
+#
+INST "zpu_i0_medium.zpu_i0/zpu/*" AREA_GROUP = "zpu_block";
+AREA_GROUP "zpu_block" RANGE=SLICE_X18Y0:SLICE_X55Y41;
+AREA_GROUP "zpu_block" RANGE=DSP48_X0Y0:DSP48_X0Y15;
+AREA_GROUP "zpu_block" RANGE=RAMB36_X1Y0:RAMB36_X3Y7;
+
+
+############################################################
 ## pin placement constraints
 ############################################################
 

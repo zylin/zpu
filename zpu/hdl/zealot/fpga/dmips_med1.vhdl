@@ -100,7 +100,11 @@ architecture FPGA of DMIPS_Med1 is
          break_o    : out std_logic;  -- Break executed
          dbg_o      : out zpu_dbgo_t; -- Debug info
          rs232_tx_o : out std_logic;  -- UART Tx
-         rs232_rx_i : in  std_logic); -- UART Rx
+         rs232_rx_i : in  std_logic;  -- UART Rx
+         gpio_in    : in  std_logic_vector(31 downto 0);
+         gpio_out   : out std_logic_vector(31 downto 0);
+         gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
+         );
    end component ZPU_Med1;
 begin
    zpu : ZPU_Med1
@@ -110,6 +114,6 @@ begin
          BRAM_W => BRAM_W)
       port map(
          clk_i => clk_i, rst_i => rst_i, rs232_tx_o => rs232_tx_o,
-         rs232_rx_i => rs232_rx_i, dbg_o => open);
+         rs232_rx_i => rs232_rx_i, dbg_o => open, gpio_in => (others => '0'));
 end architecture FPGA; -- Entity: DMIPS_Med1
 

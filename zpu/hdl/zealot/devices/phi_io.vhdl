@@ -56,7 +56,8 @@ use IEEE.numeric_std.all;
 use std.textio.all;
 
 library zpu;
-use zpu.zpupkg.all;
+use zpu.zpupkg.timer;
+use zpu.zpupkg.gpio;
 use zpu.UART.all;
 use zpu.txt_util.all;
  
@@ -73,25 +74,31 @@ entity ZPUPhiIO is
       re_i       : in  std_logic; -- Read Enable
       data_i     : in  unsigned(31 downto 0);
       data_o     : out unsigned(31 downto 0);
-      addr_i     : in  unsigned(2 downto 0); -- Address bits 4-2
+      addr_i     : in  unsigned(2  downto 0); -- Address bits 4-2
+      --
       rs232_rx_i : in  std_logic;  -- UART Rx input
       rs232_tx_o : out std_logic;  -- UART Tx output
-      br_clk_i   : in  std_logic); -- UART base clock (enable)
+      br_clk_i   : in  std_logic;  -- UART base clock (enable)
+      --
+      gpio_in    : in  std_logic_vector(31 downto 0);
+      gpio_out   : out std_logic_vector(31 downto 0);
+      gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
+      );
 end entity ZPUPhiIO;
    
    
 architecture Behave of ZPUPhiIO is
-   constant LOW_BITS : unsigned(1 downto 0):=(others=>'0');
-   constant TX_FULL  : std_logic:='0';
-   constant RX_EMPTY : std_logic:='1';
+   constant LOW_BITS  : unsigned(1 downto 0):=(others=>'0');
+   constant TX_FULL   : std_logic:='0';
+   constant RX_EMPTY  : std_logic:='1';
 
    -- "000" 0x00 is CPU enable ... useful?
-   -- "001" 0x04 Unused
-   -- "010" 0x08 Unused
-   constant UART_TX  : unsigned(2 downto 0):="011"; -- 0x0C
-   constant UART_RX  : unsigned(2 downto 0):="100"; -- 0x10
-   constant CNT_1    : unsigned(2 downto 0):="101"; -- 0x14
-   constant CNT_2    : unsigned(2 downto 0):="110"; -- 0x18
+   constant IO_DATA   : unsigned(2 downto 0):="001"; -- 0x04
+   constant IO_DIR    : unsigned(2 downto 0):="010"; -- 0x08
+   constant UART_TX   : unsigned(2 downto 0):="011"; -- 0x0C
+   constant UART_RX   : unsigned(2 downto 0):="100"; -- 0x10
+   constant CNT_1     : unsigned(2 downto 0):="101"; -- 0x14
+   constant CNT_2     : unsigned(2 downto 0):="110"; -- 0x18
    -- "111" 0x1C Unused
    -- Unimplemented: Interrupt control and timer (not counter ...?)
 
@@ -110,7 +117,13 @@ architecture Behave of ZPUPhiIO is
    signal uart_write : std_logic; -- ZPU is writing
    signal tx_busy    : std_logic; -- Tx can't get a new value
 
+   -- GPIO
+   signal gpio_we    : std_logic;
+   signal is_gpio    : std_logic;
+   signal gpio_read  : unsigned(31 downto 0);
+
    file l_file       : text open write_mode is LOG_FILE;
+
 begin
    -----------
    -- Timer --
@@ -155,6 +168,27 @@ begin
       generic map(COUNT => 4)  
       port map(
          clk_i => clk_i, reset_i => reset_i, ce_i => rx_br, o_o => tx_br);
+   
+   ----------
+   -- GPIO --
+   ----------
+   gpio_i0: gpio
+      port map(
+          clk_i    => clk_i,              -- : in  std_logic;
+          reset_i  => reset_i,            -- : in  std_logic;
+          --                              
+          we_i     => gpio_we,            -- : in  std_logic;
+          data_i   => data_i,             -- : in  unsigned(31 downto 0);
+          addr_i   => addr_i(1 downto 1), -- : in  unsigned( 0 downto 0);
+          data_o   => gpio_read,          -- : out unsigned(31 downto 0);
+          --                              
+          port_in  => gpio_in,            -- : std_logic_vector(31 downto 0);
+          port_out => gpio_out,           -- : std_logic_vector(31 downto 0);
+          port_dir => gpio_dir            -- : std_logic_vector(31 downto 0);
+          );
+   is_gpio <= '1' when addr_i = IO_DATA or addr_i = IO_DIR else '0'; -- 0x80A0004/8
+   gpio_we <= we_i and is_gpio;
+
 
    do_io:
    process(clk_i)
@@ -177,8 +211,10 @@ begin
                     else
                         std.textio.write(line_out, char);
                     end if;
+               elsif is_gpio = '1' and ENA_LOG then
+                  print("- Write GPIO: 0x" & hstr(data_i));
                elsif is_timer='1' and ENA_LOG then
-                  print("- Write to TIMER: 0x"&hstr(data_i));
+                  print("- Write to TIMER: 0x" & hstr(data_i));
                else
                   --print(l_file,character'val(to_integer(data_i)));
                   report "Illegal IO data_i=0x"&hstr(data_i)&" @0x"&
@@ -188,7 +224,12 @@ begin
             --synopsys translate on
             data_o <= (others => '0');
             if re_i='1' then
-               if addr_i=UART_TX then
+               if is_gpio = '1' then
+                  if ENA_LOG then
+                     print("- Read  GPIO: 0x" & hstr(gpio_read));
+                  end if;
+                  data_o <= gpio_read;
+               elsif addr_i=UART_TX then
                   if ENA_LOG then
                      print("- Read UART Tx");
                   end if;
@@ -201,7 +242,7 @@ begin
                   data_o(7 downto 0) <= unsigned(rx_data);
                elsif is_timer='1' then
                   if ENA_LOG then
-                     print("- Read TIMER: 0x"&hstr(timer_read));
+                     print("- Read TIMER: 0x" & hstr(timer_read));
                   end if;
                   data_o <= timer_read;
                else

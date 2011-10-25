@@ -67,7 +67,11 @@ entity ZPU_Small1 is
       break_o    : out std_logic;  -- Break executed
       dbg_o      : out zpu_dbgo_t; -- Debug info
       rs232_tx_o : out std_logic;  -- UART Tx
-      rs232_rx_i : in  std_logic); -- UART Rx
+      rs232_rx_i : in  std_logic;  -- UART Rx
+      gpio_in    : in  std_logic_vector(31 downto 0);
+      gpio_out   : out std_logic_vector(31 downto 0);
+      gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
+      );
 end entity ZPU_Small1;
 
 architecture Structural of ZPU_Small1 is
@@ -111,12 +115,25 @@ begin
    -- I/O: Phi layout
    io_map: ZPUPhiIO
       generic map(
-         BRDIVISOR => BRDIVISOR, LOG_FILE => "zpu_small1_io.log")
+         BRDIVISOR => BRDIVISOR, 
+         LOG_FILE  => "zpu_small1_io.log"
+         )
       port map(
-         clk_i => clk_i, reset_i => rst_i, busy_o => io_busy, we_i => io_we,
-         re_i => io_re, data_i => io_write, data_o => io_read,
-         addr_i => phi_addr, rs232_rx_i => rs232_rx_i, rs232_tx_o => rs232_tx_o,
-         br_clk_i => '1');
+         clk_i      => clk_i, 
+         reset_i    => rst_i, 
+         busy_o     => io_busy, 
+         we_i       => io_we,
+         re_i       => io_re, 
+         data_i     => io_write, 
+         data_o     => io_read,
+         addr_i     => phi_addr, 
+         rs232_rx_i => rs232_rx_i, 
+         rs232_tx_o => rs232_tx_o,
+         br_clk_i   => '1',
+         gpio_in    => gpio_in,
+         gpio_out   => gpio_out,
+         gpio_dir   => gpio_dir
+         );
    phi_addr <= io_addr(4 downto 2);
 
    zpu : ZPUSmallCore

@@ -1,4 +1,4 @@
--- testbench for 
+-- testbench for
 -- SP601 evaluation board
 --
 -- includes "model" for clock generation
@@ -208,6 +208,10 @@ begin
 
     -- generate reset
     tb_cpu_reset <= '1', '0' after 6.66 * sys_clk_period;
+
+
+    -- simulate keypress
+    tb_gpio_button(2) <= '0', '1' after 50 us, '0' after 52 us;
 
     -- dut
     top_i0 : entity work.top

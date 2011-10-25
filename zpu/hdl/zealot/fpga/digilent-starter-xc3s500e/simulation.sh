@@ -28,6 +28,7 @@ vcom -work zpu ../../helpers/zpu_med1.vhdl
 vcom -work zpu ../../devices/txt_util.vhdl
 vcom -work zpu ../../devices/phi_io.vhdl
 vcom -work zpu ../../devices/timer.vhdl
+vcom -work zpu ../../devices/gpio.vhdl
 vcom -work zpu ../../devices/rx_unit.vhdl
 vcom -work zpu ../../devices/tx_unit.vhdl
 vcom -work zpu ../../devices/br_gen.vhdl

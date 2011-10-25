@@ -140,6 +140,23 @@ package zpupkg is
          data_o   : out unsigned(31 downto 0));
    end component Timer;
 
+   component gpio is
+      port(
+         clk_i    : in  std_logic;
+         reset_i  : in  std_logic;
+         --
+         we_i     : in  std_logic;
+         data_i   : in  unsigned(31 downto 0);
+         addr_i   : in  unsigned( 0 downto 0);
+         data_o   : out unsigned(31 downto 0);
+         --
+         port_in  : in  std_logic_vector(31 downto 0);
+         port_out : out std_logic_vector(31 downto 0);
+         port_dir : out std_logic_vector(31 downto 0)
+         );
+   end component gpio;
+
+
    component ZPUPhiIO is
       generic(
          BRDIVISOR : positive:=1;   -- Baud rate divisor i.e. br_clk/9600/4
@@ -153,10 +170,16 @@ package zpupkg is
          re_i       : in  std_logic; -- Read Enable
          data_i     : in  unsigned(31 downto 0);
          data_o     : out unsigned(31 downto 0);
-         addr_i     : in  unsigned(2 downto 0); -- Address bits 4-2
+         addr_i     : in  unsigned(2  downto 0); -- Address bits 4-2
+         --
          rs232_rx_i : in  std_logic;  -- UART Rx input
          rs232_tx_o : out std_logic;  -- UART Tx output
-         br_clk_i   : in  std_logic); -- UART base clock (enable)
+         br_clk_i   : in  std_logic;  -- UART base clock (enable)
+         --
+         gpio_in    : in  std_logic_vector(31 downto 0);
+         gpio_out   : out std_logic_vector(31 downto 0);
+         gpio_dir   : out std_logic_vector(31 downto 0)
+         );
    end component ZPUPhiIO;
 
    -- Opcode decode constants

@@ -144,6 +144,9 @@ begin
     tb_gpio_button(0) <= '1', '0' after 6.66 * clk_100MHz_period;
 
 
+    -- simulate keypress
+    tb_gpio_button(2) <= '0', '1' after 55 us, '0' after 56 us;
+
     -- dut
     top_i0 : entity work.top
         port map (

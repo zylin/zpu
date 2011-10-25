@@ -1,4 +1,5 @@
--- testbench for Digilent Spartan 3E Starter Board
+-- testbench for
+-- Digilent Spartan 3E Starter Board
 --
 -- includes "model" for clock generation
 -- simulate press on Rotary Pushbutton Switch as reset
@@ -149,6 +150,8 @@ begin
     -- clock feedback for SD-RAM (on board)
     tb_sd_ck_fb <= tb_sd_ck_p;
 
+    -- simulate keypress
+    tb_btn_north <= '0', '1' after 55 us, '0' after 56 us;
 
     -- dut
     top_i0 : entity work.top

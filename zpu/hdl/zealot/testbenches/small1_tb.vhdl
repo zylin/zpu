@@ -80,7 +80,11 @@ architecture Behave of Small1_TB is
          break_o    : out std_logic;  -- Break executed
          dbg_o      : out zpu_dbgo_t; -- Debug info
          rs232_tx_o : out std_logic;  -- UART Tx
-         rs232_rx_i : in  std_logic); -- UART Rx
+         rs232_rx_i : in  std_logic;  -- UART Rx
+         gpio_in    : in  std_logic_vector(31 downto 0);
+         gpio_out   : out std_logic_vector(31 downto 0);
+         gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
+         );
    end component ZPU_Small1;
 
    signal clk          : std_logic;
@@ -98,7 +102,8 @@ begin
          BRAM_W => BRAM_W)
       port map(
          clk_i => clk, rst_i => reset, rs232_tx_o => rs232_tx,
-         rs232_rx_i => rs232_rx, break_o => break, dbg_o => dbg);
+         rs232_rx_i => rs232_rx, break_o => break, dbg_o => dbg,
+         gpio_in => (others => '0'));
 
    trace_mod : Trace
       generic map(

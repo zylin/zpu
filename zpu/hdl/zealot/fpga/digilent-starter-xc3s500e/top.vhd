@@ -189,7 +189,10 @@ architecture rtl of top is
             break_o    : out std_logic;        -- Break executed
             dbg_o      : out zpu_dbgo_t;       -- Debug info
             rs232_tx_o : out std_logic;        -- UART Tx
-            rs232_rx_i : in  std_logic         -- UART Rx
+            rs232_rx_i : in  std_logic;        -- UART Rx
+            gpio_in    : in  std_logic_vector(31 downto 0);
+            gpio_out   : out std_logic_vector(31 downto 0);
+            gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
             );
     end component zpu_small1;
 
@@ -208,7 +211,10 @@ architecture rtl of top is
             break_o    : out std_logic;        -- Break executed
             dbg_o      : out zpu_dbgo_t;       -- Debug info
             rs232_tx_o : out std_logic;        -- UART Tx
-            rs232_rx_i : in  std_logic         -- UART Rx
+            rs232_rx_i : in  std_logic;        -- UART Rx
+            gpio_in    : in  std_logic_vector(31 downto 0);
+            gpio_out   : out std_logic_vector(31 downto 0);
+            gpio_dir   : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
             );
     end component zpu_med1;
 
@@ -225,7 +231,11 @@ architecture rtl of top is
     --
     signal zpu_i0_dbg      : zpu_dbgo_t;  -- Debug info
     signal zpu_i0_break    : std_logic;
-
+    --
+    signal gpio_in         : std_logic_vector(31 downto 0);
+    signal zpu_i0_gpio_out : std_logic_vector(31 downto 0);
+    signal zpu_i0_gpio_dir : std_logic_vector(31 downto 0);
+    
     ---------------------------
     -- alias declarations
     alias led : std_logic_vector(7 downto 0) is fx2_io(20 downto 13);
@@ -356,12 +366,15 @@ begin
                 clk_freq  => clk_frequency * clk_multiply / clk_divide
                 )
             port map (
-                clk_i      => clk,           -- : in  std_logic;   -- CPU clock
-                rst_i      => reset_sync,    -- : in  std_logic;   -- Reset
-                break_o    => zpu_i0_break,  -- : out std_logic;   -- Break executed
-                dbg_o      => zpu_i0_dbg,    -- : out zpu_dbgo_t;  -- Debug info
-                rs232_tx_o => rs232_dce_txd, -- : out std_logic;   -- UART Tx
-                rs232_rx_i => rs232_dce_rxd  -- : in  std_logic    -- UART Rx
+                clk_i      => clk,             -- : in  std_logic;   -- CPU clock
+                rst_i      => reset_sync,      -- : in  std_logic;   -- Reset
+                break_o    => zpu_i0_break,    -- : out std_logic;   -- Break executed
+                dbg_o      => zpu_i0_dbg,      -- : out zpu_dbgo_t;  -- Debug info
+                rs232_tx_o => rs232_dce_txd,   -- : out std_logic;   -- UART Tx
+                rs232_rx_i => rs232_dce_rxd,   -- : in  std_logic    -- UART Rx
+                gpio_in    => gpio_in,         -- : in  std_logic_vector(31 downto 0);
+                gpio_out   => zpu_i0_gpio_out, -- : out std_logic_vector(31 downto 0);
+                gpio_dir   => zpu_i0_gpio_dir  -- : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
                 );
     end generate zpu_i0_small;
 
@@ -373,12 +386,15 @@ begin
                 clk_freq  => clk_frequency * clk_multiply / clk_divide
                 )
             port map (
-                clk_i      => clk,            -- : in  std_logic;   -- CPU clock
-                rst_i      => reset_sync,     -- : in  std_logic;   -- Reset
-                break_o    => zpu_i0_break,   -- : out std_logic;   -- Break executed
-                dbg_o      => zpu_i0_dbg,     -- : out zpu_dbgo_t;  -- Debug info
-                rs232_tx_o => rs232_dce_txd,  -- : out std_logic;   -- UART Tx
-                rs232_rx_i => rs232_dce_rxd   -- : in  std_logic    -- UART Rx
+                clk_i      => clk,             -- : in  std_logic;   -- CPU clock
+                rst_i      => reset_sync,      -- : in  std_logic;   -- Reset
+                break_o    => zpu_i0_break,    -- : out std_logic;   -- Break executed
+                dbg_o      => zpu_i0_dbg,      -- : out zpu_dbgo_t;  -- Debug info
+                rs232_tx_o => rs232_dce_txd,   -- : out std_logic;   -- UART Tx
+                rs232_rx_i => rs232_dce_rxd,   -- : in  std_logic    -- UART Rx
+                gpio_in    => gpio_in,         -- : in  std_logic_vector(31 downto 0);
+                gpio_out   => zpu_i0_gpio_out, -- : out std_logic_vector(31 downto 0);
+                gpio_dir   => zpu_i0_gpio_dir  -- : out std_logic_vector(31 downto 0)  -- 1 = in, 0 = out
                 );
     end generate zpu_i0_medium;
 
@@ -402,15 +418,27 @@ begin
     -- pragma translate_on
 
 
+    -- assign GPIOs
+    -- no bidirectional pins (e.g. headers), so
+    -- gpio_dir is unused
+    gpio_in <= ((6) => rot_a,
+                (5) => rot_b,
+                (4) => rot_center,
+                --
+                (3) => btn_east,
+                (2) => btn_north,
+                (1) => btn_south,
+                (0) => btn_west,
+                others => '0');
+
+
     -- switch on all LEDs in case of break
     process
     begin
         wait until rising_edge(clk);
+        led <= zpu_i0_gpio_out(7 downto 0);
         if zpu_i0_break = '1' then
             led <= (others => '1');
-        end if;
-        if reset_sync = '1' then
-            led <= (others => '0');
         end if;
     end process;
 
