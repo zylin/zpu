@@ -391,6 +391,7 @@ begin
                                 null;
                       end case;
                  when st_read_io =>
+                      a_addr_r <= sp_r;
                       -- Wait until memory I/O isn't busy
                       if mem_busy_i='0' then
                          state  <= st_fetch;
