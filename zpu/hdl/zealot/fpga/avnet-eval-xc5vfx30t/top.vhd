@@ -411,6 +411,19 @@ begin
     -- assign GPIOs
     -- no bidirectional pins (e.g. headers), so
     -- gpio_dir is unused
+    --
+    -- bit   31 30 29 28 27 26 25 24  23 22 21 20 19 18 17 16
+    --
+    --  in   -- -- -- -- -- -- -- --  -- -- -- -- -- -- -- --
+    -- out   -- -- -- -- -- -- -- --  -- -- -- -- -- -- -- --
+    --
+    --
+    -- bit   15 14 13 12 11 10  9  8   7  6  5  4  3  2  1  0
+    --                                                       
+    --  in   gpio_dipswitch(7.....0)  -- -- -- --  buttons3.0
+    -- out   -- -- -- -- -- -- -- --  led(7................0)
+    --
+
     gpio_in(15 downto 8) <= gpio_dipswitch;
     gpio_in( 3 downto 0) <= gpio_button;
 

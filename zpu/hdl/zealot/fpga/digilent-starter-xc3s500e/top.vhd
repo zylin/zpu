@@ -421,14 +421,31 @@ begin
     -- assign GPIOs
     -- no bidirectional pins (e.g. headers), so
     -- gpio_dir is unused
-    gpio_in <= ((6) => rot_a,
-                (5) => rot_b,
-                (4) => rot_center,
+    --
+    -- bit   31 30 29 28 27 26 25 24  23 22 21 20 19 18 17 16
+    --
+    --  in   -- -- -- -- -- -- -- --  -- -- -- -- -- -- -- --
+    -- out   -- -- -- -- -- -- -- --  -- -- -- -- -- -- -- --
+    --
+    --
+    -- bit   15 14 13 12 11 10  9  8   7  6  5  4  3  2  1  0
+    --                                                       
+    --  in   -- -- -- -- sw(3.....0)  -- ra rb rc be bn bs bw
+    -- out   -- -- -- -- -- -- -- --  led(7................0)
+
+    gpio_in <= ((11) => sw(3),
+                (10) => sw(2),
+                ( 9) => sw(1),
+                ( 8) => sw(0),
                 --
-                (3) => btn_east,
-                (2) => btn_north,
-                (1) => btn_south,
-                (0) => btn_west,
+                ( 6) => rot_a,
+                ( 5) => rot_b,
+                ( 4) => rot_center,
+                --
+                ( 3) => btn_east,
+                ( 2) => btn_north,
+                ( 1) => btn_south,
+                ( 0) => btn_west,
                 others => '0');
 
 

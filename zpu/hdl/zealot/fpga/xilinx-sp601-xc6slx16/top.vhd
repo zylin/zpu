@@ -534,6 +534,17 @@ begin
     -- pragma translate_on
 
     -- assign GPIOs
+    --
+    -- bit   31 30 29 28 27 26 25 24  23 22 21 20 19 18 17 16  
+    --
+    --  in   -- -- -- -- -- -- -- --  gpio_header_ls(7.....0)  
+    -- out   -- -- -- -- -- -- -- --  gpio_header_ls(7.....0)  
+    --
+    -- bit   15 14 13 12 11 10  9  8   7  6  5  4  3  2  1  0
+    --                                                       
+    --  in   -- -- -- -- switch(3.0)  -- -- -- -- button(3.0)
+    -- out   -- -- -- -- -- -- -- --  gpio_led(7...........0)
+    --
     gpio_in(23 downto 16) <= gpio_header_ls;
     gpio_in(11 downto  8) <= gpio_switch;
     gpio_in( 3 downto  0) <= gpio_button;
