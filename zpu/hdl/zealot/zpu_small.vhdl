@@ -148,13 +148,13 @@ begin
       -- Select the addressed byte inside the fetched word
       case (to_integer(pc_r(BYTE_BITS-1 downto 0))) is
            when 0 =>
-                topcode:=b_i(31 downto 24);
+                topcode := to_01( b_i(31 downto 24));
            when 1 =>
-                topcode:=b_i(23 downto 16);
+                topcode := to_01( b_i(23 downto 16));
            when 2 =>
-                topcode:=b_i(15 downto 8);
+                topcode := to_01( b_i(15 downto 8));
            when others => -- 3
-                topcode:=b_i(7 downto 0);
+                topcode := to_01( b_i(7 downto 0));
       end case;
       opcode <= topcode;
 

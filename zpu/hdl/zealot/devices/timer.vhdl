@@ -85,7 +85,7 @@ begin
       end if; -- rising_edge(clk_i)
    end process do_timer;
 
-   data_o <= cnt_smp(31 downto  0) when addr_i="0" else
+   data_o <= cnt_smp(31 downto  0) when to_01(addr_i)="0" else
              cnt_smp(63 downto 32);
 end architecture Behave; -- Entity: Timer
  

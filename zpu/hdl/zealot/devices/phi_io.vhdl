@@ -135,7 +135,7 @@ begin
          data_o => timer_read);
    
    busy_o   <= we_i or re_i;
-   is_timer <= '1' when addr_i=CNT_1 or addr_i=CNT_2 else '0'; -- 0x80A0014/8
+   is_timer <= '1' when to_01(addr_i)=CNT_1 or to_01(addr_i)=CNT_2 else '0'; -- 0x80A0014/8
    timer_we <= we_i and is_timer;
 
    ----------
@@ -186,7 +186,7 @@ begin
           port_out => gpio_out,           -- : std_logic_vector(31 downto 0);
           port_dir => gpio_dir            -- : std_logic_vector(31 downto 0);
           );
-   is_gpio <= '1' when addr_i = IO_DATA or addr_i = IO_DIR else '0'; -- 0x80A0004/8
+   is_gpio <= '1' when to_01(addr_i) = IO_DATA or to_01(addr_i) = IO_DIR else '0'; -- 0x80A0004/8
    gpio_we <= we_i and is_gpio;
 
 

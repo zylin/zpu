@@ -102,7 +102,7 @@ architecture rtl of top is
 
     ---------------------------
     -- constant declarations
-    constant zpu_flavour   : zpu_type := zpu_small;  -- choose your flavour HERE
+    constant zpu_flavour   : zpu_type := zpu_medium;  -- choose your flavour HERE
     --  modify frequency here
     constant clk_multiply  : positive := 3; -- 9 for small, 3 for medium
     constant clk_divide    : positive := 2; -- 5 for small, 2 for medium
