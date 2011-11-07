@@ -1,0 +1,1 @@
+arm-elf-insight -x .\prj\str912_ram.gdb test_ram.elf
