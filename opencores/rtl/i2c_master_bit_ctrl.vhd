@@ -359,7 +359,8 @@ begin
 
 
 	-- generate statemachine
-	nxt_state_decoder : process (clk, nReset, c_state, cmd)
+	--nxt_state_decoder : process (clk, nReset, c_state, cmd)
+	nxt_state_decoder : process (clk, nReset) --BLa
 	begin
 	    if (nReset = '0') then
 	      c_state   <= idle;
