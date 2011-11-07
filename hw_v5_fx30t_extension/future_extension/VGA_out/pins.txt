@@ -1,0 +1,8 @@
+red     8
+green   8
+blue    8
+hsync   1
+vsync   1
+dac_clk 1
+
+sum     27

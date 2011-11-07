@@ -1,0 +1,7 @@
+protect 1
+detect  1
+cmd     1
+clk     1
+data    4
+
+sum     8
