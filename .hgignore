@@ -4,23 +4,6 @@ syntax:glob
 *.swp
 
 # modelsim stuff
-wlf*
-*.wlf
-*.psm
-*.prw
-*.dbs
-*.dat
-_info
-_vmake
-_temp*
-transcript
-tcl_stacktrace.txt
-.stamp
-
-# c stuff
-*.elf
-*.bin
-*.lst
 
 # download directorys
 */download/*
@@ -33,43 +16,74 @@ glob:tdc/paper/*.*
 glob:ct-lab.zip
 
 # generated Makefiles
-glob:s3estarter/sim/Makefile.s3estarter
+glob:hw_s3estarter/sim/Makefile.s3estarter
 glob:tools/sim/Makefile.tools
 glob:zpu/sim/Makefile.zpu
 glob:global/sim/Makefile.global
 glob:grlib/sim/Makefile.grlib
+glob:*/simulation/Makefile.msim
 
+# tool specific stuff
 # c stuff
+*.elf
+*.bin
+*.lst
 glob:*.o
 glob:*.a
 
-# syn stuff
-glob:*/syn/xst/*
+# synthesis stuff
+glob:*/syn*/xst/*
+glob:*/syn*/ise/*
+glob:output*.log
+glob:synthesis_log*.txt
+
+# impcat stuff
 glob:*.mcs
 glob:*.bit
 glob:*.prm
+glob:*.cfi
+glob:*.ipf
 
+# simulation stuff
+wlf*
+*.wlf
+*.psm
+*.prw
+*.dbs
+*.dat
+_info
+_vmake
+_temp*
+transcript
+transcript.log
+.stamp
+glob:*/.stamps.*/
+glob:*/sim*/*trace*.txt
+
+
+# zpu/ahb rom stuff
+glob:*/support/zpuromgen.exe
+glob:*/support/ahbrom.exe
+
+
+# project specific stuff
 # rena3 special
 glob:rena3/doc/*.xls
 glob:rena3/doc/*.doc
 glob:rena3/sim/log.txt
-glob:rena3/sim/trace.txt
 
 # s3estarter special
-glob:s3estarter/sim/trace.txt
-glob:s3estarter/sim/bus_trace.txt
-glob:s3estarter/sim/dumpdata.txt
-glob:s3estarter/sim_isim/bus_trace.txt
-glob:s3estarter/sim_isim/dumpdata.txt
-glob:s3estarter/sim_isim/isim/
-glob:s3estarter/sim_isim/*.log
-glob:s3estarter/sim_isim/tb.exe
-glob:s3estarter/sim_isim/isim.wdb
-glob:s3estarter/syn/iseconfig/*.projectmgr
-glob:s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
-glob:s3estarter/doc/Untersuchung des DDR.doc
-glob:s3estarter/doc/ddr_tests/
-glob:s3estarter/doc/512Mb_*
+glob:hw_s3estarter/sim/dumpdata.txt
+glob:hw_s3estarter/sim_isim/dumpdata.txt
+glob:hw_s3estarter/sim_isim/isim/
+glob:hw_s3estarter/sim_isim/*.log
+glob:hw_s3estarter/sim_isim/tb.exe
+glob:hw_s3estarter/sim_isim/isim.wdb
+glob:hw_s3estarter/syn/iseconfig/*.projectmgr
+glob:hw_s3estarter/doc/DDR_5th_4Mx16_HY5DV641622AT_VHDL.zip
+glob:hw_s3estarter/doc/Untersuchung des DDR.doc
+glob:hw_s3estarter/doc/ddr_tests/
+glob:hw_s3estarter/doc/512Mb_*
 
 # esnug simulation special
 glob:esnug_c/sim/test/*_diff.txt
@@ -78,33 +92,33 @@ glob:esnug_c/sim/test/*_log.txt
 glob:esnug_c/sim/test/pipe1xx
 glob:esnug_c/sim/test/xxx_*.txt
 
-# special (unhandled) projects
-glob:datenerfassung_hpdi32/
-glob:ddr_ram_cores/
-glob:ecostest/
-glob:edk_test/
-glob:labview_se3/
-glob:profinet/
-glob:programmer/
-glob:singlepulser/
-glob:sp601/sp601_restore_flash/
-glob:spartanMC/
-glob:treemap/Treeviz/
-glob:treemap/Treeviz*/
-glob:ultraschall_fft/
-glob:xst_errors/
-glob:planahead/
-glob:kwikstik/Freescale_MQX_3.7/
-glob:kwikstik/Hands-on Projekts/
-glob:snippets/
 
-# handled by SVN
+# special (hg unhandled) projects
 glob:beam_position_monitor/
 glob:central_trigger_generator/
+glob:pr_datenerfassung_hpdi32/
+glob:pr_ultraschall_fft/
+glob:profinet/
+glob:profinet_ertec/
+glob:profinet_netx/
+glob:rechner/KC85-3 Schaltplan/
+glob:test_ddr_ram_cores/
+glob:test_ecos/
+glob:test_edk/
+glob:test_spartanMC/
+glob:test_labview_se3/
+glob:tool_fast-export/
+glob:tool_planahead/
+glob:tool_xst_errors/
+glob:treemap/Treeviz*/
+glob:uc_kwikstik/
+glob:zpu/git_repo/
 
-glob:*.cfi
-glob:zpu/support/zpuromgen.exe
-glob:s3estarter/software/support/zpuromgen.exe
-glob:s3estarter/software/support/ahbrom.exe
-glob:gaisler/support/ahbrom.exe
-glob:cpld_uC_spi_connect/synthese/ise/*
+glob:programmer/
+glob:singlepulser/
+glob:snippets/
+
+# git stuff
+glob:.git/*
+
+
