@@ -287,6 +287,7 @@ package devices is
   constant HZDR_EA_DOGS102            : amba_device_type := 16#008#;
   constant HZDR_DEBUG_TRACER          : amba_device_type := 16#009#;
   constant HZDR_DIFFERENTIAL_IMONITOR : amba_device_type := 16#00a#;
+  constant HZDR_SFP_CONTROL           : amba_device_type := 16#00b#;
 
 -- grlib system device id's
 
@@ -689,6 +690,7 @@ package devices is
       HZDR_EA_DOGS102             => "EA DOGS 102 display driver     ",
       HZDR_DEBUG_TRACER           => "debug tracer memory            ",
       HZDR_DIFFERENTIAL_IMONITOR  => "differential current monitor   ",
+      HZDR_SFP_CONTROL            => "SFP controller                 ",
       others                      => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,
