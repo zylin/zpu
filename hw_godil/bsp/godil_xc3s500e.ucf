@@ -1,0 +1,95 @@
+############################################################
+# GODIL Board Constraints File
+#
+# Family:  Spartan3E
+# Device:  XC3S500E
+# Package: VQ100
+# Speed:   -4
+#
+# all "pin"-IOs are equipped with level shifters
+
+
+############################################################
+## clock/timing constraints
+############################################################
+
+NET "m49" PERIOD = 50 MHz ;
+
+
+############################################################
+## pin placement constraints
+############################################################
+
+# inputs only
+NET "m49"                       LOC=P89 | IOSTANDARD = LVCMOS33 ;
+NET "sw1"                       LOC=P39 | IOSTANDARD = LVCMOS33 ;
+NET "sw2"                       LOC=P69 | IOSTANDARD = LVCMOS33 | PULLUP ;
+NET "c13"                       LOC=P38 | IOSTANDARD = LVCMOS33 | PULLUP ;
+NET "d13"                       LOC=P88 | IOSTANDARD = LVCMOS33 | PULLUP ;
+NET "sout"                      LOC=P13 | IOSTANDARD = LVCMOS33 | PULLUP ;
+NET "rts"                       LOC=P30 | IOSTANDARD = LVCMOS33 | PULLUP ;
+
+# I/O's for uart & spi flash
+NET "sin"                       LOC=P43 | IOSTANDARD = LVCMOS33 ;
+NET "cts"                       LOC=P25 | IOSTANDARD = LVCMOS33 ;
+NET "cso"                       LOC=P24 | IOSTANDARD = LVCMOS33 ;
+NET "vs2"                       LOC=P47 | IOSTANDARD = LVCMOS33 ;
+
+# I/O's for test connector
+NET "tvs1"                      LOC=P48 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "tvs0"                      LOC=P49 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "tmosi"                     LOC=P27 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "tdin"                      LOC=P44 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "tcclk"                     LOC=P50 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "tm1"                       LOC=P42 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+NET "thsw"                      LOC=P99 | IOSTANDARD = LVCMOS33 | DRIVE=16 ;
+
+# I/O's for DIL / main connector
+NET "pin<1>"                    LOC=P26 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<2>"                    LOC=P15 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<3>"                    LOC=P16 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<4>"                    LOC=P95 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<5>"                    LOC=P18 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<6>"                    LOC=P17 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<7>"                    LOC=P94 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<8>"                    LOC=P22 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<9>"                    LOC=P23 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<10>"                   LOC=P33 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<11>"                   LOC=P32 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<12>"                   LOC=P34 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<13>"                   LOC=P40 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<14>"                   LOC=P41 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<15>"                   LOC=P36 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<16>"                   LOC=P35 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<17>"                   LOC=P53 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<18>"                   LOC=P54 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<19>"                   LOC=P57 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<20>"                   LOC=P58 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<21>"                   LOC=P60 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<22>"                   LOC=P61 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<23>"                   LOC=P62 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<24>"                   LOC=P63 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<25>"                   LOC=P65 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<26>"                   LOC=P66 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<27>"                   LOC=P67 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<28>"                   LOC=P68 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<29>"                   LOC=P70 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<30>"                   LOC=P71 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<31>"                   LOC=P86 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<32>"                   LOC=P84 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<33>"                   LOC=P83 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<34>"                   LOC=P78 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<35>"                   LOC=P79 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<36>"                   LOC=P85 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<37>"                   LOC=P92 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<38>"                   LOC=P98 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<39>"                   LOC=P3  | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<40>"                   LOC=P2  | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<41>"                   LOC=P4  | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<42>"                   LOC=P5  | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<43>"                   LOC=P90 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<44>"                   LOC=P9  | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<45>"                   LOC=P10 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<46>"                   LOC=P11 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<47>"                   LOC=P12 | IOSTANDARD = LVCMOS33 | PULLUP  ;
+NET "pin<48>"                   LOC=P91 | IOSTANDARD = LVCMOS33 | PULLUP  ;
