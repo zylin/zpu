@@ -90,6 +90,7 @@ begin
                 write_flag          <= '0';
                 mem_request         <= '0';
                 mem_ack             <= '0';
+--              clk_en              <= '1';
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     state           <= ADDR_PHASE;
                     write_flag      <= out_mem_writeEnable;
