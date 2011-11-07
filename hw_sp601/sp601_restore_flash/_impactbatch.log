@@ -1,0 +1,78 @@
+iMPACT Version: Jun 22 2010 01:00:08
+
+iMPACT log file Started on Tue Aug 17 11:21:38 2010
+
+Preference Table
+Name                 Setting             
+StartupClock         Auto_Correction     
+AutoSignature        False               
+KeepSVF              False               
+ConcurrentMode       False               
+UseHighz             False               
+ConfigOnFailure      Stop                
+UserLevel            Novice              
+MessageLevel         Detailed            
+svfUseTime           false               
+SpiByteSwap          Auto_Correction     
+AutoInfer            false               
+SvfPlayDisplayComments false               
+AutoDetecting cable. Please wait.
+Connecting to cable (Usb Port - USB21).
+Checking cable driver.
+ Driver file xusb_emb.sys found.
+ Driver version: src=1029, dest=1029.
+ Driver windrvr6.sys version = 8.1.1.0. WinDriver v8.11 Jungo (c) 1997 - 2007 Build Date: Feb 28 2007 x86_64 64bit SYS09:48:01, version = 811.
+ Cable PID = 0008.
+ Max current requested during enumeration is 74 mA.
+Type = 0x0004.
+ Cable Type = 3, Revision = 0.
+ Setting cable speed to 6 MHz.
+Cable connection established.
+Firmware version = 1303.
+File version of C:/Program_Files_BLa/Xilinx/12.2/ISE_DS/ISE/data/xusb_xlp.hex =1303.
+Firmware hex file version = 1303.
+PLD file version = 0012h.
+ PLD version = 0012h.
+Type = 0x0004.
+ESN option: 00001337290901.
+Identifying chain contents...'0': : Manufacturer's ID = Xilinx xc6slx16, Version : 1
+INFO:iMPACT:1777 - 
+   Reading   C:/Program_Files_BLa/Xilinx/12.2/ISE_DS/ISE/spartan6/data/xc6slx16.bsd...
+INFO:iMPACT:501 - '1': Added Device xc6slx16 successfully.
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+done.
+Elapsed time =      0 sec.
+Elapsed time =      0 sec.
+Elapsed time =      0 sec.
+Elapsed time =      0 sec.
+Maximum TCK operating frequency for this device chain: 25000000.
+Validating chain...
+Boundary-scan chain validated successfully.
+'1': BPI access core not detected. BPI access core will be downloaded to thedevice to enable operations.
+INFO:iMPACT - Downloading core file   C:/Program_Files_BLa/Xilinx/12.2/ISE_DS/ISE/spartan6/data/xc6slx16_jbpi.cor.
+'1': Downloading core...
+ LCK_cycle = NoWait.
+LCK cycle: NoWait
+done.
+'1': Reading status register contents...
+INFO:iMPACT:2219 - Status register values:
+INFO:iMPACT - 0011 1100 1110 1100 
+INFO:iMPACT:2492 - '1': Completed downloading core to device.
+Current cable speed is set to 6.000 Mhz.
+Cable speed is default to 3Mhz or lower for BPI operations.
+Current cable speed is set to 3.000 Mhz.
+Populating BPI common flash interface ...
+Common Flash Interface Information Query completed successfully.
+INFO:iMPACT - Common Flash Interface Information from Device:
+INFO:iMPACT - Verification string:	 51 52 59
+INFO:iMPACT - Manufacturer ID:    	 89 
+INFO:iMPACT - Vendor ID:          	 01 
+INFO:iMPACT - Device Code:        	 18 
+'1': Readback will read the entire contents of the BPI device...
+Using x8 mode ...
+'1': Performing readback on device...
+'1': Readback completed successfully.
+done.
+Current cable speed is resumed to 6.000 Mhz.
+Elapsed time =    356 sec.
