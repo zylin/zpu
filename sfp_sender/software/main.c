@@ -584,7 +584,7 @@ uint32_t sfp_tx_test( void)
     loop_until_bit_is_clear( sfp_controller->status, (1<<16));
     // deactive SFP sender
     clear_bit( sfp_controller->status, (1<<8));
-    putstr("\ndone.");
+    putstr("\ndone.\n");
     return 0;
 }
 
