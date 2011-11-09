@@ -3440,7 +3440,7 @@ begin
     when 16#00D1D# => romdata <= X"74657374";
     when 16#00D1E# => romdata <= X"00000000";
     when 16#00D1F# => romdata <= X"0A646F6E";
-    when 16#00D20# => romdata <= X"652E0000";
+    when 16#00D20# => romdata <= X"652E0A00";
     when 16#00D21# => romdata <= X"0A0A0000";
     when 16#00D22# => romdata <= X"63656E74";
     when 16#00D23# => romdata <= X"72616C20";
@@ -3462,11 +3462,11 @@ begin
     when 16#00D33# => romdata <= X"696C6564";
     when 16#00D34# => romdata <= X"2020203A";
     when 16#00D35# => romdata <= X"204E6F76";
-    when 16#00D36# => romdata <= X"20203420";
+    when 16#00D36# => romdata <= X"20203920";
     when 16#00D37# => romdata <= X"32303131";
-    when 16#00D38# => romdata <= X"20203135";
-    when 16#00D39# => romdata <= X"3A35363A";
-    when 16#00D3A# => romdata <= X"31320000";
+    when 16#00D38# => romdata <= X"20203130";
+    when 16#00D39# => romdata <= X"3A31333A";
+    when 16#00D3A# => romdata <= X"33350000";
     when 16#00D3B# => romdata <= X"0A737973";
     when 16#00D3C# => romdata <= X"74656D20";
     when 16#00D3D# => romdata <= X"636C6F63";

@@ -43,7 +43,7 @@ proc x {} {
 # run ZPU simulation
 #
 
-vsim -quiet zpu.fpga_top
+vsim -quiet zpu.sim_small_fpga_top_noint
 
 source wave.do
 
