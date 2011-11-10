@@ -88,8 +88,13 @@ add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_n
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_p
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_prsnt_m2c_l
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_pwr_good_flash_rst_b
+add wave -noupdate -divider GPIO
+add wave -noupdate /top_tb/top_i0/gpio_button
+add wave -noupdate /top_tb/top_i0/gpio_header_ls
+add wave -noupdate /top_tb/top_i0/gpio_led
+add wave -noupdate /top_tb/top_i0/gpio_switch
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {257304 ps} 0}
+WaveRestoreCursors {{Cursor 1} {217317 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -104,4 +109,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {512 ns}
+WaveRestoreZoom {0 ps} {1048576 ns}

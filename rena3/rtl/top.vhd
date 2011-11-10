@@ -23,9 +23,15 @@ use unisim.vcomponents.ibufgds;
 use unisim.vcomponents.dcm_sp;
 use unisim.vcomponents.oddr2;
 
+library gaisler;
+use gaisler.misc.all; -- types
+use gaisler.uart.all; -- types
+use gaisler.net.all;  -- types
+use gaisler.memctrl.all; -- spimctrl types
+
 library work;
---use work.components.box;
---use work.components.chipscope;
+use work.types_package.all;
+use work.component_package.box;
 
 
 entity top is
@@ -304,16 +310,6 @@ end entity top;
 
 
 
-library gaisler;
-use gaisler.misc.all; -- types
-use gaisler.uart.all; -- types
-use gaisler.net.all;  -- types
-use gaisler.memctrl.all; -- spimctrl types
-
-library work;
-use work.types_package.all;
-
-
 architecture rtl of top is
 
     constant system_frequency_c : natural := 100_000_000;
@@ -342,27 +338,36 @@ architecture rtl of top is
     signal reset                              : std_ulogic := '1';
     signal reset_n                            : std_ulogic := '0';
     --
-    signal uarti                              : uart_in_type;
-    signal gpioi                              : gpio_in_type;
-    signal fmc_i2ci                           : i2c_in_type;
-    signal dvi_i2ci                           : i2c_in_type;
-    signal spmi                               : spimctrl_in_type;
-    signal memi                               : memory_in_type;
-    signal ethi                               : eth_in_type;
-    --
     signal box_i0_break                       : std_ulogic;
+    --
+    signal uarti                              : uart_in_type;
     signal box_i0_uarto                       : uart_out_type;
+    --
+    signal gpioi                              : gpio_in_type;
     signal box_i0_gpioo                       : gpio_out_type;
+    --
+    signal fmc_i2ci                           : i2c_in_type;
     signal box_i0_fmc_i2co                    : i2c_out_type;
+    --
+    signal dvi_i2ci                           : i2c_in_type;
     signal box_i0_dvi_i2co                    : i2c_out_type;
+    --
     signal box_i0_vgao                        : apbvga_out_type;
+    --
+    signal spmi                               : spimctrl_in_type;
     signal box_i0_spmo                        : spimctrl_out_type;
+    --
+    signal memi                               : memory_in_type;
     signal box_i0_memo                        : memory_out_type;
+    --
+    signal ethi                               : eth_in_type;
     signal box_i0_etho                        : eth_out_type;
+    --
+    signal rena3_in                           : rena3_controller_in_t;
+    signal box_i0_rena3_out                   : rena3_controller_out_t;
     --
     signal dvi_data_0                         : std_logic_vector(dvi_d'range);
     signal dvi_data_1                         : std_logic_vector(dvi_d'range);
-
 
 begin
 
@@ -671,39 +676,41 @@ begin
 
 
 
---  ------------------------------------------------------------ 
---  -- box system
---  box_i0: box
---      port map (
---          clk          => clk_box,                                       --: in    std_ulogic;
---          reset_n      => reset_n,                                       --: in    std_ulogic;
---          break        => box_i0_break,                                  --: out   std_ulogic;
---          --                                                             
---          uarti        => uarti,                                         --: in    uart_in_type;
---          uarto        => box_i0_uarto,                                  --: out   uart_out_type;
---          --                                                             
---          gpioi        => gpioi,                                         --: in    gpio_in_type;
---          gpioo        => box_i0_gpioo,                                  --: out   gpio_out_type;
---          --                                                             
---          fmc_i2ci     => fmc_i2ci,                                      --: in    i2c_in_type;
---          fmc_i2co     => box_i0_fmc_i2co,                               --: out   i2c_out_type;
---          --                                                             
---          dvi_i2ci     => dvi_i2ci,                                      --: in    i2c_in_type;
---          dvi_i2co     => box_i0_dvi_i2co,                               --: out   i2c_out_type;
---          --                                                             
---          clk_vga      => clk_vga,                                       --: in    std_ulogic;
---          vgao         => box_i0_vgao,                                   --: out   apbvga_out_type
---          --
---          spmi         => spmi,                                          --: in    spmictrl_in_type;
---          spmo         => box_i0_spmo,                                   --: out   spmictrl_out_type;
---          --  
---          memi         => memi,                                          --: in    memory_in_type;
---          memo         => box_i0_memo,                                   --: out   memory_out_type;
---          --
---          ethi         => ethi,                                          --: in    eth_in_type;
---          etho         => box_i0_etho,                                   --: out   eth_out_type;
---          --
---      );
+    ------------------------------------------------------------ 
+    -- box system
+    box_i0: box
+        port map (
+            clk          => clk_box,                                       --: in    std_ulogic;
+            reset_n      => reset_n,                                       --: in    std_ulogic;
+            break        => box_i0_break,                                  --: out   std_ulogic;
+            --                                                             
+            uarti        => uarti,                                         --: in    uart_in_type;
+            uarto        => box_i0_uarto,                                  --: out   uart_out_type;
+            --                                                             
+            gpioi        => gpioi,                                         --: in    gpio_in_type;
+            gpioo        => box_i0_gpioo,                                  --: out   gpio_out_type;
+            --                                                             
+            fmc_i2ci     => fmc_i2ci,                                      --: in    i2c_in_type;
+            fmc_i2co     => box_i0_fmc_i2co,                               --: out   i2c_out_type;
+            --                                                             
+            dvi_i2ci     => dvi_i2ci,                                      --: in    i2c_in_type;
+            dvi_i2co     => box_i0_dvi_i2co,                               --: out   i2c_out_type;
+            --                                                             
+            clk_vga      => clk_vga,                                       --: in    std_ulogic;
+            vgao         => box_i0_vgao,                                   --: out   apbvga_out_type
+            --
+            spmi         => spmi,                                          --: in    spmictrl_in_type;
+            spmo         => box_i0_spmo,                                   --: out   spmictrl_out_type;
+            --  
+            memi         => memi,                                          --: in    memory_in_type;
+            memo         => box_i0_memo,                                   --: out   memory_out_type;
+            --
+            ethi         => ethi,                                          --: in    eth_in_type;
+            etho         => box_i0_etho,                                   --: out   eth_out_type;
+            --
+            rena3_in     => rena3_in,                                      --: in    rena3_controller_in_t;
+            rena3_out    => box_i0_rena3_out                               --: out   rena3_controller_out_t
+        );
         
     ------------------------------------------------------------ 
     -- break for simulation

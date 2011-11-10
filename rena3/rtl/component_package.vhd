@@ -3,11 +3,18 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+library gaisler;
+use gaisler.misc.all;    -- types
+use gaisler.uart.all;    -- types
+use gaisler.net.all;     -- types
+use gaisler.memctrl.all; -- spimctrl types + spmictrl component
+
 library rena3;
 use rena3.types_package.all;
 
 library zpu;
 use zpu.zpu_wrapper_package.all; -- type definitions
+
 
 package component_package is
 
@@ -26,34 +33,40 @@ package component_package is
     end component rena3_controller;
 
 
-    component controller_top is
+    component box is
         port (
-            clk               : in  std_ulogic;
-            reset             : in  std_ulogic;
-            -- rena 3 
-            rena3_ts          : in  std_ulogic;
-            rena3_tf          : in  std_ulogic;
-            rena3_fout        : in  std_ulogic;
-            rena3_sout        : in  std_ulogic;
-            rena3_tout        : in  std_ulogic;
+            clk                       : in    std_ulogic;
+            reset_n                   : in    std_ulogic;
+            break                     : out   std_ulogic;
+            --                        
+            uarti                     : in    uart_in_type;
+            uarto                     : out   uart_out_type;
+            --                        
+            gpioi                     : in    gpio_in_type;
+            gpioo                     : out   gpio_out_type;
+            --                        
+            fmc_i2ci                  : in    i2c_in_type;
+            fmc_i2co                  : out   i2c_out_type;
+            --                        
+            dvi_i2ci                  : in    i2c_in_type;
+            dvi_i2co                  : out   i2c_out_type;
+            --                        
+            clk_vga                   : in    std_ulogic;
+            vgao                      : out   apbvga_out_type;
             --
-            rena3_chsift      : out std_ulogic;
-            rena3_cin         : out std_ulogic; 
-            rena3_cs          : out std_ulogic;
-            rena3_read        : out std_ulogic;
-            rena3_tin         : out std_ulogic;
-            rena3_sin         : out std_ulogic;
-            rena3_fin         : out std_ulogic;
-            rena3_shrclk      : out std_ulogic;
-            rena3_fhrclk      : out std_ulogic;
-            rena3_acquire     : out std_ulogic;
-            rena3_cls         : out std_ulogic;
-            rena3_clf         : out std_ulogic;
-            rena3_tclk        : out std_ulogic;
+            spmi                      : in    spimctrl_in_type;
+            spmo                      : out   spimctrl_out_type;
             --
-            break             : out std_ulogic
-          );
-    end component controller_top;
+            memi                      : in    memory_in_type;
+            memo                      : out   memory_out_type;
+            --
+            ethi                      : in    eth_in_type;
+            etho                      : out   eth_out_type;
+            --                        
+            rena3_in                  : in    rena3_controller_in_t;
+            rena3_out                 : out   rena3_controller_out_t
+        );
+    end component box;
 
 
     component top is

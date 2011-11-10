@@ -1,7 +1,7 @@
 rena3     ../rtl/component_package.vhd  
 rena3     ../rtl/rena3_controller.vhd  
 rena3     ../rtl/types_package.vhd
-rena3     ../rtl/controller_top.vhd         
+rena3     ../rtl/box.vhd         
 rena3     ../rtl/top.vhd
 rena3     ../rtl_tb/dds_model.vhd                      
 rena3     ../rtl_tb/rena3_model_tb.vhd             
@@ -75,6 +75,8 @@ tools     ../../tools/rtl/synchronizer_package.vhd
 tools     ../../tools/rtl_tb/fio_pck_body.vhd
 tools     ../../tools/rtl_tb/fio_pkg.vhd
 tools     ../../tools/rtl_tb/image_pkg.vhd    
+hzdr      ../../hzdr/rtl/component_package.vhd
+hzdr      ../../hzdr/rtl/debug_con_apb.vhd
 zpu       ../../zpu/rtl/zpu_config.vhd
 zpu       ../../zpu/rtl/zpu_ahb.vhd
 zpu       ../../zpu/rtl/zpu_bus_trace.vhd

@@ -8,7 +8,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 library rena3;
-use rena3.component_package.controller_top;
+--use rena3.component_package.controller_top;
 use rena3.rena3_model_component_package.rena3_model;
 use rena3.rena3_model_component_package.dds_model;
 use rena3.test_pulse_gen_package.test_pulse_gen;
@@ -137,32 +137,32 @@ begin
         );
 
 
-    controller_top_i0: controller_top
-        port map (
-        clk            => clk,                             --   : in  std_ulogic;
-        reset          => reset,                           --   : in  std_ulogic;
-        -- rena 3                                          
-        rena3_ts       => rena3_model_i0_ts,               --   : in  std_ulogic;
-        rena3_tf       => rena3_model_i0_tf,               --   : in  std_ulogic;
-        rena3_fout     => rena3_model_i0_fout,             --   : in  std_ulogic;
-        rena3_sout     => rena3_model_i0_sout,             --   : in  std_ulogic;
-        rena3_tout     => rena3_model_i0_tout,             --   : in  std_ulogic;
-        --                                                 
-        rena3_chsift   => controller_top_i0_rena3_cshift,  --   : out std_ulogic;
-        rena3_cin      => controller_top_i0_rena3_cin,     --   : out std_ulogic;
-        rena3_cs       => controller_top_i0_rena3_cs,      --   : out std_ulogic;
-        rena3_read     => controller_top_i0_rena3_read,    --   : out std_ulogic;
-        rena3_tin      => controller_top_i0_rena3_tin,     --   : out std_ulogic;
-        rena3_sin      => controller_top_i0_rena3_sin,     --   : out std_ulogic;
-        rena3_fin      => controller_top_i0_rena3_fin,     --   : out std_ulogic;
-        rena3_shrclk   => controller_top_i0_rena3_shrclk,  --   : out std_ulogic;
-        rena3_fhrclk   => controller_top_i0_rena3_fhrclk,  --   : out std_ulogic;
-        rena3_acquire  => controller_top_i0_rena3_acquire, --   : out std_ulogic;
-        rena3_cls      => controller_top_i0_rena3_cls,     --   : out std_ulogic;
-        rena3_clf      => controller_top_i0_rena3_clf,     --   : out std_ulogic;
-        rena3_tclk     => controller_top_i0_rena3_tclk,    --   : out std_ulogic;
-        --
-        break          => controller_top_i0_break          --   : out std_ulogic
-    );
+--  controller_top_i0: controller_top
+--      port map (
+--      clk            => clk,                             --   : in  std_ulogic;
+--      reset          => reset,                           --   : in  std_ulogic;
+--      -- rena 3                                          
+--      rena3_ts       => rena3_model_i0_ts,               --   : in  std_ulogic;
+--      rena3_tf       => rena3_model_i0_tf,               --   : in  std_ulogic;
+--      rena3_fout     => rena3_model_i0_fout,             --   : in  std_ulogic;
+--      rena3_sout     => rena3_model_i0_sout,             --   : in  std_ulogic;
+--      rena3_tout     => rena3_model_i0_tout,             --   : in  std_ulogic;
+--      --                                                 
+--      rena3_chsift   => controller_top_i0_rena3_cshift,  --   : out std_ulogic;
+--      rena3_cin      => controller_top_i0_rena3_cin,     --   : out std_ulogic;
+--      rena3_cs       => controller_top_i0_rena3_cs,      --   : out std_ulogic;
+--      rena3_read     => controller_top_i0_rena3_read,    --   : out std_ulogic;
+--      rena3_tin      => controller_top_i0_rena3_tin,     --   : out std_ulogic;
+--      rena3_sin      => controller_top_i0_rena3_sin,     --   : out std_ulogic;
+--      rena3_fin      => controller_top_i0_rena3_fin,     --   : out std_ulogic;
+--      rena3_shrclk   => controller_top_i0_rena3_shrclk,  --   : out std_ulogic;
+--      rena3_fhrclk   => controller_top_i0_rena3_fhrclk,  --   : out std_ulogic;
+--      rena3_acquire  => controller_top_i0_rena3_acquire, --   : out std_ulogic;
+--      rena3_cls      => controller_top_i0_rena3_cls,     --   : out std_ulogic;
+--      rena3_clf      => controller_top_i0_rena3_clf,     --   : out std_ulogic;
+--      rena3_tclk     => controller_top_i0_rena3_tclk,    --   : out std_ulogic;
+--      --
+--      break          => controller_top_i0_break          --   : out std_ulogic
+--  );
 
 end architecture board;
