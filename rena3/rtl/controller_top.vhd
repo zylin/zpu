@@ -182,6 +182,7 @@ begin
     port map (
         clk    => clk,             -- : in  std_ulogic;
 	 	reset  => reset,           -- : in  std_ulogic;
+        irq    => '0',
         ahbi   => ahbctrl_i0_msti, -- : in  ahb_mst_in_type; 
         ahbo   => ahbmo(0),        -- : out ahb_mst_out_type;
         break  => break            -- : out std_ulogic

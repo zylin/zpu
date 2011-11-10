@@ -16,7 +16,7 @@ use ieee.std_logic_1164.all;
 
 entity edge_detect_synchronizer is
     generic (
-        rising_edge : boolean := true
+        detect_rising_edge : boolean := true
     );
     port (
         clk    : std_ulogic;
@@ -42,7 +42,7 @@ begin
         in_stage_d2  <= in_stage_d1; -- third ff
     end process;
 
-    synced <= in_stage_d1 and not in_stage_d2 when rising_edge else
+    synced <= in_stage_d1 and not in_stage_d2 when detect_rising_edge else
               not in_stage_d1 and in_stage_d2;
 
 end architecture rtl;

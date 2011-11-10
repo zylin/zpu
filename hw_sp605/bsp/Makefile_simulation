@@ -24,7 +24,7 @@ simulate:
 
 clean:
 	rm -rf $(library) 
-	rm -f transcript
+	rm -f transcript.log
 	rm -f *.wlf
 	rm -f wlf*
 	@#

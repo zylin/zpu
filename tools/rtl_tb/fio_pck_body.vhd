@@ -708,15 +708,15 @@
     return ("S:" & Result);
   end fo;
 
-  function fo (Arg: std_logic_vector) return string is
-    constant Argument: std_logic_vector(1 to Arg'length) := Arg;
-    variable Result: string(1 to Arg'length); 
-  begin
-    for i in Argument'range loop
-      Result(i) := C_STD_LOGIC_MAP(Argument(i));
-    end loop;
-    return ("V:" & Result);
-  end fo;
+--function fo (Arg: std_logic_vector) return string is
+--  constant Argument: std_logic_vector(1 to Arg'length) := Arg;
+--  variable Result: string(1 to Arg'length); 
+--begin
+--  for i in Argument'range loop
+--    Result(i) := C_STD_LOGIC_MAP(Argument(i));
+--  end loop;
+--  return ("V:" & Result);
+--end fo;
 
   function fo (Arg: std_ulogic_vector) return string is
     constant Argument: std_ulogic_vector(1 to Arg'length) := Arg;

@@ -87,7 +87,7 @@ package fio_pkg is
 
   function fo (Arg: unsigned)          return string;
   function fo (Arg: signed)            return string;
-  function fo (Arg: std_logic_vector)  return string;
+--function fo (Arg: std_logic_vector)  return string;
   function fo (Arg: std_ulogic_vector) return string;
   function fo (Arg: bit_vector)        return string;
   function fo (Arg: integer)           return string;

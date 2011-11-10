@@ -1,48 +1,55 @@
+#
+# $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/simulation/Makefile $
+# $Date: 2011-09-09 14:11:20 +0200 (Fr, 09. Sep 2011) $
+# $Author: lange $
+# $Revision: 1246 $
+#
+
 library      = rena3
-#top          = rena3_model_tb
-#top          = test_pulse_gen_tb
-top          = test_board
-
-rtl_files    = ../rtl/types_package.vhd \
-               ../rtl/*.vhd
-
-rtl_tb_files = ../rtl_tb/test_pulse_gen.vhd \
-               ../rtl_tb/dds_model.vhd \
-	       ../rtl_tb/rena3_model_types_package.vhd \
-	       ../rtl_tb/rena3_model_component_package.vhd \
-	       ../rtl_tb/*.vhd
-
-vhdlfiles    = $(rtl_files) $(rtl_tb_files)
-
+top          = top_tb
 
 all: compile simulate
 
 
-compile: lib
-	vcom -quiet -2008 -work $(library) $(vhdlfiles)
+compile: Makefile.msim
+	#make --directory ../software | ccze -A
+	export ANAFLAGS="-quiet -2008"; \
+	make -f Makefile.msim | ccze -A
 
-compile_others:
-	make compile --directory ../../global/sim | ccze -A
-	make compile --directory ../../grlib/sim | ccze -A
-	make compile --directory ../../gaisler/sim | ccze -A
-	make compile --directory ../../tools/sim | ccze -A
 
 simulate:
 	export top=$(top); \
-	vsim -quiet -gui $(library).$(top) -do run.do
+	vsim -quiet  -gui $(library).$(top) -do run.do -l transcript.log
 
 
 clean:
-	rm -f transcript
+	rm -rf $(library) 
+	rm -f transcript.log
 	rm -f *.wlf
 	rm -f wlf*
-	rm -rf $(library) 
-	rm -f Makefile.$(library)
+	@#
+	make -f Makefile.msim clean
+	rm -rf rena3
+	rm -rf global
+	rm -rf tools
+	rm -rf techmap
+	rm -rf grlib
+	rm -rf zpu
+	rm -rf gaisler
+	rm -rf opencores
+	rm -f Makefile.msim
+	rm -f .stamp
 
 
-# default patterns
-
-lib:	$(library)
-
-$(library):
-	vlib $(library)
+# generate Makefile.msim with vmk
+Makefile.msim: vhdl_files.txt
+	vlib rena3
+	vlib techmap
+	vlib grlib
+	vlib gaisler
+	vlib opencores
+	vlib tools
+	vlib global
+	vlib zpu
+	vmk -t modelsim -O -w $(library) -F vhdl_files.txt
+	
