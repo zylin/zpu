@@ -1,0 +1,500 @@
+############################################################
+# $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/synthese/sp605.ucf $
+# $Date: 2011-09-09 14:11:20 +0200 (Fr, 09. Sep 2011) $
+# $Author: lange $
+# $Revision: 1246 $
+
+############################################################
+# Spartan-6 SP605 board constraints file
+#
+# Spartan 6
+# FPGA: XC6 LX45T - 3 FGG 484
+#
+# bank voltages (LS means level shifter)
+# bank 0: 2.5V (LED, DIP, user SMA, MGT [PCIe, SFP, FMC-LPC, SMA], FMP-LPC, SFP-IIC)
+# bank 1: 2.5V (IIC Main, USB-UART, DVI, Ethernet PHY, parallel Flash)
+# bank 2: 2.5V (DVI IIC, MDIO, FMP-LPC, SPI, LED, DIP)
+# bank 3: 1.5V (GPIO[LS], Pushbutton, DIP, DDR3, SystemACE[LS])
+#
+############################################################
+# notes:
+#
+# LVDS are only avalible in Bank 0 and Bank 2
+
+
+############################################################
+## clocks
+############################################################
+#
+# separete VGA clock from system clock
+NET "clk_driver_b.dcm_sp_i0_clkfx" TNM_NET = "clkfx";
+NET "clk_driver_b.dcm_sp_i0_clkdv" TNM_NET = "clkdv";
+TIMESPEC "TS_clkfx_clkdv" = FROM "clkfx" to "clkdv" TIG;
+
+############################################################
+## ethernet timing
+############################################################
+TIMESPEC "TS_PHY_CLK" = PERIOD "PHY_CLK" 25.0 MHz HIGH 50% ;
+# need because misplaced ethernet clock lines
+NET "PHY_RXCLK" CLOCK_DEDICATED_ROUTE = FALSE ;
+
+
+############################################################
+## placement constraints
+############################################################
+
+### internal memory for zpu 8x4 bit = 32 bit width
+### zpu_core_small (16k)
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram3" AREA_GROUP = "ZPU_MEM3" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram4" AREA_GROUP = "ZPU_MEM4" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram5" AREA_GROUP = "ZPU_MEM5" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram6" AREA_GROUP = "ZPU_MEM6" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
+#INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
+
+### external memory for zpu 16x2 bit = 32 bit width
+### zpu_core_medium (32k + 64k)
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1"  AREA_GROUP = "ZPU_MEM1"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2"  AREA_GROUP = "ZPU_MEM2"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3"  AREA_GROUP = "ZPU_MEM3"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4"  AREA_GROUP = "ZPU_MEM4"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5"  AREA_GROUP = "ZPU_MEM5"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6"  AREA_GROUP = "ZPU_MEM6"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7"  AREA_GROUP = "ZPU_MEM7"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8"  AREA_GROUP = "ZPU_MEM8"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram9"  AREA_GROUP = "ZPU_MEM9"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram10" AREA_GROUP = "ZPU_MEM10" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram11" AREA_GROUP = "ZPU_MEM11" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram12" AREA_GROUP = "ZPU_MEM12" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram13" AREA_GROUP = "ZPU_MEM13" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram14" AREA_GROUP = "ZPU_MEM14" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram15" AREA_GROUP = "ZPU_MEM15" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram16" AREA_GROUP = "ZPU_MEM16" ;
+
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram17" AREA_GROUP = "ZPU_MEM17" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram18" AREA_GROUP = "ZPU_MEM18" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram19" AREA_GROUP = "ZPU_MEM19" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram20" AREA_GROUP = "ZPU_MEM20" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram21" AREA_GROUP = "ZPU_MEM21" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram22" AREA_GROUP = "ZPU_MEM22" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram23" AREA_GROUP = "ZPU_MEM23" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram24" AREA_GROUP = "ZPU_MEM24" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram25" AREA_GROUP = "ZPU_MEM25" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram26" AREA_GROUP = "ZPU_MEM26" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram27" AREA_GROUP = "ZPU_MEM27" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram28" AREA_GROUP = "ZPU_MEM28" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram29" AREA_GROUP = "ZPU_MEM29" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram30" AREA_GROUP = "ZPU_MEM30" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram31" AREA_GROUP = "ZPU_MEM31" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram32" AREA_GROUP = "ZPU_MEM32" ;
+### planahead has problems with "" around range
+AREA_GROUP "ZPU_MEM1"  RANGE = RAMB16_X0Y30:RAMB16_X0Y30 ;
+AREA_GROUP "ZPU_MEM2"  RANGE = RAMB16_X0Y28:RAMB16_X0Y28 ;
+AREA_GROUP "ZPU_MEM3"  RANGE = RAMB16_X0Y26:RAMB16_X0Y26 ;
+AREA_GROUP "ZPU_MEM4"  RANGE = RAMB16_X0Y24:RAMB16_X0Y24 ;
+AREA_GROUP "ZPU_MEM5"  RANGE = RAMB16_X0Y22:RAMB16_X0Y22 ;
+AREA_GROUP "ZPU_MEM6"  RANGE = RAMB16_X0Y20:RAMB16_X0Y20 ;
+AREA_GROUP "ZPU_MEM7"  RANGE = RAMB16_X0Y18:RAMB16_X0Y18 ;
+AREA_GROUP "ZPU_MEM8"  RANGE = RAMB16_X0Y16:RAMB16_X0Y16 ;
+AREA_GROUP "ZPU_MEM9"  RANGE = RAMB16_X0Y14:RAMB16_X0Y14 ;
+AREA_GROUP "ZPU_MEM10" RANGE = RAMB16_X0Y12:RAMB16_X0Y12 ;
+AREA_GROUP "ZPU_MEM11" RANGE = RAMB16_X0Y10:RAMB16_X0Y10 ;
+AREA_GROUP "ZPU_MEM12" RANGE = RAMB16_X0Y8:RAMB16_X0Y8 ;
+AREA_GROUP "ZPU_MEM13" RANGE = RAMB16_X0Y6:RAMB16_X0Y6 ;
+AREA_GROUP "ZPU_MEM14" RANGE = RAMB16_X0Y4:RAMB16_X0Y4 ;
+AREA_GROUP "ZPU_MEM15" RANGE = RAMB16_X0Y2:RAMB16_X0Y2 ;
+AREA_GROUP "ZPU_MEM16" RANGE = RAMB16_X0Y0:RAMB16_X0Y0 ;
+
+AREA_GROUP "ZPU_MEM17" RANGE = RAMB16_X1Y30:RAMB16_X1Y30 ; 
+AREA_GROUP "ZPU_MEM18" RANGE = RAMB16_X1Y28:RAMB16_X1Y28 ; 
+AREA_GROUP "ZPU_MEM19" RANGE = RAMB16_X1Y26:RAMB16_X1Y26 ; 
+AREA_GROUP "ZPU_MEM20" RANGE = RAMB16_X1Y24:RAMB16_X1Y24 ; 
+AREA_GROUP "ZPU_MEM21" RANGE = RAMB16_X1Y22:RAMB16_X1Y22 ; 
+AREA_GROUP "ZPU_MEM22" RANGE = RAMB16_X1Y20:RAMB16_X1Y20 ; 
+AREA_GROUP "ZPU_MEM23" RANGE = RAMB16_X1Y18:RAMB16_X1Y18 ; 
+AREA_GROUP "ZPU_MEM24" RANGE = RAMB16_X1Y16:RAMB16_X1Y16 ; 
+AREA_GROUP "ZPU_MEM25" RANGE = RAMB16_X1Y14:RAMB16_X1Y14 ; 
+AREA_GROUP "ZPU_MEM26" RANGE = RAMB16_X1Y12:RAMB16_X1Y12 ; 
+AREA_GROUP "ZPU_MEM27" RANGE = RAMB16_X1Y10:RAMB16_X1Y10 ; 
+AREA_GROUP "ZPU_MEM28" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;   
+AREA_GROUP "ZPU_MEM29" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;   
+AREA_GROUP "ZPU_MEM30" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;   
+AREA_GROUP "ZPU_MEM31" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;   
+AREA_GROUP "ZPU_MEM32" RANGE = RAMB16_X1Y0:RAMB16_X1Y0 ;   
+
+
+############################################################
+## pin constraints
+############################################################
+
+NET "CLK_33MHZ_SYSACE"              LOC = "N19";   ## 93 on U17
+NET "CPU_RESET"                     LOC = "H8";    ## 2  on SW6 pushbutton (active-high)
+##
+NET "DVI_D<0>"                      LOC = "K16";   ## 63 on U31 (thru series R39 47.5 ohm)
+NET "DVI_D<1>"                      LOC = "U19";   ## 62 on U31 (thru series R38 47.5 ohm)
+NET "DVI_D<2>"                      LOC = "T20";   ## 61 on U31 (thru series R37 47.5 ohm)
+NET "DVI_D<3>"                      LOC = "N16";   ## 60 on U31 (thru series R36 47.5 ohm)
+NET "DVI_D<4>"                      LOC = "P16";   ## 59 on U31 (thru series R35 47.5 ohm)
+NET "DVI_D<5>"                      LOC = "M17";   ## 58 on U31 (thru series R34 47.5 ohm)
+NET "DVI_D<6>"                      LOC = "M18";   ## 55 on U31 (thru series R33 47.5 ohm)
+NET "DVI_D<7>"                      LOC = "R15";   ## 54 on U31 (thru series R32 47.5 ohm)
+NET "DVI_D<8>"                      LOC = "R16";   ## 53 on U31 (thru series R31 47.5 ohm)
+NET "DVI_D<9>"                      LOC = "P17";   ## 52 on U31 (thru series R30 47.5 ohm)
+NET "DVI_D<10>"                     LOC = "P18";   ## 51 on U31 (thru series R29 47.5 ohm)
+NET "DVI_D<11>"                     LOC = "R17";   ## 50 on U31 (thru series R28 47.5 ohm)
+NET "DVI_DE"                        LOC = "J17";   ## 2  on U31 (thru series R40 47.5 ohm)
+NET "DVI_GPIO1"                     LOC = "D22";   ## 18 on U31
+NET "DVI_H"                         LOC = "J16";   ## 4  on U31 (thru series R41 47.5 ohm)
+NET "DVI_RESET_B"                   LOC = "L15";   ## 13 on U31
+NET "DVI_V"                         LOC = "B22";   ## 5  on U31 (thru series R42 47.5 ohm)
+NET "DVI_XCLK_N"                    LOC = "C22";   ## 56 on U31
+NET "DVI_XCLK_P"                    LOC = "C20";   ## 57 on U31
+##
+NET "FLASH_A<0>"                    LOC = "N22";   ## 29 on U25
+NET "FLASH_A<1>"                    LOC = "N20";   ## 25 on U25
+NET "FLASH_A<2>"                    LOC = "M22";   ## 24 on U25
+NET "FLASH_A<3>"                    LOC = "M21";   ## 23 on U25
+NET "FLASH_A<4>"                    LOC = "L19";   ## 22 on U25
+NET "FLASH_A<5>"                    LOC = "K20";   ## 21 on U25
+NET "FLASH_A<6>"                    LOC = "H22";   ## 20 on U25
+NET "FLASH_A<7>"                    LOC = "H21";   ## 19 on U25
+NET "FLASH_A<8>"                    LOC = "L17";   ## 8  on U25
+NET "FLASH_A<9>"                    LOC = "K17";   ## 7  on U25
+NET "FLASH_A<10>"                   LOC = "G22";   ## 6  on U25
+NET "FLASH_A<11>"                   LOC = "G20";   ## 5  on U25
+NET "FLASH_A<12>"                   LOC = "K18";   ## 4  on U25
+NET "FLASH_A<13>"                   LOC = "K19";   ## 3  on U25
+NET "FLASH_A<14>"                   LOC = "H20";   ## 2  on U25
+NET "FLASH_A<15>"                   LOC = "J19";   ## 1  on U25
+NET "FLASH_A<16>"                   LOC = "E22";   ## 55 on U25
+NET "FLASH_A<17>"                   LOC = "E20";   ## 18 on U25
+NET "FLASH_A<18>"                   LOC = "F22";   ## 17 on U25
+NET "FLASH_A<19>"                   LOC = "F21";   ## 16 on U25
+NET "FLASH_A<20>"                   LOC = "H19";   ## 11 on U25
+NET "FLASH_A<21>"                   LOC = "H18";   ## 10 on U25
+NET "FLASH_A<22>"                   LOC = "F20";   ## 9  on U25
+NET "FLASH_A<23>"                   LOC = "G19";   ## 26 on U25
+# use simpler names for next three signals
+NET "FPGA_D0_DIN_MISO_MISO1"       LOC = "AA20";  ## 34 on U25, 8 on U32 (thru series R132 100 ohm), 6 on J17
+NET "FPGA_D1_MISO2"                LOC = "R13";   ## 36 on U25, 3 on J17
+NET "FPGA_D2_MISO3"                LOC = "T14";   ## 39 on U25, 2 on J17
+#NET "FLASH_D<0>"                    LOC = "AA20";
+#NET "FLASH_D<1>"                    LOC = "R13";   ## 36 on U25, 3 on J17
+#NET "FLASH_D<2>"                    LOC = "T14";   ## 39 on U25, 2 on J17
+NET "FLASH_D<3>"                    LOC = "AA6";   ## 41 on U25
+NET "FLASH_D<4>"                    LOC = "AB6";   ## 47 on U25
+NET "FLASH_D<5>"                    LOC = "Y5";    ## 49 on U25
+NET "FLASH_D<6>"                    LOC = "AB5";   ## 51 on U25
+NET "FLASH_D<7>"                    LOC = "W9";    ## 53 on U25
+NET "FLASH_D<8>"                    LOC = "T7";    ## 35 on U25
+NET "FLASH_D<9>"                    LOC = "U6";    ## 37 on U25
+NET "FLASH_D<10>"                   LOC = "AB19";  ## 40 on U25
+NET "FLASH_D<11>"                   LOC = "AA18";  ## 42 on U25
+NET "FLASH_D<12>"                   LOC = "AB18";  ## 48 on U25
+NET "FLASH_D<13>"                   LOC = "Y13";   ## 50 on U25
+NET "FLASH_D<14>"                   LOC = "AA12";  ## 52 on U25
+NET "FLASH_D<15>"                   LOC = "AB12";  ## 54 on U25
+NET "FLASH_WAIT"                    LOC = "T18";   ## 56 on U25
+NET "FLASH_WE_B"                    LOC = "R20";   ## 14 on U25
+NET "FLASH_OE_B"                    LOC = "P22";   ## 32 on U25
+NET "FLASH_CE_B"                    LOC = "P21";   ## 30 on U25
+NET "FLASH_ADV_B"                   LOC = "T19";   ## 46 on U25
+## NET "FMC_PWR_GOOD_FLASH_RST_B"   LOC = "V13";   ## 44 on U25 (this signal goes to multiple destinations, see below)
+##
+NET "FMC_CLK0_M2C_N"                LOC = "G11";   ## H5  on J2
+NET "FMC_CLK0_M2C_P"                LOC = "H12";   ## H4  on J2
+NET "FMC_CLK1_M2C_N"                LOC = "F16";   ## G3  on J2
+NET "FMC_CLK1_M2C_P"                LOC = "E16";   ## G2  on J2
+# MGT
+#NET "FMC_DP0_C2M_N"                 LOC = "A16";   ## C3  on J2
+#NET "FMC_DP0_C2M_P"                 LOC = "B16";   ## C2  on J2
+#NET "FMC_DP0_M2C_N"                 LOC = "C15";   ## C7  on J2
+#NET "FMC_DP0_M2C_P"                 LOC = "D15";   ## C6  on J2
+#NET "FMC_GBTCLK0_M2C_N"             LOC = "F12";   ## D5  on J2
+#NET "FMC_GBTCLK0_M2C_P"             LOC = "E12";   ## D4  on J2
+NET "FMC_LA00_CC_N"                 LOC = "F10";   ## G7  on J2
+NET "FMC_LA00_CC_P"                 LOC = "G9";    ## G6  on J2
+NET "FMC_LA01_CC_N"                 LOC = "F15";   ## D9  on J2
+NET "FMC_LA01_CC_P"                 LOC = "F14";   ## D8  on J2
+NET "FMC_LA02_N"                    LOC = "F9";    ## H8  on J2
+NET "FMC_LA02_P"                    LOC = "G8";    ## H7  on J2
+NET "FMC_LA03_N"                    LOC = "A18";   ## G10 on J2
+NET "FMC_LA03_P"                    LOC = "B18";   ## G9  on J2
+NET "FMC_LA04_N"                    LOC = "A19";   ## H11 on J2
+NET "FMC_LA04_P"                    LOC = "C19";   ## H10 on J2
+NET "FMC_LA05_N"                    LOC = "A4";    ## D12 on J2
+NET "FMC_LA05_P"                    LOC = "C4";    ## D11 on J2
+NET "FMC_LA06_N"                    LOC = "D5";    ## C11 on J2
+NET "FMC_LA06_P"                    LOC = "D4";    ## C10 on J2
+NET "FMC_LA07_N"                    LOC = "A2";    ## H14 on J2
+NET "FMC_LA07_P"                    LOC = "B2";    ## H13 on J2
+NET "FMC_LA08_N"                    LOC = "A20";   ## G13 on J2
+NET "FMC_LA08_P"                    LOC = "B20";   ## G12 on J2
+NET "FMC_LA09_N"                    LOC = "F8";    ## D15 on J2
+NET "FMC_LA09_P"                    LOC = "F7";    ## D14 on J2
+NET "FMC_LA10_N"                    LOC = "H11";   ## C15 on J2
+NET "FMC_LA10_P"                    LOC = "H10";   ## C14 on J2
+NET "FMC_LA11_N"                    LOC = "G15";   ## H17 on J2
+NET "FMC_LA11_P"                    LOC = "H14";   ## H16 on J2
+NET "FMC_LA12_N"                    LOC = "G13";   ## G16 on J2
+NET "FMC_LA12_P"                    LOC = "H13";   ## G15 on J2
+NET "FMC_LA13_N"                    LOC = "F17";   ## D18 on J2
+NET "FMC_LA13_P"                    LOC = "G16";   ## D17 on J2
+NET "FMC_LA14_N"                    LOC = "A17";   ## C19 on J2
+NET "FMC_LA14_P"                    LOC = "C17";   ## C18 on J2
+NET "FMC_LA15_N"                    LOC = "D19";   ## H20 on J2
+NET "FMC_LA15_P"                    LOC = "D18";   ## H19 on J2
+NET "FMC_LA16_N"                    LOC = "A5";    ## G19 on J2
+NET "FMC_LA16_P"                    LOC = "C5";    ## G18 on J2
+NET "FMC_LA17_CC_N"                 LOC = "AB11";  ## D21 on J2
+NET "FMC_LA17_CC_P"                 LOC = "Y11";   ## D20 on J2
+NET "FMC_LA18_CC_N"                 LOC = "U12";   ## C23 on J2
+NET "FMC_LA18_CC_P"                 LOC = "T12";   ## C22 on J2
+NET "FMC_LA19_N"                    LOC = "T11";   ## H23 on J2
+NET "FMC_LA19_P"                    LOC = "R11";   ## H22 on J2
+NET "FMC_LA20_N"                    LOC = "R8";    ## G22 on J2
+NET "FMC_LA20_P"                    LOC = "R9";    ## G21 on J2
+NET "FMC_LA21_N"                    LOC = "W11";   ## H26 on J2
+NET "FMC_LA21_P"                    LOC = "V11";   ## H25 on J2
+NET "FMC_LA22_N"                    LOC = "W8";    ## G25 on J2
+NET "FMC_LA22_P"                    LOC = "V7";    ## G24 on J2
+NET "FMC_LA23_N"                    LOC = "V9";    ## D24 on J2
+NET "FMC_LA23_P"                    LOC = "U9";    ## D23 on J2
+NET "FMC_LA24_N"                    LOC = "AB14";  ## H29 on J2
+NET "FMC_LA24_P"                    LOC = "AA14";  ## H28 on J2
+NET "FMC_LA25_N"                    LOC = "Y14";   ## G28 on J2
+NET "FMC_LA25_P"                    LOC = "W14";   ## G27 on J2
+NET "FMC_LA26_N"                    LOC = "U13";   ## D27 on J2
+NET "FMC_LA26_P"                    LOC = "U14";   ## D26 on J2
+NET "FMC_LA27_N"                    LOC = "AB10";  ## C27 on J2
+NET "FMC_LA27_P"                    LOC = "AA10";  ## C26 on J2
+NET "FMC_LA28_N"                    LOC = "AB16";  ## H32 on J2
+NET "FMC_LA28_P"                    LOC = "AA16";  ## H31 on J2
+NET "FMC_LA29_N"                    LOC = "U15";   ## G31 on J2
+NET "FMC_LA29_P"                    LOC = "T15";   ## G30 on J2
+NET "FMC_LA30_N"                    LOC = "AB15";  ## H35 on J2
+NET "FMC_LA30_P"                    LOC = "Y15";   ## H34 on J2
+NET "FMC_LA31_N"                    LOC = "V15";   ## G34 on J2
+NET "FMC_LA31_P"                    LOC = "U16";   ## G33 on J2
+NET "FMC_LA32_N"                    LOC = "Y18";   ## H38 on J2
+NET "FMC_LA32_P"                    LOC = "W17";   ## H37 on J2
+NET "FMC_LA33_N"                    LOC = "AB17";  ## G37 on J2
+NET "FMC_LA33_P"                    LOC = "Y17";   ## G36 on J2
+NET "FMC_PRSNT_M2C_L"               LOC = "Y16";   ## H2  on J2
+NET "FMC_PWR_GOOD_FLASH_RST_B"      LOC = "V13";   ## D1  on J2, 1 of Q2 (LED DS1 driver), U1 AB2 FPGA_PROG (through series R260 DNP), 44 of U25
+##
+NET "FPGA_AWAKE"                    LOC = "V19";   ## 2   on DS7 LED
+NET "FPGA_CCLK"                     LOC = "Y20";   ## 7   on J17
+NET "FPGA_CMP_CLK"                  LOC = "V17";   ## 3   on J3
+#NET "FPGA_CMP_CS_B"                LOC = "V18";   ## 4   on J3
+NET "FPGA_CMP_MOSI"                 LOC = "W18";   ## 2   on J3
+
+## NET "FPGA_D0_DIN_MISO_MISO1"     LOC = "AA20";  ## this pin is part of the FLASH_nn group
+## NET "FPGA_D1_MISO2"              LOC = "R13";   ## this pin is part of the FLASH_nn group
+## NET "FPGA_D2_MISO3"              LOC = "T14";   ## this pin is part of the FLASH_nn group
+
+#NET "FPGA_DONE"                    LOC = "AB21";  ## 2   on DS2 LED
+NET "FPGA_HSWAPEN"                  LOC = "C3";    ## 1   on R125 100 ohm to GND
+NET "FPGA_INIT_B"                   LOC = "Y4";    ## 1   on DS17 (through sereis R69 75 ohm), 78 on U17
+NET "FPGA_M0_CMP_MISO"              LOC = "AA21";  ## 1   on SW1 DIP switch (active-high), 1 on J3
+NET "FPGA_M1"                       LOC = "Y19";   ## 2   on SW1 DIP switch (active-high)
+NET "FPGA_MOSI_CSI_B_MISO0"         LOC = "AB20";  ## 15  on U32, 5 on J17
+NET "FPGA_ONCHIP_TERM1"             LOC = "M7";    ## 1   on R124 DNP to GND
+NET "FPGA_ONCHIP_TERM2"             LOC = "K7";    ## 1   on R126 100 ohm to GND
+#NET "FPGA_PROG_B"                  LOC = "AB2";   ## 1   on SW3 pushbutton (active-high) 1 on J17, 2 on J48, 2 on R260 DNP connected to NET "FMC_PWR_GOOD_FLASH_RST_B"
+#NET "FPGA_SUSPEND"                 LOC = "AA22";  ## 2   on J47
+#NET "FPGA_TCK"                     LOC = "A21";   ## 80  on U17
+#NET "FPGA_TDI"                     LOC = "E18";   ## 82  on U17
+#NET "FPGA_TMS"                     LOC = "D20";   ## 85  on U17
+#NET "FPGA_VBATT"                   LOC = "T16";   ## 1   on B2 (battery), 2 on D11 (charging circuit)
+NET "FPGA_VTEMP"                    LOC = "Y3";    ## 2   on R207 150 ohm to VCC1V5
+##
+NET "GPIO_BUTTON<0>"                LOC = "F3";    ## 2   on SW4 pushbutton (active-high)
+NET "GPIO_BUTTON<1>"                LOC = "G6";    ## 2   on SW7 pushbutton (active-high)
+NET "GPIO_BUTTON<2>"                LOC = "F5";    ## 2   on SW5 pushbutton (active-high)
+NET "GPIO_BUTTON<3>"                LOC = "C1";    ## 2   on SW8 pushbutton (active-high)
+##
+NET "GPIO_HEADER_LS<0>"             LOC = "G7";    ## 1   on U52 (level shifter, U52.20 <-> GPIO_HEADER_0 <-> series R280 200 ohm <-> 1 on J55
+NET "GPIO_HEADER_LS<1>"             LOC = "H6";    ## 3   on U52 (level shifter, U52.18 <-> GPIO_HEADER_0 <-> series R281 200 ohm <-> 2 on J55
+NET "GPIO_HEADER_LS<2>"             LOC = "D1";    ## 4   on U52 (level shifter, U52.17 <-> GPIO_HEADER_0 <-> series R282 200 ohm <-> 3 on J55
+NET "GPIO_HEADER_LS<3>"             LOC = "R7";    ## 5   on U52 (level shifter, U52.16 <-> GPIO_HEADER_0 <-> series R283 200 ohm <-> 4 on J55
+##
+NET "GPIO_LED<0>"                   LOC = "D17";   ## 2   on DS3 LED
+NET "GPIO_LED<1>"                   LOC = "AB4";   ## 2   on DS4 LED
+NET "GPIO_LED<2>"                   LOC = "D21";   ## 2   on DS5 LED
+NET "GPIO_LED<3>"                   LOC = "W15";   ## 2   on DS6 LED
+##                     
+NET "GPIO_SWITCH<0>"                LOC = "C18";   ## 1   on S2 DIP switch (active-high)
+NET "GPIO_SWITCH<1>"                LOC = "Y6";    ## 2   on S2 DIP switch (active-high)
+NET "GPIO_SWITCH<2>"                LOC = "W6";    ## 3   on S2 DIP switch (active-high)
+NET "GPIO_SWITCH<3>"                LOC = "E4";    ## 4   on S2 DIP switch (active-high)
+##
+NET "IIC_SCL_DVI"                   LOC = "W13";   ## 15  on U31, 2 on Q7 (level shifter, Q7.3 <-> IIC_CLK_DVI_F <-> series ferrite F9 220 ohm <-> 6 on P3
+NET "IIC_SDA_DVI"                   LOC = "AA4";   ## 14  on U31, 2 on Q8 (level shifter, Q7.3 <-> IIC_SDA_DVI_F <-> series ferrite F8 220 ohm <-> 7 on P3
+NET "IIC_SCL_MAIN"                  LOC = "T21";   ## C30 on J2
+NET "IIC_SDA_MAIN"                  LOC = "R22";   ## C31 on J2
+NET "IIC_SCL_SFP"                   LOC = "E5";    ## 5   on P2
+NET "IIC_SDA_SFP"                   LOC = "E6";    ## 4   on P2
+##
+NET "MEM1_A<0>"                     LOC = "K2";    ## N3  on U42
+NET "MEM1_A<1>"                     LOC = "K1";    ## P7  on U42
+NET "MEM1_A<2>"                     LOC = "K5";    ## P3  on U42
+NET "MEM1_A<3>"                     LOC = "M6";    ## N2  on U42
+NET "MEM1_A<4>"                     LOC = "H3";    ## P8  on U42
+NET "MEM1_A<5>"                     LOC = "M3";    ## P2  on U42
+NET "MEM1_A<6>"                     LOC = "L4";    ## R8  on U42
+NET "MEM1_A<7>"                     LOC = "K6";    ## R2  on U42
+NET "MEM1_A<8>"                     LOC = "G3";    ## T8  on U42
+NET "MEM1_A<9>"                     LOC = "G1";    ## R3  on U42
+NET "MEM1_A<10>"                    LOC = "J4";    ## L7  on U42
+NET "MEM1_A<11>"                    LOC = "E1";    ## R7  on U42
+NET "MEM1_A<12>"                    LOC = "F1";    ## N7  on U42
+NET "MEM1_A<13>"                    LOC = "J6";    ## T3  on U42
+NET "MEM1_A<14>"                    LOC = "H5";    ## T7  on U42
+NET "MEM1_BA<0>"                    LOC = "J3";    ## M2  on U42
+NET "MEM1_BA<1>"                    LOC = "J1";    ## N8  on U42
+NET "MEM1_BA<2>"                    LOC = "H1";    ## M3  on U42
+NET "MEM1_CAS_B"                    LOC = "M4";    ## K3  on U42
+NET "MEM1_CKE"                      LOC = "F2";    ## K9  on U42
+NET "MEM1_CLK_N"                    LOC = "K3";    ## K7  on U42
+NET "MEM1_CLK_P"                    LOC = "K4";    ## J7  on U42
+NET "MEM1_DQ<0>"                    LOC = "R3";    ## G2  on U42
+NET "MEM1_DQ<1>"                    LOC = "R1";    ## H3  on U42
+NET "MEM1_DQ<2>"                    LOC = "P2";    ## E3  on U42
+NET "MEM1_DQ<3>"                    LOC = "P1";    ## F2  on U42
+NET "MEM1_DQ<4>"                    LOC = "L3";    ## H7  on U42
+NET "MEM1_DQ<5>"                    LOC = "L1";    ## H8  on U42
+NET "MEM1_DQ<6>"                    LOC = "M2";    ## F7  on U42
+NET "MEM1_DQ<7>"                    LOC = "M1";    ## F8  on U42
+NET "MEM1_DQ<8>"                    LOC = "T2";    ## C2  on U42
+NET "MEM1_DQ<9>"                    LOC = "T1";    ## C3  on U42
+NET "MEM1_DQ<10>"                   LOC = "U3";    ## A2  on U42
+NET "MEM1_DQ<11>"                   LOC = "U1";    ## D7  on U42
+NET "MEM1_DQ<12>"                   LOC = "W3";    ## A3  on U42
+NET "MEM1_DQ<13>"                   LOC = "W1";    ## C8  on U42
+NET "MEM1_DQ<14>"                   LOC = "Y2";    ## B8  on U42
+NET "MEM1_DQ<15>"                   LOC = "Y1";    ## A7  on U42
+NET "MEM1_LDM"                      LOC = "N4";    ## E7  on U42
+NET "MEM1_LDQS_N"                   LOC = "N1";    ## G3  on U42
+NET "MEM1_LDQS_P"                   LOC = "N3";    ## F3  on U42
+NET "MEM1_ODT"                      LOC = "L6";    ## K1  on U42
+NET "MEM1_RAS_B"                    LOC = "M5";    ## J3  on U42
+NET "MEM1_RESET_B"                  LOC = "E3";    ## T2  on U42
+NET "MEM1_UDM"                      LOC = "P3";    ## D3  on U42
+NET "MEM1_UDQS_N"                   LOC = "V1";    ## B7  on U42
+NET "MEM1_UDQS_P"                   LOC = "V2";    ## C7  on U42
+NET "MEM1_WE_B"                     LOC = "H2";    ## L3  on U42
+##
+# MGT
+#NET "PCIE_250M_N"                   LOC = "B10";   ## 1   on series C301 0.1uF, C300 pin 2 -> PCIE_250M_MGT1_C_N -> 17 on U48
+#NET "PCIE_250M_P"                   LOC = "A10";   ## 1   on series C300 0.1uF, C300 pin 2 -> PCIE_250M_MGT1_C_P -> 18 on U48
+#NET "PCIE_RX0_N"                    LOC = "C7";    ## B15 on P4
+#NET "PCIE_RX0_P"                    LOC = "D7";    ## B14 on P4
+#NET "PCIE_TX0_N"                    LOC = "A6";    ## 2   on series C26 0.1uF, C26 pin 1 -> PCIE_TX0_C_N -> A17 of P4
+#NET "PCIE_TX0_P"                    LOC = "B6";    ## 2   on series C27 0.1uF, C26 pin 1 -> PCIE_TX0_C_P -> A16 of P4
+NET "PCIE_PERST_B_LS"               LOC = "J7";    ## 6   on U52 (level shifter, U52.20 <-> PCIE_PERST_B <-> series R55 15 ohm <-> A11 on P4
+##
+NET "PHY_COL"                       LOC = "M16";                       ## 114 on U46
+NET "PHY_CRS"                       LOC = "N15";                       ## 115 on U46
+NET "PHY_INT"                       LOC = "J20";                       ## 32  on U46
+NET "PHY_MDC"                       LOC = "R19";                       ## 35  on U46
+NET "PHY_MDIO"                      LOC = "V20";                       ## 33  on U46
+NET "PHY_RESET"                     LOC = "J22";                       ## 36  on U46
+NET "PHY_RXCLK"                     LOC = "P20" | TNM_NET = "PHY_CLK"; ## 7   on U46
+NET "PHY_RXCTL_RXDV"                LOC = "T22";                       ## 4   on U46
+NET "PHY_RXD<0>"                    LOC = "P19";                       ## 3   on U46
+NET "PHY_RXD<1>"                    LOC = "Y22";                       ## 128 on U46
+NET "PHY_RXD<2>"                    LOC = "Y21";                       ## 126 on U46
+NET "PHY_RXD<3>"                    LOC = "W22";                       ## 125 on U46
+NET "PHY_RXD<4>"                    LOC = "W20";                       ## 124 on U46
+NET "PHY_RXD<5>"                    LOC = "V22";                       ## 123 on U46
+NET "PHY_RXD<6>"                    LOC = "V21";                       ## 121 on U46
+NET "PHY_RXD<7>"                    LOC = "U22";                       ## 120 on U46
+NET "PHY_RXER"                      LOC = "U20";                       ## 8   on U46
+NET "PHY_TXCLK"                     LOC = "L20" | TNM_NET = "PHY_CLK"; ## 10  on U46
+NET "PHY_TXCTL_TXEN"                LOC = "T8";                        ## 16  on U46
+NET "PHY_TXC_GTXCLK"                LOC = "AB7";                       ## 14  on U46
+NET "PHY_TXD<0>"                    LOC = "U10";                       ## 18  on U46
+NET "PHY_TXD<1>"                    LOC = "T10";                       ## 19  on U46
+NET "PHY_TXD<2>"                    LOC = "AB8";                       ## 20  on U46
+NET "PHY_TXD<3>"                    LOC = "AA8";                       ## 24  on U46
+NET "PHY_TXD<4>"                    LOC = "AB9";                       ## 25  on U46
+NET "PHY_TXD<5>"                    LOC = "Y9";                        ## 26  on U46
+NET "PHY_TXD<6>"                    LOC = "Y12";                       ## 28  on U46
+NET "PHY_TXD<7>"                    LOC = "W12";                       ## 29  on U46
+NET "PHY_TXER"                      LOC = "U8";                        ## 13  on U46
+##
+NET "PMBUS_ALERT"                   LOC = "D3";    ## 35  on U26, 35 on U27
+NET "PMBUS_CLK"                     LOC = "W10";   ## 19  on U26, 19 on U27
+NET "PMBUS_CTRL"                    LOC = "H16";   ## 36  on U26, 36 on U27
+NET "PMBUS_DATA"                    LOC = "Y10";   ## 20  on U26, 20 on U27
+##
+# MGT
+#NET "SFPCLK_QO_N"                   LOC = "B12";   ## 2   on series C298 0.1uF, C298 pin 1 <- SFPCLK_QO_C_N <- 6 of U47
+#NET "SFPCLK_QO_P"                   LOC = "A12";   ## 2   on series C299 0.1uF, C299 pin 1 <- SFPCLK_QO_C_P <- 7 of U47
+#NET "SFP_RX_N"                      LOC = "C13";   ## 12  on P2
+#NET "SFP_RX_P"                      LOC = "D13";   ## 13  on P2
+#NET "SFP_TX_N"                      LOC = "A14";   ## 19  on P2
+#NET "SFP_TX_P"                      LOC = "B14";   ## 18  on P2
+NET "SFP_LOS"                       LOC = "T17";   ## 8   on P2, 1 on J14
+NET "SFP_TX_DISABLE_FPGA"           LOC = "Y8";    ## 3   on P2, 1 on J44
+##
+# MGT
+#NET "SMA_REFCLK_N"                  LOC = "D11";   ##
+#NET "SMA_REFCLK_P"                  LOC = "C11";   ##
+#NET "SMA_RX_N"                      LOC = "C9";    ##
+#NET "SMA_RX_P"                      LOC = "D9";    ##
+#NET "SMA_TX_N"                      LOC = "A8";    ##
+#NET "SMA_TX_P"                      LOC = "B8";    ##
+##
+NET "SPI_CS_B"                      LOC = "AA3";   ##
+##
+#NET "SYSACE_CFGTDI"                LOC = "G17";   ##
+NET "SYSACE_D_LS<0>"                LOC = "N6";    ##
+NET "SYSACE_D_LS<1>"                LOC = "N7";    ##
+NET "SYSACE_D_LS<2>"                LOC = "U4";    ##
+NET "SYSACE_D_LS<3>"                LOC = "T4";    ##
+NET "SYSACE_D_LS<4>"                LOC = "P6";    ##
+NET "SYSACE_D_LS<5>"                LOC = "P7";    ##
+NET "SYSACE_D_LS<6>"                LOC = "T3";    ##
+NET "SYSACE_D_LS<7>"                LOC = "R4";    ##
+NET "SYSACE_MPA_LS<0>"              LOC = "V5";    ##
+NET "SYSACE_MPA_LS<1>"              LOC = "V3";    ##
+NET "SYSACE_MPA_LS<2>"              LOC = "P5";    ##
+NET "SYSACE_MPA_LS<3>"              LOC = "P4";    ##
+NET "SYSACE_MPA_LS<4>"              LOC = "H4";    ##
+NET "SYSACE_MPA_LS<5>"              LOC = "G4";    ##
+NET "SYSACE_MPA_LS<6>"              LOC = "D2";    ##
+NET "SYSACE_MPBRDY_LS"              LOC = "AA1";   ##
+NET "SYSACE_MPCE_LS"                LOC = "W4";    ##
+NET "SYSACE_MPIRQ_LS"               LOC = "AA2";   ##
+NET "SYSACE_MPOE_LS"                LOC = "T6";    ##
+NET "SYSACE_MPWE_LS"                LOC = "T5";    ##
+##
+NET "SYSCLK_N"                      LOC = "K22" | DIFF_TERM = TRUE | TNM_NET = "SYSCLK";   ##
+NET "SYSCLK_P"                      LOC = "K21" | DIFF_TERM = TRUE | TNM_NET = "SYSCLK";   ##
+TIMESPEC "TS_SYSCLK" = PERIOD "SYSCLK" 200 MHz HIGH 50 %;
+##
+## real net names
+NET "USB_1_CTS"                     LOC = "F18";   ## function: RTS output
+NET "USB_1_RTS"                     LOC = "F19";   ## function: CTS input
+NET "USB_1_RX"                      LOC = "B21";   ## function: TX data out
+NET "USB_1_TX"                      LOC = "H17";   ## function: RX data in
+##
+NET "USER_CLOCK"                    LOC = "AB13" | TNM_NET = "USER_CLOCK";  ##
+TIMESPEC "TS_USER_CLOCK" = PERIOD "USER_CLOCK" 27 MHz HIGH 40%;
+
+NET "USER_SMA_CLOCK_N"              LOC = "M19" | DIFF_TERM = TRUE | TNM_NET = "USER_SMA_CLOCK";   ##
+NET "USER_SMA_CLOCK_P"              LOC = "M20" | DIFF_TERM = TRUE | TNM_NET = "USER_SMA_CLOCK";   ##
+#TIMESPEC "TS_USER_SMA_CLOCK" = PERIOD "USER_SMA_CLOCK" 52 MHz HIGH 50 %;
+
+NET "USER_SMA_GPIO_N"               LOC = "A3";    ##
+NET "USER_SMA_GPIO_P"               LOC = "B3";    ##
+
+# Notes:
+# - pullup and pulldown resistors which branch from nets are not included
+# - pullup and pulldown resistors to a single point power or GND are included
+# - series resistors are included
+# - DNP = do not populate, no component will be installed on the PCB at this location
