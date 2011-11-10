@@ -43,6 +43,7 @@ glob:*.bit
 glob:*.prm
 glob:*.cfi
 glob:*.ipf
+glob:_impactbatch.log
 
 # simulation stuff
 wlf*
@@ -96,6 +97,7 @@ glob:esnug_c/sim/test/xxx_*.txt
 # special (hg unhandled) projects
 glob:beam_position_monitor/
 glob:central_trigger_generator/
+glob:edk_v5fx30t/
 glob:pr_datenerfassung_hpdi32/
 glob:pr_ultraschall_fft/
 glob:profinet/
