@@ -11,7 +11,7 @@ top          = top_tb
 library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
 
 compile: Makefile.msim
-	#make --directory ../software | ccze -A
+	make --directory ../software | ccze -A
 	export ANAFLAGS="-quiet -2008"; \
 	make -f Makefile.msim | ccze -A
 
