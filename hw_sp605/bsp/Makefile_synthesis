@@ -6,8 +6,8 @@
 #
 
 MODULE = top
-DEVICE = xc6slx16-csg324-2
-UCF_FILE = sp601.ucf
+DEVICE = xc6slx45t-fgg484-3
+UCF_FILE = sp605.ucf
 CORES = ../cores/
 SOFTWARE = ../software
 DATE = $(shell date +"%Y-%m-%d__%H_%M")
@@ -75,11 +75,15 @@ clean:
 	rm -rf xst
 
 
-dir:	
+dir: $(MODULE).prj	
 	mkdir -p xst
 	mkdir -p xst/projnav.tmp
-	cp *.xst xst
-	#cp *.prj xst
+	cp $(MODULE).xst xst
+	#cp $(MODULE).prj xst
+
+$(MODULE).prj: ../simulation/vhdl_files.txt
+	grep --invert rtl_tb ../simulation/vhdl_files.txt | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
+
 
 xst:    $(MODULE).ngc
 translate: $(MODULE).ngd
