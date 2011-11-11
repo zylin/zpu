@@ -50,7 +50,11 @@ quietly set top $env(top)
 if {[file exists wave_$top.do]} {
     do wave_$top.do
 } else {
-    puts "INFO: no wave file (wave_$top.do) found"
+    if {[file exists wave.do]} {
+        do wave.do
+    } else {
+        puts "INFO: no wave file found."
+    }
 }
 
 
