@@ -87,4 +87,3 @@ zpu       ../../zpu/rtl/zpu_core_small.vhd
 zpu       ../../zpu/rtl/zpu_core_medium.vhd
 zpu       ../../zpu/rtl/zpupkg.vhd
 zpu       ../../zpu/rtl_tb/txt_util.vhd
-
