@@ -8,7 +8,9 @@ use std.textio.all;
 library work;
 use work.zpu_config.all;
 use work.zpupkg.all;
+-- pragma translate_off
 use work.txt_util.all;
+-- pragma translate_on
 
 entity zpu_bus_trace is
     generic (
@@ -129,6 +131,7 @@ architecture trace of zpu_bus_trace is
 
 begin
     
+    -- pragma translate_off
     
     process
         variable l         : line;
@@ -156,5 +159,7 @@ begin
 
         end if; -- reset
     end process;
+
+    -- pragma translate_on
 
 end architecture trace;
