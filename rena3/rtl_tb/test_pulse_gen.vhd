@@ -1,23 +1,3 @@
-
-library ieee;
-use ieee.std_logic_1164.all;
-
-
-package test_pulse_gen_package is
-
-    component test_pulse_gen is
-        port (
-            trigger : in  std_ulogic;
-            pulse   : out real
-        );
-    end component test_pulse_gen;
-
-end package test_pulse_gen_package;
-
-
-
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 

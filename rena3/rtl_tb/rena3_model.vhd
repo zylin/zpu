@@ -7,6 +7,19 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+use std.textio.all;
+
+library ieee;
+use ieee.numeric_std.all;
+
+library tools;
+use tools.fio_pkg.all;
+
+library rena3;
+use rena3.rena3_model_types_package.all;
+
+
+
 entity rena3_model is
     port (
         -- Pad Name                         Description
@@ -73,20 +86,6 @@ entity rena3_model is
 end entity rena3_model;
 
 
-
-
-
-use std.textio.all;
-
-library ieee;
-use ieee.numeric_std.all;
-
-library tools;
-use tools.fio_pkg.all;
-
-library rena3;
-use rena3.rena3_model_types_package.all;
-use rena3.rena3_model_component_package.rena3_channel_model;
 
 
 ----------------------------------------
@@ -611,7 +610,7 @@ begin
                                   vu                 => VU, 
                                   vv                 => VV);
         --------------------
-        rena3_channel_i: rena3_channel_model
+        rena3_channel_i: entity work.rena3_channel_model
             generic map (
                 channel_nr => i
             )

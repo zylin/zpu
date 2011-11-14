@@ -19,8 +19,6 @@ use tools.image_pkg.all;
 
 
 library rena3;
-use rena3.rena3_model_component_package.rena3_model;
-use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
 ----------------------------------------
@@ -222,7 +220,7 @@ begin
     
     --------------------
     -- stimuli generator
-    test_pulse_gen_i0: test_pulse_gen
+    test_pulse_gen_i0: entity work.test_pulse_gen
         port map(
             trigger => r.trigger,
             pulse   => src.test_pulse_gen_i0_pulse 
@@ -232,7 +230,7 @@ begin
     --------------------
     -- dut
     -- TODO look for open ports
-    rena3_model_i0: rena3_model
+    rena3_model_i0: entity work.rena3_model
         port map(
             TEST        => src.test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
             VU          => 0.0,                         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger

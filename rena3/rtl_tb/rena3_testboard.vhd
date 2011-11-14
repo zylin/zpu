@@ -1,26 +1,26 @@
 
-
-entity test_board is
-end entity test_board;
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 
 library rena3;
---use rena3.component_package.controller_top;
-use rena3.rena3_model_component_package.rena3_model;
-use rena3.rena3_model_component_package.dds_model;
-use rena3.test_pulse_gen_package.test_pulse_gen;
 
 
-----------------------------------------
-architecture board of test_board is
+entity rena3_testboard is
+    port (
+        simulation_run        : boolean := true;
+        fmc_lpc_row_c         : inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_d         : inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_g         : inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_h         : inout std_logic_vector(40 downto 1)
+    );
+end entity rena3_testboard;
+
+
+architecture model of rena3_testboard is
     
-    constant clk_period                    : time       := ( 1 sec/ 50_000_000); -- 50 MHz
+    constant dds_clk_period                : time       := ( 1 sec/ 100_000_000); -- 100 MHz
                                            
-    signal simulation_run                  : boolean    := true;
-    signal clk                             : std_ulogic := '1';
+    signal dds_clk                         : std_ulogic := '1';
     signal reset                           : std_ulogic;
                                            
     signal testbench_trigger               : std_ulogic;
@@ -34,6 +34,12 @@ architecture board of test_board is
     signal rena3_model_i0_fout             : std_ulogic;
     signal rena3_model_i0_sout             : std_ulogic;
     signal rena3_model_i0_tout             : std_ulogic;
+
+    signal rena3_model_i1_ts               : std_ulogic;
+    signal rena3_model_i1_tf               : std_ulogic;
+    signal rena3_model_i1_fout             : std_ulogic;
+    signal rena3_model_i1_sout             : std_ulogic;
+    signal rena3_model_i1_tout             : std_ulogic;
 
     signal controller_top_i0_rena3_cshift  : std_ulogic;
     signal controller_top_i0_rena3_cin     : std_ulogic; 
@@ -56,43 +62,21 @@ architecture board of test_board is
 
 begin
    
-    -- clock and reset generator 
-    clk   <= not clk after clk_period/2 when simulation_run;
-    reset <= '1', '0' after 10 * clk_period;
+    -- dds clock generator 
+    dds_clk <= not dds_clk after dds_clk_period/2 when simulation_run;
 
-    -- TODO generate testpulses from FPGA
     --------------------
-    gen_trigger_events: process
-    --------------------
-    begin
-
-        testbench_trigger <= '0';
-        wait until reset = '0';
-    
-        while controller_top_i0_break = '0' loop
-            wait for  99 us;
-            testbench_trigger <= '1';
-            wait for   1 us;
-            testbench_trigger <= '0';
-        end loop;
-
-        report "---" & LF & "ZPU sends break" & LF & "End simulation." severity note;
-        simulation_run        <= false;
-        wait;
-
-    end process gen_trigger_events;
-    
-    --------------------
-    test_pulse_gen_i0: test_pulse_gen
+    test_pulse_gen_i0: entity work.test_pulse_gen
         port map(
             trigger => testbench_trigger,
             pulse   => test_pulse_gen_i0_pulse 
         );
 
     --------------------
-    dds_model_i0: dds_model
+    dds_model_i0: entity work.dds_model
         port map(
             run     => simulation_run,
+        --  clk     => dds_clk, -- TODO
             vu      => dds_model_i0_vu,
             vv      => dds_model_i0_vv
         );
@@ -103,14 +87,14 @@ begin
     -- TODO generate slow token register stimuli from FPGA
     -- TODO generate fast token register stimuli from FPGA
     -- TODO generate token stuff stimuli from FPGA
-    rena3_model_i0: rena3_model
+    rena3_model_i0: entity work.rena3_model
         port map(
-            TEST        => test_pulse_gen_i0_pulse, --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
-            VU          => dds_model_i0_vu,         --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
-            VV          => dds_model_i0_vv,         --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
-            DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
-            AOUTP       => open,                    --   : out real;       -- ?, Positive differential output
-            AOUTN       => open,                    --   : out real;       -- ?, Negative differential output
+            TEST        => test_pulse_gen_i0_pulse,         --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
+            VU          => dds_model_i0_vu,                 --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV          => dds_model_i0_vv,                 --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
+            DETECTOR_IN => (others => 0.0),                 --   : in  real_array(0 to 35); -- Detector inputs pins
+            AOUTP       => open,                            --   : out real;       -- ?, Positive differential output
+            AOUTN       => open,                            --   : out real;       -- ?, Negative differential output
             CSHIFT      => controller_top_i0_rena3_cshift,  --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
             CIN         => controller_top_i0_rena3_cin,     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
             CS          => controller_top_i0_rena3_cs,      --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
@@ -121,6 +105,40 @@ begin
             FOUT        => rena3_model_i0_fout,             --   : out std_ulogic; -- Fast token output for fast token register
             SOUT        => rena3_model_i0_sout,             --   : out std_ulogic; -- Slow token output for slow token register
             TOUT        => rena3_model_i0_tout,             --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
+            READ        => controller_top_i0_rena3_read,    --   : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
+            TIN         => controller_top_i0_rena3_tin,     --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
+            SIN         => controller_top_i0_rena3_sin,     --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
+            FIN         => controller_top_i0_rena3_fin,     --   : in  std_ulogic; -- Fast token input. Use with FHRCLK to load bits into slow token chain.
+            SHRCLK      => controller_top_i0_rena3_shrclk,  --   : in  std_ulogic; -- Slow hit register clock. Loads SIN bits on rising edge
+            FHRCLK      => controller_top_i0_rena3_fhrclk,  --   : in  std_ulogic; -- Fast hit register clock. Loads FIN bits on rising edge
+            ACQUIRE_P   => controller_top_i0_rena3_acquire, --   : in  std_ulogic; -- Positive differential input, Peak detector is active when this signal is asserted (high).
+            ACQUIRE_N   => '0', --not(controller_top_i0_rena3_acquire), --   : in  std_ulogic; -- Negative differential input, Peak detector is active when this signal is asserted (low)
+            CLS_P       => controller_top_i0_rena3_cls,     --   : in  std_ulogic; -- Positive differential input, Peak detector reset signal. Resets the peak
+                                                    -- detector when asserted (high). Also clears the token register.
+            CLS_N       => '0',--not(controller_top_i0_rena3_cls),--   : in  std_ulogic; -- Negative differential input, Peak detector reset signal. Resets the peak
+            CLF         => controller_top_i0_rena3_clf,     --   : in  std_ulogic  -- This signal clears the fast latch (VU and VV sample circuit) when
+            TCLK        => controller_top_i0_rena3_tclk     --   : in  std_ulogic  -- This signal shifts the token from one channel to the next on the rising
+        );
+
+
+    rena3_model_i1: entity work.rena3_model
+        port map(
+            TEST        => test_pulse_gen_i0_pulse,         --   : in  real;       -- +/-720mV step input to simulate signal. This signal is for testing
+            VU          => dds_model_i0_vu,                 --   : in  real;       -- 2 - 3V sine wave, U timing signal for sampling by fast trigger
+            VV          => dds_model_i0_vv,                 --   : in  real;       -- 2 - 3V sine wave, V timing signal for sampling by fast trigger
+            DETECTOR_IN => (others => 0.0),                 --   : in  real_array(0 to 35); -- Detector inputs pins
+            AOUTP       => open,                            --   : out real;       -- ?, Positive differential output
+            AOUTN       => open,                            --   : out real;       -- ?, Negative differential output
+            CSHIFT      => controller_top_i0_rena3_cshift,  --   : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
+            CIN         => controller_top_i0_rena3_cin,     --   : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
+            CS          => controller_top_i0_rena3_cs,      --   : in  std_ulogic  -- Chip Select. After shifting 41 bits, pulse this signal high to load the
+            TS_N        => open,                            --   : out std_ulogic; -- Differential out, Slow trigger output, Negative output
+            TS_P        => rena3_model_i1_ts,               --   : out std_ulogic; -- Differential out, Slow trigger output, positive output
+            TF_N        => open,                            --   : out std_ulogic; -- Differential out, Fast trigger output, Negative Output
+            TF_P        => rena3_model_i1_tf,               --   : out std_ulogic; -- Differential out, Fast trigger output, positive output
+            FOUT        => rena3_model_i1_fout,             --   : out std_ulogic; -- Fast token output for fast token register
+            SOUT        => rena3_model_i1_sout,             --   : out std_ulogic; -- Slow token output for slow token register
+            TOUT        => rena3_model_i1_tout,             --   : out std_ulogic; -- Token output from token chain. Goes high when chip is finished to pass
             READ        => controller_top_i0_rena3_read,    --   : in  std_ulogic; -- Enables output of analog signals within a channel. Turns on the analog
             TIN         => controller_top_i0_rena3_tin,     --   : in  std_ulogic; -- Token input, Always set a 1 for first channel, or receives TOUT from
             SIN         => controller_top_i0_rena3_sin,     --   : in  std_ulogic; -- Slow token input. Use with SHRCLK to load bits into slow token chain.
@@ -165,4 +183,4 @@ begin
 --      break          => controller_top_i0_break          --   : out std_ulogic
 --  );
 
-end architecture board;
+end architecture model;

@@ -25,7 +25,7 @@
 --  |  |                                                                  |   |
 --  |  | - DDS                                                            |   |
 --  |  | - testpuls generator                                             |   |
---  |  | - rena 3                                                         |   |
+--  |  | - rena 3 (2 pieces)                                              |   |
 --  |  | - ADC                                                            |   |
 --  |  |                                                                  |   |
 --  |  |                                                                  |   |
@@ -625,14 +625,14 @@ begin
     tb_fmc_lpc_row_h(40) <= 'X';
 
 
---  rena3_testboard_i0: entity work.rena3_testboard
---  port map (
---      simulation_run        => simulation_run,
---      fmc_lpc_row_c         => tb_fmc_lpc_row_c,  --: inout std_logic_vector(40 downto 1);
---      fmc_lpc_row_d         => tb_fmc_lpc_row_d,  --: inout std_logic_vector(40 downto 1);
---      fmc_lpc_row_g         => tb_fmc_lpc_row_g,  --: inout std_logic_vector(40 downto 1);
---      fmc_lpc_row_h         => tb_fmc_lpc_row_h   --: inout std_logic_vector(40 downto 1)
---  );
+    rena3_testboard_i0: entity work.rena3_testboard
+    port map (
+        simulation_run        => simulation_run,
+        fmc_lpc_row_c         => tb_fmc_lpc_row_c,  --: inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_d         => tb_fmc_lpc_row_d,  --: inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_g         => tb_fmc_lpc_row_g,  --: inout std_logic_vector(40 downto 1);
+        fmc_lpc_row_h         => tb_fmc_lpc_row_h   --: inout std_logic_vector(40 downto 1)
+    );
     
     
     main: process
