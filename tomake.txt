@@ -1,4 +1,6 @@
-* Portierung uIP auf ZPU/greth/Spartan 3e
+
+* Portierung uIP auf ZPU/greth microblaze/temac für
+  FPGA Spartan 3e und Spartan 6
 
 
 * Entwicklung eines UDP-Stacks (in C) für ZPU (FPGA) und ARM-Cores
@@ -16,12 +18,23 @@
 	Wie lassen sich die verschiedenen Systeme schnell und günstig mit einem FPGA koppeln?
 
 
-* Inbetriebnahme/Portierung von eCos auf die o.g. Entwicklungssysteme
+* Inbetriebnahme/Portierung von eCos auf
+    STM32
+    ZPU
+    MicroBlaze
+    PPC
+
   Ziele:
 	Ermittlung der Leistungsfähigkeit und des Ressourcenverbrauch (Flash, RAM) von ECOS auf den 
 	verschiedenen Entwicklungsplattformen
 
+
 * Evaluierung der PCIe Connnectivität des SP605
     Xilinx Core bzw. grlib 
 
-* Evaluierung von Actel-Smartfusion
+
+* Evaluierung von Actel-Smartfusion (FPGA mit ARM-Kern)
+
+
+* Evaluierung Altera/NIOS
+    sowue Vergleichsweise ZPU auf Altera
