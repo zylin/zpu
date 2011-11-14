@@ -168,6 +168,7 @@ void uart_monitor( void)
         // process buttons
         if bit_is_set( gpio0->iodata, BUTTON0)
         {
+            run_light_function();
         }
 
     }

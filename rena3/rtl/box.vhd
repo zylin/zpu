@@ -41,6 +41,7 @@ use techmap.gencomp.all; -- constants
 
 library rena3;
 use rena3.types_package.all;
+use rena3.version.all;
 
 
 entity box is
@@ -324,9 +325,10 @@ begin
     -- debug console (for fast simulation output)
     debug_con_apb_i0: debug_con_apb
         generic map (
-            pindex => 0,      -- : integer := 0;
-            paddr  => 0,      -- : integer := 0;
-            pmask  => 16#fff# -- : integer := 16#fff#
+            pindex       => 0,             -- : integer := 0;
+            paddr        => 0,             -- : integer := 0;
+            pmask        => 16#fff#,       -- : integer := 16#fff#;
+            version_time => version_time_c -- : string( 1 to 21)
         )
         port map (
             rst       => box_reset_n,               -- : in  std_ulogic;
