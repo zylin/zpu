@@ -36,6 +36,8 @@ check:
 	@-grep --with-filename --count "WARNING:Xst:737" xst/*.syr
 	@echo -e "\nUnassigned signals: "
 	@-grep --with-filename "WARNING:Xst:653"         xst/*.syr
+	@echo -e "\nGated clocks (372): "
+	@-grep --with-filename "WARNING:PhysDesignRules:372" xst/*.bgn 
 
 
 update:

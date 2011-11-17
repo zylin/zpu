@@ -41,13 +41,15 @@ finalflow:
 
 check:
 	@echo -e "Timing score: "
-	@grep --with-filename "Timing Score"            xst/*.par
-	@echo -e "\nUnwanted Latches (737): "
-	@grep --with-filename "WARNING:Xst:737"         xst/*.syr || echo -n
-	@echo -e "\nUnassigned signals (653): "
-	@grep --with-filename "WARNING:Xst:653"         xst/*.syr || echo -n
-	@echo -e "\nCombinatoric loops (2170): "
-	@grep --with-filename "WARNING:Xst:2170"        xst/*.syr || echo -n
+	@grep --with-filename "Timing Score"                xst/*.par
+	@echo -e "\nUnwanted Latches (737): "           
+	@grep --with-filename "WARNING:Xst:737"             xst/*.syr || echo -n
+	@echo -e "\nUnassigned signals (653): "         
+	@grep --with-filename "WARNING:Xst:653"             xst/*.syr || echo -n
+	@echo -e "\nCombinatoric loops (2170): "        
+	@grep --with-filename "WARNING:Xst:2170"            xst/*.syr || echo -n
+	@echo -e "\n Gated clocks (372): "
+	@grep --with-filename "WARNING:PhysDesignRules:372" xst/*.bgn || echo -n
 
 
 update:
