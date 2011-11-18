@@ -455,6 +455,26 @@ begin
     ---------------------------------------------------------------------
 
 
+    ---------------------------------------------------------------------
+    -- I2C for FMC connector
+    i2cmst_i1: i2cmst
+        generic map (
+            pindex  => 10,
+            paddr   => 10,
+            pmask   => 16#FFF#,
+            pirq    => 15          -- TODO: check this
+        )
+        port map (
+            rstn    => box_reset_n,
+            clk     => clk,
+            apbi    => apbctrl_i0_apbi,
+            apbo    => apbo(10),
+            i2ci    => fmc_i2ci,             --: in  i2c_in_type;
+            i2co    => i2cmst_i1_i2co        --: out i2c_out_type;
+        );
+    fmc_i2co <= i2cmst_i1_i2co;
+    ---------------------------------------------------------------------
+
 
 --  -- in mapping
 --  rena3_out.ts   <= rena3_ts;
