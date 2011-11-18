@@ -237,6 +237,8 @@ begin
       testen         => ahbmi.testen,
       edcladdr       => ethi.edcladdr);
 
+  etho.txd(7 downto 4) <= (others => 'Z');
+
   etho.mdio_oe <= ahbmi.testoen when (scanen = 1) and (ahbmi.testen = '1')
 	else lmdio_oe;
   irqdrv : process(irq)
