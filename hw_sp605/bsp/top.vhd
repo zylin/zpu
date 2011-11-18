@@ -306,8 +306,8 @@ entity top is
         user_clock               : in    std_logic;
         --
         -- user clock provided per SMA
-        user_sma_clock_p         : in    std_logic;
-        user_sma_clock_n         : in    std_logic;
+        user_sma_clock_p         : inout std_logic;
+        user_sma_clock_n         : inout std_logic;
         --
         user_sma_gpio_p          : inout std_logic;
         user_sma_gpio_n          : inout std_logic

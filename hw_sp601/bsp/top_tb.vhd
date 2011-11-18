@@ -377,8 +377,8 @@ begin
             user_clock               => tb_user_clock,             -- : in    std_logic;
             --
             -- user clock provided per SMA
-            user_sma_clock_p         => tb_user_sma_clock_p,       -- : in    std_logic;
-            user_sma_clock_n         => tb_user_sma_clock_n        -- : in    std_logic
+            user_sma_clock_p         => tb_user_sma_clock_p,       -- : inout std_logic;
+            user_sma_clock_n         => tb_user_sma_clock_n        -- : inout std_logic
             );
 
 

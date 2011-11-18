@@ -179,8 +179,8 @@ begin
             -- FMC connector
             -- M2C   Mezzanine to Carrier
             -- C2M   Carrier to Mezzanine
-            fmc_clk0_m2c_n           => not tb_user_sma_clock_p, -- tb_fmc_lpc_row_h(5),       -- : in    std_logic;
-            fmc_clk0_m2c_p           => tb_user_sma_clock_p, -- tb_fmc_lpc_row_h(4),       -- : in    std_logic;
+            fmc_clk0_m2c_n           => not tb_user_sma_clock_p, -- tb_fmc_lpc_row_h(5),       -- : inout std_logic;
+            fmc_clk0_m2c_p           => tb_user_sma_clock_p,     -- tb_fmc_lpc_row_h(4),       -- : inout std_logic;
             fmc_clk1_m2c_n           => tb_fmc_lpc_row_g(3),       -- : in    std_logic;
             fmc_clk1_m2c_p           => tb_fmc_lpc_row_g(2),       -- : in    std_logic;
             iic_scl_main             => tb_fmc_lpc_row_c(30),      -- : inout std_logic;
