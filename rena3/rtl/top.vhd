@@ -19,8 +19,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library unisim;
+use unisim.vcomponents.ibufds;
 use unisim.vcomponents.ibufgds;
 use unisim.vcomponents.dcm_sp;
+use unisim.vcomponents.obufds;
 use unisim.vcomponents.oddr2;
 
 library gaisler;
@@ -299,8 +301,8 @@ entity top is
         user_clock               : in    std_logic;
         --
         -- user clock provided per SMA
-        user_sma_clock_p         : in    std_logic;
-        user_sma_clock_n         : in    std_logic;
+        user_sma_clock_p         : inout std_logic;
+        user_sma_clock_n         : inout std_logic;
         --
         user_sma_gpio_p          : inout std_logic;
         user_sma_gpio_n          : inout std_logic
@@ -363,11 +365,23 @@ architecture rtl of top is
     signal ethi                               : eth_in_type;
     signal box_i0_etho                        : eth_out_type;
     --
-    signal rena3_in                           : rena3_controller_in_t;
-    signal box_i0_rena3_out                   : rena3_controller_out_t;
-    --
     signal dvi_data_0                         : std_logic_vector(dvi_d'range);
     signal dvi_data_1                         : std_logic_vector(dvi_d'range);
+    --
+    signal testgen                            : std_ulogic;
+    --
+    signal ad9854_out                         : ad9854_out_t := default_ad9854_out_c;
+    signal ad9854_in                          : ad9854_in_t;
+    --
+    signal clk_adc                            : std_ulogic;
+    signal adc_data                           : std_ulogic_vector(13 downto 0);
+    signal adc_otr                            : std_ulogic;
+    --
+    signal rena3_controller_i0_in             : rena3_controller_in_t;
+    signal rena3_controller_i0_out            : rena3_controller_out_t;
+    signal rena3_controller_i1_in             : rena3_controller_in_t;
+    signal rena3_controller_i1_out            : rena3_controller_out_t;
+
 
 begin
 
@@ -580,6 +594,9 @@ begin
     sysace_mpoe_ls           <= '1';
     sysace_mpwe_ls           <= '1';
     --
+    user_sma_clock_p         <= 'Z';
+    user_sma_clock_n         <= 'Z';
+    --
     user_sma_gpio_n          <= 'Z';
     user_sma_gpio_p          <= 'Z';
 
@@ -638,13 +655,21 @@ begin
     gpioi.din(11 downto  8) <= gpio_header_ls;
     gpioi.din(29 downto 12) <= (others => '0');
     gpioi.din(31)           <= simulation_active;
+    -- gpio output pads
+    -- placement on board: LED0, LED1, LED2, LED3
+    gpio_led       <= box_i0_gpioo.dout(3  downto 0);
+    gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
+    testgen        <= box_i0_gpioo.dout(31);
 
     
     ------------------------------------------------------------ 
     -- uart input
-    uarti.rxd    <= usb_1_tx;  -- function: RX data in
-    uarti.ctsn   <= usb_1_rts; -- not( usb_1_rts); function: CTS input
+    uarti.rxd    <= usb_1_tx;          -- function: RX data in
+    uarti.ctsn   <= usb_1_rts;         -- not( usb_1_rts); function: CTS input
     uarti.extclk <= '0';
+    -- uart output
+    usb_1_rx     <= box_i0_uarto.txd;  -- function: TX data out
+    usb_1_cts    <= box_i0_uarto.rtsn; -- function: RTS
 
     
     ------------------------------------------------------------ 
@@ -708,8 +733,17 @@ begin
             ethi         => ethi,                                          --: in    eth_in_type;
             etho         => box_i0_etho,                                   --: out   eth_out_type;
             --
-            rena3_in     => rena3_in,                                      --: in    rena3_controller_in_t;
-            rena3_out    => box_i0_rena3_out                               --: out   rena3_controller_out_t
+            rena3_0_in   => rena3_controller_i0_in,                        --: in    rena3_controller_in_t;
+            rena3_0_out  => rena3_controller_i0_out,                       --: out   rena3_controller_out_t;
+            rena3_1_in   => rena3_controller_i1_in,                        --: in    rena3_controller_in_t;
+            rena3_1_out  => rena3_controller_i1_out,                       --: out   rena3_controller_out_t;
+            --
+            ad9854_out   => ad9854_out,                                    --: out   ad9854_out_t := default_ad9854_out_c;
+            ad9854_in    => ad9854_in,                                     --: in    ad9854_in_t;
+            --                                                                       
+            clk_adc      => clk_adc,                                       --: out   std_ulogic;
+            adc_data     => adc_data,                                      --: in    std_ulogic_vector(13 downto 0);
+            adc_otr      => adc_otr                                        --: in    std_ulogic;
         );
         
     ------------------------------------------------------------ 
@@ -720,19 +754,6 @@ begin
     -- pragma translate_on
 
 
-    ------------------------------------------------------------ 
-    -- gpio output pads
-    -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led       <= box_i0_gpioo.dout(3  downto 0);
-    gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
-
-
-    ------------------------------------------------------------ 
-    -- uart output
-    usb_1_rx   <= box_i0_uarto.txd;  -- function: TX data out
-    usb_1_cts  <= box_i0_uarto.rtsn; -- function: RTS
-
-    
     ------------------------------------------------------------ 
     -- fmc/main i2c io pads
     fmc_i2ci.scl  <= iic_scl_main;
@@ -812,6 +833,138 @@ begin
                 s   => '0'
             );
     end block dvi_vga_driver_b;
+
+
+    ------------------------------------------------------------ 
+    -- testgen pads
+    fmc_la27_n    <= testgen;
+
+
+    ------------------------------------------------------------ 
+    -- DDS pads
+    fmc_la03_p           <= ad9854_out.cs_n;
+    fmc_la04_p           <= ad9854_out.master_res;
+    --
+    fmc_la02_n           <= ad9854_out.sclk;
+    fmc_la00_cc_p        <= ad9854_out.sdio when ad9854_out.sdio_en = '1' else 'Z';
+    --
+    fmc_la02_p           <= ad9854_out.io_reset;
+    fmc_la03_n           <= ad9854_out.io_ud_clk when ad9854_out.io_ud_clk_en = '1' else 'Z';
+    --
+    ad9854_in.vout       <= fmc_la28_n;
+    ad9854_in.sdo        <= fmc_la00_cc_n;
+    ad9854_in.sdio       <= fmc_la00_cc_p;
+    ad9854_in.io_ud_clk  <= fmc_la03_n;
+                         
+                         
+    ------------------------------------------------------------ 
+    -- rena3 pads        
+    -- row h
+    fmc_la19_n    <= rena3_controller_i1_out.cs_n;
+    obufds_i0 : obufds
+    port map (
+        i  => rena3_controller_i1_out.acquire,
+        o  => fmc_la21_p,
+        ob => fmc_la21_n
+    );
+    ibufds_i0 : ibufds
+    port map (
+        i  => fmc_la24_p,
+        ib => fmc_la24_n,
+        o  => rena3_controller_i1_in.tf
+    );
+    fmc_la28_p    <= rena3_controller_i1_out.read;
+    
+    -- row g
+    obufds_i1 : obufds
+    port map (
+        i  => rena3_controller_i1_out.cls,
+        o  => fmc_la22_p,
+        ob => fmc_la22_n
+    );
+    ibufds_i1 : ibufds
+    port map (
+        i  => fmc_la25_p,
+        ib => fmc_la25_n,
+        o  => rena3_controller_i1_in.ts
+    );
+    fmc_la29_p    <= rena3_controller_i1_out.clf;
+    rena3_controller_i1_in.overflow <= fmc_la29_n;
+
+    -- row d
+    ibufds_i2 : ibufds
+    port map (
+        i  => fmc_la01_cc_p,
+        ib => fmc_la01_cc_n,
+        o  => rena3_controller_i0_in.ts
+    );
+    obufds_i2 : obufds
+    port map (
+        i  => rena3_controller_i0_out.acquire,
+        o  => fmc_la06_p,
+        ob => fmc_la06_n
+    );
+    obufds_i3 : obufds
+    port map (
+        i  => rena3_controller_i0_out.cls,
+        o  => fmc_la09_p,
+        ob => fmc_la09_n
+    );
+    rena3_controller_i0_in.sout     <= fmc_la13_p;
+    rena3_controller_i0_in.overflow <= fmc_la13_n;
+    fmc_la17_cc_p <= rena3_controller_i0_out.cin;
+    fmc_la17_cc_n <= rena3_controller_i0_out.clf;
+    fmc_la23_p    <= rena3_controller_i0_out.fhrclk;
+    fmc_la23_n    <= rena3_controller_i0_out.shrclk;
+    fmc_la26_p    <= rena3_controller_i0_out.sin;
+    fmc_la26_n    <= rena3_controller_i0_out.fin;
+
+    -- row c
+    ibufds_i3 : ibufds
+    port map (
+        i  => fmc_la06_p,
+        ib => fmc_la06_n,
+        o  => rena3_controller_i0_in.tf
+    );
+    rena3_controller_i0_in.tout     <= fmc_la10_p;
+    rena3_controller_i0_in.fout     <= fmc_la10_n;
+    fmc_la14_p     <= rena3_controller_i0_out.cs_n;
+    fmc_la14_n     <= rena3_controller_i0_out.cshift;
+    fmc_la18_cc_p  <= rena3_controller_i0_out.tclk;
+    fmc_la18_cc_n  <= rena3_controller_i0_out.read;
+    fmc_la27_p     <= rena3_controller_i0_out.tin;
+
+
+    ------------------------------------------------------------ 
+    -- ADC pads
+    fmc_la04_n    <= clk_adc;
+    adc_data(13)  <= fmc_la08_p;
+    adc_data(12)  <= fmc_la08_n;
+    adc_data(11)  <= fmc_la07_p;
+    adc_data(10)  <= fmc_la07_n;
+    adc_data( 9)  <= fmc_la12_p;
+    adc_data( 8)  <= fmc_la12_n;
+    adc_data( 7)  <= fmc_la11_p;
+    adc_data( 6)  <= fmc_la11_n;
+    adc_data( 5)  <= fmc_la16_p;
+    adc_data( 4)  <= fmc_la16_n;
+    adc_data( 3)  <= fmc_la15_p;
+    adc_data( 2)  <= fmc_la15_n;
+    adc_data( 1)  <= fmc_la20_p;
+    adc_data( 0)  <= fmc_la20_n;
+    adc_otr       <= fmc_la19_p;
+
+
+    ------------------------------------------------------------ 
+    -- spare test pads
+    fmc_la30_p <= '0';
+    fmc_la30_n <= '0';
+    fmc_la31_p <= '0';
+    fmc_la31_n <= '0';
+    fmc_la32_p <= '0';
+    fmc_la32_n <= '0';
+    fmc_la33_p <= '0';
+    fmc_la33_n <= '0';
 
 
 end architecture rtl;

@@ -23,6 +23,14 @@ proc r {} {
 }
 
 
+# restart with clear
+proc rc {} {
+    .main clear
+    r
+}
+
+
+
 proc my_debug {} {
     global env
     foreach key [array names env] {

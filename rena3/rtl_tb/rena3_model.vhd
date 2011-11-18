@@ -47,8 +47,8 @@ entity rena3_model is
         -- VREFLO      : in  std_ulogic; -- 1.5V, Low reference for positive going signals and reference for low rail
                                          -- of DAC
         DETECTOR_IN    : in  real_vector(0 to 35); -- Detector inputs pins
-        AOUTP          : out real;       -- ?, Positive differential output
-        AOUTN          : out real;       -- ?, Negative differential output
+        AOUTP          : out real := 0.0;       -- ?, Positive differential output
+        AOUTN          : out real := 0.0;       -- ?, Negative differential output
         CSHIFT         : in  std_ulogic; -- Shift one bit (from Cin) into the shift register on the rising edge
         CIN            : in  std_ulogic; -- Data input. Must be valid on the rising edge of CShift
         CS             : in  std_ulogic; -- Chip Select. After shifting 41 bits, pulse this signal high to load the

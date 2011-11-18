@@ -507,8 +507,8 @@ begin
             --
             --  27 MHz, oscillator socket
             user_clock                  => tb_user_clock,            --: in    std_logic;
-            user_sma_clock_p            => tb_user_sma_clock_p,      --: in    std_logic;
-            user_sma_clock_n            => tb_user_sma_clock_n,      --: in    std_logic;
+            user_sma_clock_p            => tb_user_sma_clock_p,      --: inout std_logic;
+            user_sma_clock_n            => tb_user_sma_clock_n,      --: inout std_logic;
             --
             user_sma_gpio_p             => tb_user_sma_gpio_p,       --: inout std_logic;
             user_sma_gpio_n             => tb_user_sma_gpio_n        --: inout std_logic

@@ -74,8 +74,20 @@ entity box is
         ethi                      : in    eth_in_type;
         etho                      : out   eth_out_type;
         --                        
-        rena3_in                  : in    rena3_controller_in_t;
-        rena3_out                 : out   rena3_controller_out_t
+        rena3_0_in                : in    rena3_controller_in_t;
+        rena3_0_out               : out   rena3_controller_out_t;
+        rena3_1_in                : in    rena3_controller_in_t;
+        rena3_1_out               : out   rena3_controller_out_t;
+        --
+        ad9854_out                : out   ad9854_out_t;
+        ad9854_in                 : in    ad9854_in_t;
+        --
+        clk_adc                   : out   std_ulogic;
+        adc_data                  : in    std_ulogic_vector(13 downto 0);
+        adc_otr                   : in    std_ulogic
+        --                        
+--      rena3_in                  : in    rena3_controller_in_t;
+--      rena3_out                 : out   rena3_controller_out_t
     );
 end entity box;
 

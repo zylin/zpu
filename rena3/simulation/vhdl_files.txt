@@ -5,6 +5,7 @@ rena3     ../rtl/version.vhd
 rena3     ../rtl/box.vhd         
 rena3     ../rtl/top.vhd
 rena3     ../rtl_tb/dds_model.vhd                      
+rena3     ../rtl_tb/adc_model.vhd                      
 rena3     ../rtl_tb/rena3_channel_model.vhd            
 rena3     ../rtl_tb/rena3_model.vhd                    
 rena3     ../rtl_tb/rena3_model_tb.vhd             

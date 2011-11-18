@@ -4,24 +4,26 @@ use ieee.std_logic_1164.all;
 package types_package is
 
     type rena3_controller_in_t is record
-        ts     : std_ulogic;
-        tf     : std_ulogic;
-        fout   : std_ulogic;
-        sout   : std_ulogic;
-        tout   : std_ulogic;
+        ts       : std_ulogic;
+        tf       : std_ulogic;
+        fout     : std_ulogic;
+        sout     : std_ulogic;
+        tout     : std_ulogic;
+        overflow : std_ulogic;
     end record rena3_controller_in_t;
     constant default_rena3_controller_in_c : rena3_controller_in_t := (
-        ts    => '0',
-        tf    => '0',
-        fout  => '0',
-        sout  => '0',
-        tout  => '0'
+        ts       => '0',
+        tf       => '0',
+        fout     => '0',
+        sout     => '0',
+        tout     => '0',
+        overflow => '0'
     );
 
     type rena3_controller_out_t is record
         cshift  : std_ulogic;
         cin     : std_ulogic;
-        cs      : std_ulogic;
+        cs_n    : std_ulogic;
         read    : std_ulogic;
         tin     : std_ulogic;
         sin     : std_ulogic;
@@ -36,7 +38,7 @@ package types_package is
     constant default_rena3_controller_out_c: rena3_controller_out_t := (
         cshift  => '0', 
         cin     => '0', 
-        cs      => '0',
+        cs_n    => '1',
         read    => '0',
         tin     => '0',
         sin     => '0',
@@ -48,6 +50,36 @@ package types_package is
         clf     => '0',
         tclk    => '0'
     );
+
+
+    type ad9854_out_t is record
+        cs_n         : std_ulogic;
+        master_res   : std_ulogic; -- active high
+        sclk         : std_ulogic;
+        sdio         : std_ulogic;
+        sdio_en      : std_ulogic;
+        io_reset     : std_ulogic; -- active high
+        io_ud_clk    : std_ulogic;
+        io_ud_clk_en : std_ulogic;
+    end record ad9854_out_t;
+    constant default_ad9854_out_c: ad9854_out_t := (
+        cs_n         => '0',
+        master_res   => '1',
+        sclk         => '0',
+        sdio         => '0',
+        sdio_en      => '0',
+        io_reset     => '1',
+        io_ud_clk    => '0',
+        io_ud_clk_en => '0'
+    );
+
+    type ad9854_in_t is record
+        vout         : std_ulogic;
+        sdo          : std_ulogic;
+        sdio         : std_ulogic;
+        io_ud_clk    : std_ulogic;
+    end record ad9854_in_t;
+
 
 end package types_package;
 

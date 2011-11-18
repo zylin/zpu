@@ -63,8 +63,17 @@ package component_package is
             ethi                      : in    eth_in_type;
             etho                      : out   eth_out_type;
             --                        
-            rena3_in                  : in    rena3_controller_in_t;
-            rena3_out                 : out   rena3_controller_out_t
+            rena3_0_in                : in    rena3_controller_in_t;
+            rena3_0_out               : out   rena3_controller_out_t;
+            rena3_1_in                : in    rena3_controller_in_t;
+            rena3_1_out               : out   rena3_controller_out_t;
+            --
+            ad9854_out                : out   ad9854_out_t;
+            ad9854_in                 : in    ad9854_in_t;
+            --
+            clk_adc                   : out   std_ulogic;
+            adc_data                  : in    std_ulogic_vector(13 downto 0);
+            adc_otr                   : in    std_ulogic
         );
     end component box;
 
@@ -334,8 +343,8 @@ package component_package is
             user_clock               : in    std_logic;
             --
             -- user clock provided per SMA
-            user_sma_clock_p         : in    std_logic;
-            user_sma_clock_n         : in    std_logic;
+            user_sma_clock_p         : inout std_logic;
+            user_sma_clock_n         : inout std_logic;
             --
             user_sma_gpio_p          : inout std_logic;
             user_sma_gpio_n          : inout std_logic
