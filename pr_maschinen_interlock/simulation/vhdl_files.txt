@@ -1,0 +1,4 @@
+work    ../rtl/channel.vhd
+work    ../rtl/system.vhd
+work    ../rtl_tb/channel_tb.vhd
+work    ../rtl_tb/system_tb.vhd

@@ -1,0 +1,18 @@
+# XC9536XL-PCG44-10C
+
+NET reset               LOC = P39;
+NET clk                 LOC = P5;
+
+NET bcd_switch_n<0>     LOC = P36;
+NET bcd_switch_n<1>     LOC = P35;
+NET bcd_switch_n<2>     LOC = P34;
+NET bcd_switch_n<3>     LOC = P33;
+
+NET led_n<0>            LOC = P19;
+NET led_n<1>            LOC = P20;
+NET led_n<2>            LOC = P22;
+NET led_n<3>            LOC = P24;
+NET led_n<4>            LOC = P25;
+NET led_n<5>            LOC = P26;
+NET led_n<6>            LOC = P27;
+NET led_n<7>            LOC = P28;
