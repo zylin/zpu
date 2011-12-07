@@ -1,3 +1,10 @@
+--------------------------------------------------------------------------------
+-- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601/rtl/teilerregister.vhd $
+-- $Date: 2010-10-29 15:57:42 +0200 (Fr, 29 Okt 2010) $
+-- $Author: lange $
+-- $Revision: 659 $
+--------------------------------------------------------------------------------
+
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -116,7 +123,9 @@ architecture rtl of box is
     signal i2cmst_i0_i2co                : i2c_out_type;
     signal i2cmst_i1_i2co                : i2c_out_type;
     signal box_mctrl_wpo                 : wprot_out_type := (wprothit => '0');
-
+    --
+    signal spii                          : spi_in_type;
+    signal spictrl_i0_spio               : spi_out_type;
 
 begin
     
@@ -271,7 +280,6 @@ begin
             ramaddr   => 16#D00#,      -- : integer := 16#000#;
             rammask   => 16#FFF#,
             paddr     => 15,           -- : integer := 0;
-            pmask     => 16#FFF#,      -- : integer := 16#fff#;
             romasel   => 25,           -- : integer := 28;
             ram8      => 0,            -- : integer := 0;
             ram16     => 1,            -- : integer := 0;
@@ -308,7 +316,7 @@ begin
     apbo( 8) <= (apb_none);
     apbo( 9) <= (apb_none);
     --apbo(10) <= (apb_none); -- i2cmst_i1
-    apbo(11) <= (apb_none);
+    --apbo(11) <= (apb_none); -- spictrl_i0
     apbo(12) <= (apb_none);
     apbo(13) <= (apb_none);
     apbo(14) <= (apb_none);
@@ -339,7 +347,6 @@ begin
         generic map (
             pindex       => 0,             -- : integer := 0;
             paddr        => 0,             -- : integer := 0;
-            pmask        => 16#fff#,       -- : integer := 16#fff#;
             version_time => version_time_c -- : string( 1 to 21)
         )
         port map (
@@ -376,7 +383,6 @@ begin
     
     ---------------------------------------------------------------------
     -- GP timer (grip.pdf p. 279)
-    
     gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
 
@@ -423,7 +429,12 @@ begin
     --  3 -  0  LED   
     --  7 -  4  unused
     -- 11 -  8  header  
-    -- 31 - 12  unused
+    -- 12       unused
+    -- 13       AD9854 io_update_clock
+    -- 14       AD9854 io_reset
+    -- 15       AD9854 master_reset
+    -- 30 - 16  unused
+    -- 31       testgen
     ---------------------------------------------------------------------
     
 
@@ -453,7 +464,7 @@ begin
             pindex  => 7,
             paddr   => 7,
             pmask   => 16#FFF#,
-            pirq    => 14          -- TODO: check this
+            pirq    => 0
         )
         port map (
             rstn    => box_reset_n,
@@ -474,7 +485,7 @@ begin
             pindex  => 10,
             paddr   => 10,
             pmask   => 16#FFF#,
-            pirq    => 15          -- TODO: check this
+            pirq    => 0
         )
         port map (
             rstn    => box_reset_n,
@@ -487,6 +498,44 @@ begin
     fmc_i2co <= i2cmst_i1_i2co;
     ---------------------------------------------------------------------
 
+
+    ---------------------------------------------------------------------
+    -- SPI for AD9854 DDS 
+    -- grip.pdf p.660
+    spictrl_i0: spictrl
+        generic map (
+            pindex   => 11,                  --: integer := 0;
+            paddr    => 11,                  --: integer := 0;
+            fdepth   => 3,                   --: integer range 1 to 7  := 1; -- fifo depth
+            oepol    => 1,                   --: integer range 0 to 1  := 0;
+            twen     => 0,                   --: integer range 0 to 1  := 1; -- four wire mode
+            maxwlen  => 7                    --: integer range 0 to 15 := 0
+        )
+        port map (
+            rstn     => box_reset_n,         --: in std_ulogic;
+            clk      => clk,                 --: in std_ulogic;
+            apbi     => apbctrl_i0_apbi,     --: in apb_slv_in_type;
+            apbo     => apbo(11),            --: out apb_slv_out_type;
+            spii     => spii,                --: in  spi_in_type;
+            spio     => spictrl_i0_spio,     --: out spi_out_type;
+            slvsel   => open                 --: out std_logic_vector((slvselsz-1) downto 0)
+        );   
+    spii.miso               <= ad9854_in.sdo;
+    spii.mosi               <= '1';           -- slave mode not used
+    spii.sck                <= '0';           -- slave mode not used
+    spii.spisel             <= '1';           -- slave mode not used 
+    spii.astart             <= '0';           -- slave mode not used 
+    ad9854_out.cs_n         <= '0';
+    ad9854_out.master_res   <= grgpio_i0_gpioo.dout(15);
+    ad9854_out.sclk         <= spictrl_i0_spio.sck;
+    ad9854_out.sdio         <= spictrl_i0_spio.mosi;
+    ad9854_out.sdio_en      <= spictrl_i0_spio.mosioen;
+    ad9854_out.io_reset     <= grgpio_i0_gpioo.dout(14);
+    ad9854_out.io_ud_clk    <= grgpio_i0_gpioo.dout(13);
+    ad9854_out.io_ud_clk_en <= '1';
+
+
+    ---------------------------------------------------------------------
 
 --  -- in mapping
 --  rena3_out.ts   <= rena3_ts;

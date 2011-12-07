@@ -63,6 +63,7 @@ gaisler   ../../gaisler/rtl/memoryctrl.vhd
 gaisler   ../../gaisler/rtl/misc.vhd
 gaisler   ../../gaisler/rtl/net.vhd
 gaisler   ../../gaisler/rtl/spimctrl.vhd
+gaisler   ../../gaisler/rtl/spictrl.vhd
 gaisler   ../../gaisler/rtl/uart.vhd
 opencores ../../opencores/rtl/i2c_master_bit_ctrl.vhd
 opencores ../../opencores/rtl/i2c_master_byte_ctrl.vhd

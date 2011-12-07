@@ -9,14 +9,14 @@
 
 #include "peripherie.h"
 #include <common.h>
-#include <timer.h>             // sleep
+#include <timer.h>              // sleep
 #include <uart.h>
-#include "schedule.h"          // scheduler_init, scheduler_task_*
-#include "monitor.h"           // monitor_init, monitor_add_command, monitor_mainloop
-#include "i2c.h"               // i2c_init, i2c_command, i2c_check_ack
-#include "i2c_functions.h"     // i2c_check_function, i2c_read_eeprom_function
-#include "monitor_functions.h" // x_function, wmem_function, clear_function
-
+#include "schedule.h"           // scheduler_init, scheduler_task_*
+#include "monitor.h"            // monitor_init, monitor_add_command, monitor_mainloop
+#include "i2c.h"                // i2c_init, i2c_command, i2c_check_ack
+#include "i2c_functions.h"      // i2c_check_function, i2c_read_eeprom_function
+#include "monitor_functions.h"  // x_function, wmem_function, clear_function
+#include "ad9854_functions.h"   // ad9854_init
 
 //#define BOARD_SP605  TODO
 #define DEBUG_ON
@@ -133,6 +133,9 @@ void uart_monitor( void)
     monitor_add_command("run",     "running light",                         run_light_function);
     monitor_add_command("i2c",     "check I2C address",                     i2c_check_function);
     monitor_add_command("eeprom",  "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
+
+    monitor_add_command("ddsinit", "initalize the AD9854 DDS chip",         ad9854_init);
+    monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     monitor_add_command("mem",     "alias for x",                           x_function);
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
@@ -318,7 +321,7 @@ int main(void)
 
 
     // check if on simulator or on hardware
-    simulation_active = bit_is_set(gpio0->iodata, (1<<31));
+    simulation_active = bit_is_set( gpio0->iodata, (1<<31));
 
     //////////////////////////////////////////////////////////// 
     // init stuff
@@ -357,10 +360,15 @@ int main(void)
         putchar_fp = uart_putchar;
         uart_monitor();
     }
-   
-    // test central trigger generator
-    //demo_config_function();
-    //update_function();
+
+    // code which executes in simulation is started here:
+
+    ad9854_init();
+
+    putstr("FTW:");
+    puthex(16, (uint32_t)( FTW >> 32));
+    puthex(32, (uint32_t)( FTW));
+    putchar('\n');
 
     // test of scheduler
     scheduler_task_add( end_simulation_task, 1);

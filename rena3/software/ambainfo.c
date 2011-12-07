@@ -49,6 +49,8 @@ void print_vendor_device( uint8_t vendor, uint8_t device)
                 case 0x08: putstr("EADOGS102 display driver");      break;
                 case 0x09: putstr("debug tracer memory");           break;
                 case 0x0a: putstr("differential current monitor");  break;
+                case 0x0b: putstr("SFP controller");                break;
+                case 0x0c: putstr("AD9854 DDS controller");         break;
                 default  : putstr("unknown device"); break;
             }
             break;

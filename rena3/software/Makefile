@@ -35,6 +35,8 @@ c_files += ambainfo.c
 c_files += i2c.c 
 c_files += i2c_functions.c
 c_files += monitor_functions.c
+c_files += spi.c 
+c_files += ad9854_functions.c
 c_files += $(lib_src)
 h_files = *.h include/peripherie.h
 

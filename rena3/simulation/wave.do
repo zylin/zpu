@@ -99,6 +99,9 @@ add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_p
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_n
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/digital
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/otr
+add wave -noupdate -divider DDS
+add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
+add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {286622642 ps} 0}
 configure wave -namecolwidth 150
