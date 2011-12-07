@@ -11,6 +11,7 @@ unsigned char puthex   ( unsigned char dataType, unsigned long data);
 unsigned char itoa     ( int z, char* Buffer );
 unsigned char putint   ( unsigned long data);
 unsigned char putuint  ( long data);
+unsigned char putbool  ( int data);
 void          putpfloat( unsigned long data);
 void          fill     ( unsigned char length, unsigned char fillupto);
 

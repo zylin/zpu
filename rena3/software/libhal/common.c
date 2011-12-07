@@ -127,6 +127,20 @@ unsigned char putint( long data)
 }
 
 
+unsigned char putbool( int data)
+{
+    if (data)
+    {
+        putstr( "yes");
+    }
+    else
+    {
+        putstr( "no");
+    }
+    return 0;
+}
+
+
 unsigned char putfloat( float data)
 {
     char           str[20];
