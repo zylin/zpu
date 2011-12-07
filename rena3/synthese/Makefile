@@ -10,6 +10,8 @@ DEVICE = xc6slx45t-fgg484-3
 UCF_FILE = sp605.ucf
 CORES = ../cores/
 SOFTWARE = ../software
+
+BUILDDIR = isebuild
 DATE = $(shell date +"%Y-%m-%d__%H_%M")
 LOGFILE = synthesis_log_$(DATE).txt
 export XST_LOGFILE := $(LOGFILE)
@@ -41,20 +43,20 @@ finalflow:
 
 check:
 	@echo -e "Timing score: "
-	@grep --with-filename "Timing Score"                xst/*.par
+	@grep --with-filename "Timing Score"                $(BUILDDIR)/*.par
 	@echo -e "\nUnwanted Latches (737): "            
-	@grep --with-filename "WARNING:Xst:737"             xst/*.syr || echo -n
+	@grep --with-filename "WARNING:Xst:737"             $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nUnassigned signals (653): "          
-	@grep --with-filename "WARNING:Xst:653"             xst/*.syr || echo -n
+	@grep --with-filename "WARNING:Xst:653"             $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nCombinatoric loops (2170): "         
-	@grep --with-filename "WARNING:Xst:2170"            xst/*.syr || echo -n
+	@grep --with-filename "WARNING:Xst:2170"            $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nGated clocks (372): "
-	@grep --with-filename "WARNING:PhysDesignRules:372" xst/*.bgn || echo -n
+	@grep --with-filename "WARNING:PhysDesignRules:372" $(BUILDDIR)/*.bgn || echo -n
 
 
 update:
 	make all --directory $(SOFTWARE)
-	data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
+	data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
 
 
 program:
@@ -62,7 +64,7 @@ program:
 
 
 genmcs:
-	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 xst/$(MODULE)_update.bit
+	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 $(MODULE)_update.bit
 
 
 progspi: genmcs
@@ -74,14 +76,14 @@ clean:
 	rm -f _impact.cmd
 	rm -f *.cfi
 	rm -f *.prm
-	rm -rf xst
+	rm -rf $(BUILDDIR)
 
 
 dir: $(MODULE).prj	
-	mkdir -p xst
-	mkdir -p xst/projnav.tmp
-	cp $(MODULE).xst xst
-	#cp $(MODULE).prj xst
+	mkdir -p $(BUILDDIR)
+	mkdir -p $(BUILDDIR)/projnav.tmp
+	#cp $(MODULE).xst $(BUILDDIR)
+	#cp $(MODULE).prj $(BUILDDIR)
 
 $(MODULE).prj: ../simulation/vhdl_files.txt
 	grep --invert rtl_tb ../simulation/vhdl_files.txt | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
@@ -92,17 +94,16 @@ translate: $(MODULE).ngd
 map:    $(MODULE)_map.ncd
 par:    $(MODULE).ncd
 
-#.PHONY: xst
 
 hw_timestamp:
 	make --directory ../rtl
 
 $(MODULE).ngc: dir hw_timestamp
-	cd xst ; xst -ifn $(MODULE).xst -ofn $(MODULE).syr
+	cd $(BUILDDIR) ; xst -ifn ../$(MODULE).xst -ofn $(MODULE).syr
 
 
 $(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
-	cd xst ; ngdbuild -dd _ngo -nt timestamp -uc ../$(UCF_FILE) -p $(DEVICE) -sd ../$(CORES) $(MODULE).ngc $(MODULE).ngd
+	cd $(BUILDDIR) ; ngdbuild -dd _ngo -nt timestamp -uc ../$(UCF_FILE) -p $(DEVICE) -sd ../$(CORES) $(MODULE).ngc $(MODULE).ngd
 
 	# -p                    part number
 	# -mt                   multi-threading
@@ -121,21 +122,21 @@ $(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
 	# -o			Output File Name
 	# -bp                   enables block RAM mapping
 $(MODULE)_map.ncd: $(MODULE).ngd
-	cd xst ; export XIL_PAR_DESIGN_CHECK_VERBOSE=1; map -p $(DEVICE) -mt 2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -global_opt off -ir off -pr off -lc off -power off -detail -o $(MODULE)_map.ncd $(MODULE).ngd $(MODULE).pcf
+	cd $(BUILDDIR) ; export XIL_PAR_DESIGN_CHECK_VERBOSE=1; map -p $(DEVICE) -mt 2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -global_opt off -ir off -pr off -lc off -power off -detail -o $(MODULE)_map.ncd $(MODULE).ngd $(MODULE).pcf
 
 
 $(MODULE).ncd: $(MODULE)_map.ncd
-	cd xst ; par -w -mt 4 -ol high $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
+	cd $(BUILDDIR) ; par -w -mt 4 -ol high $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
 
 
 trace:
-	cd xst ; trce -e -a -u -s 2 -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -e -a -u -s 2 -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
 
 tracefast:
-	cd xst ; trce -v 12 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -v 12 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
 
 
 bitgen: $(MODULE).ncd
-	cd xst ; bitgen -f ../$(MODULE).ut $(MODULE).ncd
+	cd $(BUILDDIR) ; bitgen -f ../$(MODULE).ut $(MODULE).ncd
 
 
