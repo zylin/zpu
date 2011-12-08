@@ -5,6 +5,7 @@ use ieee.std_logic_1164.all;
 
 entity channel is
     port (
+		  reset_n           : in  std_ulogic;
 	     clk               : in  std_ulogic;
         channel_active_in : in  std_ulogic;
         error_in_n        : in  std_ulogic; -- low active
@@ -32,10 +33,13 @@ begin
 
     error_combined <= test_sps_in or (not test_in_n) or (not error_in_n);
 
-    process ( channel_active_in, error_combined, clear, clear_sps, channel_active, channel_error, channel_ok)
+    process (reset_n, clk) --( channel_active_in, error_combined, clear, clear_sps, channel_active, channel_error, channel_ok)
     begin
---		  wait until rising_edge( clk);
-
+		  if reset_n = '0' then
+		      channel_active <= '0';
+            channel_error  <= '0';
+            channel_ok     <= '0';
+		  elsif rising_edge( clk) then
   
         if channel_active_in = '1' then 
 
@@ -63,6 +67,8 @@ begin
 				channel_error  <= '0';
 				channel_active <= '0';
         end if;
+
+		  end if;
 
     end process;
 

@@ -9,6 +9,8 @@ use ieee.std_logic_misc.or_reduce; -- by synopsis
 entity system is
     port (
         clk               : in  std_ulogic;
+        reset_n           : in  std_ulogic;
+		  --
         channel_active_in : in  std_ulogic_vector(16 downto 1);
         error_in_n        : in  std_ulogic_vector(16 downto 1);
         test_in_n         : in  std_ulogic;
@@ -36,6 +38,7 @@ begin
         channel_i: entity work.channel
             port map (
                 clk               => clk,                     --: in  std_ulogic;
+                reset_n           => reset_n,                 --: in  std_ulogic;
                 channel_active_in => channel_active_in(i),    --: in  std_ulogic;
                 error_in_n        => error_in_n(i),           --: in  std_ulogic; -- low active
                 test_in_n         => test_in_n,               --: in  std_ulogic; -- low active
