@@ -17,6 +17,7 @@
 #include "i2c_functions.h"      // i2c_check_function, i2c_read_eeprom_function
 #include "monitor_functions.h"  // x_function, wmem_function, clear_function
 #include "ad9854_functions.h"   // ad9854_init
+#include "adc.h"                // adc_read
 
 //#define BOARD_SP605  TODO
 #define DEBUG_ON
@@ -136,6 +137,7 @@ void uart_monitor( void)
 
     monitor_add_command("ddsinit", "initalize the AD9854 DDS chip",         ad9854_init);
     monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
+    monitor_add_command("adc",     "read adc value",                        adc_read);
     monitor_add_command("mem",     "alias for x",                           x_function);
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
@@ -363,11 +365,8 @@ int main(void)
 
     // code which executes in simulation is started here:
 
-    ad9854_init();
-
-    putstr("FTW:");
-    puthex(16, (uint32_t)( FTW >> 32));
-    puthex(32, (uint32_t)( FTW));
+    putstr("ADC:");
+    putint( adc_read());
     putchar('\n');
 
     // test of scheduler

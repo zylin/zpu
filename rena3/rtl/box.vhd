@@ -433,7 +433,8 @@ begin
     -- 13       AD9854 io_update_clock
     -- 14       AD9854 io_reset
     -- 15       AD9854 master_reset
-    -- 30 - 16  unused
+    -- 29 - 16  unused
+    -- 30       clk_adc
     -- 31       testgen
     ---------------------------------------------------------------------
     

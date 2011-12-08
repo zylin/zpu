@@ -653,12 +653,15 @@ begin
     gpioi.din( 3 downto  0) <= gpio_switch;
     gpioi.din( 7 downto  4) <= gpio_button;
     gpioi.din(11 downto  8) <= gpio_header_ls;
-    gpioi.din(30 downto 12) <= (others => '0');
+    gpioi.din(15 downto 12) <= (others => '0');
+    gpioi.din(29 downto 16) <= std_logic_vector( adc_data);
+    gpioi.din(30)           <= adc_otr;
     gpioi.din(31)           <= simulation_active;
     -- gpio output pads
     -- placement on board: LED0, LED1, LED2, LED3
     gpio_led       <= box_i0_gpioo.dout(3  downto 0);
     gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
+    clk_adc        <= box_i0_gpioo.dout(30);
     testgen        <= box_i0_gpioo.dout(31);
 
     
@@ -741,7 +744,7 @@ begin
             ad9854_out   => ad9854_out,                                    --: out   ad9854_out_t := default_ad9854_out_c;
             ad9854_in    => ad9854_in,                                     --: in    ad9854_in_t;
             --                                                                       
-            clk_adc      => clk_adc,                                       --: out   std_ulogic;
+            clk_adc      => open, --clk_adc,                               --: out   std_ulogic;
             adc_data     => adc_data,                                      --: in    std_ulogic_vector(13 downto 0);
             adc_otr      => adc_otr                                        --: in    std_ulogic;
         );
