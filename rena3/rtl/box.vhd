@@ -49,6 +49,7 @@ use techmap.gencomp.all; -- constants
 library rena3;
 use rena3.types_package.all;
 use rena3.version.all;
+use rena3.component_package.rena3_controller_apb;
 
 
 entity box is
@@ -318,7 +319,7 @@ begin
     --apbo(10) <= (apb_none); -- i2cmst_i1
     --apbo(11) <= (apb_none); -- spictrl_i0
     apbo(12) <= (apb_none);
-    apbo(13) <= (apb_none);
+    --apbo(13) <= (apb_none); -- rena3_controller_i0
     apbo(14) <= (apb_none);
     --apbo(15) <= (apb_none); -- mctrl_i0
 
@@ -534,50 +535,27 @@ begin
     ad9854_out.io_reset     <= grgpio_i0_gpioo.dout(14);
     ad9854_out.io_ud_clk    <= grgpio_i0_gpioo.dout(13);
     ad9854_out.io_ud_clk_en <= '1';
-
-
     ---------------------------------------------------------------------
 
---  -- in mapping
---  rena3_out.ts   <= rena3_ts;
---  rena3_out.tf   <= rena3_tf;
---  rena3_out.fout <= rena3_fout;
---  rena3_out.sout <= rena3_sout;
---  rena3_out.tout <= rena3_tout;
---      
---  rena3_controller_i0: rena3_controller
---      port map (
---          -- system
---          clock     => clk,                           -- : std_ulogic;
---          -- rena3 (connection to chip)
---          rena3_in  => rena3_out,                     -- : in  rena3_controller_in_t;
---          rena3_out => rena3_controller_io_rena3_out, -- : out rena3_controller_out_t;
---          -- connection to soc
---          zpu_in    => zpu_i0_zpu_out,                -- : in  zpu_out_t;
---          zpu_out   => open --rena3_controller_i0_zpu_out    -- : out zpu_in_t
---      );
--- 
---  -- out mapping 
---  rena3_chsift  <= rena3_controller_io_rena3_out.cshift;
---  rena3_cin     <= rena3_controller_io_rena3_out.cin;
---  rena3_cs      <= rena3_controller_io_rena3_out.cs;
---  rena3_read    <= rena3_controller_io_rena3_out.read;
---  rena3_tin     <= rena3_controller_io_rena3_out.tin;
---  rena3_sin     <= rena3_controller_io_rena3_out.sin;
---  rena3_fin     <= rena3_controller_io_rena3_out.fin;
---  rena3_shrclk  <= rena3_controller_io_rena3_out.shrclk;
---  rena3_fhrclk  <= rena3_controller_io_rena3_out.fhrclk;
---  rena3_acquire <= rena3_controller_io_rena3_out.acquire;
---  rena3_cls     <= rena3_controller_io_rena3_out.cls;
---  rena3_clf     <= rena3_controller_io_rena3_out.clf;
---  rena3_tclk    <= rena3_controller_io_rena3_out.tclk;
-
-
---  rena3_controller_i0_zpu_out.enable      <= io_busy; -- TODO
---  rena3_controller_i0_zpu_out.mem_busy    <= io_busy; -- TODO
---  rena3_controller_i0_zpu_out.mem_read    <= std_ulogic_vector(dram_read) when dram_ready = '1' else
---                                             std_ulogic_vector(io_read)   when io_ready   = '1' else (others => 'U');
---  rena3_controller_i0_zpu_out.interrupt   <= '0'; -- TODO
+    
+    ---------------------------------------------------------------------
+    -- rena3 controller
+    rena3_controller_i0: rena3_controller_apb
+        generic map (
+            pindex      => 13,              -- : integer := 0;
+            paddr       => 13               -- : integer := 0;
+        )    
+        port map (
+            -- system
+            clk         => clk,             -- : in  std_ulogic;
+            -- connection to soc
+            apbi        => apbctrl_i0_apbi, -- : in  apb_slv_in_type;
+            apbo        => apbo(13),        -- : out apb_slv_out_type;
+            -- rena3 (connection to chip)
+            rena3_in    => rena3_0_in,      -- : in  rena3_controller_in_t;
+            rena3_out   => rena3_0_out      -- : out rena3_controller_out_t
+        );
+    ---------------------------------------------------------------------
 
 
 end architecture rtl;

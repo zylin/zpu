@@ -1,7 +1,16 @@
+--------------------------------------------------------------------------------
+-- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601/rtl/teilerregister.vhd $
+-- $Date: 2010-10-29 15:57:42 +0200 (Fr, 29 Okt 2010) $
+-- $Author: lange $
+-- $Revision: 659 $
+--------------------------------------------------------------------------------
 
 
 library ieee;
 use ieee.std_logic_1164.all;
+
+library grlib;
+use grlib.amba.all;
 
 library gaisler;
 use gaisler.misc.all;    -- types
@@ -12,25 +21,27 @@ use gaisler.memctrl.all; -- spimctrl types + spmictrl component
 library rena3;
 use rena3.types_package.all;
 
-library zpu;
-use zpu.zpu_wrapper_package.all; -- type definitions
-
 
 package component_package is
 
 
-    component rena3_controller is
+    component rena3_controller_apb is
+        generic (
+            pindex      : integer := 0;
+            paddr       : integer := 0;
+            pmask       : integer := 16#fff#
+        );            
         port (
             -- system
-            clock     : std_ulogic;
-            -- rena3 (connection to chip)
-            rena3_in  : in  rena3_controller_in_t;
-            rena3_out : out rena3_controller_out_t;
+            clk         : in  std_ulogic;
             -- connection to soc
-            zpu_in    : in  zpu_out_t;
-            zpu_out   : out zpu_in_t
+            apbi        : in  apb_slv_in_type;
+            apbo        : out apb_slv_out_type;
+            -- rena3 (connection to chip)
+            rena3_in    : in  rena3_controller_in_t;
+            rena3_out   : out rena3_controller_out_t
         );
-    end component rena3_controller;
+    end component rena3_controller_apb;
 
 
     component box is
