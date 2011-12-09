@@ -317,6 +317,7 @@ void _zpu_interrupt( void)
 uint32_t testgen( void)
 {
     set_bit( gpio0->ioout, TESTGEN_PIN);
+    usleep( 200),
     clear_bit( gpio0->ioout, TESTGEN_PIN);
 }
 
