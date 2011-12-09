@@ -51,14 +51,10 @@
 #define HEADER6                           (1<< 14)
 #define HEADER7                           (1<< 15)
 
+#define TESTGEN_PIN                       (1<< 31)
 
 ////////////////////////////////////////////////////////////
 //  rena3 definitions
-
-
-
-////////////////////////////////////////////////////////////
-//  DDS definitions
 
 
 
@@ -78,6 +74,7 @@ uint32_t run_light_function( void);
 
 uint32_t banner_help_function( void);
 
+uint32_t testgen( void);
 
 
 ////////////////////////////////////////
@@ -138,6 +135,7 @@ void uart_monitor( void)
     monitor_add_command("ddsinit", "initalize the AD9854 DDS chip",         ad9854_init);
     monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     monitor_add_command("adc",     "read adc value",                        adc_read);
+    monitor_add_command("testgen", "generate test impulse",                 testgen);
     monitor_add_command("mem",     "alias for x",                           x_function);
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
@@ -316,6 +314,15 @@ void _zpu_interrupt( void)
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
+uint32_t testgen( void)
+{
+    set_bit( gpio0->ioout, TESTGEN_PIN);
+    clear_bit( gpio0->ioout, TESTGEN_PIN);
+}
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
 int main(void)
 {
     uint32_t port_value;
@@ -364,6 +371,8 @@ int main(void)
     }
 
     // code which executes in simulation is started here:
+
+    testgen();
 
     putstr("ADC:");
     putint( adc_read());

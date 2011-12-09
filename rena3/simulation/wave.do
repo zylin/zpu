@@ -93,6 +93,8 @@ add wave -noupdate /top_tb/top_i0/gpio_button
 add wave -noupdate /top_tb/top_i0/gpio_header_ls
 add wave -noupdate /top_tb/top_i0/gpio_led
 add wave -noupdate /top_tb/top_i0/gpio_switch
+add wave -noupdate -divider testgen
+add wave -noupdate /top_tb/top_i0/testgen
 add wave -noupdate -divider {analog -> ADC}
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/clk
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_p
