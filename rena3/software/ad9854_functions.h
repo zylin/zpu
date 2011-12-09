@@ -50,11 +50,11 @@ uint8_t  ad9854_reg_read( uint8_t reg, uint8_t *buffer);
 #define AD9854_DIG_PDOWN   (0)
 #define AD9854_PLL_200MHZ  (0)
 #define AD9854_PLL_BYPASS  (0)
-#define AD9854_REF_MUL     (5)
+#define AD9854_REF_MUL     (4)
 #define AD9854_SRC_QDAC    (0)
 #define AD9854_MODE        (MODE_SINGLE_TONE)
 #define AD9854_IO_CLK_OUT  (0)
-#define AD9854_BYPASS_SINC (0)
+#define AD9854_BYPASS_SINC (1)
 #define AD9854_OSK_ENABLE  (1)
 #define AD9854_OSK_INT     (0)
 #define AD9854_LSB_FIRST   (0)
@@ -66,7 +66,7 @@ uint8_t  ad9854_reg_read( uint8_t reg, uint8_t *buffer);
 #define AD9854_CLOCK  (10000000ULL)
 #endif
 
-#define OUTPUT_FREQUENCY    (5000000ULL)
+#define OUTPUT_FREQUENCY    (1000000ULL)
 
 // generate WRONG result:
 //#define FTW                 (uint64_t)((OUTPUT_FREQUENCY * 281474976710656ULL) / AD9854_CLOCK)
