@@ -1,5 +1,5 @@
 rena3     ../rtl/component_package.vhd  
-rena3     ../rtl/rena3_controller.vhd  
+rena3     ../rtl/rena3_controller_apb.vhd  
 rena3     ../rtl/types_package.vhd
 rena3     ../rtl/version.vhd         
 rena3     ../rtl/box.vhd         
