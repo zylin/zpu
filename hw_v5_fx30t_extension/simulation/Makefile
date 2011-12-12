@@ -8,6 +8,9 @@
 library      = work
 top          = top
 
+# http://sourceforge.net/projects/vmk/
+VMK = vmk
+
 all: compile simulate
 
 
@@ -43,5 +46,5 @@ $(library):
 # generate Makefile.msim with vmk
 Makefile.msim: vhdl_files.txt lib
 	vlib work
-	vmk -t modelsim -O -w $(library) -F vhdl_files.txt
+	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
 	

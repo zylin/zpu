@@ -1,6 +1,8 @@
 library      = zpu
 
 
+# http://sourceforge.net/projects/vmk/
+VMK = vmk
 
 
 help:
@@ -37,5 +39,5 @@ clean:
 Makefile.msim: vhdl_files.txt
 	vlib zpu 
 	vlib grlib
-	vmk -t modelsim -O -w $(library) -F vhdl_files.txt
+	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
 	

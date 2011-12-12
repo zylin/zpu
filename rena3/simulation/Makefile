@@ -10,6 +10,9 @@ top          = top_tb
 
 library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
 
+# http://sourceforge.net/projects/vmk/
+VMK = vmk
+
 compile: Makefile.msim
 	make --directory ../software | ccze -A
 	export ANAFLAGS="-quiet -2008"; \
@@ -35,5 +38,5 @@ clean:
 # generate Makefile.msim with vmk
 Makefile.msim: vhdl_files.txt
 	for lib in $(library_list); do vlib $$lib; done
-	vmk -t modelsim -O -w $(library) -F vhdl_files.txt
+	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
 	

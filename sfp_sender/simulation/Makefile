@@ -8,6 +8,9 @@
 library      = sfp_sender
 top          = top_tb
 
+# http://sourceforge.net/projects/vmk/
+VMK = vmk
+
 all: compile simulate
 
 
@@ -47,5 +50,5 @@ Makefile.msim: vhdl_files.txt
 	vlib zpu
 	vlib gaisler
 	vlib opencores
-	vmk -t modelsim -O -w $(library) -F vhdl_files.txt
+	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
 	
