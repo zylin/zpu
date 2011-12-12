@@ -1,12 +1,18 @@
 # XC9536XL-PCG44-10C
 
-NET reset               LOC = P39;
+# activate low power mode for all macrocells
+NET "*"  PWR_MODE = LOW;
+
+NET reset_n             LOC = P39;
 NET clk                 LOC = P5;
 
-NET bcd_switch_n<0>     LOC = P36;
-NET bcd_switch_n<1>     LOC = P35;
-NET bcd_switch_n<2>     LOC = P34;
-NET bcd_switch_n<3>     LOC = P33;
+NET button_n<0>         LOC = P43;
+NET button_n<1>         LOC = P44;
+
+NET dip_switch_n<0>     LOC = P36;
+NET dip_switch_n<1>     LOC = P35;
+NET dip_switch_n<2>     LOC = P34;
+NET dip_switch_n<3>     LOC = P33;
 
 NET led_n<0>            LOC = P19;
 NET led_n<1>            LOC = P20;
