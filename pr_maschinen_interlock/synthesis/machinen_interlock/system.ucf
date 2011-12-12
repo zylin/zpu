@@ -35,7 +35,7 @@ NET "channel_ok_out<8>"  LOC = "P81"  ;
 NET "channel_ok_out<9>"  LOC = "P82"  ; 
 NET "clear"  LOC = "P16"  ; 
 NET "clear_sps"  LOC = "P17"  ; 
-NET "clk"  LOC = "P38"  ;
+NET "clk"  LOC = "P38"  ; 
 NET "error_in_n<10>"  LOC = "P134"  ; 
 NET "error_in_n<11>"  LOC = "P135"  ; 
 NET "error_in_n<12>"  LOC = "P136"  ; 
@@ -70,6 +70,7 @@ NET "error_out<8>"  LOC = "P59"  ;
 NET "error_out<9>"  LOC = "P60"  ; 
 NET "main_error_out"  LOC = "P105"  ; 
 NET "main_ok_out"  LOC = "P106"  ; 
+NET "reset_n"  LOC = "P143"  ;
 NET "test_in_n"  LOC = "P11"  ; 
 NET "test_sps_in"  LOC = "P12"  ; 
 
