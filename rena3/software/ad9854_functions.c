@@ -16,8 +16,10 @@ const uint8_t transfer_length[12] = { 2, 2, 6, 6, 6, 4, 3, 4, 2, 2, 1, 2};
 /*
     do initialisation of the AD9854 chip
     its connected in serial mode with unidirectional data lines
+
+    parameter: frequency tuning word
 */
-uint32_t ad9854_init( void)
+uint32_t ad9854_init( uint64_t ftw)
 {
     uint8_t buffer[6];
 
@@ -37,9 +39,6 @@ uint32_t ad9854_init( void)
         (AD9854_OSK_INT     <<  4) |
         (AD9854_LSB_FIRST   <<  1) | 
         (AD9854_SDO_ACTIVE  <<  0);
-
-    uint32_t ftw_low_value  = (uint32_t)FTW;
-
 
     // spi config (max. 10 MHz SPI clk)
     spi_init();
@@ -79,12 +78,12 @@ uint32_t ad9854_init( void)
     // frequency tuning word 1
 
     // set frequency
-    buffer[0] = (uint8_t) (FTW >> 40);
-    buffer[1] = (uint8_t) (FTW >> 32);
-    buffer[2] = (uint8_t) (FTW >> 24);
-    buffer[3] = (uint8_t) (FTW >> 16);
-    buffer[4] = (uint8_t) (FTW >>  8);
-    buffer[5] = (uint8_t) (FTW >>  0);
+    buffer[0] = (uint8_t) (ftw >> 40);
+    buffer[1] = (uint8_t) (ftw >> 32);
+    buffer[2] = (uint8_t) (ftw >> 24);
+    buffer[3] = (uint8_t) (ftw >> 16);
+    buffer[4] = (uint8_t) (ftw >>  8);
+    buffer[5] = (uint8_t) (ftw >>  0);
     ad9854_reg_write( AD9854_FREQUENCY_1_REG, buffer);
 
     // set I mul

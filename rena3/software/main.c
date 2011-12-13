@@ -74,6 +74,7 @@ uint32_t run_light_function( void);
 
 uint32_t banner_help_function( void);
 
+uint32_t ddsinit_function( void);
 uint32_t testgen( void);
 
 
@@ -132,7 +133,7 @@ void uart_monitor( void)
     monitor_add_command("i2c",     "check I2C address",                     i2c_check_function);
     monitor_add_command("eeprom",  "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
 
-    monitor_add_command("ddsinit", "initalize the AD9854 DDS chip",         ad9854_init);
+    monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
     monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     monitor_add_command("adc",     "read adc value",                        adc_read);
     monitor_add_command("testgen", "generate test impulse",                 testgen);
@@ -314,6 +315,30 @@ void _zpu_interrupt( void)
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
+uint32_t ddsinit_function( void)
+{
+    uint32_t low;
+    uint32_t high;
+    uint64_t ftw;
+
+    high = monitor_get_argument_hex(1);
+    low  = monitor_get_argument_hex(2);
+
+    if ((high != 0) || (low != 0))
+    {
+        ftw = ((uint64_t)high << 32) | low;
+    }
+    else
+    {
+        ftw = FTW;
+    }
+
+    ad9854_init( ftw);
+}
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
 uint32_t testgen( void)
 {
     set_bit( gpio0->ioout, TESTGEN_PIN);
@@ -373,11 +398,38 @@ int main(void)
 
     // code which executes in simulation is started here:
 
-    testgen();
+    typedef struct {
+        volatile uint32_t status;      // 0x00
+        volatile uint32_t config_low;  // 0x04
+        volatile uint32_t config_high; // 0x08
+    } rena_t;
 
+    rena_t *rena = (rena_t *) 0x80000d00;
+
+
+    putstr("status: ");
+    putint( rena->status);
+    putchar('\n');
+
+    // configure rena
+    rena->config_low  = 0x1234ff00;
+    rena->config_high = 0x0000001f;
+
+    while (rena->status != 0) {};
+
+    // clear token chain
+    rena->status      = 2;
+
+
+/*
     putstr("ADC:");
+    // make dummy reads
+    adc_read();
+    adc_read();
+    adc_read();
     putint( adc_read());
     putchar('\n');
+*/
 
     // test of scheduler
     scheduler_task_add( end_simulation_task, 1);
