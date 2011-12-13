@@ -93,6 +93,10 @@ add wave -noupdate /top_tb/top_i0/gpio_button
 add wave -noupdate /top_tb/top_i0/gpio_header_ls
 add wave -noupdate /top_tb/top_i0/gpio_led
 add wave -noupdate /top_tb/top_i0/gpio_switch
+add wave -noupdate -divider rena
+add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_in
+add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r
+add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_out
 add wave -noupdate -divider testgen
 add wave -noupdate /top_tb/top_i0/testgen
 add wave -noupdate -divider {analog -> ADC}
@@ -105,7 +109,7 @@ add wave -noupdate -divider DDS
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {286622642 ps} 0}
+WaveRestoreCursors {{Cursor 1} {265279819 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -120,4 +124,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {757033200 ps}
+WaveRestoreZoom {260682496 ps} {266119892 ps}

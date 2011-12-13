@@ -36,7 +36,7 @@ package types_package is
         tclk    : std_ulogic;
     end record rena3_controller_out_t;
     constant default_rena3_controller_out_c: rena3_controller_out_t := (
-        cshift  => '0', 
+        cshift  => '1', 
         cin     => '0', 
         cs_n    => '1',
         read    => '0',
