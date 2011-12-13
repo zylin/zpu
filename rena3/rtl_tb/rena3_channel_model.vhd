@@ -73,11 +73,14 @@ begin
     --------------------
         variable preamp_input  : real;
         variable shaper_input  : real;
-                               
+        --                       
         variable fast_dac      : real;
         variable slow_dac      : real;
-                               
+        --                       
         variable peak_detector : real := 0.0;
+        --
+        variable note_once     : boolean := true;
+
     begin
         -- clear fast channel
         if inp.clear_fast_channel = '1' then 
@@ -101,7 +104,12 @@ begin
         end if;
         if config.pdwn = '1' then
             preamp_input := 0.0;
-            report me_c & ": channel " & integer'image(channel_nr) & " power down";
+            if note_once then
+                report me_c & ": channel " & integer'image(channel_nr) & " power down";
+                note_once := false;
+            end if;
+        else
+            note_once := true;
         end if;
     
         -- diff. & gain
