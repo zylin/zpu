@@ -18,6 +18,7 @@
 #include "monitor_functions.h"  // x_function, wmem_function, clear_function
 #include "ad9854_functions.h"   // ad9854_init
 #include "adc.h"                // adc_read
+#include "rena.h"               // rena_t, rena_channel_config
 
 //#define BOARD_SP605  TODO
 #define DEBUG_ON
@@ -128,13 +129,16 @@ void uart_monitor( void)
     #ifdef SYSINFO_ON
     monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function);
     #endif
+    monitor_add_command("rstatus", "rena controller status",                rena_status);
+    monitor_add_command("rtrig",   "rena trigger status",                   rena_trigger);
+    monitor_add_command("rconfig", "<channel> <high> <low_config>",         rena_channel_config_function);
+    monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
+    monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     #ifdef DEBUG_ON                                                              
     monitor_add_command("run",     "running light",                         run_light_function);
     monitor_add_command("i2c",     "check I2C address",                     i2c_check_function);
     monitor_add_command("eeprom",  "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
 
-    monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
-    monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     monitor_add_command("adc",     "read adc value",                        adc_read);
     monitor_add_command("testgen", "generate test impulse",                 testgen);
     monitor_add_command("mem",     "alias for x",                           x_function);
@@ -397,27 +401,15 @@ int main(void)
     }
 
     // code which executes in simulation is started here:
-
-    typedef struct {
-        volatile uint32_t status;      // 0x00
-        volatile uint32_t config_low;  // 0x04
-        volatile uint32_t config_high; // 0x08
-    } rena_t;
-
-    rena_t *rena = (rena_t *) 0x80000d00;
-
-
-    putstr("status: ");
-    putint( rena->status);
-    putchar('\n');
+    
+    rena_status();
 
     // configure rena
-    rena->config_low  = 0x1234ff00;
-    rena->config_high = 0x0000001f;
+    rena_channel_config(1, 0x3, 0x1234ff00);
 
     while (rena->status != 0) {};
 
-    // clear token chain
+    // activate acquire
     rena->status      = 2;
 
 

@@ -50,11 +50,11 @@ architecture rtl of rena3_controller_apb is
       0 => ahb_device_reg ( VENDOR, DEVICE, CONFIG, REVISION, INTR),
       1 => apb_iobar(paddr, pmask));
 
-    type state_t is (IDLE, CONFIGURE, CLEAR_TOKEN, ACQUIRE, READOUT);
+    type state_t is (IDLE, CONFIGURE, CLEAR, ACQUIRE, READOUT);
 
     type reg_t is record
         state      : state_t;
-        timer      : integer range 0 to 2;
+        timer      : integer range 0 to 100;
         readdata   : std_logic_vector(31 downto 0);
         writedata  : std_logic_vector(31 downto 0);
         configure  : std_logic_vector(40 downto 0);
@@ -98,10 +98,13 @@ begin
                 case v.state is
                     when IDLE        => v.readdata := x"00000000";
                     when CONFIGURE   => v.readdata := x"00000001";
-                    when CLEAR_TOKEN => v.readdata := x"00000002";
+                    when CLEAR       => v.readdata := x"00000002";
                     when ACQUIRE     => v.readdata := x"00000003";
                     when READOUT     => v.readdata := x"00000004";
                 end case;
+
+                v.readdata(30) := rena3_in.ts;
+                v.readdata(31) := rena3_in.tf;
 
             when "001"  =>
                     v.readdata := v.configure(31 downto 0);
@@ -120,9 +123,11 @@ begin
                 when "000"  => 
                     case to_integer( unsigned(v.writedata)) is
                         when 2      =>
-                            v.rena.cls := '1'; 
-                            v.timer    := 2;
-                            v.state    := CLEAR_TOKEN;
+                            v.rena.clf     := '1';
+                            v.rena.cls     := '1'; 
+                            v.rena.acquire := '1';
+                            v.timer        := 2;     -- 20 ns
+                            v.state        := CLEAR;
 
                         when others =>
                             null;
@@ -167,11 +172,13 @@ begin
                             end if;
                         end if;
 
-                when CLEAR_TOKEN =>
-                    v.rena.cls := '0'; 
-                    v.state    := IDLE;
+                when CLEAR =>
+                    v.rena.clf := '0'; 
+                    v.timer    := 97;   -- 1000 ns 
+                    v.state    := ACQUIRE;
 
                 when ACQUIRE =>
+                    v.rena.cls := '0'; 
                     null;
 
                 when READOUT =>

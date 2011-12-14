@@ -87,7 +87,7 @@ uint32_t ad9854_init( uint64_t ftw)
     ad9854_reg_write( AD9854_FREQUENCY_1_REG, buffer);
 
     // set I mul
-    uint16_t mul = 4095; // 12 bit --> 0..4096
+    uint16_t mul = 2700; // 12 bit --> 0..4096
    
     buffer[0] = (uint8_t) (mul >> 8);
     buffer[1] = (uint8_t) (mul >> 0);
