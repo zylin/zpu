@@ -129,9 +129,9 @@ void uart_monitor( void)
     #ifdef SYSINFO_ON
     monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function);
     #endif
-    monitor_add_command("rstatus", "rena controller status",                rena_status);
-    monitor_add_command("rtrig",   "rena trigger status",                   rena_trigger);
-    monitor_add_command("rconfig", "<channel> <high> <low_config>",         rena_channel_config_function);
+    monitor_add_command("control", "rena controller status",                rena_controller_status);
+    monitor_add_command("status",  "rena status",                           rena_status);
+    monitor_add_command("config",  "<channel> <high> <low_config>",         rena_channel_config_function);
     monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
     monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
     #ifdef DEBUG_ON                                                              
@@ -402,15 +402,13 @@ int main(void)
 
     // code which executes in simulation is started here:
     
-    rena_status();
-
     // configure rena
-    rena_channel_config(1, 0x3, 0x1234ff00);
+    rena_channel_config(1, 0x2, 0x00000004);
 
-    while (rena->status != 0) {};
+    while (rena->control_status != 0) {};
 
     // activate acquire
-    rena->status      = 2;
+    rena->control_status = 2;
 
 
 /*

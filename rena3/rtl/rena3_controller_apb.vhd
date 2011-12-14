@@ -50,25 +50,27 @@ architecture rtl of rena3_controller_apb is
       0 => ahb_device_reg ( VENDOR, DEVICE, CONFIG, REVISION, INTR),
       1 => apb_iobar(paddr, pmask));
 
-    type state_t is (IDLE, CONFIGURE, CLEAR, ACQUIRE, READOUT);
+    type state_t is (IDLE, CONFIGURE, CLEAR, DETECT, ACQUIRE, READOUT);
 
     type reg_t is record
-        state      : state_t;
-        timer      : integer range 0 to 100;
-        readdata   : std_logic_vector(31 downto 0);
-        writedata  : std_logic_vector(31 downto 0);
-        configure  : std_logic_vector(40 downto 0);
-        bitindex   : integer range 0 to 40;
-        rena       : rena3_controller_out_t;
+        state        : state_t;
+        timer        : integer range 0 to 100;
+        readdata     : std_logic_vector(31 downto 0);
+        writedata    : std_logic_vector(31 downto 0);
+        configure    : std_logic_vector(40 downto 0);
+        bitindex     : integer range 0 to 40;
+        acquire_time : unsigned(31 downto 0);
+        rena         : rena3_controller_out_t;
     end record reg_t;
     constant default_reg_c : reg_t := (
-        state      => IDLE,
-        timer      => 0,
-        readdata   => (others => '0'),
-        writedata  => (others => '0'),
-        configure  => (others => '0'),
-        bitindex   => 0,
-        rena       => default_rena3_controller_out_c
+        state        => IDLE,
+        timer        => 0,
+        readdata     => (others => '0'),
+        writedata    => (others => '0'),
+        configure    => (others => '0'),
+        bitindex     => 0,
+        acquire_time => (others => '0'),
+        rena         => default_rena3_controller_out_c
     );
 
     signal r, r_in: reg_t := default_reg_c;
@@ -76,7 +78,8 @@ architecture rtl of rena3_controller_apb is
 begin
     -- states of the rena3 controller:
     -- IDLE    (wait for configuration)
-    -- ACQUIRE (wait for peaks -> send trigger event to PC)
+    -- DETECT  (wait for events)
+    -- ACQUIRE (wait for additional events)
     -- READOUT (data is ready)
 
     --------------------
@@ -99,19 +102,27 @@ begin
                     when IDLE        => v.readdata := x"00000000";
                     when CONFIGURE   => v.readdata := x"00000001";
                     when CLEAR       => v.readdata := x"00000002";
-                    when ACQUIRE     => v.readdata := x"00000003";
-                    when READOUT     => v.readdata := x"00000004";
+                    when DETECT      => v.readdata := x"00000003";
+                    when ACQUIRE     => v.readdata := x"00000004";
+                    when READOUT     => v.readdata := x"00000005";
                 end case;
 
-                v.readdata(30) := rena3_in.ts;
-                v.readdata(31) := rena3_in.tf;
 
             when "001"  =>
-                    v.readdata := v.configure(31 downto 0);
+                v.readdata(0)  := rena3_in.overflow;
+                v.readdata(1)  := rena3_in.ts;
+                v.readdata(2)  := rena3_in.tf;
 
             when "010"  =>
-                    v.readdata(8 downto 0) := v.configure(8 downto 0);
+                v.readdata     := v.configure(31 downto 0);
+                
+            when "011" =>
+                v.readdata(8 downto 0)           := v.configure(8 downto 0);
 
+            -- acquire time
+            when "100" =>
+                v.readdata(v.acquire_time'range) := std_ulogic_vector( v.acquire_time);
+                
             when others => null;
         end case;
 
@@ -120,6 +131,7 @@ begin
         if (apbi.psel(pindex) and apbi.penable and apbi.pwrite) = '1' then
             case apbi.paddr(4 downto 2) is
 
+                -- state
                 when "000"  => 
                     case to_integer( unsigned(v.writedata)) is
                         when 2      =>
@@ -134,14 +146,23 @@ begin
                     end case;
 
                 when "001"  => 
+                    null;
+
+                -- configure low word
+                when "010"  => 
                     v.configure(31 downto  0) := v.writedata;
 
-                when "010"  => 
+                -- configure high bits, start rena configure
+                when "011" =>
                     v.configure(40 downto 32) := v.writedata(8 downto 0);
                     v.bitindex                := 40;
                     v.rena.cs_n               := '0';
                     v.timer                   := 2;
                     v.state                   := CONFIGURE;
+
+                -- acquire time
+                when "100" =>
+                    v.acquire_time            := unsigned( v.writedata( v.acquire_time'range));
 
                 when others => null;
 
@@ -175,11 +196,22 @@ begin
                 when CLEAR =>
                     v.rena.clf := '0'; 
                     v.timer    := 97;   -- 1000 ns 
-                    v.state    := ACQUIRE;
+                    v.state    := DETECT;
+
+                when DETECT =>
+                    v.rena.cls := '0'; 
+                    -- event detected
+                    if (rena3_in.ts = '1') or (rena3_in.tf = '1') then
+                        v.state := ACQUIRE;    
+                    end if;
 
                 when ACQUIRE =>
-                    v.rena.cls := '0'; 
-                    null;
+                    if v.acquire_time > 0 then
+                        v.acquire_time := v.acquire_time - 1;
+                    else
+                        v.rena.acquire := '0';
+                        v.state := READOUT;
+                    end if;
 
                 when READOUT =>
                     null;

@@ -13,18 +13,19 @@ rena_t *rena = (rena_t *) 0x80000d00;
 /*
     print status of rena controller
 */
-uint32_t rena_status( void)
+uint32_t rena_controller_status( void)
 {
     uint32_t status;
 
-    status = rena->status;
+    status = rena->control_status;
 
     switch( status & 0xff)
     {
         case 0x00: putstr("idle");      break;
         case 0x01: putstr("configure"); break;
-        case 0x03: putstr("aquire");    break;
-        case 0x04: putstr("readout");   break;
+        case 0x03: putstr("detect");    break;
+        case 0x04: putstr("aquire");    break;
+        case 0x05: putstr("readout");   break;
         default:   putstr("UNKNOWN");   break;
     }
     putchar('\n');
@@ -36,15 +37,15 @@ uint32_t rena_status( void)
 /*
     get rena trigger status
 */
-uint32_t rena_trigger( void)
+uint32_t rena_status( void)
 {
     uint32_t status;
 
-    status = (rena->status >> 30) & 0x03;
+    status = rena->rena_status;
 
-    putstr("\ntrigger");
-    putstr("\nfast : "); putint( (status>1) & 0x01);
-    putstr("\nslow : "); putint( (status>0) & 0x01);
+    putstr("fast trigger : ");   putint(( status >> 2) & 0x01);
+    putstr("\nslow trigger : "); putint(( status >> 1) & 0x01);
+    putstr("\noverflow     : "); putint(( status >> 0) & 0x01);
     putchar('\n');
 
     return( status);
@@ -57,7 +58,7 @@ uint32_t rena_trigger( void)
 uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_config)
 {
     // wait until rena is idle
-    while (rena->status != 0) {};
+    while (rena->control_status != 0) {};
 
     // Attention: order is important
     rena->config_low  = low_config;

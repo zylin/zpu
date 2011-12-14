@@ -12,9 +12,11 @@
 
 
 typedef struct {
-    volatile uint32_t status;      // 0x00
-    volatile uint32_t config_low;  // 0x04
-    volatile uint32_t config_high; // 0x08
+    volatile uint32_t control_status;   // 0x00
+    volatile uint32_t rena_status;      // 0x04
+    volatile uint32_t config_low;       // 0x08
+    volatile uint32_t config_high;      // 0x0C
+    volatile uint32_t acquire_time;     // 0x10
 } rena_t;
 
 
@@ -25,8 +27,8 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
 
 
 // monitor functions
+uint32_t rena_controller_status( void);
 uint32_t rena_status( void);
-uint32_t rena_trigger( void);
 uint32_t rena_channel_config_function( void);
 
 #endif // RENA_H
