@@ -555,6 +555,8 @@ begin
             rena3_in    => rena3_0_in,      -- : in  rena3_controller_in_t;
             rena3_out   => rena3_0_out      -- : out rena3_controller_out_t
         );
+    --
+    rena3_1_out <= default_rena3_controller_out_c;
     ---------------------------------------------------------------------
 
 
