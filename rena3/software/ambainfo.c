@@ -24,6 +24,7 @@ void print_vendor_device( uint8_t vendor, uint8_t device)
                 case 0x1a: putstr("General Purpose I/O port");      break;
                 case 0x1d: putstr("GR 10/100 Mbit Ethernet MAC");   break;
                 case 0x28: putstr("AMBA Wrapper for OC I2C-master");break;
+                case 0x2d: putstr("SPI Controller");                break;
                 case 0x45: putstr("SPI Memory Controller");         break;
                 case 0x61: putstr("VGA controller");                break;
                 default  : putstr("unknown device");                break;
@@ -50,7 +51,7 @@ void print_vendor_device( uint8_t vendor, uint8_t device)
                 case 0x09: putstr("debug tracer memory");           break;
                 case 0x0a: putstr("differential current monitor");  break;
                 case 0x0b: putstr("SFP controller");                break;
-                case 0x0c: putstr("AD9854 DDS controller");         break;
+                case 0x0c: putstr("RENA3 controller");              break;
                 default  : putstr("unknown device"); break;
             }
             break;
