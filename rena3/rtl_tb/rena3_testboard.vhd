@@ -91,8 +91,6 @@ begin
         );
    
     --------------------
-    -- TODO generate C* stimuli from FPGA
-    -- TODO generate CLF stimuli from FPGA
     -- TODO generate slow token register stimuli from FPGA
     -- TODO generate fast token register stimuli from FPGA
     -- TODO generate token stuff stimuli from FPGA
@@ -104,6 +102,7 @@ begin
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35); -- Detector inputs pins
             AOUTP       => rena3_model_i0_aoutp,    --   : out real;
             AOUTN       => rena3_model_i0_aoutn,    --   : out real;
+            OVERFLOW    => fmc_lpc_row_d(18),       --   : out std_ulogic; -- Counter Overflow Output
             CSHIFT      => fmc_lpc_row_c(19),       --   : in  std_ulogic; -- fmc_rena_01_cshift
             CIN         => fmc_lpc_row_d(20),       --   : in  std_ulogic; -- fmc_rena_01_cin
             CS          => fmc_lpc_row_c(18),       --   : in  std_ulogic; -- fmc_rena_0_cs
@@ -137,6 +136,7 @@ begin
             DETECTOR_IN => (others => 0.0),         --   : in  real_array(0 to 35);
             AOUTP       => rena3_model_i1_aoutp,    --   : out real;
             AOUTN       => rena3_model_i1_aoutn,    --   : out real;
+            OVERFLOW    => fmc_lpc_row_g(31),       --   : out std_ulogic; -- Counter Overflow Output
             CSHIFT      => fmc_lpc_row_c(19),       --   : in  std_ulogic; -- fmc_rena_01_cshift
             CIN         => fmc_lpc_row_d(20),       --   : in  std_ulogic; -- fmc_rena_01_cin
             CS          => fmc_lpc_row_h(23),       --   : in  std_ulogic; -- fmc_rena_1_cs

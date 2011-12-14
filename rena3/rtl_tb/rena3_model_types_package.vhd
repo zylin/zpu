@@ -136,13 +136,15 @@ package rena3_model_types_package is
         fast_trigger       : std_ulogic;
         vu                 : real;
         vv                 : real;
+        overflow           : std_ulogic;
     end record rena3_channel_out_t;
     constant default_rena3_channel_out_c : rena3_channel_out_t := (
         peak_detector => 0.0,
         slow_trigger  => '0',
         fast_trigger  => '0',
         vu            => 0.0,
-        vv            => 0.0
+        vv            => 0.0,
+        overflow      => '0'
     );
 
 
