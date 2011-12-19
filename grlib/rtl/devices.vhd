@@ -288,6 +288,7 @@ package devices is
   constant HZDR_DEBUG_TRACER          : amba_device_type := 16#009#;
   constant HZDR_DIFFERENTIAL_IMONITOR : amba_device_type := 16#00a#;
   constant HZDR_SFP_CONTROL           : amba_device_type := 16#00b#;
+  constant HZDR_RENA3_CONTROLLER      : amba_device_type := 16#00c#;
 
 -- grlib system device id's
 
@@ -691,6 +692,7 @@ package devices is
       HZDR_DEBUG_TRACER           => "debug tracer memory            ",
       HZDR_DIFFERENTIAL_IMONITOR  => "differential current monitor   ",
       HZDR_SFP_CONTROL            => "SFP controller                 ",
+      HZDR_RENA3_CONTROLLER       => "RENA3 controller               ",
       others                      => "Unknown Device                 ");
   constant hzdr_lib : vendor_library_type := (
       vendorid 	       => VENDOR_HZDR,
