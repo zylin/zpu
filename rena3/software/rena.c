@@ -8,7 +8,10 @@
 
 #include "rena.h"
 
-rena_t *rena = (rena_t *) 0x80000d00;
+rena_t   *rena        = (rena_t *)  0x80000d00;
+uint32_t *token_table = (uint32_t*) 0x10000000;
+
+
 
 /*
     print status of rena controller
@@ -25,7 +28,9 @@ uint32_t rena_controller_status( void)
         case 0x01: putstr("configure"); break;
         case 0x03: putstr("detect");    break;
         case 0x04: putstr("aquire");    break;
-        case 0x05: putstr("readout");   break;
+        case 0x05: putstr("analyze");   break;
+        case 0x06: putstr("desire");    break;
+        case 0x07: putstr("readout");   break;
         default:   putstr("UNKNOWN");   break;
     }
     putchar('\n');
@@ -67,6 +72,28 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
     rena->config_high = (channel << 3) | high_config;
 }
 
+/*
+    read (and print) tokens
+*/
+uint32_t rena_read_token( void)
+{
+    uint8_t token;
+    uint8_t index;
+
+    token = rena->token_count;
+
+    putstr("tokens:");
+    putint( token);
+    putchar('\n');
+
+    for ( index = 0; index++; index < token - 1)
+    {
+        putint( token_table[ index]);
+        putchar('\n');
+    }
+
+    return( token);
+}
 
 ////////////////////////////////////////////////////////////
 // monitor functions

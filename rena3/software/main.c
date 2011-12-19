@@ -346,7 +346,6 @@ uint32_t ddsinit_function( void)
 uint32_t testgen( void)
 {
     set_bit( gpio0->ioout, TESTGEN_PIN);
-    usleep( 200),
     clear_bit( gpio0->ioout, TESTGEN_PIN);
 }
 
@@ -403,27 +402,32 @@ int main(void)
     // code which executes in simulation is started here:
     
     // configure rena
-    rena_channel_config(1, 0x2, 0x00000004);
+    rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
+    rena_channel_config(1, 0x2, RENA_ENF);
 
     while (rena->control_status != 0) {};
+
+    // set additional acquire time (1000 ns)
+    rena->acquire_time = 100;
 
     // activate acquire
     rena->control_status = 2;
 
+    // generate some test pulse
+    usleep( 50);
+    testgen();
 
-/*
-    putstr("ADC:");
-    // make dummy reads
-    adc_read();
-    adc_read();
-    adc_read();
-    putint( adc_read());
+    // wait till idle
+    while (rena->control_status != 0) {};
+    
+    putstr("tokens: ");
+    putint( rena->token_count);
     putchar('\n');
-*/
+
 
     // test of scheduler
-    scheduler_task_add( end_simulation_task, 1);
-    running_light( simulation_active);
+//  scheduler_task_add( end_simulation_task, 3);
+//  running_light( simulation_active);
     
     //////////////////////////////////////////////////////////// 
     // end simulation
