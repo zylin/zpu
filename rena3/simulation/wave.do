@@ -88,62 +88,61 @@ add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_n
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_p
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_prsnt_m2c_l
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_pwr_good_flash_rst_b
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TEST
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/VU
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/VV
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/DETECTOR_IN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/AOUTP
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/AOUTN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/OVERFLOW
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CSHIFT
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CIN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CS
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TS_N
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TS_P
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TF_N
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TF_P
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FOUT
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SOUT
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TOUT
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/READ
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TIN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SIN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FIN
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SHRCLK
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FHRCLK
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/ACQUIRE_P
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/ACQUIRE_N
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLS_P
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLS_N
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLF
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TCLK
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_configuration_array
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_inp_array
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_outp_array
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/slow_token_register
-add wave -noupdate -expand -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/fast_token_register
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TEST
+add wave -noupdate -group RENA3 -format Analog-Step -height 50 -max 4.0 /top_tb/rena3_testboard_i0/rena3_model_i0/VU
+add wave -noupdate -group RENA3 -format Analog-Step -height 50 -max 4.0 /top_tb/rena3_testboard_i0/rena3_model_i0/VV
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/DETECTOR_IN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/AOUTP
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/AOUTN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/OVERFLOW
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CSHIFT
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CIN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CS
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TS_N
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TS_P
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TF_N
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TF_P
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FOUT
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SOUT
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TOUT
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/READ
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TIN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SIN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FIN
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/SHRCLK
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/FHRCLK
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/ACQUIRE_P
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/ACQUIRE_N
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLS_P
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLS_N
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/CLF
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TCLK
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_configuration_array
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_inp_array
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/channel_outp_array
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/slow_token_register
+add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/fast_token_register
 add wave -noupdate -divider GPIO
 add wave -noupdate /top_tb/top_i0/gpio_button
 add wave -noupdate /top_tb/top_i0/gpio_header_ls
 add wave -noupdate /top_tb/top_i0/gpio_led
 add wave -noupdate /top_tb/top_i0/gpio_switch
-add wave -noupdate -divider rena
+add wave -noupdate -divider {rena controller}
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_0_in
-add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r
-add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_out
+add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask -radix hexadecimal}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/rena3_controller_i0/r.rena -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}} -expand} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
 add wave -noupdate -divider testgen
 add wave -noupdate /top_tb/top_i0/testgen
 add wave -noupdate -divider {analog -> ADC}
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/clk
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_p
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_n
-add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/digital
+add wave -noupdate -radix decimal /top_tb/rena3_testboard_i0/adc_model_i0/digital
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/otr
 add wave -noupdate -divider DDS
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {153123586 ps} 0}
+WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {246655000 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -158,4 +157,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {543312 ns}
+WaveRestoreZoom {243195477 ps} {250905331 ps}
