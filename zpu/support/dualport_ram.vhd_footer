@@ -1,5 +1,5 @@
-	others => x"00dead00" -- mask for mem check
-	--others => x"00000000"
+	--others => x"00dead00" -- mask for mem check
+	others => x"00000000"
 );
 
 begin
