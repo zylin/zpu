@@ -39,7 +39,13 @@ package component_package is
             apbo        : out apb_slv_out_type;
             -- rena3 (connection to chip)
             rena3_in    : in  rena3_controller_in_t;
-            rena3_out   : out rena3_controller_out_t
+            rena3_out   : out rena3_controller_out_t;
+            --
+            clk_adc     : out std_ulogic;
+            adc_data    : in  std_ulogic_vector(13 downto 0);
+            adc_otr     : in  std_ulogic;
+            --
+            sample_mem  : out sample_buffer_mem_out_type
         );
     end component rena3_controller_apb;
 

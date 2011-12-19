@@ -93,9 +93,6 @@ entity box is
         clk_adc                   : out   std_ulogic;
         adc_data                  : in    std_ulogic_vector(13 downto 0);
         adc_otr                   : in    std_ulogic
-        --                        
---      rena3_in                  : in    rena3_controller_in_t;
---      rena3_out                 : out   rena3_controller_out_t
     );
 end entity box;
 
@@ -108,6 +105,8 @@ architecture rtl of box is
     signal box_reset_n                   : std_ulogic;
     --
     signal debug_con_apb_i0_softreset    : std_ulogic;
+    --
+    signal rena3_controller_i0_mem_out   : sample_buffer_mem_out_type;
     --
     signal ahbctrl_i0_msti               : ahb_mst_in_type;
     signal ahbmo                         : ahb_mst_out_vector := (others => ahbm_none);
@@ -169,7 +168,9 @@ begin
             enable_mdio => 1,
             fifosize    => 32,
             nsync       => 1,
-            phyrstadr   => 7         -- depends on used hardware
+            phyrstadr   => 7,        -- depends on used hardware
+            -- activate EDCL
+            edcl        => 1
         )
         port map (
             rst         => reset_n,
@@ -194,7 +195,7 @@ begin
     --
     --ahbso(0) <= (ahbs_none); -- ahbctrl
     ahbso(1) <= (ahbs_none);
-    ahbso(2) <= (ahbs_none);
+    --ahbso(2) <= (ahbs_none); -- ahb_dpram
     --ahbso(3) <= (ahbs_none); -- dualport_ram_ahb_wrapper
     --ahbso(4) <= (ahbs_none); -- spimctrl
     --ahbso(5) <= (ahbs_none); -- mctrl
@@ -223,6 +224,31 @@ begin
             scanen  => '0',
             testoen => '1'
         );
+    ----------------------------------------------------------------------
+
+
+    ---------------------------------------------------------------------
+    --  AHB DualPort RAM
+    --  adc sample buffer
+    ahbdpram_i0: ahbdpram
+        generic map (
+            hindex    => 2,                       -- : integer := 0;
+            haddr     => 16#100#,                 -- : integer := 0;
+            abits     => 8,                       -- : integer range 8 to 19 := 8;
+            bytewrite => 0                        -- : integer range 0 to 1 := 0
+        )                               
+        port map (                      
+            rst     => box_reset_n,                         -- : in  std_ulogic;
+            clk     => clk,                                 -- : in  std_ulogic;
+            ahbsi   => ahbctrl_i0_slvi,                     -- : in  ahb_slv_in_type;
+            ahbso   => ahbso(2),                            -- : out ahb_slv_out_type;
+            clkdp   => clk,                                 -- : in std_ulogic;
+            address => rena3_controller_i0_mem_out.address, -- : in std_logic_vector((abits -1) downto 0);
+            datain  => rena3_controller_i0_mem_out.data,    -- : in std_logic_vector(31 downto 0);
+            dataout => open,                                -- : out std_logic_vector(31 downto 0);
+            enable  => rena3_controller_i0_mem_out.enable,  -- : in std_ulogic;
+            write   => rena3_controller_i0_mem_out.write    -- : in std_logic_vector(0 to 3)
+        );						                            -- big-endian write: write(0) => data(31:24)
     ----------------------------------------------------------------------
     
 
@@ -435,7 +461,7 @@ begin
     -- 14       AD9854 io_reset
     -- 15       AD9854 master_reset
     -- 29 - 16  unused
-    -- 30       clk_adc
+    -- 30       --clk_adc
     -- 31       testgen
     ---------------------------------------------------------------------
     
@@ -547,13 +573,19 @@ begin
         )    
         port map (
             -- system
-            clk         => clk,             -- : in  std_ulogic;
-            -- connection to soc
-            apbi        => apbctrl_i0_apbi, -- : in  apb_slv_in_type;
-            apbo        => apbo(13),        -- : out apb_slv_out_type;
-            -- rena3 (connection to chip)
-            rena3_in    => rena3_0_in,      -- : in  rena3_controller_in_t;
-            rena3_out   => rena3_0_out      -- : out rena3_controller_out_t
+            clk         => clk,                        -- : in  std_ulogic;
+            -- connection to soc                       
+            apbi        => apbctrl_i0_apbi,            -- : in  apb_slv_in_type;
+            apbo        => apbo(13),                   -- : out apb_slv_out_type;
+            -- rena3 (connection to chip)              
+            rena3_in    => rena3_0_in,                 -- : in  rena3_controller_in_t;
+            rena3_out   => rena3_0_out,                -- : out rena3_controller_out_t
+            --                                         
+            clk_adc     => clk_adc,                    -- : out std_ulogic;
+            adc_data    => adc_data,                   -- : in  std_ulogic_vector(13 downto 0);
+            adc_otr     => adc_otr,                    -- : in  std_ulogic
+            --
+            sample_mem  => rena3_controller_i0_mem_out -- : sample_buffer_mem_out_type;
         );
     --
     rena3_1_out <= default_rena3_controller_out_c;

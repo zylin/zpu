@@ -81,5 +81,19 @@ package types_package is
     end record ad9854_in_t;
 
 
+    type sample_buffer_mem_out_type is record
+        address : std_logic_vector( 7 downto 0);
+        data    : std_logic_vector(31 downto 0);
+        enable  : std_ulogic;	     		-- active high chip select
+        write   : std_logic_vector(0 to 3);	-- active high byte write enable
+    end record;
+    constant default_sample_buffer_mem_out_c : sample_buffer_mem_out_type := (
+        address => (others => '0'),
+        data    => (others => '0'),
+        enable  => '0',
+        write   => (others => '0')
+    );
+
+
 end package types_package;
 
