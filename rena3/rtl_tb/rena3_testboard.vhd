@@ -111,12 +111,12 @@ begin
             TF_N        => fmc_lpc_row_c(11),       --   : out std_ulogic;
             TF_P        => fmc_lpc_row_c(10),       --   : out std_ulogic;
             FOUT        => fmc_lpc_row_c(15),       --   : out std_ulogic;
-            SOUT        => fmc_lpc_row_d(18),       --   : out std_ulogic;
+            SOUT        => fmc_lpc_row_d(17),       --   : out std_ulogic;
             TOUT        => fmc_lpc_row_c(14),       --   : out std_ulogic;
             READ        => fmc_lpc_row_c(23),       --   : in  std_ulogic; -- fmc_rena_0_read
             TIN         => fmc_lpc_row_c(26),       --   : in  std_ulogic;
-            SIN         => fmc_lpc_row_d(27),       --   : in  std_ulogic;
-            FIN         => fmc_lpc_row_d(28),       --   : in  std_ulogic;
+            SIN         => fmc_lpc_row_d(26),       --   : in  std_ulogic;
+            FIN         => fmc_lpc_row_d(27),       --   : in  std_ulogic;
             SHRCLK      => fmc_lpc_row_d(24),       --   : in  std_ulogic;
             FHRCLK      => fmc_lpc_row_d(23),       --   : in  std_ulogic;
             ACQUIRE_P   => fmc_lpc_row_d(11),       --   : in  std_ulogic;

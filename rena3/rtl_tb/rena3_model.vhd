@@ -478,12 +478,14 @@ begin
         type reg_t is record
             stage   : stage_t;
             channel : natural range 0 to channels_c;
+            active  : boolean;
             found   : boolean;
             ends    : boolean;
         end record;
         constant default_reg_c : reg_t := (
             stage   => slow_path,
             channel => 0,
+            active  => true,
             found   => false,
             ends    => false
         );
@@ -492,93 +494,102 @@ begin
 
     begin
         --------------------
-        token_readout_p: process
+        token_readout_p: process( TIN, TCLK, r)
         --------------------
             variable v                      : reg_t;
             variable l                      : line;
         begin
-            wait until rising_edge(TCLK);
             if TIN = '1' then
                 v                           := r;
 
-                TOUT                        <= '0';
-                if v.found then
-                    case v.stage is
-                        when slow_path =>
-                            v.stage         := fast_vu;
-                        when fast_vu   =>
-                            v.stage         := fast_vv;
-                        when fast_vv   =>
-                            if v.channel < (channels_c - 1) then
-                                v.channel := v.channel + 1;
-                                v.stage   := slow_path;
-                            else
-                                v.ends    := true;
-                            end if;
-                    end case;
-                end if;
-                v.found                     := false;
+                if v.active then
 
-                while (not v.found) and (not v.ends) loop
-                    case v.stage is
-                        when slow_path =>
-                            if slow_token_register( v.channel) = '1' then
-                                v.found     := true;
-                                if READ = '1' then
-                                    AOUTN       <= - channel_outp_array( v.channel).peak_detector / 2.0;
-                                    AOUTP       <=   channel_outp_array( v.channel).peak_detector / 2.0;
-                                else
-                                    fprint( output, l, me_c & " READ not active\n");
-                                end if;
-                            else        
-                                v.stage     := fast_vu;
-                            end if;
-
-                        when fast_vu   =>
-                            if fast_token_register( v.channel) = '1' then
-                                v.found     := true;
-                                if READ = '1' then
-                                    AOUTN       <= - channel_outp_array( v.channel).vu / 2.0;
-                                    AOUTP       <=   channel_outp_array( v.channel).vu / 2.0;
-                                else
-                                    fprint( output, l, me_c & " READ not active\n");
-                                end if;
-                            else
-                                v.stage     := fast_vv;
-                            end if;
-
-                        when fast_vv   =>
-                            if fast_token_register( v.channel) = '1' then
-                                v.found     := true;
-                                if READ = '1' then
-                                    AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
-                                    AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
-                                else
-                                    fprint( output, l, me_c & " READ not active\n");
-                                end if;
-                            else
+                    TOUT                        <= '0';
+                    if v.found then
+                        case v.stage is
+                            when slow_path =>
+                                v.stage         := fast_vu;
+                            when fast_vu   =>
+                                v.stage         := fast_vv;
+                            when fast_vv   =>
                                 if v.channel < (channels_c - 1) then
                                     v.channel := v.channel + 1;
                                     v.stage   := slow_path;
                                 else
                                     v.ends    := true;
                                 end if;
-                            end if;
+                        end case;
+                    end if;
+                    v.found                     := false;
 
-                    end case;
-                end loop;
+                    while (not v.found) and (not v.ends) loop
+                        case v.stage is
+                            when slow_path =>
+                                if slow_token_register( v.channel) = '1' then
+                                    v.found     := true;
+                                    if READ = '1' then
+                                        AOUTN       <= - channel_outp_array( v.channel).peak_detector / 2.0;
+                                        AOUTP       <=   channel_outp_array( v.channel).peak_detector / 2.0;
+                                    else
+                                        fprint( output, l, me_c & " READ not active\n");
+                                    end if;
+                                else        
+                                    v.stage     := fast_vu;
+                                end if;
 
-                if v.ends then
-                    TOUT                    <= '1';
-                    v.channel               := 0;
-                    v.stage                 := slow_path;
-                    v.ends                  := false;
+                            when fast_vu   =>
+                                if fast_token_register( v.channel) = '1' then
+                                    v.found     := true;
+                                    if READ = '1' then
+                                        AOUTN       <= - channel_outp_array( v.channel).vu / 2.0;
+                                        AOUTP       <=   channel_outp_array( v.channel).vu / 2.0;
+                                    else
+                                        fprint( output, l, me_c & " READ not active\n");
+                                    end if;
+                                else
+                                    v.stage     := fast_vv;
+                                end if;
+
+                            when fast_vv   =>
+                                if fast_token_register( v.channel) = '1' then
+                                    v.found     := true;
+                                    if READ = '1' then
+                                        AOUTN       <= - channel_outp_array( v.channel).vv / 2.0;
+                                        AOUTP       <=   channel_outp_array( v.channel).vv / 2.0;
+                                    else
+                                        fprint( output, l, me_c & " READ not active\n");
+                                    end if;
+                                else
+                                    if v.channel < (channels_c - 1) then
+                                        v.channel := v.channel + 1;
+                                        v.stage   := slow_path;
+                                    else
+                                        v.ends    := true;
+                                    end if;
+                                end if;
+
+                        end case;
+                    end loop;
+
+                    if v.ends then
+                        TOUT                    <= '1';
+                        v.channel               := 0;
+                        v.stage                 := slow_path;
+                        v.ends                  := false;
+                    else
+                        fprint( output, l, me_c & " output channel %2d, %s\n", fo(v.channel), stage_t'image(v.stage));
+                    end if;
+        
+                    v.active := false;
                 else
-                    fprint( output, l, me_c & " output channel %2d, %s\n", fo(v.channel), stage_t'image(v.stage));
-                end if;
+                    if rising_edge( TCLK) then
+                        v.active := true;
+                    end if;
+                end if; -- active
 
                 r                           <= v;
             end if;
+        
         end process token_readout_p;
 
         --------------------
