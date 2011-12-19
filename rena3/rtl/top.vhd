@@ -373,6 +373,7 @@ architecture rtl of top is
     signal ad9854_out                         : ad9854_out_t := default_ad9854_out_c;
     signal ad9854_in                          : ad9854_in_t;
     --
+    signal clk_adc_gpio                       : std_ulogic;
     signal clk_adc                            : std_ulogic;
     signal adc_data                           : std_ulogic_vector(13 downto 0);
     signal adc_otr                            : std_ulogic;
@@ -661,7 +662,7 @@ begin
     -- placement on board: LED0, LED1, LED2, LED3
     gpio_led       <= box_i0_gpioo.dout(3  downto 0);
     gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
-    clk_adc        <= box_i0_gpioo.dout(30);
+    clk_adc_gpio   <= box_i0_gpioo.dout(30);
     testgen        <= box_i0_gpioo.dout(31);
 
     
@@ -744,7 +745,7 @@ begin
             ad9854_out   => ad9854_out,                                    --: out   ad9854_out_t := default_ad9854_out_c;
             ad9854_in    => ad9854_in,                                     --: in    ad9854_in_t;
             --                                                                       
-            clk_adc      => open, --clk_adc,                               --: out   std_ulogic;
+            clk_adc      => clk_adc,                                       --: out   std_ulogic;
             adc_data     => adc_data,                                      --: in    std_ulogic_vector(13 downto 0);
             adc_otr      => adc_otr                                        --: in    std_ulogic;
         );
@@ -940,7 +941,7 @@ begin
 
     ------------------------------------------------------------ 
     -- ADC pads
-    fmc_la04_n    <= clk_adc;
+    fmc_la04_n    <= clk_adc or clk_adc_gpio;
     adc_data(13)  <= fmc_la08_p;
     adc_data(12)  <= fmc_la08_n;
     adc_data(11)  <= fmc_la07_p;
