@@ -94,6 +94,12 @@ package types_package is
         write   => (others => '0')
     );
 
+    
+    ------------------------------------------------------------
+    type rena_debug_t is record
+        state: std_ulogic_vector(3 downto 0);
+    end record rena_debug_t;
+
 
 end package types_package;
 

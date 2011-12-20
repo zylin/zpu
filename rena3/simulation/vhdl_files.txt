@@ -1,4 +1,5 @@
 rena3     ../rtl/component_package.vhd  
+rena3     ../rtl/chipscope.vhd  
 rena3     ../rtl/rena3_controller_apb.vhd  
 rena3     ../rtl/types_package.vhd
 rena3     ../rtl/version.vhd         
@@ -13,7 +14,6 @@ rena3     ../rtl_tb/rena3_model_types_package.vhd
 rena3     ../rtl_tb/rena3_testboard.vhd
 rena3     ../rtl_tb/test_pulse_gen.vhd
 rena3     ../rtl_tb/top_tb.vhd
-global    ../../global/rtl/global_signals.vhd
 grlib     ../../grlib/rtl/ahbctrl.vhd  
 grlib     ../../grlib/rtl/amba.vhd  
 grlib     ../../grlib/rtl/apbctrl.vhd  

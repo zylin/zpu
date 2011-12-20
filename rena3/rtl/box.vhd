@@ -86,6 +86,7 @@ entity box is
         rena3_0_out               : out   rena3_controller_out_t;
         rena3_1_in                : in    rena3_controller_in_t;
         rena3_1_out               : out   rena3_controller_out_t;
+        rena_debug                : out   rena_debug_t;
         --
         ad9854_out                : out   ad9854_out_t;
         ad9854_in                 : in    ad9854_in_t;
@@ -585,7 +586,9 @@ begin
             adc_data    => adc_data,                   -- : in  std_ulogic_vector(13 downto 0);
             adc_otr     => adc_otr,                    -- : in  std_ulogic
             --
-            sample_mem  => rena3_controller_i0_mem_out -- : sample_buffer_mem_out_type;
+            sample_mem  => rena3_controller_i0_mem_out,-- : sample_buffer_mem_out_type;
+            --
+            rena_debug  => rena_debug                  -- : rena_debug_t
         );
     --
     rena3_1_out <= default_rena3_controller_out_c;
