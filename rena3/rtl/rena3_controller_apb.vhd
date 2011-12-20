@@ -40,7 +40,9 @@ entity rena3_controller_apb is
         adc_data    : in  std_ulogic_vector(13 downto 0);
         adc_otr     : in  std_ulogic;
         --
-        sample_mem  : out sample_buffer_mem_out_type
+        sample_mem  : out sample_buffer_mem_out_type;
+        --
+        rena_debug  : out rena_debug_t
     );
 end entity rena3_controller_apb;
 
@@ -57,47 +59,51 @@ architecture rtl of rena3_controller_apb is
       0 => ahb_device_reg ( VENDOR, DEVICE, CONFIG, REVISION, INTR),
       1 => apb_iobar(paddr, pmask));
 
-    type state_t is (IDLE, CONFIGURE, CLEAR, DETECT, ACQUIRE, ANALYZE, DESIRE, READOUT, FOLLOW_UP);
+    type state_t is (IDLE, CONFIGURE, CONFIGURE_END, CLEAR, DETECT, ACQUIRE, ANALYZE, DESIRE, READOUT, READLAG, FOLLOW);
 
     type reg_t is record
-        state          : state_t;
-        timer          : integer range 0 to 100;
-        readdata       : std_logic_vector(31 downto 0);
-        writedata      : std_logic_vector(31 downto 0);
-        configure      : std_logic_vector(40 downto 0);
-        bitindex       : integer range 0 to 40;
-        acquire_time   : unsigned(31 downto 0);
-        channel_mask   : std_ulogic_vector(35 downto 0);
-        fast_chain     : std_ulogic_vector(35 downto 0);
-        slow_chain     : std_ulogic_vector(35 downto 0);
-        token_count    : unsigned(7 downto 0);
-        sample_valid   : std_ulogic_vector(3 downto 0);
-        sample_address : unsigned(7 downto 0);
-        rena           : rena3_controller_out_t;
-        rena_in        : rena3_controller_in_t;
-        clk_adc        : std_ulogic;
-        clk_adc_old    : std_ulogic;
-        sample_mem     : sample_buffer_mem_out_type;
+        state              : state_t;
+        timer              : integer range 0 to 100;
+        readdata           : std_logic_vector(31 downto 0);
+        writedata          : std_logic_vector(31 downto 0);
+        configure          : std_logic_vector(40 downto 0);
+        bitindex           : integer range 0 to 40;
+        acquire_time       : unsigned(31 downto 0);
+        channel_mask       : std_ulogic_vector(35 downto 0);
+        fast_chain         : std_ulogic_vector(35 downto 0);
+        slow_chain         : std_ulogic_vector(35 downto 0);
+        fast_trigger_chain : std_ulogic_vector(35 downto 0);
+        slow_trigger_chain : std_ulogic_vector(35 downto 0);
+        token_count        : unsigned(7 downto 0);
+        sample_valid       : std_ulogic_vector(3 downto 0);
+        sample_address     : unsigned(7 downto 0);
+        rena               : rena3_controller_out_t;
+        rena_in            : rena3_controller_in_t;
+        clk_adc            : std_ulogic;
+        clk_adc_old        : std_ulogic;
+        sample_mem         : sample_buffer_mem_out_type;
     end record reg_t;
     constant default_reg_c : reg_t := (
-        state          => IDLE,
-        timer          => 0,
-        readdata       => (others => '0'),
-        writedata      => (others => '0'),
-        configure      => (others => '0'),
-        bitindex       => 0,
-        acquire_time   => (others => '0'),
-        channel_mask   => (others => '1'),
-        fast_chain     => (others => '0'),
-        slow_chain     => (others => '0'),
-        token_count    => (others => '0'),
-        sample_valid   => (others => '0'),
-        sample_address => (others => '0'),
-        rena           => default_rena3_controller_out_c,
-        rena_in        => default_rena3_controller_in_c,
-        clk_adc        => '0',
-        clk_adc_old    => '0',
-        sample_mem     => default_sample_buffer_mem_out_c
+        state              => IDLE,
+        timer              => 0,
+        readdata           => (others => '0'),
+        writedata          => (others => '0'),
+        configure          => (others => '0'),
+        bitindex           => 0,
+        acquire_time       => (others => '0'),
+        channel_mask       => (others => '1'),
+        fast_chain         => (others => '0'),
+        slow_chain         => (others => '0'),
+        fast_trigger_chain => (others => '0'),
+        slow_trigger_chain => (others => '0'),
+        token_count        => (others => '0'),
+        sample_valid       => (others => '0'),
+        sample_address     => (others => '0'),
+        rena               => default_rena3_controller_out_c,
+        rena_in            => default_rena3_controller_in_c,
+        clk_adc            => '0',
+        clk_adc_old        => '0',
+        sample_mem         => default_sample_buffer_mem_out_c
     );
 
     signal r, r_in: reg_t := default_reg_c;
@@ -124,103 +130,130 @@ begin
         -- read registers
         v.readdata  := (others => '0');
 
-        case apbi.paddr(4 downto 2) is
+        case apbi.paddr(5 downto 2) is
 
             -- state
-            when "000"  => 
+            when "0000"  => 
                 case v.state is
-                    when IDLE        => v.readdata := x"00000000";
-                    when CONFIGURE   => v.readdata := x"00000001";
-                    when CLEAR       => v.readdata := x"00000002";
-                    when DETECT      => v.readdata := x"00000003";
-                    when ACQUIRE     => v.readdata := x"00000004";
-                    when ANALYZE     => v.readdata := x"00000005";
-                    when DESIRE      => v.readdata := x"00000006";
-                    when READOUT     => v.readdata := x"00000007";
-                    when FOLLOW_UP   => v.readdata := x"00000007";
+                    when IDLE          => v.readdata := x"00000000";
+                    when CONFIGURE     => v.readdata := x"00000001";
+                    when CONFIGURE_END => v.readdata := x"00000001";
+                    when CLEAR         => v.readdata := x"00000002";
+                    when DETECT        => v.readdata := x"00000003";
+                    when ACQUIRE       => v.readdata := x"00000004";
+                    when ANALYZE       => v.readdata := x"00000005";
+                    when DESIRE        => v.readdata := x"00000006";
+                    when READOUT       => v.readdata := x"00000007";
+                    when READLAG       => v.readdata := x"00000008";
+                    when FOLLOW        => v.readdata := x"00000009";
                 end case;
 
 
-            when "001"  =>
+            when "0001"  =>
                 v.readdata(0)  := v.rena_in.overflow;
                 v.readdata(1)  := v.rena_in.ts;
                 v.readdata(2)  := v.rena_in.tf;
 
-            when "010"  =>
+            when "0010"  =>
                 v.readdata                       := v.configure(31 downto 0);
                 
-            when "011" =>
+            when "0011" =>
                 v.readdata(8 downto 0)           := v.configure(8 downto 0);
 
             -- acquire time
-            when "100" =>
+            when "0100" =>
                 v.readdata(v.acquire_time'range) := std_logic_vector( v.acquire_time);
                 
             -- lower channel mask
-            when "101" =>
+            when "0101" =>
                 v.readdata(17 downto 0)          := std_logic_vector( v.channel_mask(17 downto 0));
 
             -- higher channel mask
-            when "110" =>
+            when "0110" =>
                 v.readdata(17 downto 0)          := std_logic_vector( v.channel_mask(35 downto 18));
                 
             -- number of sampled tokens
-            when "111" =>
+            when "0111" =>
                 v.readdata( v.token_count'range) := std_logic_vector( v.token_count);
-            when others => null;
+
+            -- fast_trigger_chain_high; // 0x20
+            when "1000" =>
+                v.readdata(17 downto 0)          := std_logic_vector( v.fast_trigger_chain(35 downto 18));
+
+            -- fast_trigger_chain_low;  // 0x24
+            when "1001" =>
+                v.readdata(17 downto 0)          := std_logic_vector( v.fast_trigger_chain(17 downto 0));
+
+            -- slow_trigger_chain_high; // 0x28
+            when "1010" =>
+                v.readdata(17 downto 0)          := std_logic_vector( v.slow_trigger_chain(35 downto 18));
+
+            -- slow_trigger_chain_low;  // 0x2C
+            when "1011" =>
+                v.readdata(17 downto 0)          := std_logic_vector( v.slow_trigger_chain(17 downto 0));
+
+            when others => 
+                null;
+
         end case;
 
 
         -- write registers
         v.writedata := apbi.pwdata;
         if (apbi.psel(pindex) and apbi.penable and apbi.pwrite) = '1' then
-            case apbi.paddr(4 downto 2) is
+            case apbi.paddr(5 downto 2) is
 
                 -- state
-                when "000"  => 
+                when "0000"  => 
                     case to_integer( unsigned(v.writedata)) is
-                        when 0      =>
+                        when 0 =>
                             v.state              := IDLE;
-                        when 2      =>
+                        when 2 =>
                             v.rena.clf           := '1';
                             v.rena.cls           := '1'; 
                             v.rena.acquire       := '1';
                             v.timer              := 2;     -- 20 ns
                             v.state              := CLEAR;
 
+                        when 9 =>
+                            v.rena.acquire       := '1';
+                            v.rena.cls           := '1';
+                            v.rena.read          := '1';
+                            v.state              := FOLLOW;
+
                         when others =>
                             null;
                     end case;
 
-                when "001"  => 
+                when "0001"  => 
                     null;
 
                 -- configure low word
-                when "010"  => 
+                when "0010"  => 
                     v.configure(31 downto  0)    := v.writedata;
 
                 -- configure high bits, start rena configure
-                when "011" =>
+                when "0011" =>
                     v.configure(40 downto 32)    := v.writedata(8 downto 0);
                     v.bitindex                   := 40;
-                    v.rena.cs_n                  := '0';
-                    v.timer                      := 2;
+                    v.rena.cin                   := v.configure( v.bitindex);
+--                  v.timer                      := 2;
                     v.state                      := CONFIGURE;
 
                 -- acquire time
-                when "100" =>
+                when "0100" =>
                     v.acquire_time               := unsigned( v.writedata( v.acquire_time'range));
 
                 -- lower channel mask
-                when "101" =>
+                when "0101" =>
                     v.channel_mask(17 downto 0)  := std_ulogic_vector( v.writedata(17 downto 0));
 
                 -- higher channel mask
-                when "110" =>
+                when "0110" =>
                     v.channel_mask(35 downto 18) := std_ulogic_vector( v.writedata(17 downto 0));
             
                 -- number of sampled tokens
-                when "111" =>
+                when "0111" =>
                     null;
 
                 when others => null;
@@ -234,24 +267,33 @@ begin
             case v.state is
 
                 when IDLE =>
-                    v.rena.cs_n             := '1';
+                    v.rena.cs_n             := '0';
+                    v.rena.cshift           := '0';
+                    v.rena.acquire          := '0';
+                    v.rena.read             := '0';
                     v.rena.cls              := '0'; 
+                    v.rena.clf              := '0'; 
 
                 when CONFIGURE =>
-                        v.rena.cin := v.configure( v.bitindex);
 
                         if v.rena.cshift = '1' then
                             v.rena.cshift   := '0';
-
-                        else
-                            v.rena.cshift   := '1';
                             if v.bitindex > 0 then
                                 v.bitindex  := v.bitindex - 1;
                             else
                                 v.timer     := 1;
-                                v.state     := IDLE;
+                                v.state     := CONFIGURE_END;
                             end if;
+                            v.rena.cin      := v.configure( v.bitindex);
+
+                        else
+                            v.rena.cshift   := '1';
                         end if;
+
+                when CONFIGURE_END =>
+                    v.rena.cs_n         := '1';
+                    v.timer             := 1;
+                    v.state             := IDLE;
 
                 when CLEAR =>
                     v.rena.clf              := '0'; 
@@ -289,10 +331,12 @@ begin
                         if v.bitindex > 0 then
                             v.bitindex      := v.bitindex - 1;
                         else
-                            v.state         := DESIRE;
-                            v.bitindex      := 35;
-                            v.fast_chain    := v.fast_chain and v.channel_mask;
-                            v.slow_chain    := v.slow_chain and v.channel_mask;
+                            v.state              := DESIRE;
+                            v.bitindex           := 35;
+                            v.fast_trigger_chain := v.fast_chain;
+                            v.slow_trigger_chain := v.slow_chain;
+                            v.fast_chain         := v.fast_chain and v.channel_mask;
+                            v.slow_chain         := v.slow_chain and v.channel_mask;
                         end if;
                     end if;
 
@@ -329,7 +373,7 @@ begin
                         v.rena.tclk         := '0';
                         v.rena.tin          := '0';
                         v.rena.read         := '0';
-                        v.state             := FOLLOW_UP;
+                        v.state             := READLAG;
                     else
                         if v.clk_adc = '0' then
                             v.rena.tclk     := '0';
@@ -344,7 +388,7 @@ begin
                         end if;
                     end if;
 
-                when FOLLOW_UP =>
+                when READLAG =>
                     if or_reduce( v.sample_valid( v.sample_valid'high-1 downto 0)) = '0' then
                         v.rena.cls          := '1'; 
                         v.timer             := 1;
@@ -359,6 +403,10 @@ begin
                             v.sample_valid  := v.sample_valid( v.sample_valid'high-1 downto 0) & '0';
                         end if;
                     end if;
+
+
+                when FOLLOW =>
+                    v.rena.cls              := '0';
 
             end case;
         else
@@ -389,6 +437,22 @@ begin
         apbo.pirq      <= (others => '0');
         apbo.pindex    <= pindex;
         apbo.pconfig   <= pconfig;
+
+        -- debug
+        case v.state is
+            when IDLE          => rena_debug.state <= x"0";
+            when CONFIGURE     => rena_debug.state <= x"1";
+            when CONFIGURE_END => rena_debug.state <= x"1";
+            when CLEAR         => rena_debug.state <= x"2";
+            when DETECT        => rena_debug.state <= x"3";
+            when ACQUIRE       => rena_debug.state <= x"4";
+            when ANALYZE       => rena_debug.state <= x"5";
+            when DESIRE        => rena_debug.state <= x"6";
+            when READOUT       => rena_debug.state <= x"7";
+            when READLAG       => rena_debug.state <= x"8";
+            when FOLLOW        => rena_debug.state <= x"9";
+        end case;
+
 
     end process;
 
