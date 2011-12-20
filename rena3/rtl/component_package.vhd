@@ -45,7 +45,9 @@ package component_package is
             adc_data    : in  std_ulogic_vector(13 downto 0);
             adc_otr     : in  std_ulogic;
             --
-            sample_mem  : out sample_buffer_mem_out_type
+            sample_mem  : out sample_buffer_mem_out_type;
+            --
+            rena_debug  : out rena_debug_t
         );
     end component rena3_controller_apb;
 
@@ -84,6 +86,7 @@ package component_package is
             rena3_0_out               : out   rena3_controller_out_t;
             rena3_1_in                : in    rena3_controller_in_t;
             rena3_1_out               : out   rena3_controller_out_t;
+            rena_debug                : out   rena_debug_t;
             --
             ad9854_out                : out   ad9854_out_t;
             ad9854_in                 : in    ad9854_in_t;
@@ -367,6 +370,15 @@ package component_package is
             user_sma_gpio_n          : inout std_logic
         );
     end component top;
+
+
+    component chipscope is
+        port (
+            clk  : in std_ulogic;
+            data : in std_ulogic_vector(31 downto 0);
+            trig : in std_ulogic
+        );
+    end component chipscope;
 
 
 end package component_package;

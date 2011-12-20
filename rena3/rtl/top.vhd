@@ -26,14 +26,15 @@ use unisim.vcomponents.obufds;
 use unisim.vcomponents.oddr2;
 
 library gaisler;
-use gaisler.misc.all; -- types
-use gaisler.uart.all; -- types
-use gaisler.net.all;  -- types
+use gaisler.misc.all;    -- types
+use gaisler.uart.all;    -- types
+use gaisler.net.all;     -- types
 use gaisler.memctrl.all; -- spimctrl types
 
 library work;
 use work.types_package.all;
 use work.component_package.box;
+use work.component_package.chipscope;
 
 
 entity top is
@@ -382,6 +383,10 @@ architecture rtl of top is
     signal rena3_controller_i0_out            : rena3_controller_out_t;
     signal rena3_controller_i1_in             : rena3_controller_in_t;
     signal rena3_controller_i1_out            : rena3_controller_out_t;
+    signal rena_debug                         : rena_debug_t;
+    --
+    signal chipscope_data                     : std_ulogic_vector(31 downto 0) := (others => '0');
+    signal chipscope_trigger                  : std_ulogic;
 
 
 begin
@@ -741,6 +746,7 @@ begin
             rena3_0_out  => rena3_controller_i0_out,                       --: out   rena3_controller_out_t;
             rena3_1_in   => rena3_controller_i1_in,                        --: in    rena3_controller_in_t;
             rena3_1_out  => rena3_controller_i1_out,                       --: out   rena3_controller_out_t;
+            rena_debug   => rena_debug,                                    --: out   rena_debug_t
             --
             ad9854_out   => ad9854_out,                                    --: out   ad9854_out_t := default_ad9854_out_c;
             ad9854_in    => ad9854_in,                                     --: in    ad9854_in_t;
@@ -841,7 +847,7 @@ begin
 
     ------------------------------------------------------------ 
     -- testgen pads
-    fmc_la27_n    <= testgen;
+    fmc_la27_n           <= testgen;
 
 
     ------------------------------------------------------------ 
@@ -970,5 +976,39 @@ begin
     fmc_la33_p <= '0';
     fmc_la33_n <= '0';
 
+    
+    ------------------------------------------------------------ 
+    -- chipscope for debugging
+    chipscope_data( 0)           <= testgen;
+    chipscope_data( 1)           <= rena3_controller_i0_out.cs_n;
+    chipscope_data( 2)           <= rena3_controller_i0_out.cshift;
+    chipscope_data( 3)           <= rena3_controller_i0_out.cin;
+    chipscope_data( 4)           <= rena3_controller_i0_in.ts;
+    chipscope_data( 5)           <= rena3_controller_i0_out.acquire;
+    chipscope_data( 6)           <= rena3_controller_i0_out.cls;
+    chipscope_data( 7)           <= rena3_controller_i0_out.clf;
+    chipscope_data( 8)           <= rena3_controller_i0_out.read;
+    chipscope_data( 9)           <= rena3_controller_i0_in.sout;
+    chipscope_data(10)           <= rena3_controller_i0_out.sin;
+    chipscope_data(11)           <= rena3_controller_i0_out.shrclk;
+    chipscope_data(12)           <= rena3_controller_i0_in.fout;
+    chipscope_data(13)           <= rena3_controller_i0_out.fin;
+    chipscope_data(14)           <= rena3_controller_i0_out.fhrclk;
+    chipscope_data(15)           <= rena3_controller_i0_in.overflow;
+    chipscope_data(16)           <= rena3_controller_i0_in.tf;
+    chipscope_data(17)           <= rena3_controller_i0_in.tout;
+    chipscope_data(18)           <= rena3_controller_i0_out.tclk;
+    chipscope_data(19)           <= rena3_controller_i0_out.tin;
+    --
+    chipscope_data(23 downto 20) <= rena_debug.state;
+    --
+    chipscope_trigger            <= rena3_controller_i0_out.cs_n xor testgen xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
+    --
+    chipscope_i0 : chipscope
+        port map (
+            clk  => clk_box,                   --: in std_ulogic;
+            data => chipscope_data,            --: in std_ulogic_vector(15 downto 0);
+            trig => chipscope_trigger          --: in std_ulogic
+            );
 
 end architecture rtl;
