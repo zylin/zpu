@@ -75,6 +75,7 @@ uint32_t run_light_function( void);
 
 uint32_t banner_help_function( void);
 
+uint32_t rena_trouble( void);
 uint32_t ddsinit_function( void);
 uint32_t testgen( void);
 
@@ -129,11 +130,25 @@ void uart_monitor( void)
     #ifdef SYSINFO_ON
     monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function);
     #endif
+    
     monitor_add_command("control", "rena controller status",                rena_controller_status);
     monitor_add_command("status",  "rena status",                           rena_status);
+    
     monitor_add_command("config",  "<channel> <high> <low_config>",         rena_channel_config_function);
+    monitor_add_command("demo",    "do complete demo config for RENA",      rena_demo_config_function);
+    monitor_add_command("pdown",   "set REAN to power down",                rena_powerdown_config_function);
+    monitor_add_command("follow",  "set rena channel 0 to follower mode",   rena_follow_mode_function);
+
+    monitor_add_command("acquire", "<time> activate RENA",                  rena_acquire_function);
+    monitor_add_command("stop",    "set RENA controller to IDLE",           rena_stop_function);
+    monitor_add_command("chains",  "print trigger chains",                  rena_chains_function);
+    monitor_add_command("token",   "print sampled RENA tokens",             rena_read_token);
+    
+    monitor_add_command("trouble", "troublesearch RENA",                    rena_trouble);
+
     monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
     monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
+
     #ifdef DEBUG_ON                                                              
     monitor_add_command("run",     "running light",                         run_light_function);
     monitor_add_command("i2c",     "check I2C address",                     i2c_check_function);
@@ -343,9 +358,50 @@ uint32_t ddsinit_function( void)
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
+uint32_t rena_trouble( void)
+{
+    uint8_t  config_high;
+    uint32_t config_low;
+    uint32_t value;
+
+
+    config_high = 2; 
+//        RENA_ECAL;
+
+/*
+    config_low = 
+        RENA_FETSEL_SIMPLE      |
+        (GAIN     << RENA_GAIN) |
+        (SEL      << RENA_SEL)  |
+        RENA_SIEZA_1000         |
+        (DAC_FAST << RENA_DF)   | 
+        RENA_POLPOS             |
+        (DAC_SLOW << RENA_DS)   | 
+//      RENA_ENF                | 
+//      RENA_ENS                |
+        RENA_FM;
+*/
+
+    for (value = 0; value < 4294967295; value ++)
+    {
+        rena_channel_config( 0, config_high, value);
+        rena->control_status = 9;
+        testgen();
+    }
+
+    return( 0);
+}
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
 uint32_t testgen( void)
 {
+    uint32_t time;
+
+    time = monitor_get_argument_int(1);
+    
     set_bit( gpio0->ioout, TESTGEN_PIN);
+    usleep( time);
     clear_bit( gpio0->ioout, TESTGEN_PIN);
 }
 
@@ -402,8 +458,8 @@ int main(void)
     // code which executes in simulation is started here:
     
     // configure rena
-    rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
-    rena_channel_config(1, 0x2, RENA_ENF);
+//  rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
+    rena_channel_config(1, RENA_ECAL, RENA_ENS);
 
     while (rena->control_status != 0) {};
 
