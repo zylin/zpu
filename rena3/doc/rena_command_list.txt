@@ -1,0 +1,67 @@
+command:        control 
+description:    rena controller status
+parameter:      none
+result:         string (idle, configure, detect, aquire, analyze, desire, readout, UNKNOWN)
+
+
+command:        status
+description:    rena status
+parameter:      none
+result:         
+<pre>
+fast trigger : 0
+slow trigger : 0
+overflow     : 0
+</pre>
+
+
+command:        config
+description:    channel configuration
+parameter:      <channel> <high_config> <low_config>
+                channel     --> channel number
+                high_config --> config bits 34..32
+                low_config  --> config bits 31..0
+result:         none
+
+
+command:        demo
+description:    do complete demo config for RENA
+parameter:      none
+result:         none
+
+
+command:        acquire
+description:    activate RENA
+parameter:      time (optional) additional acquire time after first trigger in 10 ns steps
+result:         none
+
+
+command:        stop
+description:    set RENA controller to IDLE
+parameter:      none
+result:         none
+
+
+command:        chains
+description:    print trigger chains
+parameter:      none
+result:
+<pre>
+fast trigger chain: 0x0000000000000000
+slow trigger chain: 0x0000000000000000
+</pre>
+
+
+command:        token
+description:    print sampled RENA tokens
+parameter:      none
+result:
+<pre>
+tokens: 0
+</pre>
+
+
+command:        ddsinit
+description:    initalize DDS chip 
+parameter:      frequency tuning word (optional)
+result:         none
