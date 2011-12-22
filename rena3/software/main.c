@@ -1,8 +1,8 @@
 /*
  * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/main.c $
- * $Date: 2011-09-06 15:48:10 +0200 (Di, 06. Sep 2011) $
- * $Author: lange $
- * $Revision: 1243 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 //#include <stdio.h>
@@ -77,7 +77,8 @@ uint32_t banner_help_function( void);
 
 uint32_t rena_trouble( void);
 uint32_t ddsinit_function( void);
-uint32_t testgen( void);
+uint32_t testgen( uint32_t time);
+uint32_t testgen_function( void);
 
 
 ////////////////////////////////////////
@@ -136,7 +137,7 @@ void uart_monitor( void)
     
     monitor_add_command("config",  "<channel> <high> <low_config>",         rena_channel_config_function);
     monitor_add_command("demo",    "do complete demo config for RENA",      rena_demo_config_function);
-    monitor_add_command("pdown",   "set REAN to power down",                rena_powerdown_config_function);
+    monitor_add_command("poff",    "set RENA to power down mode",           rena_powerdown_config_function);
     monitor_add_command("follow",  "set rena channel 0 to follower mode",   rena_follow_mode_function);
 
     monitor_add_command("acquire", "<time> activate RENA",                  rena_acquire_function);
@@ -155,7 +156,7 @@ void uart_monitor( void)
     monitor_add_command("eeprom",  "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
 
     monitor_add_command("adc",     "read adc value",                        adc_read);
-    monitor_add_command("testgen", "generate test impulse",                 testgen);
+    monitor_add_command("testgen", "generate test impulse",                 testgen_function);
     monitor_add_command("mem",     "alias for x",                           x_function);
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
@@ -362,31 +363,36 @@ uint32_t rena_trouble( void)
 {
     uint8_t  config_high;
     uint32_t config_low;
-    uint32_t value;
+    uint8_t  index;
 
+    uint32_t time;
 
-    config_high = 2; 
-//        RENA_ECAL;
+    time = monitor_get_argument_int(1);
+   
+    index = 0;
 
-/*
+    config_high = 2; // = RENA_ECAL;
+  
     config_low = 
-        RENA_FETSEL_SIMPLE      |
-        (GAIN     << RENA_GAIN) |
-        (SEL      << RENA_SEL)  |
-        RENA_SIEZA_1000         |
-        (DAC_FAST << RENA_DF)   | 
-        RENA_POLPOS             |
-        (DAC_SLOW << RENA_DS)   | 
+//      RENA_FETSEL_SIMPLE      |
+//      (GAIN     << RENA_GAIN) |
+//      (SEL      << RENA_SEL)  |
+//      RENA_SIEZA_1000         |
+//      (DAC_FAST << RENA_DF)   | 
+//      RENA_POLPOS             |
+//      (DAC_SLOW << RENA_DS)   | 
 //      RENA_ENF                | 
 //      RENA_ENS                |
         RENA_FM;
-*/
-
-    for (value = 0; value < 4294967295; value ++)
+  
+    while (1)
     {
-        rena_channel_config( 0, config_high, value);
-        rena->control_status = 9;
-        testgen();
+//      for (index = 0; index < 35; index++)
+        {
+            rena_channel_config( index, config_high, config_low);
+            rena->control_status = 9;
+            testgen( time);
+        }
     }
 
     return( 0);
@@ -394,15 +400,21 @@ uint32_t rena_trouble( void)
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-uint32_t testgen( void)
+uint32_t testgen( uint32_t time)
+{
+    set_bit( gpio0->ioout, TESTGEN_PIN);
+    usleep( time);
+    clear_bit( gpio0->ioout, TESTGEN_PIN);
+}
+
+
+uint32_t testgen_function( void)
 {
     uint32_t time;
 
     time = monitor_get_argument_int(1);
-    
-    set_bit( gpio0->ioout, TESTGEN_PIN);
-    usleep( time);
-    clear_bit( gpio0->ioout, TESTGEN_PIN);
+   
+    testgen( time);
 }
 
 ////////////////////////////////////////////////////////////
@@ -456,7 +468,7 @@ int main(void)
     }
 
     // code which executes in simulation is started here:
-    
+/*    
     // configure rena
 //  rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
     rena_channel_config(1, RENA_ECAL, RENA_ENS);
@@ -471,7 +483,7 @@ int main(void)
 
     // generate some test pulse
     usleep( 50);
-    testgen();
+    testgen( 0);
 
     // wait till idle
     while (rena->control_status != 0) {};
@@ -479,7 +491,12 @@ int main(void)
     putstr("tokens: ");
     putint( rena->token_count);
     putchar('\n');
-
+*/
+  
+    rena_channel_config( 0, 2, 1);
+    rena->control_status = 9;
+    testgen( 0);
+    rena->control_status = 0;
 
     // test of scheduler
 //  scheduler_task_add( end_simulation_task, 3);

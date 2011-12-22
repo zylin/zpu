@@ -1,9 +1,9 @@
 
 /*
  * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601/rtl/teilerregister.vhd $
- * $Date: 2010-10-29 15:57:42 +0200 (Fr, 29 Okt 2010) $
- * $Author: lange $
- * $Revision: 659 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #include "rena.h"
@@ -64,6 +64,7 @@ uint32_t rena_status( void)
 */
 uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_config)
 {
+    rena->control_status = 0;
 
     // Attention: order is important
     rena->config_low  = low_config;
@@ -140,7 +141,7 @@ uint32_t rena_acquire_function( void)
 
     time = monitor_get_argument_int(1);
     
-    while (rena->control_status != 0) {};
+    //while (rena->control_status != 0) {};
     
     rena->acquire_time = time;
 
@@ -234,15 +235,15 @@ uint32_t rena_follow_mode_function( void)
         RENA_ECAL;
 
     config_low = 
-        RENA_FETSEL_SIMPLE      |
-        (GAIN     << RENA_GAIN) |
-        (SEL      << RENA_SEL)  |
-        RENA_SIEZA_1000         |
-        (DAC_FAST << RENA_DF)   | 
-        RENA_POLPOS             |
-        (DAC_SLOW << RENA_DS)   | 
-        RENA_ENF                | 
-        RENA_ENS                |
+//      RENA_FETSEL_SIMPLE      |
+//      (GAIN     << RENA_GAIN) |
+//      (SEL      << RENA_SEL)  |
+//      RENA_SIEZA_1000         |
+//      (DAC_FAST << RENA_DF)   | 
+//      RENA_POLPOS             |
+//      (DAC_SLOW << RENA_DS)   | 
+//      RENA_ENF                | 
+//      RENA_ENS                |
         RENA_FM;
         
     rena_channel_config( channel, config_high, config_low);
