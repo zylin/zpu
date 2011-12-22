@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/include/timer.h $
- * $Date: 2011-07-01 09:43:55 +0200 (Fr, 01. Jul 2011) $
- * $Author: lange $
- * $Revision: 1103 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #include "peripherie.h"

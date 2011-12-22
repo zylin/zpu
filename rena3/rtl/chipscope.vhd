@@ -1,8 +1,7 @@
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/rtl/chipscope.vhd $
--- $Date: 2011-08-25 13:46:48 +0200 (Do, 25. Aug 2011) $
--- $Author: lange $
--- $Revision: 1210 $
+-- $Date$
+-- $Author$
+-- $Revision$
 --------------------------------------------------------------------------------
 
 library ieee;

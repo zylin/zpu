@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/ambainfo.h $
- * $Date: 2011-05-25 15:27:07 +0200 (Mi, 25 Mai 2011) $
- * $Author: lange $
- * $Revision: 1036 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #ifndef AMBAINFO_H

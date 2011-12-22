@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/i2c.c $
- * $Date: 2011-06-24 13:22:23 +0200 (Fr, 24. Jun 2011) $
- * $Author: lange $
- * $Revision: 1084 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #include "i2c.h"

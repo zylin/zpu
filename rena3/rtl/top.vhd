@@ -6,10 +6,9 @@
 --
 
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/rtl/top.vhd $
--- $Date: 2011-09-09 14:11:20 +0200 (Fr, 09. Sep 2011) $
--- $Author: lange $
--- $Revision: 1246 $
+-- $Date$
+-- $Author$
+-- $Revision$
 --------------------------------------------------------------------------------
 
 

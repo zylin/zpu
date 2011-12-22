@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/main.c $
- * $Date: 2011-09-06 15:48:10 +0200 (Di, 06. Sep 2011) $
- * $Author: lange $
- * $Revision: 1243 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 //#include <stdio.h>

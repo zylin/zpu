@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/schedule.h $
- * $Date: 2011-07-08 15:50:26 +0200 (Fr, 08. Jul 2011) $
- * $Author: lange $
- * $Revision: 1120 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #ifndef SCHEDULE_H

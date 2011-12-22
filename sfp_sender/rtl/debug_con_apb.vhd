@@ -4,10 +4,9 @@
 -- HW synthesis date support                (rev 2)
 --
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601_amba/rtl/debug_con_apb.vhd $
--- $Date: 2011-08-09 14:34:53 +0200 (Di, 09. Aug 2011) $
--- $Author: lange $
--- $Revision: 1184 $
+-- $Date$
+-- $Author$
+-- $Revision$
 --------------------------------------------------------------------------------
 
 

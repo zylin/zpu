@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/i2c_functions.c $
- * $Date: 2011-08-29 16:53:19 +0200 (Mo, 29. Aug 2011) $
- * $Author: lange $
- * $Revision: 1228 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #include <types.h>

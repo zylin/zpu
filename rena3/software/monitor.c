@@ -1,8 +1,7 @@
 /*
- * $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/monitor.c $
- * $Date: 2011-09-06 14:27:41 +0200 (Di, 06. Sep 2011) $
- * $Author: lange $
- * $Revision: 1242 $
+ * $Date$
+ * $Author$
+ * $Revision$
  */
 
 #include "monitor.h"
