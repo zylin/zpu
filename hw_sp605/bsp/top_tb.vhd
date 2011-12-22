@@ -34,10 +34,9 @@
 --  +-------------------------------------------------------------------------+
 
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/rtl_tb/top_tb.vhd $
--- $Date: 2011-09-07 15:09:11 +0200 (Mi, 07. Sep 2011) $
--- $Author: lange $
--- $Revision: 1244 $
+-- $Date$
+-- $Author$
+-- $Revision$
 --------------------------------------------------------------------------------
 
 entity top_tb is
