@@ -18,6 +18,7 @@
 #include "ad9854_functions.h"   // ad9854_init
 #include "adc.h"                // adc_read
 #include "rena.h"               // rena_t, rena_channel_config
+#include "fwf_roe_cmd.h"        // interface command definitions
 
 //#define BOARD_SP605  TODO
 #define DEBUG_ON
@@ -74,6 +75,7 @@ uint32_t run_light_function( void);
 
 uint32_t banner_help_function( void);
 
+uint32_t version_function( void);
 uint32_t rena_trouble( void);
 uint32_t ddsinit_function( void);
 uint32_t testgen( uint32_t time);
@@ -131,23 +133,24 @@ void uart_monitor( void)
     monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function);
     #endif
     
-    monitor_add_command("control", "rena controller status",                rena_controller_status);
-    monitor_add_command("status",  "rena status",                           rena_status);
+    monitor_add_command(FWF_ROE_CMD_VERSION, "report version",                        version_function);
+    monitor_add_command(FWF_ROE_CMD_CONTROL, "rena controller status",                rena_controller_status);
+    monitor_add_command(FWF_ROE_CMD_STATUS,  "rena status",                           rena_status);
     
-    monitor_add_command("config",  "<channel> <high> <low_config>",         rena_channel_config_function);
-    monitor_add_command("demo",    "do complete demo config for RENA",      rena_demo_config_function);
-    monitor_add_command("poff",    "set RENA to power down mode",           rena_powerdown_config_function);
-    monitor_add_command("follow",  "set rena channel 0 to follower mode",   rena_follow_mode_function);
+    monitor_add_command(FWF_ROE_CMD_CONFIG,  "<channel> <high> <low_config>",         rena_channel_config_function);
+    monitor_add_command(FWF_ROE_CMD_DEMO,    "do complete demo config for RENA",      rena_demo_config_function);
+    monitor_add_command("poff",              "set RENA to power down mode",           rena_powerdown_config_function);
+    monitor_add_command("follow",            "set rena channel 0 to follower mode",   rena_follow_mode_function);
 
-    monitor_add_command("acquire", "<time> activate RENA",                  rena_acquire_function);
-    monitor_add_command("stop",    "set RENA controller to IDLE",           rena_stop_function);
-    monitor_add_command("chains",  "print trigger chains",                  rena_chains_function);
-    monitor_add_command("token",   "print sampled RENA tokens",             rena_read_token);
+    monitor_add_command(FWF_ROE_CMD_ACQUIRE, "<time> activate RENA",                  rena_acquire_function);
+    monitor_add_command(FWF_ROE_CMD_STOP,    "set RENA controller to IDLE",           rena_stop_function);
+    monitor_add_command(FWF_ROE_CMD_CHAINS,  "print trigger chains",                  rena_chains_function);
+    monitor_add_command(FWF_ROE_CMD_TOKEN,   "print sampled RENA tokens",             rena_read_token);
     
-    monitor_add_command("trouble", "troublesearch RENA",                    rena_trouble);
+    monitor_add_command("trouble",           "troublesearch RENA",                    rena_trouble);
 
-    monitor_add_command("ddsinit", "initalize DDS chip <freq tuning word>", ddsinit_function);
-    monitor_add_command("ddsinfo", "read dds registers",                    ad9854_info);
+    monitor_add_command(FWF_ROE_CMD_DDSINIT, "initalize DDS chip <freq tuning word>", ddsinit_function);
+    monitor_add_command("ddsinfo",           "read dds registers",                    ad9854_info);
 
     #ifdef DEBUG_ON                                                              
     monitor_add_command("run",     "running light",                         run_light_function);
@@ -330,6 +333,16 @@ void _zpu_interrupt( void)
     }
     return;
 }
+
+////////////////////////////////////////////////////////////
+uint32_t version_function( void)
+{
+    putstr( FWF_ROE_ZPU_SW_VERSION);
+    putchar('\n');
+    return 0;
+}
+////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
