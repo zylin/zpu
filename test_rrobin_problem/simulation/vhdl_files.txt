@@ -1,4 +1,3 @@
-test_rrobin     ../rtl/freqctr.vhd
 test_rrobin     ../rtl/led_control_ahb.vhd         
 test_rrobin     ../rtl/box.vhd         
 test_rrobin     ../rtl/top.vhd

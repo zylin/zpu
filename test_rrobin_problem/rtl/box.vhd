@@ -164,7 +164,7 @@ begin
     apbo( 2) <= (apb_none); -- gptimer_i0
     apbo( 3) <= (apb_none);
     --apbo( 4) <= (apb_none); -- grgpio_i0
-    --apbo( 5) <= (apb_none);
+    apbo( 5) <= (apb_none);
     apbo( 6) <= (apb_none);   -- no apbvga_i0
     apbo( 7) <= (apb_none);   -- no i2cmst_i0
     apbo( 8) <= (apb_none);
@@ -223,7 +223,6 @@ begin
         generic map (
             pindex  => 4, 
             paddr   => 4, 
---          imask   => 16#00000FF0#, -- interrupt mask (+ enable per software)
             syncrst => 1,            -- only synchronous reset
             nbits   => 32            -- number of port bits
         )
@@ -244,22 +243,5 @@ begin
     -- 30 - 16  unused
     -- 31       unused                            simulation_active
     ---------------------------------------------------------------------
-
-
-    freqctr_i0: entity work.freqctr
-        generic map (
-             pindex => 5,                    -- : integer               := 0;
-             paddr  => 5                     -- : integer               := 0;
---           pmask  =>                       -- : integer               := 16#fff#;
---           nbits  =>                       -- : integer range 1 to 32 := 16
-        )                                    
-        port map (                           
-             rst    => box_reset_n,          -- : in  std_ulogic;
-             clk    => clk,                  -- : in  std_ulogic;
-             apbi   => apbctrl_i0_apbi,      -- : in  apb_slv_in_type;
-             apbo   => apbo(5),              -- : out apb_slv_out_type;
-             tick   => '0',                  -- : in  std_logic;
-             sig    => '0'                   -- : in  std_logic
-        );
 
 end architecture rtl;
