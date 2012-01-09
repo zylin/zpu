@@ -1,3 +1,8 @@
+--------------------------------------------------------------------------------
+-- $Date$
+-- $Author$
+-- $Revision$
+--------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -6,10 +11,6 @@ library grlib;
 use grlib.amba.all;
 use grlib.stdlib.all;
 use grlib.devices.all;
-
---pragma translate_off
---use std.textio.all;
---pragma translate_on
 
 
 entity led_control_ahb is
@@ -26,6 +27,7 @@ entity led_control_ahb is
         ahbo      : out ahb_mst_out_type
     );
 end entity led_control_ahb;
+
 
 architecture rtl of led_control_ahb is
     

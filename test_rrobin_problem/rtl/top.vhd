@@ -6,7 +6,6 @@
 --
 
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601_amba/rtl/top.vhd $
 -- $Date$
 -- $Author$
 -- $Revision$

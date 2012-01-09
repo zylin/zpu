@@ -1,5 +1,4 @@
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601_amba/rtl/box.vhd $
 -- $Date$
 -- $Author$
 -- $Revision$
@@ -25,7 +24,7 @@ use techmap.gencomp.all; -- constants
 
 entity box is
     generic (
-        time_factor               : positive
+        time_factor               : positive              := 2500
     );
     port (
         clk                       : in    std_ulogic;
@@ -42,9 +41,6 @@ end entity box;
 
 architecture rtl of box is
 
-    signal box_reset                     : std_ulogic;
-    signal box_reset_n                   : std_ulogic;
-    --
     signal ahbctrl_i0_msti               : ahb_mst_in_type;
     signal ahbmo                         : ahb_mst_out_vector := (others => ahbm_none);
     signal ahbctrl_i0_slvi               : ahb_slv_in_type;
@@ -57,19 +53,13 @@ architecture rtl of box is
 
 begin
     
-    ---------------------------------------------------------------------
-    --  reset generator (now in top)
-
-    box_reset   <= (not reset_n);
-    box_reset_n <= not box_reset;
-
 
     ---------------------------------------------------------------------
     --  
     led_control_ahb_i0: entity work.led_control_ahb
     generic map (
         hindex    => 0,                            -- : integer := 0;
-        count     => 20 * time_factor,           -- : natural := 0;
+        count     => 20 * time_factor,             -- : natural := 0;
         gpio_data => x"00000000"                   -- : std_logic_vector(31 downto 0)
     )
     port map ( 
@@ -87,7 +77,7 @@ begin
     led_control_ahb_i1: entity work.led_control_ahb
     generic map (
         hindex    => 1,                            -- : integer := 0;
-        count     => 20 * time_factor + 3,       -- : natural := 0;
+        count     => 20 * time_factor + 3,         -- : natural := 0;
         gpio_data => x"0000000f"                   -- : std_logic_vector(31 downto 0)
     )
     port map ( 
@@ -99,14 +89,6 @@ begin
     );
     ---------------------------------------------------------------------
 
---  chipscope_i0 : chipscope
---      port map (
---          clk  => clk,                                --: in std_ulogic;
---          data => std_ulogic_vector( ahbmo(0).haddr), --: in std_ulogic_vector(31 downto 0);
---          trig => ahbmo(0).hbusreq                    --: in std_ulogic
---          );
-
-    
     
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
@@ -140,7 +122,7 @@ begin
             asserterr  => 1     -- enable assertions for errors
         )
         port map (
-            rst     => box_reset_n,      -- : in  std_ulogic;
+            rst     => reset_n,          -- : in  std_ulogic;
             clk     => clk,              -- : in  std_ulogic;
             msti    => ahbctrl_i0_msti,  -- : out ahb_mst_in_type;
             msto    => ahbmo,            -- : in  ahb_mst_out_vector;
@@ -161,7 +143,7 @@ begin
 
     apbo( 0) <= (apb_none);
     --apbo( 1) <= (apb_none); -- apbuart_i0
-    apbo( 2) <= (apb_none); -- gptimer_i0
+    apbo( 2) <= (apb_none); -- no gptimer_i0
     apbo( 3) <= (apb_none);
     --apbo( 4) <= (apb_none); -- grgpio_i0
     apbo( 5) <= (apb_none);
@@ -169,12 +151,12 @@ begin
     apbo( 7) <= (apb_none);   -- no i2cmst_i0
     apbo( 8) <= (apb_none);
     apbo( 9) <= (apb_none);
-    apbo(10) <= (apb_none); -- i2cmst_i1
+    apbo(10) <= (apb_none); -- no i2cmst_i1
     apbo(11) <= (apb_none);
     apbo(12) <= (apb_none);
     apbo(13) <= (apb_none);
     apbo(14) <= (apb_none);
-    apbo(15) <= (apb_none); -- mctrl_i0
+    apbo(15) <= (apb_none); -- no mctrl_i0
 
     apbctrl_i0: apbctrl
         generic map (
@@ -185,7 +167,7 @@ begin
             assertwarn  => 1    
         )                                
         port map (                       
-            rst   => box_reset_n,        -- : in  std_ulogic;
+            rst   => reset_n,            -- : in  std_ulogic;
             clk   => clk,                -- : in  std_ulogic;
             ahbi  => ahbctrl_i0_slvi,    -- : in  ahb_slv_in_type;
             ahbo  => ahbso(0),           -- : out ahb_slv_out_type;
@@ -207,7 +189,7 @@ begin
             fifosize   => 16
         )
         port map (
-            rst   => box_reset_n,        -- : in  std_ulogic;
+            rst   => reset_n,            -- : in  std_ulogic;
             clk   => clk,                -- : in  std_ulogic;
             apbi  => apbctrl_i0_apbi,    -- : in  apb_slv_in_type;
             apbo  => apbo(1),            -- : out apb_slv_out_type;
@@ -227,7 +209,7 @@ begin
             nbits   => 32            -- number of port bits
         )
         port map (
-            rst    => box_reset_n, 
+            rst    => reset_n, 
             clk    => clk, 
             apbi   => apbctrl_i0_apbi, 
             apbo   => apbo(4),
