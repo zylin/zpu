@@ -7,30 +7,20 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_misc.or_reduce; -- by synopsis
 use ieee.numeric_std.all;
 
 library gaisler;
 use gaisler.misc.all;    -- types
 use gaisler.uart.all;    -- types
 use gaisler.net.all;     -- types
-use gaisler.memctrl.all; -- spimctrl types
 use gaisler.uart.apbuart;
-use gaisler.misc.ahbdpram;
-use gaisler.misc.gptimer;
 use gaisler.misc.grgpio;
-use gaisler.misc.apbvga;
-use gaisler.memoryctrl.mctrl;  -- original in esa lib
 
 library grlib;
 use grlib.amba.all;
 
 library techmap;
 use techmap.gencomp.all; -- constants
-
-library work;
---use work.types.all;
---use board_sp601.components.chipscope;
 
 
 entity box is
@@ -45,25 +35,9 @@ entity box is
         uarto                     : out   uart_out_type;
         --                        
         gpioi                     : in    gpio_in_type;
-        gpioo                     : out   gpio_out_type;
-        --                        
-        fmc_i2ci                  : in    i2c_in_type;
-        fmc_i2co                  : out   i2c_out_type;
-        --
-        spmi                      : in    spimctrl_in_type;
-        spmo                      : out   spimctrl_out_type;
-        --
-        memi                      : in    memory_in_type;
-        memo                      : out   memory_out_type
+        gpioo                     : out   gpio_out_type
     );
 end entity box;
-
-
-library gaisler;
-use gaisler.misc.all;    -- types
-use gaisler.uart.all;    -- types
-use gaisler.net.all;     -- types
-use gaisler.memctrl.all; -- spimctrl types + spmictrl component
 
 
 architecture rtl of box is
@@ -78,14 +52,7 @@ architecture rtl of box is
     signal apbctrl_i0_apbi               : apb_slv_in_type;
     signal apbo                          : apb_slv_out_vector := (others => apb_none);
     --
-    signal gpti                          : gptimer_in_type;
-    signal gptimer_i0_gpto               : gptimer_out_type;
-    --
     signal grgpio_i0_gpioo               : gpio_out_type;
-    --
-    signal i2cmst_i0_i2co                : i2c_out_type;
-    signal i2cmst_i1_i2co                : i2c_out_type;
-    signal box_mctrl_wpo                 : wprot_out_type := (wprothit => '0');
 
 
 begin
@@ -153,8 +120,8 @@ begin
     ahbso(1) <= (ahbs_none);
     ahbso(2) <= (ahbs_none);
     ahbso(3) <= (ahbs_none);
-    --ahbso(4) <= (ahbs_none); -- spimctrl
-    --ahbso(5) <= (ahbs_none); -- mctrl
+    ahbso(4) <= (ahbs_none); -- spimctrl
+    ahbso(5) <= (ahbs_none); -- mctrl
     ahbso(6) <= (ahbs_none); 
     ahbso(7) <= (ahbs_none); 
 
@@ -187,68 +154,6 @@ begin
     ----------------------------------------------------------------------
 
 
-    ---------------------------------------------------------------------
-    -- AHB SPI memory controller
-    -- for SPI X4 (Winbond W25Q64VSFIG) 64-Mbit flash memory 
-    spimctrl_i0 : spimctrl
-        generic map (
-            hindex     => 4,           -- : integer := 0;            -- AHB slave index
-            faddr      => 16#E00#,     -- : integer := 16#000#;      -- Flash map base address
-            fmask      => 16#FF8#,     -- : integer := 16#fff#;      -- Flash area mask
-            ioaddr     => 16#002#,     -- : integer := 16#000#;      -- I/O base address
-            iomask     => 16#fff#,     -- : integer := 16#fff#;      -- I/O mask
-            readcmd    => 16#3b#,      -- : integer range 0 to 255 := 16#0B#;  -- Mem. dev. READ command
-            dummybyte  => 1,           -- : integer range 0 to 1   := 1; -- Dummy byte after cmd
-            dualoutput => 1            -- : integer range 0 to 1   := 0; -- Enable dual output
-        )
-        port map (
-            rstn   => box_reset_n,     -- : in  std_ulogic;       
-            clk    => clk,             -- : in  std_ulogic;
-            ahbsi  => ahbctrl_i0_slvi, -- : in  ahb_slv_in_type;
-            ahbso  => ahbso(4),        -- : out ahb_slv_out_type;
-            spii   => spmi,            -- : in  spimctrl_in_type;
-            spio   => spmo             -- : out spimctrl_out_type
-        );
-    ---------------------------------------------------------------------
-
-
-    
-    ---------------------------------------------------------------------
-    -- AHB BPI memory controller
-    mctrl_i0 : mctrl
-        generic map (
-            hindex    =>  5,           -- : integer := 0;
-            pindex    => 15,           -- : integer := 0;
-            romaddr   => 16#B00#,      -- : integer := 16#000#;
-            rommask   => 16#FF0#,      -- : integer := 16#E00#;
-            ioaddr    => 16#C00#,      -- : integer := 16#000#;
-            iomask    => 16#FFF#,
-            ramaddr   => 16#D00#,      -- : integer := 16#000#;
-            rammask   => 16#FFF#,
-            paddr     => 15,           -- : integer := 0;
-            pmask     => 16#FFF#,      -- : integer := 16#fff#;
-            romasel   => 25,           -- : integer := 28;
-            ram8      => 1,            -- : integer := 0;
-            ram16     => 0,            -- : integer := 0;
-            syncrst   => 1,            -- : integer := 0;
-            pageburst => 0,            -- : integer := 0;
-            scantest  => 0             -- : integer := 0;
-        )
-        port map (
-            rst   => box_reset_n,      -- : in  std_ulogic;
-            clk   => clk,              -- : in  std_ulogic;
-            memi  => memi,             -- : in  memory_in_type;
-            memo  => memo,             -- : out memory_out_type;
-            ahbsi => ahbctrl_i0_slvi,  -- : in  ahb_slv_in_type;
-            ahbso => ahbso(5),         -- : out ahb_slv_out_type;
-            apbi  => apbctrl_i0_apbi,  -- : in  apb_slv_in_type;
-            apbo  => apbo(15),         -- : out apb_slv_out_type;
-            wpo   => box_mctrl_wpo,    -- : in  wprot_out_type; -- unused
-            sdo   => open              -- : out sdram_out_type
-        );
-    ---------------------------------------------------------------------
-
-
 
 
     ---------------------------------------------------------------------
@@ -256,20 +161,20 @@ begin
 
     apbo( 0) <= (apb_none);
     --apbo( 1) <= (apb_none); -- apbuart_i0
-    --apbo( 2) <= (apb_none); -- gptimer_i0
+    apbo( 2) <= (apb_none); -- gptimer_i0
     apbo( 3) <= (apb_none);
     --apbo( 4) <= (apb_none); -- grgpio_i0
-    apbo( 5) <= (apb_none);
+    --apbo( 5) <= (apb_none);
     apbo( 6) <= (apb_none);   -- no apbvga_i0
     apbo( 7) <= (apb_none);   -- no i2cmst_i0
     apbo( 8) <= (apb_none);
     apbo( 9) <= (apb_none);
-    --apbo(10) <= (apb_none); -- i2cmst_i1
+    apbo(10) <= (apb_none); -- i2cmst_i1
     apbo(11) <= (apb_none);
     apbo(12) <= (apb_none);
     apbo(13) <= (apb_none);
     apbo(14) <= (apb_none);
-    --apbo(15) <= (apb_none); -- mctrl_i0
+    apbo(15) <= (apb_none); -- mctrl_i0
 
     apbctrl_i0: apbctrl
         generic map (
@@ -311,33 +216,6 @@ begin
         );
     ---------------------------------------------------------------------
 
-    
-    ---------------------------------------------------------------------
-    -- GP timer (grip.pdf p. 279)
-    
-    gpti.extclk <= '0'; -- alternativ timer clock
-    gpti.dhalt  <= '0'; -- debug halt
-
-    gptimer_i0: gptimer
-        generic map (
-            pindex  => 2,
-            paddr   => 2,
-            pirq    => 3,
-            sepirq  => 0, -- use separate interupts for each timer
-            sbits   => 8, -- prescaler bits
-            ntimers => 2, -- number of timers
-            nbits   => 20 -- timer bits
-        )
-        port map (
-            rst     => box_reset_n,
-            clk     => clk,
-            apbi    => apbctrl_i0_apbi,
-            apbo    => apbo(2),
-            gpti    => gpti,
-            gpto    => gptimer_i0_gpto
-        );
-    ---------------------------------------------------------------------
-
 
     ---------------------------------------------------------------------
     -- GPIO
@@ -368,25 +246,20 @@ begin
     ---------------------------------------------------------------------
 
 
-    ---------------------------------------------------------------------
-    -- I2C for FMC connector
-    i2cmst_i1: i2cmst
+    freqctr_i0: entity work.freqctr
         generic map (
-            pindex  => 10,
-            paddr   => 10,
-            pmask   => 16#FFF#,
-            pirq    => 15          -- TODO: check this
-        )
-        port map (
-            rstn    => box_reset_n,
-            clk     => clk,
-            apbi    => apbctrl_i0_apbi,
-            apbo    => apbo(10),
-            i2ci    => fmc_i2ci,             --: in  i2c_in_type;
-            i2co    => i2cmst_i1_i2co        --: out i2c_out_type;
+             pindex => 5,                    -- : integer               := 0;
+             paddr  => 5                     -- : integer               := 0;
+--           pmask  =>                       -- : integer               := 16#fff#;
+--           nbits  =>                       -- : integer range 1 to 32 := 16
+        )                                    
+        port map (                           
+             rst    => box_reset_n,          -- : in  std_ulogic;
+             clk    => clk,                  -- : in  std_ulogic;
+             apbi   => apbctrl_i0_apbi,      -- : in  apb_slv_in_type;
+             apbo   => apbo(5),              -- : out apb_slv_out_type;
+             tick   => '0',                  -- : in  std_logic;
+             sig    => '0'                   -- : in  std_logic
         );
-    fmc_i2co <= i2cmst_i1_i2co;
-    ---------------------------------------------------------------------
-
 
 end architecture rtl;

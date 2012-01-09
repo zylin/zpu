@@ -225,8 +225,6 @@ end entity top;
 library gaisler;
 use gaisler.misc.all;    -- types
 use gaisler.uart.all;    -- types
-use gaisler.net.all;     -- types
-use gaisler.memctrl.all; -- spimctrl types
 
 
 architecture rtl of top is
@@ -255,15 +253,9 @@ architecture rtl of top is
     --
     signal uarti                              : uart_in_type;
     signal gpioi                              : gpio_in_type;
-    signal fmc_i2ci                           : i2c_in_type;
-    signal spmi                               : spimctrl_in_type;
-    signal memi                               : memory_in_type;
     --
     signal box_i0_uarto                       : uart_out_type;
     signal box_i0_gpioo                       : gpio_out_type;
-    signal box_i0_fmc_i2co                    : i2c_out_type;
-    signal box_i0_spmo                        : spimctrl_out_type;
-    signal box_i0_memo                        : memory_out_type;
 
 
 begin
@@ -454,44 +446,28 @@ begin
     ------------------------------------------------------------ 
     -- SPI memory pads
     -- SPI X4 (Winbond W25Q64VSFIG) 64-Mbit flash memory 
-    -- in
-    spmi.miso             <= fpga_d0_din_miso_miso1;  -- shared with flash data
-    spmi.mosi             <= fpga_mosi_csi_b_miso0;   -- bidi for 2x mode
-    spmi.cd               <= '0';        -- card detection
-    -- out
-    fpga_d2_miso3         <= '1' when box_i0_spmo.csn = '0' else 'Z'; -- /hold
-    fpga_d1_miso2         <= '0' when box_i0_spmo.csn = '0' else 'Z'; -- /write_protect
-    fpga_cclk             <= box_i0_spmo.sck;
-    fpga_mosi_csi_b_miso0 <= box_i0_spmo.mosi when box_i0_spmo.mosioen = '0' else 'Z';
-    spi_cs_b              <= '0'              when box_i0_spmo.csn     = '0' else 'Z';
+    fpga_d2_miso3         <= 'Z'; -- /hold
+    fpga_d1_miso2         <= 'Z'; -- /write_protect
+    fpga_cclk             <= '0';
+    fpga_mosi_csi_b_miso0 <= 'Z';
+    spi_cs_b              <= 'Z';
 
 
     ------------------------------------------------------------ 
     -- BPI parallel flash
-    -- in
-    memi.brdyn               <= '1';               -- bus ready strobe
-    memi.bexcn               <= '1';               -- bus exception
-    memi.wrn(3 downto 0)     <= "1111";            -- sram write enable feedback
-    memi.bwidth(1 downto 0)  <= "00";              -- data width of prom area = 8 bit
-    memi.sd                  <= (others => '1');   -- sdram separate data bus
-    memi.data                <= flash_d & fpga_d2_miso3 & fpga_d1_miso2 & fpga_d0_din_miso_miso1 & x"000000";
-    memi.cb                  <= (others => '1');
-    memi.scb                 <= (others => '1');
-    memi.writen              <= '1';
-    memi.edac                <= '1';
 
     -- inout
-    fpga_d0_din_miso_miso1   <= box_i0_memo.data(24)           when box_i0_memo.bdrive(0) = '0' else 'Z';
-    fpga_d1_miso2            <= box_i0_memo.data(25)           when box_i0_memo.bdrive(0) = '0' else 'Z'; 
-    fpga_d2_miso3            <= box_i0_memo.data(26)           when box_i0_memo.bdrive(0) = '0' else 'Z'; 
-    flash_d(7 downto 3)      <= box_i0_memo.data(31 downto 27) when box_i0_memo.bdrive(0) = '0' else "ZZZZZ";
+    fpga_d0_din_miso_miso1   <= 'Z';
+    fpga_d1_miso2            <= 'Z'; 
+    fpga_d2_miso3            <= 'Z'; 
+    flash_d(7 downto 3)      <= "ZZZZZ";
     -- out
     fmc_pwr_good_flash_rst_b <= reset_n;
-    flash_ce_b               <= box_i0_memo.romsn(0);
-    flash_oe_b               <= box_i0_memo.oen;
-    flash_we_b               <= box_i0_memo.writen;
+    flash_ce_b               <= '1';
+    flash_oe_b               <= '1';
+    flash_we_b               <= '1';
 
-    flash_a                  <= box_i0_memo.address(24 downto 0);
+    flash_a                  <= (others => 'Z');
 
 
     
@@ -526,16 +502,7 @@ begin
             uarto                     => box_i0_uarto,                     --: out   uart_out_type;
             --                                                             
             gpioi                     => gpioi,                            --: in    gpio_in_type;
-            gpioo                     => box_i0_gpioo,                     --: out   gpio_out_type;
-            --                                                             
-            fmc_i2ci                  => fmc_i2ci,                         --: in    i2c_in_type;
-            fmc_i2co                  => box_i0_fmc_i2co,                  --: out   i2c_out_type;
-            --
-            spmi                      => spmi,                             --: in    spmictrl_in_type;
-            spmo                      => box_i0_spmo,                      --: out   spmictrl_out_type;
-            --  
-            memi                      => memi,                             --: in    memory_in_type;
-            memo                      => box_i0_memo                       --: out   memory_out_type;
+            gpioo                     => box_i0_gpioo                      --: out   gpio_out_type;
         );
 
     ------------------------------------------------------------ 
@@ -554,10 +521,8 @@ begin
     
     ------------------------------------------------------------ 
     -- fmc/main i2c io pads
-    fmc_i2ci.scl  <= iic_scl_main;
-    iic_scl_main  <= box_i0_fmc_i2co.scl when box_i0_fmc_i2co.scloen = '0' else 'Z';
+    iic_scl_main  <= 'Z';
 
-    fmc_i2ci.sda  <= iic_sda_main;
-    iic_sda_main  <= box_i0_fmc_i2co.sda when box_i0_fmc_i2co.sdaoen = '0' else 'Z';
+    iic_sda_main  <= 'Z';
     
 end architecture rtl;
