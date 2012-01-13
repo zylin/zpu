@@ -510,6 +510,8 @@ int main(void)
     testgen( 0);
     rena->control_status = 0;
 
+    rena_chains_function();
+
     // test of scheduler
 //  scheduler_task_add( end_simulation_task, 3);
 //  running_light( simulation_active);

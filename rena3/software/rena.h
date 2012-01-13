@@ -37,15 +37,15 @@ typedef struct {
     volatile uint32_t config_low;              // 0x08
     volatile uint32_t config_high;             // 0x0C
     volatile uint32_t acquire_time;            // 0x10
-    volatile uint32_t channel_and_mask_low;    // 0x14
-    volatile uint32_t channel_and_mask_high;   // 0x18
+    volatile uint32_t channel_mask_low;        // 0x14
+    volatile uint32_t channel_mask_high;       // 0x18
     volatile uint32_t token_count;             // 0x1c
     volatile uint32_t fast_trigger_chain_high; // 0x20
     volatile uint32_t fast_trigger_chain_low;  // 0x24
     volatile uint32_t slow_trigger_chain_high; // 0x28
     volatile uint32_t slow_trigger_chain_low;  // 0x2C
-//  volatile uint32_t channel_or_mask_low;   // 0x1c
-//  volatile uint32_t channel_or_mask_high;  // 0x20
+    volatile uint32_t channel_force_mask_high; // 0x30
+    volatile uint32_t channel_force_mask_low;  // 0x34
 } rena_t;
 
 

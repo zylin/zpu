@@ -69,6 +69,7 @@ architecture rtl of rena3_controller_apb is
         bitindex           : integer range 0 to 40;
         acquire_time       : unsigned(31 downto 0);
         channel_mask       : std_ulogic_vector(35 downto 0);
+        force_mask         : std_ulogic_vector(35 downto 0);
         fast_chain         : std_ulogic_vector(35 downto 0);
         slow_chain         : std_ulogic_vector(35 downto 0);
         fast_trigger_chain : std_ulogic_vector(35 downto 0);
@@ -91,6 +92,7 @@ architecture rtl of rena3_controller_apb is
         bitindex           => 0,
         acquire_time       => (others => '0'),
         channel_mask       => (others => '1'),
+        force_mask         => (others => '0'),
         fast_chain         => (others => '0'),
         slow_chain         => (others => '0'),
         fast_trigger_chain => (others => '0'),
@@ -165,11 +167,11 @@ begin
                 
             -- lower channel mask
             when "0101" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.channel_mask(17 downto 0));
+                v.readdata(31 downto 0)          := std_logic_vector( v.channel_mask(31 downto 0));
 
             -- higher channel mask
             when "0110" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.channel_mask(35 downto 18));
+                v.readdata( 3 downto 0)          := std_logic_vector( v.channel_mask(35 downto 32));
                 
             -- number of sampled tokens
             when "0111" =>
@@ -177,19 +179,27 @@ begin
 
             -- fast_trigger_chain_high; // 0x20
             when "1000" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.fast_trigger_chain(35 downto 18));
+                v.readdata( 3 downto 0)          := std_logic_vector( v.fast_trigger_chain(35 downto 32));
 
             -- fast_trigger_chain_low;  // 0x24
             when "1001" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.fast_trigger_chain(17 downto 0));
+                v.readdata(31 downto 0)          := std_logic_vector( v.fast_trigger_chain(31 downto 0));
 
             -- slow_trigger_chain_high; // 0x28
             when "1010" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.slow_trigger_chain(35 downto 18));
+                v.readdata( 3 downto 0)          := std_logic_vector( v.slow_trigger_chain(35 downto 32));
 
             -- slow_trigger_chain_low;  // 0x2C
             when "1011" =>
-                v.readdata(17 downto 0)          := std_logic_vector( v.slow_trigger_chain(17 downto 0));
+                v.readdata(31 downto 0)          := std_logic_vector( v.slow_trigger_chain(31 downto 0));
+                
+            -- lower channel force mask
+            when "1100" =>
+                v.readdata(31 downto 0)          := std_logic_vector( v.force_mask(31 downto 0));
+
+            -- higher channel force mask
+            when "1101" =>
+                v.readdata( 3 downto 0)          := std_logic_vector( v.force_mask(35 downto 32));
 
             when others => 
                 null;
@@ -245,15 +255,24 @@ begin
 
                 -- lower channel mask
                 when "0101" =>
-                    v.channel_mask(17 downto 0)  := std_ulogic_vector( v.writedata(17 downto 0));
+                    v.channel_mask(31 downto 0)  := std_ulogic_vector( v.writedata(31 downto 0));
 
                 -- higher channel mask
                 when "0110" =>
-                    v.channel_mask(35 downto 18) := std_ulogic_vector( v.writedata(17 downto 0));
+                    v.channel_mask(35 downto 32) := std_ulogic_vector( v.writedata( 3 downto 0));
             
                 -- number of sampled tokens
                 when "0111" =>
                     null;
+
+                    
+                -- lower channel force mask
+                when "1100" =>
+                    v.force_mask(31 downto 0)    := std_ulogic_vector( v.writedata(31 downto 0));
+
+                -- higher channel force mask
+                when "1101" =>
+                    v.force_mask(35 downto 32)   := std_ulogic_vector( v.writedata( 3 downto 0));
 
                 when others => null;
 
@@ -334,8 +353,8 @@ begin
                             v.bitindex           := 35;
                             v.fast_trigger_chain := v.fast_chain;
                             v.slow_trigger_chain := v.slow_chain;
-                            v.fast_chain         := v.fast_chain and v.channel_mask;
-                            v.slow_chain         := v.slow_chain and v.channel_mask;
+                            v.fast_chain         := (v.fast_chain and v.channel_mask) or v.force_mask;
+                            v.slow_chain         := (v.slow_chain and v.channel_mask) or v.force_mask;
                         end if;
                     end if;
 

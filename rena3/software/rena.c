@@ -81,12 +81,18 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
 */
 uint32_t rena_chains_function( void)
 {
-    putstr("fast trigger chain: 0x");  
-    puthex(32, rena->fast_trigger_chain_high); 
+    putstr("fast trigger chain:   0x");  
+    puthex( 8, rena->fast_trigger_chain_high); 
     puthex(32, rena->fast_trigger_chain_low);
     putstr("\nslow trigger chain: 0x"); 
-    puthex(32, rena->slow_trigger_chain_high); 
+    puthex( 8, rena->slow_trigger_chain_high); 
     puthex(32, rena->slow_trigger_chain_low);
+    putstr("\nchannel mask:       0x"); 
+    puthex( 8, rena->channel_mask_high); 
+    puthex(32, rena->channel_mask_low);
+    putstr("\nforce mask:         0x"); 
+    puthex( 8, rena->channel_force_mask_high); 
+    puthex(32, rena->channel_force_mask_low);
     putchar('\n');
     return (0);
 }
