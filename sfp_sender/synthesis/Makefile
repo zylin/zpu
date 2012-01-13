@@ -1,5 +1,4 @@
 #
-# $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/synthese/Makefile $
 # $Date: 2011-08-29 13:52:33 +0200 (Mo, 29. Aug 2011) $
 # $Author: lange $
 # $Revision: 1226 $

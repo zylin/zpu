@@ -1,5 +1,4 @@
 #
-# $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601_amba/synthese/Makefile $
 # $Date: 2011-11-18 08:42:44 +0100 (Fr, 18. Nov 2011) $
 # $Author: lange $
 # $Revision: 1226 $

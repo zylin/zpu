@@ -3,11 +3,11 @@
 #SCREENSHOT = s3estarter_ressources
 
 TOP        = top
-DIR        = ../beam_position_monitor/hardware/board_sp601_amba/synthese/xst
+DIR        = ../beam_position_monitor/hardware/board_sp601_amba/synthsis/xst
 SCREENSHOT = bpm_sp601_amba
 
 #TOP        = top
-#DIR        = ../beam_position_monitor/hardware/board_sp605/synthese/xst
+#DIR        = ../beam_position_monitor/hardware/board_sp605/synthsis/xst
 #SCREENSHOT = bpm_sp605
 
 #TOP        = top
