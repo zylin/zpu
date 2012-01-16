@@ -45,6 +45,7 @@ unsigned char puthex( unsigned char dataType, unsigned long data)
     char          dataString[] = "        ";
 
     // dataType = bit width
+    if (dataType == 4)  count = 1;
     if (dataType == 8)  count = 2;
     if (dataType == 16) count = 4;
 
