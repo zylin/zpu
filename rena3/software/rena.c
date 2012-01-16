@@ -63,7 +63,7 @@ uint32_t rena_status( void)
 */
 uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_config)
 {
-    rena->control_status = 0;
+    rena->control_status = RENA_MODE_IDLE;
 
     // Attention: order is important
     rena->config_low  = low_config;
@@ -72,7 +72,7 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
     rena->config_high = (channel << 3) | high_config;
     
     // wait until config is ready
-    while (rena->control_status != 0) {};
+    while (rena->control_status != RENA_MODE_IDLE) {};
 }
 
 
@@ -81,17 +81,17 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
 */
 uint32_t rena_chains_function( void)
 {
-    putstr("fast trigger chain:   0x");  
-    puthex( 8, rena->fast_trigger_chain_high); 
+    putstr(  "fast trigger chain: 0x");  
+    puthex( 4, rena->fast_trigger_chain_high); 
     puthex(32, rena->fast_trigger_chain_low);
     putstr("\nslow trigger chain: 0x"); 
-    puthex( 8, rena->slow_trigger_chain_high); 
+    puthex( 4, rena->slow_trigger_chain_high); 
     puthex(32, rena->slow_trigger_chain_low);
-    putstr("\nchannel mask:       0x"); 
-    puthex( 8, rena->channel_mask_high); 
+    putstr("\nchannel mask (and): 0x"); 
+    puthex( 4, rena->channel_mask_high); 
     puthex(32, rena->channel_mask_low);
-    putstr("\nforce mask:         0x"); 
-    puthex( 8, rena->channel_force_mask_high); 
+    putstr("\nforce mask (or):    0x"); 
+    puthex( 4, rena->channel_force_mask_high); 
     puthex(32, rena->channel_force_mask_low);
     putchar('\n');
     return (0);
@@ -146,12 +146,12 @@ uint32_t rena_acquire_function( void)
 
     time = monitor_get_argument_int(1);
     
-    //while (rena->control_status != 0) {};
+    //while (rena->control_status != RENA_MODE_IDLE) {};
     
     rena->acquire_time = time;
 
     // activate acquire
-    rena->control_status = 2;
+    rena->control_status = RENA_MODE_ACQUIRE;
 
     return( time);
 }
@@ -162,7 +162,7 @@ uint32_t rena_acquire_function( void)
 */
 uint32_t rena_stop_function( void)
 {
-    rena->control_status = 0;
+    rena->control_status = RENA_MODE_IDLE;
 }
 
 
@@ -252,7 +252,11 @@ uint32_t rena_follow_mode_function( void)
         RENA_FM;
         
     rena_channel_config( channel, config_high, config_low);
-    rena->control_status = 9;
+    
+    rena->channel_force_mask_low  = 0x00000001;
+    rena->channel_force_mask_high = 0x0;
+    
+    rena->control_status = RENA_MODE_FOLLOW;
 
     return( 0);
 }

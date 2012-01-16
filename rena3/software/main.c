@@ -480,12 +480,11 @@ int main(void)
     }
 
     // code which executes in simulation is started here:
-/*    
+
+/*
     // configure rena
 //  rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
     rena_channel_config(1, RENA_ECAL, RENA_ENS);
-
-    while (rena->control_status != 0) {};
 
     // set additional acquire time (1000 ns)
     rena->acquire_time = 100;
@@ -504,11 +503,18 @@ int main(void)
     putint( rena->token_count);
     putchar('\n');
 */
-  
-    rena_channel_config( 0, 2, 1);
-    rena->control_status = 9;
+ 
+
+    rena_channel_config( 0, 0x2, RENA_FM);
+    
+    rena->channel_force_mask_low  = 0x00000001;
+    rena->channel_force_mask_high = 0x0;
+    rena->control_status = RENA_MODE_FOLLOW;
+    usleep( 50);
     testgen( 0);
-    rena->control_status = 0;
+    rena->control_status = RENA_MODE_IDLE;
+
+
 
     rena_chains_function();
 
