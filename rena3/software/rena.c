@@ -169,9 +169,9 @@ uint32_t rena_stop_function( void)
 /*
     rena demo config
 */
-#define DAC_SLOW (0)
-#define DAC_FAST (0)
-#define SEL      (10)
+#define DAC_SLOW (127)
+#define DAC_FAST (127)
+#define SEL      (15)
 #define GAIN     (3)
 
 uint32_t rena_demo_config_function( void)
@@ -180,29 +180,36 @@ uint32_t rena_demo_config_function( void)
     uint8_t  config_high;
     uint32_t config_low;
 
+    uint8_t channel;
+    channel = monitor_get_argument_int(1);
+    
+
     config_high = 
-        RENA_ECAL;
+        0;
 
     config_low = 
-        RENA_FETSEL_SIMPLE      |
         (GAIN     << RENA_GAIN) |
-        RENA_PZSEL_EN           |
+        RENA_RANGE_15fF         |
         (SEL      << RENA_SEL)  |
         RENA_SIEZA_1000         |
         (DAC_FAST << RENA_DF)   | 
         RENA_POLPOS             |
         (DAC_SLOW << RENA_DS)   | 
-        RENA_ENF                | 
+        //RENA_ENF                | 
         RENA_ENS;
 
     for( index = 0; index < 35; index++)
     {
         rena_channel_config( index, config_high, config_low);
     }
+
+    rena_channel_config( channel, RENA_ECAL, config_low);
     return( 0);
 }
 
-
+/*
+    power down all channels
+*/
 
 uint32_t rena_powerdown_config_function( void)
 {
@@ -225,24 +232,47 @@ uint32_t rena_powerdown_config_function( void)
 
 
 /*
-    set rena channel 0 to follower mode
+    set one bit in the force mask
+    set rena to follower mode
 */
-uint32_t rena_follow_mode_function( void)
+uint32_t rena_follow_mode( uint8_t channel)
+{
+    // decide which bit to set
+    if (channel < 32)
+    {
+        rena->channel_force_mask_low  = (1 << channel);
+        rena->channel_force_mask_high = 0;
+    }
+    else
+    {
+        rena->channel_force_mask_low  = 0;
+        rena->channel_force_mask_high = (1 << (channel - 32));
+    }
+    
+    rena->control_status = RENA_MODE_FOLLOW;
+
+    return( rena->channel_force_mask_low);
+}
+
+
+/*
+    set rena to follower mode
+*/
+uint32_t rena_set_ecal( uint8_t channel)
 {
     uint8_t  config_high;
     uint32_t config_low;
-
-    uint8_t channel;
-    channel = monitor_get_argument_int(1);
     
 
     config_high = 
+//      RENA_FB_TC              |
         RENA_ECAL;
 
     config_low = 
 //      RENA_FETSEL_SIMPLE      |
 //      (GAIN     << RENA_GAIN) |
 //      (SEL      << RENA_SEL)  |
+//      RENA_RANGE_60fF         |
 //      RENA_SIEZA_1000         |
 //      (DAC_FAST << RENA_DF)   | 
 //      RENA_POLPOS             |
@@ -250,13 +280,21 @@ uint32_t rena_follow_mode_function( void)
 //      RENA_ENF                | 
 //      RENA_ENS                |
         RENA_FM;
-        
+    
     rena_channel_config( channel, config_high, config_low);
+    return( config_low);
+}
+
+
+void rena_simulate_follower_mode( void)
+{
+    rena_channel_config( 0, 0x2, RENA_FM);
     
     rena->channel_force_mask_low  = 0x00000001;
     rena->channel_force_mask_high = 0x0;
-    
     rena->control_status = RENA_MODE_FOLLOW;
+    usleep( 50);
+    testgen( 0);
+    rena->control_status = RENA_MODE_IDLE;
 
-    return( 0);
 }

@@ -72,6 +72,10 @@ uint32_t rena_chains_function( void);
 uint32_t rena_read_token( void);
 uint32_t rena_demo_config_function( void);
 uint32_t rena_powerdown_config_function( void);
-uint32_t rena_follow_mode_function( void);
+uint32_t rena_follow_mode( uint8_t channel);
+uint32_t rena_set_ecal( uint8_t channel);
+
+// simulation functions
+void rena_simulate_follower_mode( void);
 
 #endif // RENA_H

@@ -225,7 +225,6 @@ begin
                         when 2 =>
                             v.rena.clf           := '1';
                             v.rena.cls           := '1'; 
-                            v.rena.acquire       := '1';
                             v.timer              := 2;     -- 20 ns
                             v.state              := CLEAR;
 
@@ -342,9 +341,9 @@ begin
                         end if;
 
                 when CONFIGURE_END =>
-                    v.rena.cs_n         := '1';
-                    v.timer             := 1;
-                    v.state             := IDLE;
+                    v.rena.cs_n             := '1';
+                    v.timer                 := 1;
+                    v.state                 := IDLE;
 
                 -- clear detector triggers
                 when CLEAR =>
@@ -355,6 +354,7 @@ begin
                 -- wait for trigger event
                 when DETECT =>
                     v.rena.cls              := '0'; 
+                    v.rena.acquire          := '1';
                     -- event detected
                     if (v.rena_in.ts = '1') or (v.rena_in.tf = '1') then
                         v.state             := ACQUIRE;    
@@ -384,6 +384,7 @@ begin
                         if v.bitindex > 0 then
                             v.bitindex      := v.bitindex - 1;
                         else
+                            v.timer              := 1; -- just to see a gap
                             v.state              := DESIRE;
                             v.state_after_desire := READOUT;
                             v.bitindex           := 35;

@@ -49,7 +49,7 @@ extern command_ptr_t exec_function;
 //  monitor functions
 
 void monitor_init( void);
-void monitor_add_command(char* new_command, char* new_help, command_ptr_t new_command_ptr);
+void monitor_add_command(char* new_command, char* new_help, command_ptr_t new_command_ptr, int8_t new_command_nbr);
 void monitor_prompt( void); 
 void process_buffer( void);
 extern uint8_t monitor_run;

@@ -56,12 +56,14 @@ quietly set top $env(top)
 
 
 if {[file exists wave_$top.do]} {
+    puts "INFO: use wave_$top.do"
     do wave_$top.do
 } else {
     if {[file exists wave.do]} {
+        puts "INFO: use wave.do"
         do wave.do
     } else {
-        puts "INFO: no wave file found."
+        puts "INFO: no wave*.do file found."
     }
 }
 

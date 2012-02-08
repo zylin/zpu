@@ -21,7 +21,7 @@
 #include "fwf_roe_cmd.h"        // interface command definitions
 
 //#define BOARD_SP605  TODO
-#define DEBUG_ON
+//#define DEBUG_ON
 #define SYSINFO_ON
 
 
@@ -77,6 +77,8 @@ uint32_t banner_help_function( void);
 
 uint32_t version_function( void);
 uint32_t rena_trouble( void);
+uint32_t rena_follow_mode_function( void);
+uint32_t rena_set_ecal_function( void);
 uint32_t ddsinit_function( void);
 uint32_t testgen( uint32_t time);
 uint32_t testgen_function( void);
@@ -128,43 +130,43 @@ void uart_monitor( void)
 
     monitor_init();
 
-    monitor_add_command("reset",   "system reset",                          reset_function);
+    monitor_add_command("reset",   "system reset",                          reset_function, -1);
     #ifdef SYSINFO_ON
-    monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function);
+    monitor_add_command("sysinfo", "show system info <verbose>",            system_info_function, -1);
     #endif
     
-    monitor_add_command(FWF_ROE_CMD_VERSION, "report version",                        version_function);
-    monitor_add_command(FWF_ROE_CMD_CONTROL, "rena controller status",                rena_controller_status);
-    monitor_add_command(FWF_ROE_CMD_STATUS,  "rena status",                           rena_status);
-    
-    monitor_add_command(FWF_ROE_CMD_CONFIG,  "<channel> <high> <low_config>",         rena_channel_config_function);
-    monitor_add_command(FWF_ROE_CMD_DEMO,    "do complete demo config for RENA",      rena_demo_config_function);
-    monitor_add_command("poff",              "set RENA to power down mode",           rena_powerdown_config_function);
-    monitor_add_command("follow",            "set rena channel 0 to follower mode",   rena_follow_mode_function);
+    monitor_add_command(FWF_ROE_CMD_VERSION, "report version",                        version_function,             FWF_ROE_CMD_VERSION_Code);
+    monitor_add_command(FWF_ROE_CMD_CONTROL, "rena controller status",                rena_controller_status,       FWF_ROE_CMD_CONTROL_Code);
+    monitor_add_command(FWF_ROE_CMD_STATUS,  "rena status",                           rena_status,                  FWF_ROE_CMD_STATUS_Code);
+    monitor_add_command(FWF_ROE_CMD_CONFIG,  "<channel> <high> <low_config>",         rena_channel_config_function, FWF_ROE_CMD_CONFIG_Code);
+    monitor_add_command("demo",              "<channel> ECAL, demo config for RENA",  rena_demo_config_function,    -1);
+    monitor_add_command("poff",              "set RENA to power down mode",           rena_powerdown_config_function, -1);
+    monitor_add_command("follow",            "<channel> set a rena to follower mode", rena_follow_mode_function,    -1);
+    monitor_add_command("ecal",              "<channel> config to ECAL",              rena_set_ecal_function,       -1);
 
-    monitor_add_command(FWF_ROE_CMD_ACQUIRE, "<time> activate RENA",                  rena_acquire_function);
-    monitor_add_command(FWF_ROE_CMD_STOP,    "set RENA controller to IDLE",           rena_stop_function);
-    monitor_add_command(FWF_ROE_CMD_CHAINS,  "print trigger chains",                  rena_chains_function);
-    monitor_add_command(FWF_ROE_CMD_TOKEN,   "print sampled RENA tokens",             rena_read_token);
+    monitor_add_command(FWF_ROE_CMD_ACQUIRE, "<time> activate RENA",                  rena_acquire_function,        FWF_ROE_CMD_ACQUIRE_Code);
+    monitor_add_command(FWF_ROE_CMD_STOP,    "set RENA controller to IDLE",           rena_stop_function,           FWF_ROE_CMD_STOP_Code);
+    monitor_add_command(FWF_ROE_CMD_CHAINS,  "print trigger chains",                  rena_chains_function,         FWF_ROE_CMD_CHAINS_Code);
+    monitor_add_command(FWF_ROE_CMD_TOKEN,   "print sampled RENA tokens",             rena_read_token,              FWF_ROE_CMD_TOKEN_Code);
     
-    monitor_add_command("trouble",           "troublesearch RENA",                    rena_trouble);
+    monitor_add_command("trouble",           "<count> <time> troublesearch RENA",     rena_trouble,                 -1);
 
-    monitor_add_command(FWF_ROE_CMD_DDSINIT, "initalize DDS chip <freq tuning word>", ddsinit_function);
-    monitor_add_command("ddsinfo",           "read dds registers",                    ad9854_info);
+    monitor_add_command(FWF_ROE_CMD_DDSINIT, "initalize DDS chip <freq tuning word>", ddsinit_function,             FWF_ROE_CMD_DDSINIT_Code);
+    monitor_add_command("ddsinfo",           "read dds registers",                    ad9854_info,                  -1);
+    monitor_add_command("testgen",           "generate test impulse",                 testgen_function,             -1);
+    monitor_add_command("adc",               "read adc value",                        adc_read,                     -1);
 
     #ifdef DEBUG_ON                                                              
     monitor_add_command("run",     "running light",                         run_light_function);
     monitor_add_command("i2c",     "check I2C address",                     i2c_check_function);
     monitor_add_command("eeprom",  "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
 
-    monitor_add_command("adc",     "read adc value",                        adc_read);
-    monitor_add_command("testgen", "generate test impulse",                 testgen_function);
     monitor_add_command("mem",     "alias for x",                           x_function);
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
     #endif                         
-    monitor_add_command("clear",   "clear screen",   clear_function);
-    monitor_add_command("help",    "",               banner_help_function);
+    monitor_add_command("clear",   "clear screen",   clear_function,       -1);
+    monitor_add_command("help",    "",               banner_help_function, FWF_ROE_CMD_HELP_Code);
 
     // initial help
     help_function();
@@ -373,42 +375,90 @@ uint32_t ddsinit_function( void)
 
 uint32_t rena_trouble( void)
 {
+    uint8_t  index;
+    uint8_t  loop;
+    uint32_t value;
+
+    loop  = monitor_get_argument_int(1);
+    value = monitor_get_argument_int(2);
+   
+    /*
+        trouble shoote for follower mode
+    while (loop > 0)
+    {
+        for (index = 0; index < 35; index++)
+        {
+            rena_powerdown_config_function();
+            rena_set_ecal( index);
+            rena_follow_mode( index);
+            testgen( value);
+        }
+        loop--;
+    }
+    */
+    
     uint8_t  config_high;
     uint32_t config_low;
-    uint8_t  index;
 
-    uint32_t time;
+#define DAC_SLOW (127)
+#define DAC_FAST (0)
+#define SEL      (15)
+#define GAIN     (3)
 
-    time = monitor_get_argument_int(1);
-   
-    index = 0;
-
-    config_high = 2; // = RENA_ECAL;
-  
-    config_low = 
-//      RENA_FETSEL_SIMPLE      |
-//      (GAIN     << RENA_GAIN) |
-//      (SEL      << RENA_SEL)  |
-//      RENA_SIEZA_1000         |
-//      (DAC_FAST << RENA_DF)   | 
-//      RENA_POLPOS             |
-//      (DAC_SLOW << RENA_DS)   | 
-//      RENA_ENF                | 
-//      RENA_ENS                |
-        RENA_FM;
-  
-    while (1)
+    // acquire mode
+    while (loop > 0)
     {
-//      for (index = 0; index < 35; index++)
-        {
-            rena_channel_config( index, config_high, config_low);
-            rena->control_status = 9;
-            testgen( time);
-        }
+        rena_stop_function();
+        rena_powerdown_config_function();
+
+        config_high = RENA_ECAL;
+        config_low  = 
+            (GAIN     << RENA_GAIN) |
+            RENA_RANGE_15fF         |
+            (SEL      << RENA_SEL)  |
+            RENA_SIEZA_1000         |
+            (DAC_FAST << RENA_DF)   | 
+            RENA_POLPOS             |
+            (value    << RENA_DS)   | 
+            //RENA_ENF                | 
+            RENA_ENS;
+        rena_channel_config( 0, config_high, config_low);
+    
+        rena->acquire_time   = 0;
+        rena->control_status = RENA_MODE_ACQUIRE;
+
+        testgen( 10);
+    
+        usleep( 20);
+
+        rena_controller_status();
+        rena_status();
+
+        loop--;
     }
 
-    return( 0);
+    return( config_low);
 }
+
+////////////////////////////////////////////////////////////
+uint32_t rena_follow_mode_function( void)
+{
+    uint8_t channel;
+    channel = monitor_get_argument_int(1);
+
+    return( rena_follow_mode( channel));
+}
+
+////////////////////////////////////////////////////////////
+uint32_t rena_set_ecal_function( void)
+{
+
+    uint8_t channel;
+    channel = monitor_get_argument_int(1);
+
+    return( rena_set_ecal( channel));
+}
+
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
@@ -481,10 +531,10 @@ int main(void)
 
     // code which executes in simulation is started here:
 
-/*
+
     // configure rena
-//  rena_channel_config(0, 0x2, RENA_ENF | RENA_ENS);
-    rena_channel_config(1, RENA_ECAL, RENA_ENS);
+    rena_channel_config(0, RENA_ECAL, RENA_ENF | RENA_ENS);
+//  rena_channel_config(1, RENA_ECAL, RENA_ENS);
 
     // set additional acquire time (1000 ns)
     rena->acquire_time = 100;
@@ -494,7 +544,9 @@ int main(void)
 
     // generate some test pulse
     usleep( 50);
-    testgen( 0);
+
+    uint16_t time_us = 0;
+    testgen( time_us);
 
     // wait till idle
     while (rena->control_status != 0) {};
@@ -502,19 +554,10 @@ int main(void)
     putstr("tokens: ");
     putint( rena->token_count);
     putchar('\n');
-*/
+
  
 
-    rena_channel_config( 0, 0x2, RENA_FM);
-    
-    rena->channel_force_mask_low  = 0x00000001;
-    rena->channel_force_mask_high = 0x0;
-    rena->control_status = RENA_MODE_FOLLOW;
-    usleep( 50);
-    testgen( 0);
-    rena->control_status = RENA_MODE_IDLE;
-
-
+    //rena_simulate_follower_mode();
 
     rena_chains_function();
 

@@ -12,11 +12,13 @@
 static char          command_list[MAX_COMMANDS][MAX_COMMAND_LENGTH];
 static char          help_list   [MAX_COMMANDS][MAX_HELP_LENGTH];
 static command_ptr_t command_ptr_list[MAX_COMMANDS];
+static int8_t        command_nbr_list[MAX_COMMANDS];
 
 uint8_t       buffer[BUFFER_LENGTH];
 uint8_t       command_number;
 uint8_t       buffer_position;
 command_ptr_t exec_function;
+int8_t        exec_nbr;
 
 
 
@@ -28,18 +30,20 @@ void monitor_init( void)
     buffer_position = 0;
     command_number  = 0;
     exec_function   = 0;
+    exec_nbr        = -1;
 }
 
 
 /*
     add an command to the monitor list
 */
-void monitor_add_command(char* new_command, char* new_help, command_ptr_t new_command_ptr) 
+void monitor_add_command(char* new_command, char* new_help, command_ptr_t new_command_ptr, int8_t new_command_nbr) 
 {
     if (command_number < MAX_COMMANDS)
     {
         strcpy( command_list[ command_number], new_command);
         strcpy( help_list[    command_number], new_help);
+        command_nbr_list[ command_number] = new_command_nbr;
         command_ptr_list[ command_number] = new_command_ptr;
         command_number++;
     }
@@ -77,10 +81,12 @@ void process_buffer( void) {
     for ( command_index = 0; command_index < command_number; command_index++) {
         if ( !strncmp( command_list[ command_index], buffer, i) ) {
             exec_function = command_ptr_list[ command_index];
+            exec_nbr      = command_nbr_list[ command_index];
             return;
         }
     }
     putstr("command not found.\n");
+    exec_nbr = -1;
     monitor_prompt();
 }
 
@@ -100,19 +106,11 @@ void monitor_mainloop( void)
         return_value = exec_function();
         exec_function = 0;
         
-        // print return value (as hex)
-        if (return_value > 0)
-        {
-            putstr("0x");
-            if (return_value > 0xffff)
-                puthex(32, return_value);
-            else
-                if (return_value > 0xff)
-                    puthex(16, return_value);
-                else
-                    puthex(8, return_value);
-            putchar('\n');
-        }
+        putstr("func: 0x");
+        puthex(32, exec_nbr);
+        putstr("    ret: 0x");
+        puthex(32, return_value);
+        putchar('\n');
         
         monitor_prompt();
     }
@@ -211,6 +209,7 @@ uint32_t help_function( void)
         putstr( command_list[ command_index]); 
         if (strlen( help_list[ command_index]) > 0 )
         {
+            // align list
             for (i = strlen( command_list[ command_index]); i < MAX_COMMAND_LENGTH; i++) putchar(' ');
             putstr( " - ");
             putstr( help_list[ command_index]); 
