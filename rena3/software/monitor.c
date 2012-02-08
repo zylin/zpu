@@ -108,7 +108,7 @@ void monitor_mainloop( void)
         
         putstr("func: 0x");
         puthex(32, exec_nbr);
-        putstr("    ret: 0x");
+        putstr("  ret: 0x");
         puthex(32, return_value);
         putchar('\n');
         
@@ -206,8 +206,11 @@ uint32_t help_function( void)
     putchar( LF);
     putstr("supported commands:\n\n");
     for ( command_index = 0; command_index < command_number; command_index++) {
+        putstr( "0x");
+        puthex( 32, command_nbr_list[ command_index]);
+        putstr( "  ");
         putstr( command_list[ command_index]); 
-        if (strlen( help_list[ command_index]) > 0 )
+        if ( strlen( help_list[ command_index]) > 0 )
         {
             // align list
             for (i = strlen( command_list[ command_index]); i < MAX_COMMAND_LENGTH; i++) putchar(' ');

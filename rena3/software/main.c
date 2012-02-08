@@ -165,7 +165,7 @@ void uart_monitor( void)
     monitor_add_command("wmem",    "write word <addr> <length> <value(s)>", wmem_function);
     monitor_add_command("x",       "eXamine memory <addr> <length>",        x_function);
     #endif                         
-    monitor_add_command("clear",   "clear screen",   clear_function,       -1);
+    //monitor_add_command("clear",   "clear screen",   clear_function,       -1);
     monitor_add_command("help",    "",               banner_help_function, FWF_ROE_CMD_HELP_Code);
 
     // initial help
@@ -286,9 +286,8 @@ uint32_t run_light_function( void)
 void banner( void)
 {
     putstr("\n\n");
-    putchar('\f');
 
-    putstr("rena3 controller board");
+    putstr("rena3 - read out electronic");
 
     char *hw_revision = (char *)0x80000000;
 
@@ -298,6 +297,7 @@ void banner( void)
     }
     else
     {
+        putchar('\n'); putstr( FWF_ROE_ZPU_SW_VERSION);
         putstr("\nHW synthesized: "); putstr( hw_revision);
         putstr("\nSW compiled   : " __DATE__ "  " __TIME__ );
         putstr("\nsystem clock  : "); putint( F_CPU/1000000);  putstr(" MHz\n");
