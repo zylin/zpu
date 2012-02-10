@@ -7,6 +7,7 @@
 
 library      = sfp_sender
 top          = top_tb
+
 software_dir = ../software
 
 # http://sourceforge.net/projects/vmk/
@@ -18,6 +19,7 @@ library_list = $(shell cut vhdl_files.txt --field 1 --delimiter=' ' | sort --uni
 
 
 all: compile simulate
+
 
 software:
 	test ! -d $(software_dir) || make --directory $(software_dir) | ccze -A

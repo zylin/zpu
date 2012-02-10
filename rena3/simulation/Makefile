@@ -20,6 +20,7 @@ library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files
 
 all: compile simulate
 
+
 software:
 	test ! -d $(software_dir) || make --directory $(software_dir) | ccze -A
 
