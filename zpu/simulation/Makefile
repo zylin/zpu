@@ -4,6 +4,9 @@ library      = zpu
 # http://sourceforge.net/projects/vmk/
 VMK = vmk
 
+# generate list of used libs
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
+
 
 help:
 	@echo "defined targets:"
@@ -24,20 +27,20 @@ simulate:
 	vsim -quiet -gui -do run.do  -l transcript.log
 
 clean:
-	rm -rf $(library) 
 	rm -f transcript.log
 	rm -f *.wlf
 	rm -f trace.txt
 	rm -f log.txt
-	make -f Makefile.msim clean
-	rm -rf grlib
-	rm -rf zpu 
+	-make -f Makefile.msim clean
+	rm -rf $(library_list)
 	rm -f Makefile.msim
 	rm -f .stamp
 
 # generate Makefile.msim with vmk
-Makefile.msim: vhdl_files.txt
-	vlib zpu 
-	vlib grlib
+Makefile.msim: vhdl_files.txt $(library_list)
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
+
+$(library_list):
+	vlib $@
+	
 	

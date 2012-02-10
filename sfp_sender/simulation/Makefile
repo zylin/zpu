@@ -13,7 +13,7 @@ software_dir = ../software
 VMK = vmk
 
 # generate list of used libs
-LIBS = $(shell cut vhdl_files.txt --field 1 --delimiter=' ' | uniq)
+library_list = $(shell cut vhdl_files.txt --field 1 --delimiter=' ' | uniq)
 
 
 
@@ -28,7 +28,7 @@ compile: Makefile.msim
 
 simulate:
 	export top=$(top); \
-	vsim -quiet  -gui work.$(top) -do run.do -nowlfmcl -l transcript.log
+	vsim -quiet  -gui $(library).$(top) -do run.do -nowlfmcl -l transcript.log
 
 
 clean:
@@ -38,14 +38,17 @@ clean:
 	rm -f wlf*
 	@# compile stuff
 	-make -f Makefile.msim clean
-	@for LIB in $(LIBS) ; do rm -rf $$LIB ; done
+	rm -rf $(library_list)
 	rm -f Makefile.msim
 	rm -f .stamp
 
 
 # generate Makefile.msim with vmk
-Makefile.msim: vhdl_files.txt
-	@for LIB in $(LIBS) ; do vlib $$LIB ; done
+Makefile.msim: vhdl_files.txt $(library_list)
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
+
+$(library_list):
+	vlib $@
+	
 
 

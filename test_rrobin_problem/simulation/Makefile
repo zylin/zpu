@@ -40,11 +40,14 @@ clean:
 	@# vmk stuff
 	make -f Makefile.msim clean
 	rm -f Makefile.msim
-	for lib in $(library_list); do rm -rf $$lib; done
+	rm -rf $(library_list)
 
 
 # generate Makefile.msim with vmk
-Makefile.msim: vhdl_files.txt
-	for lib in $(library_list); do vlib $$lib; done
+Makefile.msim: vhdl_files.txt $(library_list)
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
+
+$(library_list):
+	vlib $@
+	
 	

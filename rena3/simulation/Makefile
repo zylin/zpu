@@ -29,7 +29,7 @@ compile: Makefile.msim
 
 simulate:
 	export top=$(top); \
-	vsim -quiet  -gui rena3.$(top) -do run.do -l transcript.log
+	vsim -quiet  -gui $(library).$(top) -do run.do -l transcript.log
 
 
 clean:
@@ -39,13 +39,15 @@ clean:
 	rm -f wlf*
 	@# compile stuff
 	-make -f Makefile.msim clean
-	for lib in $(library_list); do rm -rf $$lib; done
+	rm -rf $(library_list)
 	rm -f Makefile.msim
 	rm -f .stamp
 
 
 # generate Makefile.msim with vmk
-Makefile.msim: vhdl_files.txt
-	for lib in $(library_list); do vlib $$lib; done
+Makefile.msim: vhdl_files.txt $(library_list)
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
+
+$(library_list):
+	vlib $@
 	

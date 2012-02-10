@@ -27,7 +27,6 @@ simulate:
 
 
 clean:
-	rm -rf $(library) 
 	rm -f transcript
 	rm -f *.wlf
 	rm -f wlf*
@@ -35,19 +34,13 @@ clean:
 	make -f Makefile.msim clean
 	rm -f Makefile.msim
 	rm -f .stamp
-	for lib in $(library_list); do rm -rf $$lib; done
-
-
-# default patterns
-
-lib:	$(library)
-
-$(library):
-	vlib $(library)
+	rm -rf $(library_list)
 
 
 # generate Makefile.msim with vmk
-Makefile.msim: vhdl_files.txt lib
-	for lib in $(library_list); do vlib $$lib; done
+Makefile.msim: vhdl_files.txt $(library_list)
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
+	
+$(library_list):
+	vlib $@
 	
