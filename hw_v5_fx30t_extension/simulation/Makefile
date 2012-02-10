@@ -1,12 +1,14 @@
 #
 # $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/simulation/Makefile $
-# $Date: 2011-09-05 16:49:43 +0200 (Mo, 05. Sep 2011) $
-# $Author: lange $
-# $Revision: 1240 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 library      = work
 top          = top
+
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
 
 # http://sourceforge.net/projects/vmk/
 VMK = vmk
@@ -33,6 +35,7 @@ clean:
 	make -f Makefile.msim clean
 	rm -f Makefile.msim
 	rm -f .stamp
+	for lib in $(library_list); do rm -rf $$lib; done
 
 
 # default patterns
@@ -45,6 +48,6 @@ $(library):
 
 # generate Makefile.msim with vmk
 Makefile.msim: vhdl_files.txt lib
-	vlib work
+	for lib in $(library_list); do vlib $$lib; done
 	$(VMK) -t modelsim -O -w $(library) -F vhdl_files.txt
 	

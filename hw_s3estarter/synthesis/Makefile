@@ -41,8 +41,11 @@ check:
 
 
 update:
-	make all --directory $(SOFTWARE)
-	data2mem -bm zpu_i0_memory.bmm -bd $(SOFTWARE)/*.elf -bt xst/$(MODULE).bit -o b xst/$(MODULE)_update.bit
+	@# make software and update the bitfile
+	test -d $(SOFTWARE) && make all --directory $(SOFTWARE)
+	test -d $(SOFTWARE) && data2mem -bm zpu_i0_memory.bmm -bd $(SOFTWARE)/*.elf -bt xst/$(MODULE).bit -o b $(MODULE)_update.bit
+	@# without software just copy the bitfile
+	test -d $(SOFTWARE) || cp xst/$(MODULE).bit $(MODULE)_update.bit 
 
 
 program:
@@ -50,7 +53,7 @@ program:
 
 
 genmcs:
-	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 xst/$(MODULE)_update.bit
+	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 $(MODULE)_update.bit
 
 
 progspi: genmcs
@@ -59,7 +62,7 @@ progspi: genmcs
 
 clean:
 	rm -f *.log
-	rm _impact.cmd
+	rm -f _impact.cmd
 
 
 dir:	

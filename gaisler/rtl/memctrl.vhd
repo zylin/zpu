@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 library grlib;
 use grlib.amba.all;
+use grlib.stdlib.log2;
 library techmap;
 use techmap.gencomp.all;
 
@@ -44,6 +45,10 @@ type memory_in_type is record
   scb           : std_logic_vector(15 downto 0);
   edac          : std_logic;
 end record;
+
+constant memory_in_none : memory_in_type :=
+  ((others => '0'), '0', '0', '0', (others => '0'), (others => '0'),
+   (others => '0'), (others => '0'), (others => '0'), '0');
 
 type memory_out_type is record
   address       : std_logic_vector(31 downto 0);
@@ -73,25 +78,39 @@ type memory_out_type is record
   rs_edac_en    : std_ulogic;                      -- Reed-Solomon enabled
 end record;
 
+constant memory_out_none : memory_out_type :=
+  ((others => '0'), (others => '0'), (others => '0'), (others => '1'),
+   (others => '1'), '1', '1', (others => '1'), '1', (others => '1'),
+   '1', '1', (others => '1'), (others => '1'), (others => '1'),
+   (others => '1'), '0', (others => '0'), (others => '1'), (others => '1'),
+   (others => '1'), (others => '1'), '0', '0', '0');
+
 type sdctrl_in_type is record
   wprot     : std_ulogic;
   data      : std_logic_vector (127 downto 0);  -- data in
-  cb        : std_logic_vector(15 downto 0);
+  cb        : std_logic_vector(63 downto 0);  
+  regrdata  : std_logic_vector(63 downto 0);  -- PHY-specific reg in
+  datavalid : std_logic;                -- Data-valid signal
 end record;
+
+constant sdctrl_in_none : sdctrl_in_type :=
+  ('0', (others => '0'), (others => '0'), (others => '0'), '0');
 
 type sdctrl_out_type is record
   sdcke     : std_logic_vector ( 1 downto 0);  -- clk en
   sdcsn     : std_logic_vector ( 1 downto 0);  -- chip sel
+  xsdcsn    : std_logic_vector ( 7 downto 0);  -- ext. chip sel
   sdwen     : std_ulogic;                       -- write en
   rasn      : std_ulogic;                       -- row addr stb
   casn      : std_ulogic;                       -- col addr stb
   dqm       : std_logic_vector ( 15 downto 0);  -- data i/o mask
   bdrive    : std_ulogic;                       -- bus drive
   qdrive    : std_ulogic;                       -- bus drive
-  vbdrive   : std_logic_vector(31 downto 0);   -- vector bus drive
+  nbdrive   : std_ulogic;                      -- bdrive 1 cycle early
+  vbdrive   : std_logic_vector(63 downto 0);   -- vector bus drive
   address   : std_logic_vector (16 downto 2);  -- address out
   data      : std_logic_vector (127 downto 0);  -- data out
-  cb        : std_logic_vector(15 downto 0);
+  cb        : std_logic_vector(63 downto 0);
   ce        : std_ulogic;
   ba        : std_logic_vector (2 downto 0);  -- bank address
   sdck      : std_logic_vector(2 downto 0);
@@ -103,8 +122,25 @@ type sdctrl_out_type is record
   odt       : std_logic_vector(1 downto 0); -- In Die Termination
   conf      : std_logic_vector(63 downto 0);
   oct       : std_logic;                    -- On Chip Termination
-  dqs_gate  : std_ulogic;                   -- dqsen
+  vcbdrive  : std_logic_vector(31 downto 0);   -- cb vector bus drive
+  cbdqm     : std_logic_vector(7 downto 0);
+  cbcal_en  : std_logic_vector(3 downto 0);
+  cbcal_inc : std_logic_vector(3 downto 0);
+  read_pend : std_logic_vector(7 downto 0);  -- Read pending within 7...0
+                                             -- cycles (not including phy delays)
+  -- PHY-specific register interface
+  regwdata  : std_logic_vector(63 downto 0);
+  regwrite  : std_logic_vector(1 downto 0);
 end record;
+
+constant sdctrl_out_none : sdctrl_out_type :=
+  ((others => '0'), (others => '0'), (others => '0'), '0', '0', '0', (others => '0'),
+   '0', '0', '0', (others => '0'), (others => '0'), (others => '0'),
+   (others => '0'), '0', (others => '0'), (others => '0'), '0',
+   (others => '0'), (others => '0'), (others => '0'), '0',
+   (others => '0'), (others => '0'), '0', (others => '0'),
+   (others => '0'), (others => '0'), (others => '0'), "00000000",
+   (others => '0'), "00");
 
 type sdram_out_type is record
   sdcke     : std_logic_vector ( 1 downto 0);  -- clk en
@@ -127,6 +163,31 @@ component sdctrl
     fast    : integer := 0;
     pwron   : integer := 0;
     sdbits  : integer := 32;
+    oepol   : integer := 0;
+    pageburst : integer := 0;
+    mobile  : integer := 0
+  );
+  port (
+    rst    : in  std_ulogic;
+    clk    : in  std_ulogic;
+    ahbsi  : in  ahb_slv_in_type;
+    ahbso  : out ahb_slv_out_type;
+    sdi    : in  sdctrl_in_type;
+    sdo    : out sdctrl_out_type
+  );
+end component;
+
+component sdctrl64
+  generic (
+    hindex  : integer := 0;
+    haddr   : integer := 0;
+    hmask   : integer := 16#f00#;
+    ioaddr  : integer := 16#000#;
+    iomask  : integer := 16#fff#;
+    wprot   : integer := 0;
+    invclk  : integer := 0;
+    fast    : integer := 0;
+    pwron   : integer := 0;
     oepol   : integer := 0;
     pageburst : integer := 0;
     mobile  : integer := 0
@@ -169,6 +230,31 @@ component ftsdctrl is
   );
 end component;
 
+component ftsdctrl64
+  generic (
+    hindex  : integer := 0;
+    haddr   : integer := 0;
+    hmask   : integer := 16#f00#;
+    ioaddr  : integer := 16#000#;
+    iomask  : integer := 16#fff#;
+    wprot   : integer := 0;
+    invclk  : integer := 0;
+    fast    : integer := 0;
+    pwron   : integer := 0;
+    oepol   : integer := 0;
+    pageburst : integer := 0;
+    mobile  : integer := 0;
+    edac    : integer := 0
+  );
+  port (
+    rst     : in  std_ulogic;
+    clk     : in  std_ulogic;
+    ahbsi   : in  ahb_slv_in_type;
+    ahbso   : out ahb_slv_out_type;
+    sdi     : in  sdctrl_in_type;
+    sdo     : out sdctrl_out_type
+  );
+end component;
 
 component srctrl
   generic (
@@ -226,7 +312,9 @@ component ftsrctrl is
     cntbits      : integer range 1 to 8 := 1;
     wsreg        : integer := 0;
     oepol        : integer := 0;
-    prom8en      : integer := 0
+    prom8en      : integer := 0;
+    netlist      : integer := 0;
+    tech         : integer := 0
   );
   port (
     rst          : in  std_ulogic;
@@ -349,7 +437,10 @@ component ftmctrl
     pageburst : integer := 0;
     scantest  : integer := 0;
     writefb   : integer := 0;
-    netlist   : integer := 0
+    netlist   : integer := 0;
+    tech      : integer := 0;
+    rahold    : integer := 0;
+    wsshift   : integer := 0
   );
   port (
     rst       : in  std_ulogic;
@@ -668,108 +759,194 @@ end component;
   );
   end component; 
 
-component ddr2sp16a
-  generic (
-    memtech : integer := 0;
-    hindex  : integer := 0;
-    haddr   : integer := 0;
-    hmask   : integer := 16#f00#;
-    ioaddr  : integer := 16#000#;
-    iomask  : integer := 16#fff#;
-    MHz     : integer := 100;
-    TRFC    : integer := 130;
-    col     : integer := 9; 
-    Mbyte   : integer := 16; 
-    fast    : integer := 0; 
-    pwron   : integer := 0;
-    oepol   : integer := 0;
-    readdly : integer := 1;
-    odten      : integer := 0;
-    octen      : integer := 0;
-    dqsgating  : integer := 0;
-    nosync     : integer := 0;
-    eightbanks : integer  range 0 to 1 := 0;
-    dqsse      : integer range 0 to 1 := 0
-  );
+component ddr2buf is
+  generic (tech : integer := 0; wabits : integer := 6; wdbits : integer := 8;
+  rabits : integer := 6; rdbits : integer := 8;
+  sepclk : integer := 0; wrfst : integer := 0; testen : integer := 0);
   port (
-    rst     : in  std_ulogic;
-    clk_ddr : in  std_ulogic;
-    clk_ahb : in  std_ulogic;
-    ahbsi   : in  ahb_slv_in_type;
-    ahbso   : out ahb_slv_out_type;
-    sdi     : in  sdctrl_in_type;
-    sdo     : out sdctrl_out_type
-  );
+    rclk     : in std_ulogic;
+    renable  : in std_ulogic;
+    raddress : in std_logic_vector((rabits -1) downto 0);
+    dataout  : out std_logic_vector((rdbits -1) downto 0);
+    wclk     : in std_ulogic;
+    write    : in std_ulogic;
+    writebig : in std_ulogic;
+    waddress : in std_logic_vector((wabits -1) downto 0);
+    datain   : in std_logic_vector((wdbits -1) downto 0);
+    testin   : in std_logic_vector(3 downto 0) := "0000");
 end component;
 
-component ddr2sp32a
-  generic (
-    memtech : integer := 0;
-    hindex  : integer := 0;
-    haddr   : integer := 0;
-    hmask   : integer := 16#f00#;
-    ioaddr  : integer := 16#000#;
-    iomask  : integer := 16#fff#;
-    MHz     : integer := 100;
-    TRFC    : integer := 130;
-    col     : integer := 9; 
-    Mbyte   : integer := 16; 
-    fast    : integer := 0; 
-    pwron   : integer := 0;
-    oepol   : integer := 0;
-    readdly : integer := 1;
-    odten      : integer := 0;
-    octen      : integer := 0;
-    dqsgating  : integer := 0;
-    nosync     : integer := 0;
-    eightbanks : integer  range 0 to 1 := 0;
-    dqsse      : integer range 0 to 1 := 0
-  );
-  port (
-    rst     : in  std_ulogic;
-    clk_ddr : in  std_ulogic;
-    clk_ahb : in  std_ulogic;
-    ahbsi   : in  ahb_slv_in_type;
-    ahbso   : out ahb_slv_out_type;
-    sdi     : in  sdctrl_in_type;
-    sdo     : out sdctrl_out_type
-  );
+type ddr_request_type is record
+  startaddr : std_logic_vector(31 downto 0);
+  endaddr   : std_logic_vector(9 downto 0);
+  hsize     : std_logic_vector(2 downto 0);
+  hwrite    : std_ulogic;
+  hio       : std_ulogic;
+  maskdata  : std_ulogic;
+  maskcb    : std_ulogic;
+  burst     : std_ulogic;
+end record;
+
+constant ddr_request_none: ddr_request_type :=
+  ((others => '0'), (others => '0'), "000", '0','0','0','0','0');
+   
+component ddr2spax_ahb is
+   generic (
+      hindex     : integer := 0;
+      haddr      : integer := 0;
+      hmask      : integer := 16#f00#;
+      ioaddr     : integer := 16#000#;
+      iomask     : integer := 16#fff#;
+      burstlen   : integer := 8;
+      nosync     : integer := 0;
+      ahbbits    : integer := ahbdw;
+      revision   : integer := 0
+   );
+   port (
+      rst       : in  std_ulogic;
+      clk_ahb   : in  std_ulogic;
+      ahbsi     : in  ahb_slv_in_type;
+      ahbso     : out ahb_slv_out_type;
+      request   : out ddr_request_type;
+      start_tog : out std_logic;
+      done_tog  : in std_logic;
+      wbwaddr   : out std_logic_vector(log2(burstlen) downto 0);
+      wbwdata   : out std_logic_vector(ahbdw-1 downto 0);
+      wbwrite   : out std_logic;
+      wbwritebig: out std_logic;
+      rbraddr   : out std_logic_vector(log2(burstlen*32/ahbdw)-1 downto 0);
+      rbrdata   : in std_logic_vector(ahbdw-1 downto 0)
+   );  
 end component;
 
-component ddr2sp64a
-  generic (
-    memtech : integer := 0;
-    hindex  : integer := 0;
-    haddr   : integer := 0;
-    hmask   : integer := 16#f00#;
-    ioaddr  : integer := 16#000#;
-    iomask  : integer := 16#fff#;
-    MHz     : integer := 100;
-    TRFC    : integer := 130;
-    col     : integer := 9; 
-    Mbyte   : integer := 16; 
-    fast    : integer := 0; 
-    pwron   : integer := 0;
-    oepol   : integer := 0;
-    readdly : integer := 1;
-    odten      : integer := 0;
-    octen      : integer := 0;
-    dqsgating  : integer := 0;
-    nosync     : integer := 0;
-    eightbanks : integer  range 0 to 1 := 0;
-    dqsse      : integer range 0 to 1 := 0
-  );
-  port (
-    rst     : in  std_ulogic;
-    clk_ddr : in  std_ulogic;
-    clk_ahb : in  std_ulogic;
-    ahbsi   : in  ahb_slv_in_type;
-    ahbso   : out ahb_slv_out_type;
-    sdi     : in  sdctrl_in_type;
-    sdo     : out sdctrl_out_type
-  );
+component ft_ddr2spax_ahb is
+   generic (
+      hindex     : integer := 0;
+      haddr      : integer := 0;
+      hmask      : integer := 16#f00#;
+      ioaddr     : integer := 16#000#;
+      iomask     : integer := 16#fff#;
+      burstlen   : integer := 8;
+      nosync     : integer := 0;
+      ahbbits    : integer := 64;
+      bufbits    : integer := 96;
+      ddrbits    : integer := 16;
+      hwidthen   : integer := 0;
+      revision   : integer := 0
+   );
+   port (
+      rst       : in  std_ulogic;
+      clk_ahb   : in  std_ulogic;
+      ahbsi     : in  ahb_slv_in_type;
+      ahbso     : out ahb_slv_out_type;
+      ce        : out std_logic;
+      request   : out ddr_request_type;
+      start_tog : out std_logic;
+      done_tog  : in std_logic;
+      wbwaddr   : out std_logic_vector(log2(burstlen)-2 downto 0);
+      wbwdata   : out std_logic_vector(bufbits-1 downto 0);
+      wbwrite   : out std_logic;
+      wbwritebig: out std_logic;
+      rbraddr   : out std_logic_vector(log2(burstlen*32/ahbbits)-1 downto 0);
+      rbrdata   : in std_logic_vector(bufbits-1 downto 0);
+      hwidth    : in std_logic;
+      synccfg   : in std_logic;
+      request2  : out ddr_request_type;
+      start_tog2: out std_logic
+   );  
 end component;
 
+component ddr2spax_ddr is
+   generic (
+      ddrbits    : integer := 32;
+      burstlen   : integer := 8;
+      MHz        : integer := 100;
+      TRFC       : integer := 130;
+      col        : integer := 9;
+      Mbyte      : integer := 8;
+      fastahb    : integer := 0;
+      pwron      : integer := 0;
+      oepol      : integer := 0;
+      readdly    : integer := 1;
+      odten      : integer := 0;
+      octen      : integer := 0;
+      dqsgating  : integer := 0;
+      nosync     : integer := 0;
+      eightbanks : integer range 0 to 1 := 0; -- Set to 1 if 8 banks instead of 4
+      dqsse      : integer range 0 to 1 := 0;  -- single ended DQS
+      ddr_syncrst: integer range 0 to 1 := 0;
+      chkbits    : integer := 0;
+      bigmem     : integer range 0 to 1 := 0;
+      raspipe    : integer range 0 to 1 := 0;
+      hwidthen   : integer range 0 to 1 := 0;
+      phytech    : integer := 0;
+      hasdqvalid : integer := 0
+   );
+   port (
+      ddr_rst  : in  std_ulogic;
+      clk_ddr  : in  std_ulogic;
+      request  : in ddr_request_type;
+      start_tog: in std_logic;
+      done_tog : out std_logic;
+      sdi      : in  sdctrl_in_type;
+      sdo      : out sdctrl_out_type;
+      wbraddr  : out std_logic_vector(log2((16*burstlen)/ddrbits) downto 0);
+      wbrdata  : in std_logic_vector(2*(ddrbits+chkbits)-1 downto 0);
+      rbwaddr  : out std_logic_vector(log2((16*burstlen)/ddrbits)-1 downto 0);
+      rbwdata  : out std_logic_vector(2*(ddrbits+chkbits)-1 downto 0);
+      rbwrite  : out std_logic;
+      hwidth   : in std_ulogic;
+      -- dynamic sync (nosync=2)
+      reqsel   : in std_ulogic;
+      frequest : in ddr_request_type;
+      done_tog2: out std_ulogic
+   );  
+end component;
+
+component ddr2spax is
+   generic (
+      memtech    : integer := 0;
+      phytech    : integer := 0;
+      hindex     : integer := 0;
+      haddr      : integer := 0;
+      hmask      : integer := 16#f00#;
+      ioaddr     : integer := 16#000#;
+      iomask     : integer := 16#fff#;
+      ddrbits    : integer := 32;
+      burstlen   : integer := 8;
+      MHz        : integer := 100;
+      TRFC       : integer := 130;
+      col        : integer := 9;
+      Mbyte      : integer := 8;
+      fastahb    : integer := 0;
+      pwron      : integer := 0;
+      oepol      : integer := 0;
+      readdly    : integer := 1;
+      odten      : integer := 0;
+      octen      : integer := 0;
+      dqsgating  : integer := 0;
+      nosync     : integer := 0;
+      eightbanks : integer range 0 to 1 := 0; -- Set to 1 if 8 banks instead of 4
+      dqsse      : integer range 0 to 1 := 0;  -- single ended DQS
+      ddr_syncrst: integer range 0 to 1 := 0;
+      ahbbits    : integer := ahbdw;
+      ft         : integer range 0 to 1 := 0;
+      bigmem     : integer range 0 to 1 := 0;
+      raspipe    : integer range 0 to 1 := 0;
+      hwidthen   : integer range 0 to 1 := 0
+   );
+   port (
+      ddr_rst : in  std_ulogic;
+      ahb_rst : in  std_ulogic;
+      clk_ddr : in  std_ulogic;
+      clk_ahb : in  std_ulogic;
+      ahbsi   : in  ahb_slv_in_type;
+      ahbso   : out ahb_slv_out_type;
+      sdi     : in  sdctrl_in_type;
+      sdo     : out sdctrl_out_type;
+      hwidth  : in  std_ulogic
+   );  
+end component;
 
 component ddr2spa
   generic (
@@ -801,6 +978,10 @@ component ddr2spa
     ddelayb5 : integer := 0;
     ddelayb6 : integer := 0;
     ddelayb7 : integer := 0;
+    cbdelayb0 : integer := 0;
+    cbdelayb1 : integer := 0;
+    cbdelayb2 : integer := 0;
+    cbdelayb3 : integer := 0;
     numidelctrl : integer := 4; 
     norefclk : integer := 0;
     odten    : integer := 0;
@@ -808,7 +989,13 @@ component ddr2spa
     dqsgating : integer := 0;
     nosync    : integer := 0;
     eightbanks : integer := 0;
-    dqsse      : integer range 0 to 1 := 0
+    dqsse      : integer range 0 to 1 := 0;
+    burstlen : integer range 4 to 128 := 8;
+    ahbbits    : integer := ahbdw;
+    ft : integer range 0 to 1 := 0;
+    ftbits : integer := 0;
+    bigmem : integer range 0 to 1 := 0;
+    raspipe : integer range 0 to 1 := 0
   );
   port (
     rst_ddr    : in  std_ulogic;
@@ -830,17 +1017,18 @@ component ddr2spa
     ddr_web  	: out std_ulogic;                       -- ddr write enable
     ddr_rasb  	: out std_ulogic;                       -- ddr ras
     ddr_casb  	: out std_ulogic;                       -- ddr cas
-    ddr_dm   	: out std_logic_vector (ddrbits/8-1 downto 0);   -- ddr dm
-    ddr_dqs  	: inout std_logic_vector (ddrbits/8-1 downto 0); -- ddr dqs
-    ddr_dqsn  	: inout std_logic_vector (ddrbits/8-1 downto 0); -- ddr dqsn
-    ddr_ad      : out std_logic_vector (13 downto 0);            -- ddr address
-    ddr_ba      : out std_logic_vector (1+eightbanks downto 0);            -- ddr bank address
-    ddr_dq    	: inout  std_logic_vector (ddrbits-1 downto 0);  -- ddr data
-    ddr_odt	: out std_logic_vector(1 downto 0)
+    ddr_dm   	: out std_logic_vector ((ddrbits+ftbits)/8-1 downto 0);   -- ddr dm
+    ddr_dqs  	: inout std_logic_vector ((ddrbits+ftbits)/8-1 downto 0); -- ddr dqs
+    ddr_dqsn  	: inout std_logic_vector ((ddrbits+ftbits)/8-1 downto 0); -- ddr dqsn
+    ddr_ad      : out std_logic_vector (13 downto 0);                     -- ddr address
+    ddr_ba      : out std_logic_vector (1+eightbanks downto 0);           -- ddr bank address
+    ddr_dq    	: inout  std_logic_vector (ddrbits+ftbits-1 downto 0);    -- ddr data
+    ddr_odt	: out std_logic_vector(1 downto 0);
+    ce          : out std_logic
   );
   end component; 
-
-  component ddr_phy
+  
+  component ddrphy_wrap
   generic (tech : integer := virtex2; MHz : integer := 100; 
 	rstdelay : integer := 200; dbits : integer := 16; 
 	clk_mul : integer := 2 ; clk_div : integer := 2;
@@ -874,45 +1062,173 @@ component ddr2spa
     psclk       : in  std_ulogic;
     psen        : in  std_ulogic;
     psincdec    : in  std_ulogic
-  );
+    );
   end component;
 
-  component ddr2_phy
+  component ddr2phy_wrap
     generic (
       tech        : integer := virtex2;    MHz      : integer := 100;
-      rstdelay    : integer := 200;        dbits    : integer := 16;
+      rstdelay    : integer := 200;        dbits    : integer := 16;    padbits  : integer := 0;
       clk_mul     : integer := 2;          clk_div  : integer := 2;
       ddelayb0    : integer := 0;          ddelayb1 : integer := 0;     ddelayb2 : integer := 0;
       ddelayb3    : integer := 0;          ddelayb4 : integer := 0;     ddelayb5 : integer := 0;
       ddelayb6    : integer := 0;          ddelayb7 : integer := 0;
+      cbdelayb0   : integer := 0;          cbdelayb1: integer := 0;     cbdelayb2: integer := 0;
+      cbdelayb3   : integer := 0;
       numidelctrl : integer := 4;          norefclk : integer := 0;     rskew    : integer := 0;
-      eightbanks  : integer range 0 to 1 := 0; dqsse : integer range 0 to 1 := 0);
+      eightbanks  : integer range 0 to 1 := 0; dqsse : integer range 0 to 1 := 0;
+      abits       : integer := 14;         nclk     : integer := 3;     ncs      : integer := 2;
+      cben        : integer := 0;          chkbits  : integer := 8;     ctrl2en  : integer := 0;
+      resync      : integer := 0;          custombits: integer := 8);
     port (
       rst            : in    std_ulogic;
       clk            : in    std_logic;   -- input clock
       clkref200      : in    std_logic;   -- input 200MHz clock
       clkout         : out   std_ulogic;  -- system clock
+      clkoutret      : in    std_ulogic;  -- system clock returned
+      clkresync      : in    std_ulogic;
       lock           : out   std_ulogic;  -- DCM locked
 
-      ddr_clk        : out   std_logic_vector(2 downto 0);
-      ddr_clkb       : out   std_logic_vector(2 downto 0);
+      ddr_clk        : out   std_logic_vector(nclk-1 downto 0);
+      ddr_clkb       : out   std_logic_vector(nclk-1 downto 0);
       ddr_clk_fb_out : out   std_logic;
       ddr_clk_fb     : in    std_logic;
-      ddr_cke        : out   std_logic_vector(1 downto 0);
-      ddr_csb        : out   std_logic_vector(1 downto 0);
+      ddr_cke        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_csb        : out   std_logic_vector(ncs-1 downto 0);
       ddr_web        : out   std_ulogic;                               -- ddr write enable
       ddr_rasb       : out   std_ulogic;                               -- ddr ras
       ddr_casb       : out   std_ulogic;                               -- ddr cas
-      ddr_dm         : out   std_logic_vector (dbits/8-1 downto 0);    -- ddr dm
-      ddr_dqs        : inout std_logic_vector (dbits/8-1 downto 0);    -- ddr dqs
-      ddr_dqsn       : inout std_logic_vector (dbits/8-1 downto 0);    -- ddr dqs
-      ddr_ad         : out   std_logic_vector (13 downto 0);           -- ddr address
+      ddr_dm         : out   std_logic_vector ((dbits+padbits)/8-1 downto 0);    -- ddr dm
+      ddr_dqs        : inout std_logic_vector ((dbits+padbits)/8-1 downto 0);    -- ddr dqs
+      ddr_dqsn       : inout std_logic_vector ((dbits+padbits)/8-1 downto 0);    -- ddr dqs
+      ddr_ad         : out   std_logic_vector (abits-1 downto 0);           -- ddr address
       ddr_ba         : out   std_logic_vector (1+eightbanks downto 0); -- ddr bank address
-      ddr_dq         : inout std_logic_vector (dbits-1 downto 0);      -- ddr data
-      ddr_odt        : out   std_logic_vector(1 downto 0);
-
+      ddr_dq         : inout std_logic_vector (dbits+padbits-1 downto 0);      -- ddr data
+      ddr_odt        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_cbdm       : out   std_logic_vector(chkbits/8-1 downto 0);
+      ddr_cbdqs      : inout std_logic_vector(chkbits/8-1 downto 0);
+      ddr_cbdqsn     : inout std_logic_vector(chkbits/8-1 downto 0);
+      ddr_cbdq       : inout std_logic_vector(chkbits-1 downto 0);
+      ddr_web2       : out   std_ulogic;                               -- ddr write enable
+      ddr_rasb2      : out   std_ulogic;                               -- ddr ras
+      ddr_casb2      : out   std_ulogic;                               -- ddr cas
+      ddr_ad2        : out   std_logic_vector (abits-1 downto 0);      -- ddr address
+      ddr_ba2        : out   std_logic_vector (1+eightbanks downto 0); -- ddr bank address
+      
       sdi            : out   sdctrl_in_type;
-      sdo            : in    sdctrl_out_type
+      sdo            : in    sdctrl_out_type;
+
+      customclk      : in    std_ulogic;
+      customdin      : in    std_logic_vector(custombits-1 downto 0);
+      customdout     : out   std_logic_vector(custombits-1 downto 0)
+      );
+  end component;
+
+  component ddr2phy_wrap_cbd is
+    generic (tech     : integer := virtex2; MHz        : integer := 100; 
+    rstdelay    : integer := 200;     dbits      : integer := 16;  padbits  : integer := 0;
+    clk_mul     : integer := 2 ;      clk_div    : integer := 2;
+    ddelayb0    : integer := 0;       ddelayb1   : integer := 0;   ddelayb2 : integer := 0;
+    ddelayb3    : integer := 0;       ddelayb4   : integer := 0;   ddelayb5 : integer := 0;
+    ddelayb6    : integer := 0;       ddelayb7   : integer := 0;
+    cbdelayb0   : integer := 0;       cbdelayb1: integer := 0;     cbdelayb2: integer := 0;
+    cbdelayb3   : integer := 0;
+    numidelctrl : integer := 4;       norefclk   : integer := 0;   odten    : integer := 0;
+    rskew       : integer := 0;       eightbanks : integer range 0 to 1 := 0;
+    dqsse       : integer range 0 to 1 := 0;
+    abits       : integer := 14;      nclk     : integer := 3;     ncs      : integer := 2;
+    chkbits  : integer := 0;          ctrl2en  : integer := 0;
+    resync      : integer := 0;       custombits : integer := 8; extraio: integer := 0);
+    port (
+      rst            : in    std_ulogic;
+      clk            : in    std_logic;   -- input clock
+      clkref200      : in    std_logic;   -- input 200MHz clock
+      clkout         : out   std_ulogic;  -- system clock
+      clkoutret      : in    std_ulogic;  -- system clock returned
+      clkresync      : in    std_ulogic;
+      lock           : out   std_ulogic;  -- DCM locked
+
+      ddr_clk        : out   std_logic_vector(nclk-1 downto 0);
+      ddr_clkb       : out   std_logic_vector(nclk-1 downto 0);
+      ddr_clk_fb_out : out   std_logic;
+      ddr_clk_fb     : in    std_logic;
+      ddr_cke        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_csb        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_web        : out   std_ulogic;                               -- ddr write enable
+      ddr_rasb       : out   std_ulogic;                               -- ddr ras
+      ddr_casb       : out   std_ulogic;                               -- ddr cas
+      ddr_dm         : out   std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dm
+      ddr_dqs        : inout std_logic_vector (extraio+(dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dqs
+      ddr_dqsn       : inout std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dqs
+      ddr_ad         : out   std_logic_vector (abits-1 downto 0);           -- ddr address
+      ddr_ba         : out   std_logic_vector (1+eightbanks downto 0); -- ddr bank address
+      ddr_dq         : inout std_logic_vector (dbits+padbits+chkbits-1 downto 0);      -- ddr data
+      ddr_odt        : out   std_logic_vector(ncs-1 downto 0);
+      
+      ddr_web2       : out   std_ulogic;                               -- ddr write enable
+      ddr_rasb2      : out   std_ulogic;                               -- ddr ras
+      ddr_casb2      : out   std_ulogic;                               -- ddr cas
+      ddr_ad2        : out   std_logic_vector (abits-1 downto 0);      -- ddr address
+      ddr_ba2        : out   std_logic_vector (1+eightbanks downto 0); -- ddr bank address
+      
+      sdi            : out   sdctrl_in_type;
+      sdo            : in    sdctrl_out_type;
+
+      customclk      : in    std_ulogic;
+      customdin      : in    std_logic_vector(custombits-1 downto 0);
+      customdout     : out   std_logic_vector(custombits-1 downto 0)
+      );
+  end component;
+
+  component ddr2phy_wrap_cbd_wo_pads is
+    generic (tech     : integer := virtex2; MHz        : integer := 100; 
+	rstdelay    : integer := 200;     dbits      : integer := 16;  padbits  : integer := 0;
+	clk_mul     : integer := 2 ;      clk_div    : integer := 2;
+	ddelayb0    : integer := 0;       ddelayb1   : integer := 0;   ddelayb2 : integer := 0;
+	ddelayb3    : integer := 0;       ddelayb4   : integer := 0;   ddelayb5 : integer := 0;
+	ddelayb6    : integer := 0;       ddelayb7   : integer := 0;
+        cbdelayb0   : integer := 0;       cbdelayb1: integer := 0;     cbdelayb2: integer := 0;
+        cbdelayb3   : integer := 0;
+        numidelctrl : integer := 4;       norefclk   : integer := 0;   odten    : integer := 0;
+        rskew       : integer := 0;       eightbanks : integer range 0 to 1 := 0;
+        dqsse       : integer range 0 to 1 := 0;
+        abits       : integer := 14;      nclk     : integer := 3;     ncs      : integer := 2;
+        chkbits     : integer := 0;       resync     : integer := 0;   custombits : integer := 8);
+    port (
+      rst            : in    std_ulogic;
+      clk            : in    std_logic;   -- input clock
+      clkref200      : in    std_logic;   -- input 200MHz clock
+      clkout         : out   std_ulogic;  -- system clock
+      clkoutret      : in    std_ulogic;  -- system clock return
+      clkresync      : in    std_ulogic;
+      lock           : out   std_ulogic;  -- DCM locked
+
+      ddr_clk        : out   std_logic_vector(nclk-1 downto 0);
+      ddr_clkb       : out   std_logic_vector(nclk-1 downto 0);
+      ddr_clk_fb_out : out   std_logic;
+      ddr_clk_fb     : in    std_logic;
+      ddr_cke        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_csb        : out   std_logic_vector(ncs-1 downto 0);
+      ddr_web        : out   std_ulogic;                               -- ddr write enable
+      ddr_rasb       : out   std_ulogic;                               -- ddr ras
+      ddr_casb       : out   std_ulogic;                               -- ddr cas
+      ddr_dm         : out   std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dm
+      ddr_dqs_in     : in    std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dqs
+      ddr_dqs_out    : out   std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dqs
+      ddr_dqs_oen    : out   std_logic_vector ((dbits+padbits+chkbits)/8-1 downto 0);    -- ddr dqs
+      ddr_ad         : out   std_logic_vector (abits-1 downto 0);           -- ddr address
+      ddr_ba         : out   std_logic_vector (1+eightbanks downto 0); -- ddr bank address
+      ddr_dq_in      : in    std_logic_vector (dbits+padbits+chkbits-1 downto 0);      -- ddr data
+      ddr_dq_out     : out   std_logic_vector (dbits+padbits+chkbits-1 downto 0);      -- ddr data
+      ddr_dq_oen     : out   std_logic_vector (dbits+padbits+chkbits-1 downto 0);      -- ddr data
+      ddr_odt        : out   std_logic_vector(ncs-1 downto 0);
+    
+      sdi            : out   sdctrl_in_type;
+      sdo            : in    sdctrl_out_type;
+
+      customclk      : in    std_ulogic;
+      customdin      : in    std_logic_vector(custombits-1 downto 0);
+      customdout     : out   std_logic_vector(custombits-1 downto 0)
       );
   end component;
 
@@ -968,21 +1284,22 @@ component ddr2spa
 
   component spimctrl
     generic (
-      hindex     : integer := 0;
-      hirq       : integer := 0;
-      faddr      : integer := 16#000#;
-      fmask      : integer := 16#fff#;
-      ioaddr     : integer := 16#000#;
-      iomask     : integer := 16#fff#;
-      spliten    : integer := 0;
-      oepol      : integer := 0;
-      sdcard     : integer range 0 to 1   := 0;
-      readcmd    : integer range 0 to 255 := 16#0B#;
-      dummybyte  : integer range 0 to 1   := 1;
-      dualoutput : integer range 0 to 1   := 0;
-      scaler     : integer range 1 to 512 := 1;
-      altscaler  : integer range 1 to 512 := 1;
-      pwrupcnt   : integer := 0
+      hindex      : integer := 0;
+      hirq        : integer := 0;
+      faddr       : integer := 16#000#;
+      fmask       : integer := 16#fff#;
+      ioaddr      : integer := 16#000#;
+      iomask      : integer := 16#fff#;
+      spliten     : integer := 0;
+      oepol       : integer := 0;
+      sdcard      : integer range 0 to 1   := 0;
+      readcmd     : integer range 0 to 255 := 16#0B#;
+      dummybyte   : integer range 0 to 1   := 1;
+      dualoutput  : integer range 0 to 1   := 0;
+      scaler      : integer range 1 to 512 := 1;
+      altscaler   : integer range 1 to 512 := 1;
+      pwrupcnt    : integer := 0;
+      maxahbaccsz : integer range 0 to 256 := AHBDW
       );
     port (
       rstn    : in  std_ulogic;

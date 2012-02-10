@@ -1,27 +1,35 @@
 #
 # $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp605/simulation/Makefile $
-# $Date: 2011-09-09 14:11:20 +0200 (Fr, 09. Sep 2011) $
-# $Author: lange $
-# $Revision: 1246 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 library      = rena3
 top          = top_tb
 
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
+software_dir = ../software
+
 
 # http://sourceforge.net/projects/vmk/
 VMK = vmk
 
+# generate list of used libs
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
+
+
+all: compile simulate
+
+
 compile: Makefile.msim
-	make --directory ../software | ccze -A
+	test -d $(software_dir) && make --directory $(software_dir) | ccze -A
 	export ANAFLAGS="-quiet -2008"; \
 	make -f Makefile.msim | ccze -A
 
 
 simulate:
 	export top=$(top); \
-	vsim -quiet  -gui $(library).$(top) -do run.do -l transcript.log
+	vsim -quiet  -gui rena3.$(top) -do run.do -l transcript.log
 
 
 clean:
@@ -29,10 +37,11 @@ clean:
 	rm -f transcript.log
 	rm -f *.wlf
 	rm -f wlf*
-	@# vmk stuff
-	make -f Makefile.msim clean
-	rm -f Makefile.msim
+	@# compile stuff
+	-make -f Makefile.msim clean
 	for lib in $(library_list); do rm -rf $$lib; done
+	rm -f Makefile.msim
+	rm -f .stamp
 
 
 # generate Makefile.msim with vmk

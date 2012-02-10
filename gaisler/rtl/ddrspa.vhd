@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ signal clkread  : std_ulogic;
 
 begin
 
-  ddr_phy0 : ddr_phy generic map (tech => fabtech, MHz => MHz,  
+  ddr_phy0 : ddrphy_wrap generic map (tech => fabtech, MHz => MHz,  
 	dbits => ddrbits, rstdelay => rstdel, clk_mul => clkmul, 
 	clk_div => clkdiv, rskew => rskew, mobile => mobile)
   port map (

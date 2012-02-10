@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -191,6 +191,7 @@ signal rdata, wdata, rwdata, rbdrive, ribdrive : std_logic_vector(31 downto 0);
 signal waddr2 : std_logic_vector(abuf-1 downto 0);
 signal ddr_rst : std_logic;
 signal ddr_rst_gen  : std_logic_vector(3 downto 0);
+signal hwdata : std_logic_vector(31 downto 0);
 
 attribute keep                     : boolean;
 attribute syn_keep                 : boolean;
@@ -291,7 +292,7 @@ begin
     rai <= v;
     ahbso.hready  <= ra.hready;
     ahbso.hresp   <= ra.hresp;
-    ahbso.hrdata  <= ra.hrdata(31 downto 0);
+    ahbso.hrdata  <= ahbdrivedata(ra.hrdata);
     ahbso.hcache  <= not ra.hio;
 
   end process;
@@ -910,6 +911,7 @@ begin
 
   ahbso.hconfig <= hconfig;
   ahbso.hirq    <= (others => '0');
+  ahbso.hsplit  <= (others => '0');
   ahbso.hindex  <= hindex;
 
   ahbregs : process(clk_ahb) begin 
@@ -943,10 +945,11 @@ begin
   end process;
 
   sdo.address  <= '0' & r.address when regoutput = 1 else '0' & ri.address;                     -- *** ??? delay ctrl
-  sdo.ba(1 downto 0) <= r.ba when regoutput = 1 else ri.ba;                                     -- *** ??? delay ctrl
+  sdo.ba       <= '0' & r.ba when regoutput = 1 else '0' & ri.ba;                                     -- *** ??? delay ctrl
   sdo.bdrive   <= r.sdo_bdrive when regoutput = 1 else r.nbdrive when oepol = 1 else r.bdrive;  -- *** ??? delay ctrl
   sdo.qdrive   <= r.sdo_qdrive when regoutput = 1 else not (ri.qdrive or r.nbdrive);            -- *** ??? delay ctrl
-  sdo.vbdrive  <= rbdrive;
+  sdo.vbdrive(31 downto 0)  <= rbdrive;
+  sdo.vbdrive(63 downto 32) <= (others => '0');
   sdo.sdcsn    <= r.sdcsn when regoutput = 1 else ri.sdcsn;                                     -- *** ??? delay ctrl
   sdo.sdwen    <= r.sdwen when regoutput = 1 else ri.sdwen;                                     -- *** ??? delay ctrl
   sdo.dqm      <= "111111111111" & r.dqm_dly when regoutput = 1 else "111111111111" & r.dqm;    -- *** ??? delay ctrl
@@ -957,18 +960,39 @@ begin
   sdo.sdcke    <= (others => r.cke_dly) when regoutput = 1 else (others => r.cfg.cke); -- *** ??? delay ctrl
   sdo.moben    <= r.cfg.mobileen(0);
   sdo.conf     <= r.cfg.conf;
+  sdo.ce       <= '0';
+  sdo.cal_rst  <= '0';
+  sdo.oct      <= '0';
+  sdo.xsdcsn   <= (others => '0');
+  sdo.cb       <= (others => '0');
+  sdo.cal_en   <= (others => '0');
+  sdo.cal_inc  <= (others => '0');
+  sdo.odt      <= (others => '0');
+  sdo.vcbdrive <= (others => '0');
+  sdo.cbdqm    <= (others => '0');
+  sdo.cbcal_en <= (others => '0');
+  sdo.cbcal_inc<= (others => '0');
+  sdo.read_pend<= (others => '0');
+  sdo.regwdata <= (others => '0');
+  sdo.regwrite <= (others => '0');
+  sdo.cal_pll  <= (others => '0');
 
+  -- AMBA data mux:ing
+  hwdata       <= ahbreadword(ahbsi.hwdata, ra.haddr(4 downto 2));
+ 
   read_buff : syncram_2p 
   generic map (tech => memtech, abits => 6, dbits => 32, sepclk => 1, wrfst => 0)
   port map ( rclk => clk_ahb, renable => vcc, raddress => rai.raddr,
     dataout => rdata, wclk => clk_ddr, write => ri.hready,
+--    dataout => rdata, wclk => clkread, write => rwrite,
     waddress => r.waddr, datain => rwdata);
+--    waddress => waddr2, datain => rwdata);
 
   write_buff : syncram_2p 
   generic map (tech => memtech, abits => 6, dbits => 32, sepclk => 1, wrfst => 0)
   port map ( rclk => clk_ddr, renable => vcc, raddress => r.waddr,
     dataout => wdata, wclk => clk_ahb, write => ra.write,
-    waddress => ra.haddr(7 downto 2), datain => ahbsi.hwdata);
+    waddress => ra.haddr(7 downto 2), datain => hwdata);
 
 -- pragma translate_off
   bootmsg : report_version 

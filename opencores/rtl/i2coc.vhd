@@ -24,7 +24,7 @@
 ----                                                             ----
 ---------------------------------------------------------------------
 -- Package containing i2c master byte controller component. Component
--- declaration separated into this file by jan@gaisler.com.
+-- declaration expanded and separated into this file by jan@gaisler.com.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -32,7 +32,8 @@ use ieee.numeric_std.all;
 
 package i2coc is
   component i2c_master_byte_ctrl is
-   port (
+    generic (filter : integer; dynfilt : integer);
+    port (
      clk    : in std_logic;
      rst    : in std_logic;   -- active high reset
      nReset : in std_logic;   -- asynchornous active low reset
@@ -48,6 +49,7 @@ package i2coc is
      write,
      ack_in : std_logic;
      din    : in std_logic_vector(7 downto 0);
+     filt   : in std_logic_vector((filter-1)*dynfilt downto 0);
 
      -- output signals
      cmd_ack  : out std_logic;

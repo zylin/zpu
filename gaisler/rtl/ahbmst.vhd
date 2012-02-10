@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -73,10 +73,10 @@ begin
   variable ready   : std_ulogic;
   variable retry   : std_ulogic;
   variable mexc    : std_ulogic;
-  variable inc     : std_logic_vector(3 downto 0);    -- address increment
+  variable inc     : std_logic_vector(5 downto 0);    -- address increment
 
   variable haddr   : std_logic_vector(31 downto 0);   -- AHB address
-  variable hwdata  : std_logic_vector(31 downto 0);   -- AHB write data
+  variable hwdata  : std_logic_vector(AHBDW-1 downto 0);   -- AHB write data
   variable htrans  : std_logic_vector(1 downto 0);    -- transfer type
   variable hwrite  : std_ulogic;  		      -- read/write
   variable hburst  : std_logic_vector(2 downto 0);    -- burst type
@@ -90,7 +90,8 @@ begin
     hprot := conv_std_logic_vector(chprot, 4); -- non-cached supervisor data
     xhirq := (others => '0'); xhirq(hirq) := dmai.irq;
 
-    haddr := dmai.address; hbusreq := dmai.start; hwdata := dmai.wdata;
+    haddr := dmai.address; hbusreq := dmai.start;
+    hwdata := dmai.wdata;
     newaddr := dmai.address(9 downto 0);
  
     if INCADDR > 0 then
@@ -141,11 +142,11 @@ begin
     ahbo.haddr   <= haddr;
     ahbo.htrans  <= htrans;
     ahbo.hbusreq <= hbusreq;
-    ahbo.hwdata  <= dmai.wdata;
+    ahbo.hwdata  <= hwdata;
     ahbo.hconfig <= hconfig;
     ahbo.hlock   <= '0';
     ahbo.hwrite  <= dmai.write;
-    ahbo.hsize   <= '0' & dmai.size;
+    ahbo.hsize   <= dmai.size;
     ahbo.hburst  <= hburst;
     ahbo.hprot   <= hprot;
     ahbo.hirq    <= xhirq;

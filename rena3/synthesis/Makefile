@@ -1,7 +1,7 @@
 #
-# $Date: 2011-08-29 13:52:33 +0200 (Mo, 29. Aug 2011) $
-# $Author: lange $
-# $Revision: 1226 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 MODULE = top
@@ -54,8 +54,11 @@ check:
 
 
 update:
-	make all --directory $(SOFTWARE)
-	data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	@# make software and update the bitfile
+	test -d $(SOFTWARE) && make all --directory $(SOFTWARE)
+	test -d $(SOFTWARE) && data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	@# without software just copy the bitfile
+	test -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit 
 
 
 program:

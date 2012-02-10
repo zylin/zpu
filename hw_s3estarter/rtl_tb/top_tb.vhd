@@ -6,8 +6,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-library s3estarter;
-use s3estarter.fpga_components.top;
+library work;
+use work.fpga_components.top;
 
 library global;
 use global.global_signals.all;

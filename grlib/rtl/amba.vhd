@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 -- Package: 	amba
 -- File:	amba.vhd
 -- Author:	Jiri Gaisler, Gaisler Research
+-- Modified by: Jan Andersson, Aeroflex Gaisler
 -- Description:	AMBA 2.0 bus signal definitions + support for plug&play
 ------------------------------------------------------------------------------
 
@@ -30,21 +31,53 @@ use ieee.numeric_std.all;
 use std.textio.all;
 -- pragma translate_on
 library grlib;
+use grlib.config.all;
 use grlib.stdlib.all;
 
 package amba is
 
-constant NAHBMST : integer := 4;  -- maximum AHB masters
-constant NAHBSLV : integer := 8;  -- maximum AHB slaves
-constant NAPBSLV : integer := 16; -- maximum APB slaves
-constant NAHBIRQ : integer := 32; -- maximum interrupts
-constant NAHBAMR : integer := 4;  -- maximum address mapping registers
-constant NAHBIR  : integer := 4;  -- maximum AHB identification registers
-constant NAHBCFG : integer := NAHBIR + NAHBAMR;  -- words in AHB config block
-constant NAPBIR  : integer := 1;  -- maximum APB configuration words
-constant NAPBAMR : integer := 1;  -- maximum APB configuration words
-constant NAPBCFG : integer := NAPBIR + NAPBAMR;  -- words in APB config block
-constant NBUS    : integer := 4;
+-------------------------------------------------------------------------------
+-- AMBA configuration
+-------------------------------------------------------------------------------
+
+-- AHBDW - AHB data with
+--
+-- Valid values are 32, 64, 128 and 256
+--
+-- The value here sets the width of the AMBA AHB data vectors for all
+-- cores in the library.
+--
+constant AHBDW     : integer := CFG_AHBDW;
+
+-- CORE_ACDM - Enable AMBA Compliant Data Muxing in cores
+--
+-- Valid values are 0 and 1
+--
+-- 0: All GRLIB cores that use the ahbread* programs defined in this package
+--    will read their data from the low part of the AHB data vector.
+--
+-- 1: All GRLIB cores that use the ahbread* programs defined in this package
+--    will select valid data, as defined in the AMBA AHB standard, from the
+--    AHB data vectors based on the address input. If a core uses a function
+--    that does not have the address input, a failure will be asserted.
+--
+constant CORE_ACDM : integer := CFG_AHB_ACDM; 
+
+constant NAHBMST   : integer := 16;  -- maximum AHB masters
+constant NAHBSLV   : integer := 16;  -- maximum AHB slaves
+constant NAPBSLV   : integer := 16; -- maximum APB slaves
+constant NAHBIRQ   : integer := 32; -- maximum interrupts
+constant NAHBAMR   : integer := 4;  -- maximum address mapping registers
+constant NAHBIR    : integer := 4;  -- maximum AHB identification registers
+constant NAHBCFG   : integer := NAHBIR + NAHBAMR;  -- words in AHB config block
+constant NAPBIR    : integer := 1;  -- maximum APB configuration words
+constant NAPBAMR   : integer := 1;  -- maximum APB configuration words
+constant NAPBCFG   : integer := NAPBIR + NAPBAMR;  -- words in APB config block
+constant NBUS      : integer := 4;
+
+-------------------------------------------------------------------------------
+-- AMBA interface type declarations and constant
+-------------------------------------------------------------------------------
 
 subtype amba_config_word is std_logic_vector(31 downto 0);
 type ahb_config_type is array (0 to NAHBCFG-1) of amba_config_word;
@@ -55,7 +88,7 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     hgrant	: std_logic_vector(0 to NAHBMST-1);     -- bus grant
     hready	: std_ulogic;                         	-- transfer done
     hresp	: std_logic_vector(1 downto 0); 	-- response type
-    hrdata	: std_logic_vector(31 downto 0); 	-- read data bus
+    hrdata	: std_logic_vector(AHBDW-1 downto 0); 	-- read data bus
     hcache	: std_ulogic;                         	-- cacheable
     hirq  	: std_logic_vector(NAHBIRQ-1 downto 0);	-- interrupt result bus
     testen	: std_ulogic;                         	-- scan test enable
@@ -74,7 +107,7 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     hsize	: std_logic_vector(2 downto 0); 	-- transfer size
     hburst	: std_logic_vector(2 downto 0); 	-- burst type
     hprot	: std_logic_vector(3 downto 0); 	-- protection control
-    hwdata	: std_logic_vector(31 downto 0); 	-- write data bus
+    hwdata	: std_logic_vector(AHBDW-1 downto 0); 	-- write data bus
     hirq   	: std_logic_vector(NAHBIRQ-1 downto 0);	-- interrupt bus
     hconfig 	: ahb_config_type;	 		-- memory access reg.
     hindex  	: integer range 0 to NAHBMST-1;	 	-- diagnostic use only
@@ -88,7 +121,7 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     htrans	: std_logic_vector(1 downto 0); 	-- transfer type
     hsize	: std_logic_vector(2 downto 0); 	-- transfer size
     hburst	: std_logic_vector(2 downto 0); 	-- burst type
-    hwdata	: std_logic_vector(31 downto 0); 	-- write data bus
+    hwdata	: std_logic_vector(AHBDW-1 downto 0); 	-- write data bus
     hprot	: std_logic_vector(3 downto 0); 	-- protection control
     hready	: std_ulogic;                         	-- transfer done
     hmaster	: std_logic_vector(3 downto 0); 	-- current master
@@ -106,7 +139,7 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
   type ahb_slv_out_type is record
     hready	: std_ulogic;                         	-- transfer done
     hresp	: std_logic_vector(1 downto 0); 	-- response type
-    hrdata	: std_logic_vector(31 downto 0); 	-- read data bus
+    hrdata	: std_logic_vector(AHBDW-1 downto 0); 	-- read data bus
     hsplit	: std_logic_vector(15 downto 0); 	-- split completion
     hcache	: std_ulogic;                         	-- cacheable
     hirq   	: std_logic_vector(NAHBIRQ-1 downto 0); -- interrupt bus
@@ -116,7 +149,9 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
 
 -- array types
   type ahb_mst_out_vector_type is array (natural range <>) of ahb_mst_out_type;
+  type ahb_mst_in_vector_type is array (natural range <>) of ahb_mst_in_type;
   type ahb_slv_out_vector_type is array (natural range <>) of ahb_slv_out_type;
+  type ahb_slv_in_vector_type is array (natural range <>) of ahb_slv_in_type;
   subtype ahb_mst_out_vector is ahb_mst_out_vector_type(NAHBMST-1 downto 0);
   subtype ahb_slv_out_vector is ahb_slv_out_vector_type(NAHBSLV-1 downto 0);
   type ahb_mst_out_bus_vector is array (0 to NBUS-1) of ahb_mst_out_vector;
@@ -188,21 +223,32 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
   subtype amba_irq_type     is integer range 0 to NAHBIRQ-1;
   subtype ahb_addr_type     is integer range 0 to 16#fff#;
   constant zx : std_logic_vector(31 downto 0) := (others => '0');
+  constant zahbdw : std_logic_vector(AHBDW-1 downto 0) := (others => '0');
   constant zxirq : std_logic_vector(NAHBIRQ-1 downto 0) := (others => '0');
   constant zy : std_logic_vector(0 to 31) := (others => '0');
 
   constant apb_none : apb_slv_out_type :=
     (zx, zxirq(NAHBIRQ-1 downto 0), (others => zx), 0);
   constant ahbm_none : ahb_mst_out_type := ( '0', '0', "00", zx,
-   '0', "000", "000", "0000", zx, zxirq(NAHBIRQ-1 downto 0), (others => zx), 0);
+   '0', "000", "000", "0000", zahbdw, zxirq(NAHBIRQ-1 downto 0), (others => zx), 0);
+  constant ahbm_in_none : ahb_mst_in_type := ((others => '0'), '0', (others => '0'),
+   zahbdw, '0', zxirq(NAHBIRQ-1 downto 0), '0', '0', '0', '0');
   constant ahbs_none : ahb_slv_out_type := (
-   '1', "00", zx, zx(15 downto 0), '0', zxirq(NAHBIRQ-1 downto 0), (others => zx), 0);
+   '1', "00", zahbdw, zx(15 downto 0), '0', zxirq(NAHBIRQ-1 downto 0), (others => zx), 0);
   constant ahbs_in_none : ahb_slv_in_type := (
-   zy(0 to NAHBSLV-1), zx, '0', "00", "000", "000", zx,
+   zy(0 to NAHBSLV-1), zx, '0', "00", "000", "000", zahbdw,
    "0000", '1', "0000", '0', zy(0 to NAHBAMR-1), '0', zxirq(NAHBIRQ-1 downto 0),
    '0', '0', '0', '0');
 
   constant ahbsv_none : ahb_slv_out_vector := (others => ahbs_none);
+
+  constant apb_slv_in_none : apb_slv_in_type := ((others => '0'), '0', (others => '0'),
+                                                 '0', (others => '0'), (others => '0'),
+                                                 '0', '0', '0', '0');
+
+-------------------------------------------------------------------------------
+-- Subprograms
+-------------------------------------------------------------------------------
 
   function ahb_device_reg(vendor : amba_vendor_type; device : amba_device_type;
 	cfgver : amba_cfgver_type; version : amba_version_type;
@@ -235,6 +281,114 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
 
   function ahb_iobar_size (addrmask : ahb_addr_type) return integer;
 
+  function ahbdrivedata (hdata : std_logic_vector) return std_logic_vector;
+
+  function ahbselectdata (hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2); hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector;
+
+  function ahbreadword (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector;
+
+  procedure ahbreadword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(31 downto 0));
+
+  function ahbreadword (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector;
+
+  procedure ahbreadword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(31 downto 0));
+
+  function ahbreaddword (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector;
+
+  procedure ahbreaddword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(63 downto 0));
+
+  function ahbreaddword (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector;
+
+  procedure ahbreaddword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(63 downto 0));
+
+  function ahbread4word (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector;
+
+  procedure ahbread4word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(127 downto 0));
+
+  function ahbread4word (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector;
+
+  procedure ahbread4word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(127 downto 0));
+
+  function ahbread8word (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector;
+
+  procedure ahbread8word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(255 downto 0));
+
+  function ahbread8word (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector;
+
+  procedure ahbread8word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(255 downto 0));
+
+  function ahbreaddata (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2);
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector;
+
+  function ahbreaddata (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector;
+
+  procedure ahbmomux (
+    signal ai  : in  ahb_mst_out_type;
+    signal ao  : out ahb_mst_out_type;
+    signal en  : in  std_ulogic);
+
+  procedure ahbsomux (
+    signal ai  : in  ahb_slv_out_type;
+    signal ao  : out ahb_slv_out_type;
+    signal en  : in  std_ulogic);
+
+  procedure apbsomux (
+    signal ai  : in  apb_slv_out_type;
+    signal ao  : out apb_slv_out_type;
+    signal en  : in  std_ulogic);
+
+-------------------------------------------------------------------------------
+-- Components
+-------------------------------------------------------------------------------
+
   component ahbctrl
   generic (
     defmast : integer := 0;		-- default master
@@ -261,8 +415,12 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     hslvdisable : integer := 0; --disable slave checks
     arbdisable  : integer := 0; --disable arbiter checks
     mprio       : integer := 0; --master with highest priority
-    mcheck      : integer range 0 to 1 := 1; --check memory map for intersects
-    ccheck      : integer range 0 to 1 := 1  --perform sanity checks on pnp config
+    mcheck      : integer range 0 to 2 := 1;  --check memory map for intersects
+    ccheck      : integer range 0 to 1 := 1;  --perform sanity checks on pnp config
+    acdm        : integer := 0;  --AMBA compliant data muxing (for hsize > word)
+    index       : integer := 0;  --index for trace print-out
+    ahbtrace    : integer := 0;  --AHB trace enable
+    hwdebug     : integer := 0
   );
   port (
     rst     : in  std_ulogic;
@@ -330,8 +488,9 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     hslvdisable : integer := 0; --disable slave checks
     arbdisable  : integer := 0; --disable arbiter checks
     mprio       : integer := 0; --master with highest priority
-    mcheck      : integer range 0 to 1 := 1; --check memory map for intersects
-    ccheck      : integer range 0 to 1 := 1  --perform sanity checks on pnp config
+    mcheck      : integer range 0 to 2 := 1;  --check memory map for intersect
+    ccheck      : integer range 0 to 1 := 1;  --perform sanity checks on pnp config
+    acdm        : integer := 0  --AMBA compliant data muxing (for hsize > word)
   );
   port (
     rst     : in  std_ulogic;
@@ -362,7 +521,8 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
     hslvdisable : integer := 0;
     arbdisable  : integer := 0;
     nahbm       : integer range 0 to NAHBMST := NAHBMST;
-    nahbs       : integer range 0 to NAHBSLV := NAHBSLV
+    nahbs       : integer range 0 to NAHBSLV := NAHBSLV;
+    ebterm      : integer range 0 to 1 := 0
   );
   port(
     rst         : in std_ulogic;
@@ -399,7 +559,8 @@ type apb_config_type is array (0 to NAPBCFG-1) of amba_config_word;
       arbdisable  : integer := 0;
       nahbm       : integer range 0 to NAHBMST := NAHBMST;
       nahbs       : integer range 0 to NAHBSLV := NAHBSLV;
-      napb        : integer range 0 to NAPBSLV := NAPBSLV
+      napb        : integer range 0 to NAPBSLV := NAPBSLV;
+      ebterm      : integer range 0 to 1 := 0
     );
     port(
       rst        : in std_ulogic;
@@ -550,4 +711,398 @@ package body amba is
   begin
     return (4096 - addrmask) * 256;
   end;
+
+  -- purpose: Duplicates 'hdata' to suite AHB data width. If the input vector's
+  -- length exceeds AHBDW the low part is returned. 
+  function ahbdrivedata (
+    hdata : std_logic_vector)
+    return std_logic_vector is
+    variable data : std_logic_vector(AHBDW-1 downto 0);
+  begin  -- ahbdrivedata
+    if AHBDW < hdata'length then
+      data := hdata(AHBDW+hdata'low-1 downto hdata'low);
+    else
+      for i in 0 to AHBDW/hdata'length-1 loop
+        data(hdata'length-1+hdata'length*i downto  hdata'length*i) := hdata; 
+      end loop;
+    end if;
+    return data;
+  end ahbdrivedata;
+
+  -- Takes in AHB data vector 'hdata' and returns valid data on the full
+  -- data vector output based on 'haddr' and 'hsize' inputs together with
+  -- GRLIB AHB bus width. The function works down to word granularity.
+  function ahbselectdata (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2);
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector is
+    variable ret   : std_logic_vector(AHBDW-1 downto 0);
+  begin  -- ahbselectdata
+    case hsize is
+    when HSIZE_8WORD =>
+      if AHBDW = 256 then ret := hdata; end if;
+    when HSIZE_4WORD =>
+      if AHBDW = 256 then
+        if haddr(4) = '0' then ret := ahbdrivedata(hdata(AHBDW-1 downto AHBDW/2));
+        else ret := ahbdrivedata(hdata(AHBDW/2-1 downto 0)); end if;
+      elsif AHBDW = 128 then
+        ret := hdata;
+      end if;
+    when HSIZE_DWORD =>
+      if AHBDW = 256 then
+        case haddr(4 downto 3) is
+          when "00" =>   ret := ahbdrivedata(hdata(4*(AHBDW/4)-1 downto 3*(AHBDW/4)));
+          when "01" =>   ret := ahbdrivedata(hdata(3*(AHBDW/4)-1 downto 2*(AHBDW/4)));
+          when "10" =>   ret := ahbdrivedata(hdata(2*(AHBDW/4)-1 downto 1*(AHBDW/4)));
+          when others => ret := ahbdrivedata(hdata(1*(AHBDW/4)-1 downto 0*(AHBDW/4)));
+        end case;
+      elsif AHBDW = 128 then
+        if haddr(3) = '0' then ret := ahbdrivedata(hdata(AHBDW-1 downto AHBDW/2));
+        else ret := ahbdrivedata(hdata(AHBDW/2-1 downto 0)); end if;
+      elsif AHBDW = 64 then
+        ret := hdata;
+      end if;
+    when others =>
+      if AHBDW = 256 then
+        case haddr(4 downto 2) is
+          when "000" => ret  := ahbdrivedata(hdata(8*(AHBDW/8)-1 downto 7*(AHBDW/8)));
+          when "001" => ret  := ahbdrivedata(hdata(7*(AHBDW/8)-1 downto 6*(AHBDW/8)));
+          when "010" => ret  := ahbdrivedata(hdata(6*(AHBDW/8)-1 downto 5*(AHBDW/8)));
+          when "011" => ret  := ahbdrivedata(hdata(5*(AHBDW/8)-1 downto 4*(AHBDW/8)));
+          when "100" => ret  := ahbdrivedata(hdata(4*(AHBDW/8)-1 downto 3*(AHBDW/8)));
+          when "101" => ret  := ahbdrivedata(hdata(3*(AHBDW/8)-1 downto 2*(AHBDW/8)));
+          when "110" => ret  := ahbdrivedata(hdata(2*(AHBDW/8)-1 downto 1*(AHBDW/8)));
+          when others => ret := ahbdrivedata(hdata(1*(AHBDW/8)-1 downto 0*(AHBDW/8)));
+        end case;
+      elsif AHBDW = 128 then
+        case haddr(3 downto 2) is
+          when "00" =>   ret := ahbdrivedata(hdata(4*(AHBDW/4)-1 downto 3*(AHBDW/4)));
+          when "01" =>   ret := ahbdrivedata(hdata(3*(AHBDW/4)-1 downto 2*(AHBDW/4)));
+          when "10" =>   ret := ahbdrivedata(hdata(2*(AHBDW/4)-1 downto 1*(AHBDW/4)));
+          when others => ret := ahbdrivedata(hdata(1*(AHBDW/4)-1 downto 0*(AHBDW/4)));
+        end case;
+      elsif AHBDW = 64 then
+        if haddr(2) = '0' then ret := ahbdrivedata(hdata(AHBDW-1 downto AHBDW/2));
+        else ret := ahbdrivedata(hdata(AHBDW/2-1 downto 0)); end if;
+      else
+        ret := hdata;
+      end if;
+    end case;
+    return ret;
+  end ahbselectdata;
+  
+  -- Description of ahbread* functions and procedures.
+  --
+  -- The ahbread* subprograms with an 'haddr' input selects the valid slice of
+  -- data from the AHB data vector, 'hdata', based on the 'haddr' input if
+  -- CORE_ACDM is set to 1 (see top of this package). Otherwise the low part of
+  -- the AHB data vector will be returned.
+  --
+  -- The ahbread* subprograms that do not have a 'haddr' input will always
+  -- return the low slice of the 'hdata' input. These subprograms will assert a
+  -- failure if CORE_ACDM is set to 1.
+  --
+  function ahbreadword (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector is
+    variable data : std_logic_vector(31 downto 0);
+  begin 
+    if CORE_ACDM = 1 then data := ahbselectdata(hdata, haddr, HSIZE_WORD)(31 downto 0);
+    else data := hdata(31 downto 0); end if;
+    return data;
+  end ahbreadword;
+
+  procedure ahbreadword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(31 downto 0)) is
+  begin
+    data := ahbreadword(hdata, haddr);
+  end ahbreadword;
+
+  function ahbreadword (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector is
+    variable data : std_logic_vector(31 downto 0);
+  begin
+-- pragma translate_off
+    assert CORE_ACDM = 0
+      report "ahbreadword without address input used when CORE_ACDM /= 0"
+      severity failure;
+-- pragma translate_on
+    data := hdata(31 downto 0);
+    return data;
+  end ahbreadword;
+
+  procedure ahbreadword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(31 downto 0)) is
+  begin
+    data := ahbreadword(hdata);
+  end ahbreadword;
+
+  function ahbreaddword (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector is
+    variable data : std_logic_vector(255 downto 0);
+  begin 
+-- pragma translate_off
+    assert AHBDW > 32
+      report "ahbreaddword can not be used in system with AHB data width < 64"
+      severity failure;
+-- pragma translate_on
+    if AHBDW = 256 then
+      if CORE_ACDM = 1 then
+        data(AHBDW/4-1 downto 0) :=
+             ahbselectdata(hdata, haddr, HSIZE_DWORD)(AHBDW/4-1 downto 0);
+      else
+        data(AHBDW/4-1 downto 0) := hdata(AHBDW/4-1 downto 0);
+      end if;
+    elsif AHBDW = 128 then
+      if CORE_ACDM = 1 then
+        data(AHBDW/2-1 downto 0) :=
+          ahbselectdata(hdata, haddr, HSIZE_DWORD)(AHBDW/2-1 downto 0);
+      else
+        data(AHBDW/2-1 downto 0) := hdata(AHBDW/2-1 downto 0);
+      end if;
+    elsif AHBDW = 64 then
+      if CORE_ACDM = 1 then
+        data(AHBDW-1 downto 0) :=
+             ahbselectdata(hdata, haddr, HSIZE_DWORD)(AHBDW-1 downto 0);
+      else
+        data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+      end if;
+    end if;
+    return data(63 downto 0);
+  end ahbreaddword;
+
+  procedure ahbreaddword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(63 downto 0)) is
+  begin 
+    data := ahbreaddword(hdata, haddr);
+  end ahbreaddword;
+
+  function ahbreaddword (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector is
+    variable data : std_logic_vector(255 downto 0);
+  begin 
+-- pragma translate_off
+    assert AHBDW > 32
+      report "ahbreaddword can not be used in system with AHB data width < 64"
+      severity failure;
+    assert CORE_ACDM = 0
+      report "ahbreaddword without address input used when CORE_ACDM /= 0"
+      severity failure;
+-- pragma translate_on
+    if AHBDW = 256 then
+      data(AHBDW/4-1 downto 0) := hdata(AHBDW/4-1 downto 0);
+    elsif AHBDW = 128 then
+      data(AHBDW/2-1 downto 0) := hdata(AHBDW/2-1 downto 0);
+    elsif AHBDW = 64 then
+      data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+    end if;
+    return data(63 downto 0);
+  end ahbreaddword;
+
+  procedure ahbreaddword (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(63 downto 0)) is
+  begin 
+    data := ahbreaddword(hdata);
+  end ahbreaddword;
+
+  function ahbread4word (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector is
+    variable data : std_logic_vector(255 downto 0);
+  begin
+-- pragma translate_off
+    assert AHBDW > 64
+      report "ahbread4word can not be used in system with AHB data width < 128 bits"
+      severity failure;
+-- pragma translate_on
+    if AHBDW = 256 then
+       if CORE_ACDM = 1 then
+         data(AHBDW/2-1 downto 0) :=
+           ahbselectdata(hdata, haddr, HSIZE_4WORD)(AHBDW/2-1 downto 0);
+       else
+         data(AHBDW/2-1 downto 0) := hdata(AHBDW/2-1 downto 0);
+       end if;
+    elsif AHBDW = 128 then
+      if CORE_ACDM = 1 then
+        data(AHBDW-1 downto 0) :=
+          ahbselectdata(hdata, haddr, HSIZE_4WORD)(AHBDW-1 downto 0);
+      else
+        data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+      end if;
+    end if;
+    return data(127 downto 0);
+  end ahbread4word;
+
+  procedure ahbread4word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(127 downto 0)) is
+  begin 
+    data := ahbread4word(hdata, haddr);
+  end ahbread4word;
+  
+  function ahbread4word (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector is
+    variable data : std_logic_vector(255 downto 0);
+  begin
+-- pragma translate_off
+    assert AHBDW > 64
+      report "ahbread4word can not be used in system with AHB data width < 128 bits"
+      severity failure;
+    assert CORE_ACDM = 0
+      report "ahbread4word without address input used when CORE_ACDM /= 0"
+      severity failure;
+-- pragma translate_on
+    if AHBDW = 256 then
+      data(AHBDW/2-1 downto 0) := hdata(AHBDW/2-1 downto 0);
+    elsif AHBDW = 128 then
+      data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+    end if;
+    return data(127 downto 0);
+  end ahbread4word;
+
+  procedure ahbread4word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(127 downto 0)) is
+  begin 
+    data := ahbread4word(hdata);
+  end ahbread4word;
+  
+  function ahbread8word (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2))
+    return std_logic_vector is
+    variable data : std_logic_vector(AHBDW-1 downto 0);
+  begin
+-- pragma translate_off
+    assert AHBDW > 128
+      report "ahbread8word can not be used in system with AHB data width < 256 bits"
+      severity failure;
+-- pragma translate_on
+    if CORE_ACDM = 1 then
+      data(AHBDW-1 downto 0) := ahbselectdata(hdata, haddr, HSIZE_8WORD)(AHBDW-1 downto 0);
+    else
+      data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+    end if;
+    return data;
+  end ahbread8word;
+
+  procedure ahbread8word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    haddr : in  std_logic_vector(4 downto 2);
+    data  : out std_logic_vector(255 downto 0)) is
+  begin 
+    data := ahbread8word(hdata, haddr);
+  end ahbread8word;
+
+  function ahbread8word (
+    hdata : std_logic_vector(AHBDW-1 downto 0))
+    return std_logic_vector is
+    variable data : std_logic_vector(AHBDW-1 downto 0);
+  begin
+-- pragma translate_off
+    assert AHBDW > 128
+      report "ahbread8word can not be used in system with AHB data width < 256 bits"
+      severity failure;
+    assert CORE_ACDM = 0
+      report "ahbread8word without address input used when CORE_ACDM /= 0"
+      severity failure;
+-- pragma translate_on
+    data(AHBDW-1 downto 0) := hdata(AHBDW-1 downto 0);
+    return data;
+  end ahbread8word;
+
+  procedure ahbread8word (
+    hdata : in  std_logic_vector(AHBDW-1 downto 0);
+    data  : out std_logic_vector(255 downto 0)) is
+  begin 
+    data := ahbread8word(hdata);
+  end ahbread8word;
+  
+  function ahbreaddata (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    haddr : std_logic_vector(4 downto 2);
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector is
+  begin
+    case hsize is
+      when HSIZE_8WORD =>
+        return ahbread8word(hdata, haddr);
+      when HSIZE_4WORD =>
+        return ahbread4word(hdata, haddr);
+      when HSIZE_DWORD =>
+        return ahbreaddword(hdata, haddr);
+      when others => null;
+    end case;
+    return ahbreadword(hdata, haddr);
+  end ahbreaddata;
+
+  function ahbreaddata (
+    hdata : std_logic_vector(AHBDW-1 downto 0);
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector is
+  begin
+    case hsize is
+      when HSIZE_8WORD =>
+        return ahbread8word(hdata);
+      when HSIZE_4WORD =>
+        return ahbread4word(hdata);
+      when HSIZE_DWORD =>
+        return ahbreaddword(hdata);
+      when others => null;
+    end case;
+    return ahbreadword(hdata);
+  end ahbreaddata;
+
+  -- a*mux below drives their amba output records with the amba input record if
+  -- the en input is '1'. Otherwise the amba output record is driven to an idle
+  -- state. Plug'n'play information is kept constant.
+  procedure ahbmomux (
+    signal ai  : in  ahb_mst_out_type;
+    signal ao  : out ahb_mst_out_type;
+    signal en  : in  std_ulogic) is
+  begin
+    if en = '1' then ao <= ai;
+    else ao <= ahbm_none; end if;
+    ao.hconfig <= ai.hconfig;
+    ao.hindex  <= ai.hindex;
+  end ahbmomux;
+
+  procedure ahbsomux (
+    signal ai  : in  ahb_slv_out_type;
+    signal ao  : out ahb_slv_out_type;
+    signal en  : in  std_ulogic) is
+  begin
+    if en = '1' then ao <= ai;
+    else ao <= ahbs_none; end if;
+    ao.hconfig <= ai.hconfig;
+    ao.hindex  <= ai.hindex;
+  end ahbsomux;
+
+  procedure apbsomux (
+    signal ai  : in  apb_slv_out_type;
+    signal ao  : out apb_slv_out_type;
+    signal en  : in  std_ulogic) is
+  begin
+    if en = '1' then ao <= ai;
+    else ao <= apb_none; end if;
+    ao.pconfig <= ai.pconfig;
+    ao.pindex  <= ai.pindex;
+  end apbsomux;
+  
 end;
+

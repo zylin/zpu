@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,13 @@
 --		common prescaler. Then number of timers and the width of
 --		the timers is propgrammable through generics
 ------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_GPTIMER
+-- VERSION:     0
+-- APB:         0
+-- BAR: 0       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -47,7 +54,8 @@ entity gptimer is
     sbits    : integer := 16;			-- scaler bits
     ntimers  : integer range 1 to 7 := 1; 	-- number of timers
     nbits    : integer := 32;			-- timer bits
-    wdog     : integer := 0
+    wdog     : integer := 0;
+    ewdogen  : integer := 0
   );
   port (
     rst    : in  std_ulogic;
@@ -222,7 +230,7 @@ begin
               when "00" => v.timers(i).value   := apbi.pwdata(nbits-1 downto 0);
               when "01" => v.timers(i).reload  := apbi.pwdata(nbits-1 downto 0);
               when "10" => v.timers(i).chain   := apbi.pwdata(5);
-                           v.timers(i).irqpen  := apbi.pwdata(4);
+                           v.timers(i).irqpen  := v.timers(i).irqpen and not apbi.pwdata(4);
 			   v.timers(i).irqen   := apbi.pwdata(3);
 			   v.timers(i).load    := apbi.pwdata(2);
 			   v.timers(i).restart := apbi.pwdata(1);
@@ -239,12 +247,14 @@ begin
 
     if rst = '0' then 
       for i in 1 to ntimers loop
-        v.timers(i).enable := '0'; v.timers(i).irqen := '0';
+        v.timers(i).enable := '0'; v.timers(i).irqen := '0'; v.timers(i).irqpen := '0';
       end loop;
       v.scaler := (others => '1'); v.reload := (others => '1'); 
       v.tsel := 0; v.dishlt := '0'; v.timers(ntimers).irq := '0';
       if (wdog /= 0) then
-	v.timers(ntimers).enable := '1'; v.timers(ntimers).load := '1';
+        if ewdogen /= 0 then v.timers(ntimers).enable := gpti.wdogen;
+        else v.timers(ntimers).enable := '1'; end if;
+        v.timers(ntimers).load := '1';
 	v.timers(ntimers).reload := conv_std_logic_vector(wdog, nbits);
 	v.timers(ntimers).chain := '0'; v.timers(ntimers).irqen := '1';
 	v.timers(ntimers).irqpen := '0'; v.timers(ntimers).restart := '0';

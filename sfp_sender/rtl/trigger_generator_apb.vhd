@@ -18,6 +18,9 @@ use gaisler.misc.all;
 use std.textio.all;
 --pragma translate_on
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 library work;
 use work.types_package.all;
 use work.component_package.trigger_generator;

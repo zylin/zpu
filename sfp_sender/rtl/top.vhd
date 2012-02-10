@@ -31,6 +31,7 @@ use work.component_package.box;
 entity top is
     port (
         -- pragma translate_off
+        simulation_run            : in    boolean;
         simulation_break          : out   std_logic;
         -- pragma translate_on
         --
@@ -239,6 +240,7 @@ architecture rtl of top is
     signal dcm_sp_i1_clkfx180     : std_ulogic;
     signal clk_fb2                : std_ulogic;
     --
+    signal top_pll_reset          : std_ulogic := '0';
     signal pll_base_i0_clkfbout   : std_ulogic;
     signal pll_base_i0_clkout0    : std_ulogic;
     signal pll_base_i0_clkout1    : std_ulogic;
@@ -502,8 +504,12 @@ begin
             clkout1  => pll_base_i0_clkout1,  -- : out std_ulogic;
             clkfbin  => pll_base_i0_clkfbout, -- : in std_ulogic;
             clkin    => sys_clk,              -- : in std_ulogic;
-            rst      => '0'                   -- : in std_ulogic
+            rst      => top_pll_reset         -- : in std_ulogic
         );
+    -- pragma translate_off
+    -- reset the pll to stop the simulation
+    top_pll_reset <= '0' when simulation_run else '1';
+    -- pragma translate_on
 
     -- output for generated 266 MHz
     oddr2_i0: oddr2

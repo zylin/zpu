@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -79,6 +79,8 @@ signal ramsel : std_ulogic;
 signal bwrite : std_logic_vector(3 downto 0);
 signal ramaddr  : std_logic_vector(abits-1 downto 0);
 signal ramdata  : std_logic_vector(31 downto 0);
+signal hwdata   : std_logic_vector(31 downto 0);
+
 begin
 
   comb : process (ahbsi, r, rst, ramdata)
@@ -111,7 +113,7 @@ begin
 
     if rst = '0' then v.hwrite := '0'; v.hready := '1'; end if;
     bwrite <= bs; ramsel <= v.hsel or r.hwrite; ahbso.hready <= r.hready; 
-    ramaddr <= haddr; c <= v; ahbso.hrdata <= ramdata;
+    ramaddr <= haddr; c <= v; ahbso.hrdata <= ahbdrivedata(ramdata);
 
   end process;
 
@@ -122,10 +124,12 @@ begin
   ahbso.hconfig <= hconfig;
   ahbso.hindex  <= hindex;
 
+  hwdata <= ahbreadword(ahbsi.hwdata, r.addr(4 downto 2));
+  
   bw : if bytewrite = 1 generate
     ra : for i in 0 to 3 generate
       aram :  syncram_dp generic map (tech, abits, 8) port map (
-	clk, ramaddr, ahbsi.hwdata(i*8+7 downto i*8),
+	clk, ramaddr, hwdata(i*8+7 downto i*8),
 	ramdata(i*8+7 downto i*8), ramsel, bwrite(3-i),
 	clkdp, address, datain(i*8+7 downto i*8),
 	dataout(i*8+7 downto i*8), enable, write(3-i)
@@ -135,7 +139,7 @@ begin
 
   nobw : if bytewrite = 0 generate
     aram :  syncram_dp generic map (tech, abits, 32) port map (
-	clk, ramaddr, ahbsi.hwdata, ramdata, ramsel, r.hwrite,
+	clk, ramaddr, hwdata(31 downto 0), ramdata, ramsel, r.hwrite,
 	clkdp, address, datain, dataout, enable, write(0)
     ); 
   end generate;

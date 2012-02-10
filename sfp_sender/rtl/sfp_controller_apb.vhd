@@ -19,6 +19,9 @@ use std.textio.all;
 
 library opencores;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 library work;
 use work.types_package.all;
 

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -301,7 +301,8 @@ begin
 
 -- drive outputs
     uo.txd <= r.tshift(0);
-    uo.scaler <= r.brate;
+    uo.scaler(31 downto 18) <= (others => '0');
+    uo.scaler(17 downto 0) <= r.brate;
     uo.rtsn <= '0';
     uo.rxen <= andv(r.tcnt);
     uarto.dready <= r.dready;
@@ -310,6 +311,7 @@ begin
     uarto.lock <= r.tcnt(1) and  r.tcnt(0);
     uarto.enable <= r.rxen;
     uarto.data <= r.rhold;
+    uo.txen <= '1'; uo.flow <= '0';
 
     apbo.prdata <= rdata;
 

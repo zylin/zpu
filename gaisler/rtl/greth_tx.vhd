@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -44,6 +44,7 @@ entity greth_tx is
     txi            : in  host_tx_type;
     txo            : out tx_host_type
   );           
+  attribute sync_set_reset of rst : signal is "true";
 end entity;
 
 architecture rtl of greth_tx is
@@ -474,9 +475,10 @@ begin
       v.start := (others => '0'); v.read_ack := (others => '0');
       v.icnt := (others => '0'); v.delay_val := (others => '0');
       v.ifg_cycls := (others => '0');
-      if rmii = 1 then
-        v.crs_act := '0'; 
-      end if;
+      v.crs_act := '0'; 
+      v.slot_count := (others => '1'); 
+      v.retry_cnt := (others => '0');
+      v.cnt := (others => '0');
     end if;
 
     rin                      <= v;
@@ -491,7 +493,16 @@ begin
 
   txregs : process(clk) is
   begin
-    if rising_edge(clk) then r <= rin; end if;
+    if rising_edge(clk) then 
+      r <= rin;
+      if rst = '0' then
+        r.icnt <= (others => '0'); r.delay_val <= (others => '0');
+        r.cnt <= (others => '0');
+      else
+        r.icnt <= rin.icnt; r.delay_val <= rin.delay_val;
+        r.cnt <= rin.cnt;
+      end if;
+    end if;
   end process;
  
 end architecture;

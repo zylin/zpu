@@ -1,7 +1,7 @@
 #
-# $Date: 2011-11-18 08:42:44 +0100 (Fr, 18. Nov 2011) $
-# $Author: lange $
-# $Revision: 1226 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 MODULE = top
@@ -54,13 +54,17 @@ check:
 
 
 update:
-	@echo ""
-	@echo "### (re)complie software"
-	#make all --directory $(SOFTWARE)
-	@echo ""
-	@echo "### update bitstream with software"
-	#data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
-	cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
+	@# make software and update the bitfile
+	@test -d $(SOFTWARE) && echo ""
+	@test -d $(SOFTWARE) && echo "### (re)complie software"
+	test -d $(SOFTWARE) && make all --directory $(SOFTWARE)
+	@test -d $(SOFTWARE) && echo ""
+	@test -d $(SOFTWARE) && echo "### update bitstream with software"
+	test -d $(SOFTWARE) && data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	@# without software just copy the bitfile
+	@test -d $(SOFTWARE) || echo ""
+	@test -d $(SOFTWARE) || echo "### copy bitfile"
+	test -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
 
 
 program:

@@ -43,7 +43,7 @@ use ieee.std_logic_misc.or_reduce; -- by synopsis
 library work;
 use work.component_package.trigger_generator_apb;
 use work.component_package.sfp_controller_apb;
-use work.component_package.debug_con_apb;
+use work.version.all;
 
 library zpu;
 use zpu.zpu_wrapper_package.all; -- types
@@ -66,6 +66,9 @@ use gaisler.misc.grgpio;
 
 library techmap;
 use techmap.gencomp.all; -- constants
+
+library hzdr;
+use hzdr.component_package.debug_con_apb;
 
 
 architecture rtl of box is
@@ -222,9 +225,10 @@ begin
     -- debug console (for fast simulation output)
     debug_con_apb_i0: debug_con_apb
         generic map (
-            pindex => 0,      -- : integer := 0;
-            paddr  => 0,      -- : integer := 0;
-            pmask  => 16#fff# -- : integer := 16#fff#
+            pindex       => 0,               -- : integer := 0;
+            paddr        => 0,               -- : integer := 0;
+            pmask        => 16#fff#,         -- : integer := 16#fff#
+            version_time => version_time_c   -- : string( 1 to 21) := "undefined version    "
         )
         port map (
             rst    => reset_n,               -- : in  std_ulogic;

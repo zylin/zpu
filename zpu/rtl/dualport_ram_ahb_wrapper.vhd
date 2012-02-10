@@ -7,6 +7,10 @@ use grlib.amba.all;
 use grlib.stdlib.all;
 use grlib.devices.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
+
 entity dualport_ram_ahb_wrapper is
     generic (
         hindex  : integer := 0;

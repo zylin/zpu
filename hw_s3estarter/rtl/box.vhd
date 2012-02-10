@@ -3,11 +3,10 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library s3estarter;
-use s3estarter.types.all;
-use s3estarter.fpga_components.clk_gen;
-use s3estarter.fpga_components.debug_con_apb;
-use s3estarter.fpga_components.dcm_ctrl_apb;
+library work;
+use work.types.all;
+use work.fpga_components.clk_gen;
+use work.fpga_components.dcm_ctrl_apb;
 
 
 library gaisler;
@@ -17,6 +16,9 @@ use gaisler.net.all;  -- types
 
 library global;
 use global.global_signals.all;
+
+library hzdr;
+use hzdr.component_package.debug_con_apb;
 
 
 entity box is
@@ -539,7 +541,7 @@ begin
     
     ---------------------------------------------------------------------
     -- Interrupt controller
-    irqi(0) <= (pwd => '0', irl => "0000", intack => '0', fpen => '0');
+    irqi(0) <= (pwd => '0', irl => "0000", intack => '0', fpen => '0', idle => '0');
     irqmp_i0 : irqmp
         generic map (
             pindex  => 3,

@@ -90,7 +90,7 @@ begin\n\
   end process;\n\
 \n\
   p0 : if pipe = 0 generate\n\
-    ahbso.hrdata  <= romdata;\n\
+    ahbso.hrdata  <= ahbdrivedata(romdata);\n\
     ahbso.hready  <= '1';\n\
   end generate;\n\
 \n\
@@ -102,7 +102,7 @@ begin\n\
 	hready <= ahbsi.hready;\n\
 	ahbso.hready <=  (not rst) or (hsel and hready) or\n\
 	  (ahbsi.hsel(hindex) and not ahbsi.htrans(1) and ahbsi.hready);\n\
-	ahbso.hrdata  <= romdata;\n\
+	ahbso.hrdata  <= ahbdrivedata(romdata);\n\
       end if;\n\
     end process;\n\
   end generate;\n\

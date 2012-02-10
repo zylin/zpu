@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ entity eth_ahb_mst is
     rmsti   : in  eth_rx_ahb_in_type;
     rmsto   : out eth_rx_ahb_out_type
   );
+  attribute sync_set_reset of rst : signal is "true";
 end entity;
 
 architecture rtl of eth_ahb_mst is

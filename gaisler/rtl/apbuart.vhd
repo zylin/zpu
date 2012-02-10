@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,13 @@
 --              Marko Isomaki - Gaisler Research
 -- Description:	Asynchronous UART. Implements 8-bit data frame with one stop-bit.
 ------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_APBUART
+-- VERSION:     1
+-- APB:         0
+-- BAR: 0       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -47,7 +54,8 @@ entity apbuart is
     parity   : integer := 1;
     flow     : integer := 1;
     fifosize : integer range 1 to 32 := 1;
-    abits    : integer := 8);
+    abits    : integer := 8;
+    sbits    : integer range 12 to 32 := 12);
   port (
     rst    : in  std_ulogic;
     clk    : in  std_ulogic;
@@ -109,8 +117,8 @@ type uartregs is record
   dpar       	:  std_ulogic;	-- rx data parity (internal)
   rxtick     	:  std_ulogic;	-- rx clock (internal)
   tick     	:  std_ulogic;	-- rx clock (internal)
-  scaler	:  std_logic_vector(11 downto 0);
-  brate 	:  std_logic_vector(11 downto 0);
+  scaler	:  std_logic_vector(sbits-1 downto 0);
+  brate 	:  std_logic_vector(sbits-1 downto 0);
   rxf    	:  std_logic_vector(4 downto 0); --  rx data filtering buffer
   txd        	:  std_ulogic;	-- transmitter data
   rfifoirqen    :  std_ulogic;  -- receiver fifo interrupt enable
@@ -132,11 +140,11 @@ signal r, rin : uartregs;
 begin
   uartop : process(rst, r, apbi, uarti )
   variable rdata : std_logic_vector(31 downto 0);
-  variable scaler : std_logic_vector(11 downto 0);
+  variable scaler : std_logic_vector(sbits-1 downto 0);
   variable rxclk, txclk : std_logic_vector(2 downto 0);
   variable rxd, ctsn : std_ulogic;
   variable irq : std_logic_vector(NAHBIRQ-1 downto 0);
-  variable paddr : std_logic_vector(7 downto 2);
+  variable paddress : std_logic_vector(7 downto 2);
   variable v : uartregs;
   variable thalffull : std_ulogic;
   variable rhalffull : std_ulogic;
@@ -158,6 +166,8 @@ begin
     rdata := (others => '0'); v.rxdb(1) := r.rxdb(0);
     dready := '0'; thempty := '1'; thalffull := '1'; rhalffull := '0';
     v.ctsn := r.ctsn(0) & uarti.ctsn;
+    paddress := (others => '0');
+    paddress(abits-1 downto 2) := apbi.paddr(abits-1 downto 2);
 
     if fifosize = 1 then
       dready := r.rcnt(0); rfull := dready; tfull := r.tcnt(0);
@@ -179,7 +189,7 @@ begin
     scaler := r.scaler - 1;
     if (r.rxen or r.txen) = '1' then
       v.scaler := scaler;
-      v.tick := scaler(11) and not r.scaler(11);
+      v.tick := scaler(sbits-1) and not r.scaler(sbits-1);
       if v.tick = '1' then v.scaler := r.brate; end if;
     end if;
 
@@ -190,7 +200,7 @@ begin
 -- read/write registers
 
   if (apbi.psel(pindex) and apbi.penable and (not apbi.pwrite)) = '1' then
-    case paddr(7 downto 2) is
+    case paddress(7 downto 2) is
     when "000000" =>
       rdata(7 downto 0) := r.rhold(conv_integer(r.rraddr));
 	if fifosize = 1 then v.rcnt(0) := '0';
@@ -225,7 +235,7 @@ begin
       rdata(8 downto 0) := r.extclken & r.loopb &
            r.flow & r.paren & r.parsel & r.tirqen & r.rirqen & r.txen & r.rxen;
     when "000011" =>
-      rdata(11 downto 0) := r.brate;
+      rdata(sbits-1 downto 0) := r.brate;
     when "000100" =>
     
         -- Read TX FIFO.
@@ -243,9 +253,8 @@ begin
     end case;
   end if;
 
-    paddr := "000000"; paddr(abits-1 downto 2) := apbi.paddr(abits-1 downto 2);
     if (apbi.psel(pindex) and apbi.penable and apbi.pwrite) = '1' then
-      case paddr(7 downto 2) is
+      case paddress(7 downto 2) is
       when "000000" =>
       when "000001" =>
 	v.frame      := apbi.pwdata(6);
@@ -271,8 +280,8 @@ begin
 	v.txen 	     := apbi.pwdata(1);
 	v.rxen 	     := apbi.pwdata(0);
       when "000011" =>
-	v.brate      := apbi.pwdata(11 downto 0);
-	v.scaler     := apbi.pwdata(11 downto 0);
+	v.brate      := apbi.pwdata(sbits-1 downto 0);
+	v.scaler     := apbi.pwdata(sbits-1 downto 0);
       when "000100" =>
         -- Write RX fifo and generate irq
 	if flow /= 0 then
@@ -381,7 +390,7 @@ begin
 -- operation of thempty flag
 
     if (apbi.psel(pindex) and apbi.penable and apbi.pwrite) = '1' then
-      case paddr(4 downto 2) is
+      case paddress(4 downto 2) is
       when "000" =>
         if fifosize = 1 then
 	  v.thold(0) := apbi.pwdata(7 downto 0); v.tcnt(0) := '1';
@@ -513,16 +522,14 @@ begin
 
 -- drive outputs
 
-    uarto.txd    <= r.txd; 
-    uarto.rtsn   <= r.rtsn;
-    uarto.scaler <= "000000" & r.scaler;
-    apbo.prdata  <= rdata; 
-    apbo.pirq    <= irq;
-    apbo.pindex  <= pindex;
-    uarto.txen   <= r.txen; 
-    uarto.rxen   <= r.rxen;
-    uarto.flow   <= 'Z'; -- added BLa, to avoid sim warnings
-
+    uarto.txd <= r.txd; uarto.rtsn <= r.rtsn;
+    uarto.scaler <= (others => '0');
+    uarto.scaler(sbits-1 downto 0) <= r.scaler;
+    apbo.prdata <= rdata; apbo.pirq <= irq;
+    apbo.pindex <= pindex;
+    uarto.txen <= r.txen; uarto.rxen <= r.rxen;
+    uarto.flow <= '0';
+  
   end process;
 
   apbo.pconfig <= pconfig;
@@ -534,7 +541,7 @@ begin
     bootmsg : report_version
     generic map ("apbuart" & tost(pindex) &
 	": Generic UART rev " & tost(REVISION) & ", fifo " & tost(fifosize) &
-	", irq " & tost(pirq));
+	", irq " & tost(pirq) & ", scaler bits " & tost(sbits));
 -- pragma translate_on
 
 end;

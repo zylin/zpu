@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -159,38 +159,4 @@ package ethernet_mac is
     );
   end component;
 
-  component greth is
-    generic(
-      hindex         : integer := 0;
-      pindex         : integer := 0;
-      paddr          : integer := 0;
-      pmask          : integer := 16#FFF#;
-      pirq           : integer := 0;
-      memtech        : integer := inferred;
-      ifg_gap        : integer := 24; 
-      attempt_limit  : integer := 16;
-      backoff_limit  : integer := 10;
-      slot_time      : integer := 128;
-      mdcscaler      : integer range 0 to 255 := 25; 
-      enable_mdio    : integer range 0 to 1 := 0;
-      fifosize       : integer range 4 to 512 := 8;
-      nsync          : integer range 1 to 2 := 2;
-      edcl           : integer range 0 to 1 := 0;
-      edclbufsz      : integer range 1 to 64 := 1;
-      macaddrh       : integer := 16#00005E#;
-      macaddrl       : integer := 16#000000#;
-      ipaddrh        : integer := 16#c0a8#;
-      ipaddrl        : integer := 16#0035#;
-      phyrstadr      : integer := 0); 
-    port(
-      rst            : in  std_ulogic;
-      clk            : in  std_ulogic;
-      ahbmi          : in  ahb_mst_in_type;
-      ahbmo          : out ahb_mst_out_type;
-      apbi           : in  apb_slv_in_type;
-      apbo           : out apb_slv_out_type;
-      ethi           : in  eth_in_type;
-      etho           : out eth_out_type
-    );
-  end component;
 end package;

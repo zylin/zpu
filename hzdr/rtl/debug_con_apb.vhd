@@ -22,6 +22,9 @@ use grlib.devices.all;
 --library gaisler;
 --use gaisler.misc.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 --pragma translate_off
 use std.textio.all;
 --pragma translate_on

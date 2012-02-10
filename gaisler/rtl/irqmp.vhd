@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -23,6 +23,13 @@
 -- Description:	Multi-processor APB interrupt controller. Implements a
 --		two-level interrupt controller for 15 interrupts.
 ------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_IRQMP
+-- VERSION:     3
+-- APB:         0
+-- BAR: 0       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -277,24 +284,25 @@ begin
 -- reset
 
     if rst = '0' then
-      v.imask  := (others => (others => '0'));
-      v.ilevel := (others => '0');
+      v.imask := (others => (others => '0'));
       v.iforce := (others => (others => '0'));
-      v.ipend  := (others => '0');
+      v.ipend := (others => '0');
       if ncpu > 1 then
         v.ibroadcast := (others => '0');
       end if;
       v2.ipend := (others => '0');
       v2.imask := (others => (others => '0'));
-      v2.irl   := (others => (others => '0'));
+      v2.irl := (others => (others => '0'));
     end if;
 
     apbo.prdata <= prdata;
     for i in 0 to ncpu-1 loop
-      irqo(i).irl    <= r.irl(i);
-      irqo(i).rst    <= r.cpurst(i);
-      irqo(i).run    <= cpurun(i);
+      irqo(i).irl <= r.irl(i); irqo(i).rst <= r.cpurst(i);
+      irqo(i).run <= cpurun(i);
       irqo(i).rstvec <= (others => '0');  -- Alternate reset vector
+      irqo(i).iact <= '0';
+      irqo(i).index <= conv_std_logic_vector(i, 4);
+      irqo(i).hrdrst <= '0';
     end loop;
 
     rin <= v; r2in <= v2;

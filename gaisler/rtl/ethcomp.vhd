@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ package ethcomp is
       enable_mdio    : integer range 0 to 1 := 0;
       fifosize       : integer range 4 to 512 := 8;
       nsync          : integer range 1 to 2 := 2;
-      edcl           : integer range 0 to 2 := 0;
+      edcl           : integer range 0 to 3 := 0;
       edclbufsz      : integer range 1 to 64 := 1;
       macaddrh       : integer := 16#00005E#;
       macaddrl       : integer := 16#000000#;
@@ -42,7 +42,9 @@ package ethcomp is
       scanen	     : integer range 0 to 1  := 0;
       mdint_pol      : integer range 0 to 1  := 0;
       enable_mdint   : integer range 0 to 1  := 0;
-      multicast      : integer range 0 to 1  := 0); 
+      multicast      : integer range 0 to 1  := 0;
+      edclsepahbg    : integer range 0 to 1  := 0;
+      ramdebug       : integer range 0 to 2  := 0);
     port(
       rst            : in  std_ulogic;
       clk            : in  std_ulogic;
@@ -61,6 +63,21 @@ package ethcomp is
       hburst         : out  std_logic_vector(2 downto 0);
       hprot          : out  std_logic_vector(3 downto 0);
       hwdata         : out  std_logic_vector(31 downto 0);
+      --edcl ahb mst in
+      ehgrant        : in  std_ulogic;
+      ehready        : in  std_ulogic;   
+      ehresp         : in  std_logic_vector(1 downto 0);
+      ehrdata        : in  std_logic_vector(31 downto 0); 
+      --edcl ahb mst out
+      ehbusreq       : out  std_ulogic;        
+      ehlock         : out  std_ulogic;
+      ehtrans        : out  std_logic_vector(1 downto 0);
+      ehaddr         : out  std_logic_vector(31 downto 0);
+      ehwrite        : out  std_ulogic;
+      ehsize         : out  std_logic_vector(2 downto 0);
+      ehburst        : out  std_logic_vector(2 downto 0);
+      ehprot         : out  std_logic_vector(3 downto 0);
+      ehwdata        : out  std_logic_vector(31 downto 0);
       --apb slv in 
       psel	     : in   std_ulogic;
       penable	     : in   std_ulogic;
@@ -117,7 +134,9 @@ package ethcomp is
       --scantest
       testrst        : in   std_ulogic;
       testen         : in   std_ulogic;
-      edcladdr       : in  std_logic_vector(3 downto 0) := "0000"
+      edcladdr       : in   std_logic_vector(3 downto 0) := "0000";
+      edclsepahb     : in   std_ulogic;
+      edcldisable    : in   std_ulogic
       );
   end component;
   
@@ -129,7 +148,7 @@ package ethcomp is
       slot_time      : integer := 128;
       mdcscaler      : integer range 0 to 255 := 25; 
       nsync          : integer range 1 to 2 := 2;
-      edcl           : integer range 0 to 2 := 0;
+      edcl           : integer range 0 to 3 := 0;
       edclbufsz      : integer range 1 to 64 := 1;
       burstlength    : integer range 4 to 128 := 32;
       macaddrh       : integer := 16#00005E#;
@@ -142,7 +161,9 @@ package ethcomp is
       scanen         : integer range 0 to 1 := 0;
       mdint_pol      : integer range 0 to 1 := 0;
       enable_mdint   : integer range 0 to 1 := 0;
-      multicast      : integer range 0 to 1 := 0);
+      multicast      : integer range 0 to 1 := 0;
+      edclsepahbg    : integer range 0 to 1 := 0;
+      ramdebug       : integer range 0 to 2 := 0);
     port(
       rst            : in  std_ulogic;
       clk            : in  std_ulogic;
@@ -161,6 +182,21 @@ package ethcomp is
       hburst         : out  std_logic_vector(2 downto 0);
       hprot          : out  std_logic_vector(3 downto 0);
       hwdata         : out  std_logic_vector(31 downto 0);
+      --edcl ahb mst in
+      ehgrant        : in  std_ulogic;
+      ehready        : in  std_ulogic;   
+      ehresp         : in  std_logic_vector(1 downto 0);
+      ehrdata        : in  std_logic_vector(31 downto 0); 
+      --edcl ahb mst out
+      ehbusreq       : out  std_ulogic;        
+      ehlock         : out  std_ulogic;
+      ehtrans        : out  std_logic_vector(1 downto 0);
+      ehaddr         : out  std_logic_vector(31 downto 0);
+      ehwrite        : out  std_ulogic;
+      ehsize         : out  std_logic_vector(2 downto 0);
+      ehburst        : out  std_logic_vector(2 downto 0);
+      ehprot         : out  std_logic_vector(3 downto 0);
+      ehwdata        : out  std_logic_vector(31 downto 0);
       --apb slv in 
       psel	     : in   std_ulogic;
       penable	     : in   std_ulogic;
@@ -217,8 +253,11 @@ package ethcomp is
       --scantest
       testrst        : in   std_ulogic;
       testen         : in   std_ulogic;
-      edcladdr       : in   std_logic_vector(3 downto 0) := "0000"
-      );
+      edcladdr       : in   std_logic_vector(3 downto 0) := "0000";
+      edclsepahb     : in   std_ulogic;
+      edcldisable    : in   std_ulogic;
+      gbit           : out  std_ulogic;
+      speed          : out  std_ulogic);
   end component;
 
   component greth_gen is
@@ -231,7 +270,7 @@ package ethcomp is
       enable_mdio    : integer range 0 to 1 := 0;
       fifosize       : integer range 4 to 64 := 8;
       nsync          : integer range 1 to 2 := 2;
-      edcl           : integer range 0 to 1 := 0;
+      edcl           : integer range 0 to 3 := 0;
       edclbufsz      : integer range 1 to 64 := 1;
       macaddrh       : integer := 16#00005E#;
       macaddrl       : integer := 16#000000#;
@@ -294,7 +333,10 @@ package ethcomp is
       mdio_oe        : out  std_ulogic;
       --scantest
       testrst        : in   std_ulogic;
-      testen         : in   std_ulogic
+      testen         : in   std_ulogic;
+      edcladdr       : in   std_logic_vector(3 downto 0);
+      edclsepahb     : in   std_ulogic;
+      edcldisable    : in   std_ulogic
     );
   end component;
 
@@ -307,7 +349,7 @@ package ethcomp is
       slot_time      : integer := 128;
       mdcscaler      : integer range 0 to 255 := 25; 
       nsync          : integer range 1 to 2 := 2;
-      edcl           : integer range 0 to 2 := 0;
+      edcl           : integer range 0 to 3 := 1;
       edclbufsz      : integer range 1 to 64 := 1;
       burstlength    : integer range 4 to 128 := 32;
       macaddrh       : integer := 16#00005E#;
@@ -318,9 +360,13 @@ package ethcomp is
       sim            : integer range 0 to 1 := 0;
       oepol          : integer range 0 to 1 := 0;
       scanen         : integer range 0 to 1 := 0;
+      ft             : integer range 0 to 2 := 0;
+      edclft         : integer range 0 to 2 := 0;
       mdint_pol      : integer range 0 to 1 := 0;
       enable_mdint   : integer range 0 to 1 := 0;
-      multicast      : integer range 0 to 1 := 0);
+      multicast      : integer range 0 to 1 := 0;
+      edclsepahbg    : integer range 0 to 1 := 0;
+      ramdebug       : integer range 0 to 2 := 0);
     port(
       rst            : in  std_ulogic;
       clk            : in  std_ulogic;
@@ -339,14 +385,29 @@ package ethcomp is
       hburst         : out  std_logic_vector(2 downto 0);
       hprot          : out  std_logic_vector(3 downto 0);
       hwdata         : out  std_logic_vector(31 downto 0);
+      --edcl ahb mst in
+      ehgrant        : in  std_ulogic;
+      ehready        : in  std_ulogic;   
+      ehresp         : in  std_logic_vector(1 downto 0);
+      ehrdata        : in  std_logic_vector(31 downto 0); 
+      --edcl ahb mst out
+      ehbusreq       : out  std_ulogic;        
+      ehlock         : out  std_ulogic;
+      ehtrans        : out  std_logic_vector(1 downto 0);
+      ehaddr         : out  std_logic_vector(31 downto 0);
+      ehwrite        : out  std_ulogic;
+      ehsize         : out  std_logic_vector(2 downto 0);
+      ehburst        : out  std_logic_vector(2 downto 0);
+      ehprot         : out  std_logic_vector(3 downto 0);
+      ehwdata        : out  std_logic_vector(31 downto 0);
       --apb slv in 
-      psel	     : in   std_ulogic;
-      penable	     : in   std_ulogic;
-      paddr	     : in   std_logic_vector(31 downto 0);
-      pwrite	     : in   std_ulogic;
-      pwdata	     : in   std_logic_vector(31 downto 0);
+      psel	   : in   std_ulogic;
+      penable	   : in   std_ulogic;
+      paddr	   : in   std_logic_vector(31 downto 0);
+      pwrite	   : in   std_ulogic;
+      pwdata	   : in   std_logic_vector(31 downto 0);
       --apb slv out
-      prdata	     : out  std_logic_vector(31 downto 0);
+      prdata	   : out  std_logic_vector(31 downto 0);
       --irq
       irq            : out  std_logic;
       --ethernet input signals
@@ -372,7 +433,9 @@ package ethcomp is
       --scantest
       testrst        : in   std_ulogic;
       testen         : in   std_ulogic;
-      edcladdr       : in   std_logic_vector(3 downto 0) := "0000"
+      edcladdr       : in   std_logic_vector(3 downto 0);
+      edclsepahb     : in   std_ulogic;
+      edcldisable    : in   std_ulogic
       );
   end component;
   

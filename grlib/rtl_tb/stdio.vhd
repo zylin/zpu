@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -35,15 +35,14 @@ use      IEEE.Std_Logic_1164.all;
 package StdIO is
 
 -- pragma translate_off
+-- procedure HRead(
+--    variable L:          inout Line;
+--    variable VALUE:      out   Std_ULogic_Vector;
+--    variable GOOD:       out   Boolean);
 
-   procedure HRead(
-      variable L:          inout Line;
-      variable VALUE:      out   Std_ULogic_Vector;
-      variable GOOD:       out   Boolean);
-
-   procedure HRead(
-      variable L:          inout Line;
-      variable VALUE:      out   Std_ULogic_Vector);
+-- procedure HRead(
+--    variable L:          inout Line;
+--    variable VALUE:      out   Std_ULogic_Vector);
 
 -- VHDL 2008: slv is subtype from sulv
 -- procedure HRead(
@@ -55,11 +54,11 @@ package StdIO is
 --    variable L:          inout Line;
 --    variable VALUE:      out   Std_Logic_Vector);
 
-   procedure HWrite(
-      variable L:          inout Line;
-      constant VALUE:      in    Std_ULogic_Vector;
-      constant JUSTIFIED:  in    SIDE  := RIGHT;
-      constant FIELD:      in    WIDTH := 0);
+-- procedure HWrite(
+--    variable L:          inout Line;
+--    constant VALUE:      in    Std_ULogic_Vector;
+--    constant JUSTIFIED:  in    SIDE  := RIGHT;
+--    constant FIELD:      in    WIDTH := 0);
 
 -- procedure HWrite(
 --    variable L:          inout Line;
@@ -67,11 +66,11 @@ package StdIO is
 --    constant JUSTIFIED:  in    SIDE  := RIGHT;
 --    constant FIELD:      in    WIDTH := 0);
 
-   procedure Write(
-      variable L:          inout Line;
-      constant VALUE:      in    Std_ULogic;
-      constant JUSTIFIED:  in    SIDE  := RIGHT;
-      constant FIELD:      in    WIDTH := 0);
+-- procedure Write(
+--    variable L:          inout Line;
+--    constant VALUE:      in    Std_ULogic;
+--    constant JUSTIFIED:  in    SIDE  := RIGHT;
+--    constant FIELD:      in    WIDTH := 0);
 -- pragma translate_on
 
 end package StdIO;
@@ -135,67 +134,67 @@ package body StdIO is
    return R;
    end FromChar;
 
-   procedure HRead(
-      variable L:          inout Line;
-      variable VALUE:      out   Std_ULogic_Vector;
-      variable GOOD:       out   Boolean) is
+-- procedure HRead(
+--    variable L:          inout Line;
+--    variable VALUE:      out   Std_ULogic_Vector;
+--    variable GOOD:       out   Boolean) is
 
-      variable B:                Boolean;
-      variable C:                Character;
-      constant SL:               Integer := VALUE'Length;
-      variable SV:               Std_ULogic_Vector(0 to SL-1);
-      variable S:                String(1 to SL/4-1);
-   begin
-      if VALUE'Length mod 4 /= 0 then
-         GOOD     := False;
-         SV       := (others => 'X');
-         VALUE    := SV;
-         return;
-      end if;
+--    variable B:                Boolean;
+--    variable C:                Character;
+--    constant SL:               Integer := VALUE'Length;
+--    variable SV:               Std_ULogic_Vector(0 to SL-1);
+--    variable S:                String(1 to SL/4-1);
+-- begin
+--    if VALUE'Length mod 4 /= 0 then
+--       GOOD     := False;
+--       SV       := (others => 'X');
+--       VALUE    := SV;
+--       return;
+--    end if;
 
-      loop
-         Read(L, C, B);
-         exit when ((C /= ' ') and (C /= CR) and (C /= HT)) or (not B);
-      end loop;
+--    loop
+--       Read(L, C, B);
+--       exit when ((C /= ' ') and (C /= CR) and (C /= HT)) or (not B);
+--    end loop;
 
-      SV(0 to 3) := FromChar(C);
-      if Is_X(SV(0 to 3)) or (not B) then
-         GOOD     := False;
-         SV       := (others => 'X');
-         VALUE    := SV;
-         return;
-      end if;
+--    SV(0 to 3) := FromChar(C);
+--    if Is_X(SV(0 to 3)) or (not B) then
+--       GOOD     := False;
+--       SV       := (others => 'X');
+--       VALUE    := SV;
+--       return;
+--    end if;
 
-      Read(L, S, B);
-      if not B then
-         GOOD     := False;
-         SV       := (others => 'X');
-         VALUE    := SV;
-         return;
-      end if;
+--    Read(L, S, B);
+--    if not B then
+--       GOOD     := False;
+--       SV       := (others => 'X');
+--       VALUE    := SV;
+--       return;
+--    end if;
 
-      for i in 1 to SL/4-1 loop
-         SV(4*i to 4*i+3) := FromChar(S(i));
-         if Is_X(SV(4*i to 4*i+3)) then
-            GOOD     := False;
-            SV       := (others => 'X');
-            VALUE    := SV;
-            return;
-         end if;
-      end loop;
-      GOOD        := True;
-      VALUE       := SV;
-   end HRead;
+--    for i in 1 to SL/4-1 loop
+--       SV(4*i to 4*i+3) := FromChar(S(i));
+--       if Is_X(SV(4*i to 4*i+3)) then
+--          GOOD     := False;
+--          SV       := (others => 'X');
+--          VALUE    := SV;
+--          return;
+--       end if;
+--    end loop;
+--    GOOD        := True;
+--    VALUE       := SV;
+-- end HRead;
 
-   procedure HRead(
-      variable L:          inout Line;
-      variable VALUE:      out   Std_ULogic_Vector) is
-      variable GOOD:             Boolean;
-   begin
-      HRead(L, VALUE, GOOD);
-      assert GOOD
-         report "HREAD: access incorrect";
-   end HRead;
+-- procedure HRead(
+--    variable L:          inout Line;
+--    variable VALUE:      out   Std_ULogic_Vector) is
+--    variable GOOD:             Boolean;
+-- begin
+--    HRead(L, VALUE, GOOD);
+--    assert GOOD
+--       report "HREAD: access incorrect";
+-- end HRead;
 
 -- procedure HRead(
 --    variable L:          inout Line;
@@ -219,30 +218,30 @@ package body StdIO is
 --       report "HREAD: access incorrect";
 -- end HRead;
 
-   procedure HWrite(
-      variable L:          inout Line;
-      constant VALUE:      in    Std_ULogic_Vector;
-      constant JUSTIFIED:  in    SIDE     := RIGHT;
-      constant FIELD:      in    WIDTH    := 0) is
+-- procedure HWrite(
+--    variable L:          inout Line;
+--    constant VALUE:      in    Std_ULogic_Vector;
+--    constant JUSTIFIED:  in    SIDE     := RIGHT;
+--    constant FIELD:      in    WIDTH    := 0) is
 
-      constant PL:               Integer  := 4-(VALUE'Length mod 4);
-      constant PV:               Std_ULogic_Vector(1 to PL) := (others => '0');
-      constant TL:               Integer  := PL + VALUE'Length;
-      constant TV:               Std_ULogic_Vector(0 to TL-1) := PV & Value;
-      variable S:                String(1 to TL/4);
-   begin
-      if PL /= 4 then
-         for i in 0 to TL/4 -1 loop
-            S(i+1) :=  ToChar(TV(4*i to 4*i+3));
-         end loop;
-         Write(L, S(1 to TL/4), JUSTIFIED, FIELD);
-      else
-         for i in 1 to TL/4 -1 loop
-            S(i+1) :=  ToChar(TV(4*i to 4*i+3));
-         end loop;
-         Write(L, S(2 to TL/4), JUSTIFIED, FIELD);
-      end if;
-   end HWrite;
+--    constant PL:               Integer  := 4-(VALUE'Length mod 4);
+--    constant PV:               Std_ULogic_Vector(1 to PL) := (others => '0');
+--    constant TL:               Integer  := PL + VALUE'Length;
+--    constant TV:               Std_ULogic_Vector(0 to TL-1) := PV & Value;
+--    variable S:                String(1 to TL/4);
+-- begin
+--    if PL /= 4 then
+--       for i in 0 to TL/4 -1 loop
+--          S(i+1) :=  ToChar(TV(4*i to 4*i+3));
+--       end loop;
+--       Write(L, S(1 to TL/4), JUSTIFIED, FIELD);
+--    else
+--       for i in 1 to TL/4 -1 loop
+--          S(i+1) :=  ToChar(TV(4*i to 4*i+3));
+--       end loop;
+--       Write(L, S(2 to TL/4), JUSTIFIED, FIELD);
+--    end if;
+-- end HWrite;
 
 -- procedure HWrite(
 --    variable L:          inout Line;

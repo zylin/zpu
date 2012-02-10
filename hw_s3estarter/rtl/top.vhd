@@ -178,9 +178,9 @@ entity top is
 end entity top;
 
 
-library s3estarter;
-use s3estarter.types.all;
-use s3estarter.fpga_components.box;
+library work;
+use work.types.all;
+use work.fpga_components.box;
 
 library global;
 use global.global_signals.all;

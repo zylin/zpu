@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -74,8 +74,8 @@ begin
 
     v := r;
     vuarti.read := '0'; vuarti.write := '0'; vuarti.data := r.data(31 downto 24);
-    vdmai.start := '0'; vdmai.burst := '0'; vdmai.size := "10"; vdmai.busy := '0';
-    vdmai.address := r.addr; vdmai.wdata := r.data;
+    vdmai.start := '0'; vdmai.burst := '0'; vdmai.size := "010"; vdmai.busy := '0';
+    vdmai.address := r.addr; vdmai.wdata := ahbdrivedata(r.data);
     vdmai.write := r.write; vdmai.irq := '0';
 
     -- save hresp
@@ -104,7 +104,7 @@ begin
     when read1 =>		-- read AHB
       if dmao.active = '1' then
 	if dmao.ready = '1' then
-	  v.data := dmao.rdata; v.state := read2;
+	  v.data := ahbreadword(dmao.rdata); v.state := read2;
         end if;
       else vdmai.start := '1'; end if;
       v.clen := "00";

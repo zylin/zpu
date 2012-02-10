@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,7 @@ entity greth_rx is
     rxi            : in  host_rx_type;
     rxo            : out rx_host_type
   );           
+  attribute sync_set_reset of rst : signal is "true";
 end entity;
 
 architecture rtl of greth_rx is
@@ -321,9 +322,17 @@ begin
       v.rx_state  := idle; v.write := '0'; v.done := '0'; v.sync_start := '0';
       v.done_ack  := (others => '0'); 
       v.gotframe  := '0'; v.write_ack := (others => '0');
-      if rmii = 1 then
-        v.dv := '0'; v.cnt := (others => '0'); v.zero := '0';
+      v.dv := '0'; v.cnt := (others => '0'); v.zero := '0';
+      v.byte_count := (others => '0'); v.lentype := (others => '0');
+      v.status := (others => '0'); v.got4b := '0'; v.odd_nibble := '0';
+      v.ltfound := '0';
+      if multicast = 1 then
+        v.hashlock := '0';
       end if;
+
+    end if;
+    if rmii = 0 then
+        v.cnt := (others => '0'); v.zero := '0';
     end if;
 
     rin            <= v;

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,9 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+library grlib;
+use grlib.config.all;
+use grlib.stdlib.all;
 use work.gencomp.all;
 use work.allmem.all;
 
@@ -127,6 +130,16 @@ begin
          port map (clk, address, datain, dataoutx, enable, write);
   end generate;
 
+  proa3e : if tech = apa3e generate
+    x0 : proasic3e_syncram generic map (abits, dbits)
+         port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
+  proa3l : if tech = apa3l generate
+    x0 : proasic3l_syncram generic map (abits, dbits)
+         port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
   fus : if tech = actfus generate
     x0 : fusion_syncram generic map (abits, dbits)
          port map (clk, address, datain, dataoutx, enable, write);
@@ -160,6 +173,16 @@ begin
 
   ut025 : if tech = ut25 generate
     x0 : ut025crh_syncram generic map (abits, dbits)
+         port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
+  ut09  : if tech = ut90 generate
+    x0 : ut90nhbd_syncram generic map (abits, dbits)
+         port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
+  ut13 : if tech = ut130 generate
+    x0 : ut130hbd_syncram generic map (abits, dbits)
          port map (clk, address, datain, dataoutx, enable, write);
   end generate;
 
@@ -201,13 +224,37 @@ begin
          port map (clk, address, datain, dataoutx, enable, write);
   end generate;
 
+  tm65gplu  : if tech = tm65gpl generate
+    x0 : tm65gplus_syncram generic map (abits, dbits)
+      port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
+  cmos9sfx  : if tech = cmos9sf generate
+    x0 : cmos9sf_syncram generic map (abits, dbits)
+      port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
+  n2x  : if tech = easic45 generate
+    x0 : n2x_syncram generic map (abits, dbits)
+      port map (clk, address, datain, dataoutx, enable, write);
+  end generate;
+
 -- pragma translate_off
   noram : if has_sram(tech) = 0 generate
     x : process
     begin
-      assert false report "synram: technology " & tech_table(tech) &
+      assert false report "syncram: technology " & tech_table(tech) &
 	" not supported"
       severity failure;
+      wait;
+    end process;
+  end generate;
+  dmsg : if grlib_debug_level >= 2 generate
+    x : process
+    begin
+      assert false report "syncram: " & tost(2**abits) & "x" & tost(dbits) &
+       " (" & tech_table(tech) & ")"
+      severity note;
       wait;
     end process;
   end generate;

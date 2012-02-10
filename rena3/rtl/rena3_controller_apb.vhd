@@ -15,6 +15,9 @@ use grlib.amba.all;
 use grlib.stdlib.all;
 use grlib.devices.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 library rena3;
 use rena3.types_package.all;
 

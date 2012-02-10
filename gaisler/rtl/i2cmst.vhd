@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -17,11 +17,10 @@
 --  along with this program; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
 -------------------------------------------------------------------------------
--- Entity: i2cmst
--- File:   i2cmst.vhd
--- Author: Jan Andersson - Gaisler Research
---         jan@gaisler.com
---
+-- Entity:      i2cmst
+-- File:        i2cmst.vhd
+-- Author:      Jan Andersson - Gaisler Research
+-- Contact:     support@gaisler.com
 -- Description:
 --
 --         APB interface to OpenCores I2C-master. This is an GRLIB AMBA wrapper
@@ -31,7 +30,8 @@
 --
 --         The original master had a WISHBONE interface with registers
 --         aligned at byte boundaries. This wrapper has a slighly different
---         alignment of the registers:
+--         alignment of the registers, and also (optionally) adds a filter
+--         filter register (FR):
 --
 --         +------------+--------------------------------------+
 --         |  Offset    |            Bits in word              |
@@ -44,10 +44,15 @@
 --         |   0x08     |  0x00   |   0x00  |  0x00   |  RXR   |
 --         |   0x0C     |  0x00   |   0x00  |  0x00   |  CR    |
 --         |   0x0C     |  0x00   |   0x00  |  0x00   |  SR    |
+--         |   0x10     |                   FR                 |
 --         +------------+---------+---------+---------+--------+
 --
 -- Revision 1 of this core also sets the TIP bit when STO is set.
 --
+-- Revision 2 of this core adds a filter generic to adjust the low pass filter
+--
+-- Revision 3 of this core adds yet another filter generic that can be set to
+--            make the filter soft configurable.
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -71,18 +76,20 @@ entity i2cmst is
     paddr   : integer := 0;
     pmask   : integer := 16#fff#;
     pirq    : integer := 0;                -- interrupt index
-    oepol   : integer range 0 to 1 := 0);  -- output enable polarity
+    oepol   : integer range 0 to 1 := 0;   -- output enable polarity
+    filter  : integer range 2 to 512 := 2; -- filter bit size
+    dynfilt : integer range 0 to 1 := 0);
   port (
-    rstn : in std_ulogic;
-    clk  : in std_ulogic;
+    rstn  : in std_ulogic;
+    clk   : in std_ulogic;
     
     -- APB signals
-    apbi  : in apb_slv_in_type;
+    apbi  : in  apb_slv_in_type;
     apbo  : out apb_slv_out_type;
 
     -- I2C signals
-    i2ci    : in  i2c_in_type;
-    i2co    : out i2c_out_type
+    i2ci  : in  i2c_in_type;
+    i2co  : out i2c_out_type
     );
 end entity i2cmst;
 
@@ -91,7 +98,7 @@ architecture rtl of i2cmst is
   -- Constants
   -----------------------------------------------------------------------------
 
-  constant I2CMST_REV : integer := 1;
+  constant I2CMST_REV : integer := 3;
   
   constant PCONFIG : apb_config_type := (
   0 => ahb_device_reg(VENDOR_GAISLER, GAISLER_I2CMST, 0, I2CMST_REV, pirq),
@@ -103,7 +110,12 @@ architecture rtl of i2cmst is
   constant RXR_addr  : std_logic_vector(7 downto 2) := "000010";
   constant CR_addr   : std_logic_vector(7 downto 2) := "000011";
   constant SR_addr   : std_logic_vector(7 downto 2) := "000011";
+  constant FR_addr   : std_logic_vector(7 downto 2) := "000100";
 
+  -----------------------------------------------------------------------------
+  -- 
+  -----------------------------------------------------------------------------
+  
   -----------------------------------------------------------------------------
   -- Types 
   -----------------------------------------------------------------------------
@@ -137,6 +149,7 @@ architecture rtl of i2cmst is
        txr  : std_logic_vector(7 downto 0);      -- transmit register
        cmd  : cmd_reg_type;                      -- command register
        sts  : sts_reg_type;                      -- status register
+       filt : std_logic_vector((filter-1)*dynfilt downto 0); -- filter register
        --
        irq  : std_ulogic;
  end record;
@@ -158,13 +171,35 @@ begin
   -- Byte Controller from OpenCores I2C master,
   -- by Richard Herveille (richard@asics.ws). The asynchronous
   -- reset is tied to '1'. Only the synchronous reset is used.
-
   vcc <= '1';
   byte_ctrl: i2c_master_byte_ctrl
-    port map (clk, irst, vcc, r.ctrl.en, r.prer, r.cmd.sta,
-              r.cmd.sto, r.cmd.rd, r.cmd.wr, r.cmd.ack, r.txr, done,
-              rxack, busy, al, rxr, i2ci.scl, i2co.scl, iscloen,
-              i2ci.sda, i2co.sda, isdaoen);
+    generic map (
+      filter   => filter,
+      dynfilt  => dynfilt)
+    port map (
+      clk      => clk,
+      rst      => irst,
+      nReset   => vcc,
+      ena      => r.ctrl.en,
+      clk_cnt  => r.prer,
+      start    => r.cmd.sta,
+      stop     => r.cmd.sto,
+      read     => r.cmd.rd,
+      write    => r.cmd.wr,
+      ack_in   => r.cmd.ack,
+      din      => r.txr,
+      filt     => r.filt,
+      cmd_ack  => done,
+      ack_out  => rxack,
+      i2c_busy => busy,
+      i2c_al   => al,
+      dout     => rxr,
+      scl_i    => i2ci.scl,
+      scl_o    => i2co.scl,
+      scl_oen  => iscloen,
+      sda_i    => i2ci.sda,
+      sda_o    => i2co.sda,
+      sda_oen  => isdaoen);
 
   -- OC I2C logic has active high reset.
   irst <= not rstn;
@@ -212,9 +247,11 @@ begin
           apbout(7 downto 6) := r.ctrl.en & r.ctrl.ien;
         when RXR_addr  =>
           apbout(7 downto 0) := rxr;
-        when SR_Addr   =>
+        when SR_addr   =>
           apbout(7 downto 5) := r.sts.rxack & r.sts.busy & r.sts.al;
           apbout(1 downto 0) := r.sts.tip & r.sts.ifl;
+        when FR_addr =>
+          if dynfilt /= 0 then apbout(r.filt'range) := r.filt; end if;
         when others => null;
       end case;
     end if;
@@ -242,6 +279,8 @@ begin
           if apbi.pwdata(0) = '1' then
             v.sts.ifl := '0';
           end if;
+        when FR_addr =>
+          if dynfilt /= 0 then v.filt := apbi.pwdata(r.filt'range); end if;
         when others => null;
       end case;
     end if;
@@ -252,7 +291,10 @@ begin
       v.txr  := (others => '0');
       v.cmd  := ('0','0','0','0', '0');
       v.sts   := ('0','0','0','0', '0');
+      if dynfilt /= 0 then v.filt := (others => '1'); end if;
     end if;
+
+    if dynfilt = 0 then v.filt := (others => '0'); end if;
     
     -- Update registers
     rin <= v;

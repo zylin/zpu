@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -1031,6 +1031,120 @@ begin
   end generate;
 end;
 
--- just to make make happy (generate a memory_unisim/_primary.dat)
-entity memory_unisim is
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity unisim_syncram128 is
+  generic ( abits : integer := 9);
+  port (
+    clk     : in  std_ulogic;
+    address : in  std_logic_vector (abits -1 downto 0);
+    datain  : in  std_logic_vector (127 downto 0);
+    dataout : out std_logic_vector (127 downto 0);
+    enable  : in  std_logic_vector (3 downto 0);
+    write   : in  std_logic_vector (3 downto 0)
+  );
 end;
+architecture behav of unisim_syncram128 is
+  component unisim_syncram64 is
+  generic ( abits : integer := 9);
+  port (
+    clk     : in  std_ulogic;
+    address : in  std_logic_vector (abits -1 downto 0);
+    datain  : in  std_logic_vector (63 downto 0);
+    dataout : out std_logic_vector (63 downto 0);
+    enable  : in  std_logic_vector (1 downto 0);
+    write   : in  std_logic_vector (1 downto 0)
+  );
+  end component;
+begin
+    x0 : unisim_syncram64 generic map (abits)
+         port map (clk, address, datain(127 downto 64), dataout(127 downto 64),
+	           enable(3 downto 2), write(3 downto 2));
+    x1 : unisim_syncram64 generic map (abits)
+         port map (clk, address, datain(63 downto 0), dataout(63 downto 0),
+	           enable(1 downto 0), write(1 downto 0));
+end;
+
+library ieee;
+use ieee.std_logic_1164.all;
+--pragma translate_off
+library unisim;
+use unisim.RAMB16_S36_S36;
+--pragma translate_on
+
+entity unisim_syncram128bw is
+  generic ( abits : integer := 9);
+  port (
+    clk     : in  std_ulogic;
+    address : in  std_logic_vector (abits -1 downto 0);
+    datain  : in  std_logic_vector (127 downto 0);
+    dataout : out std_logic_vector (127 downto 0);
+    enable  : in  std_logic_vector (15 downto 0);
+    write   : in  std_logic_vector (15 downto 0)
+  );
+end;
+
+architecture behav of unisim_syncram128bw is
+component unisim_syncram
+  generic ( abits : integer := 9; dbits : integer := 32);
+  port (
+    clk     : in std_ulogic;
+    address : in std_logic_vector (abits -1 downto 0);
+    datain  : in std_logic_vector (dbits -1 downto 0);
+    dataout : out std_logic_vector (dbits -1 downto 0);
+    enable  : in std_ulogic;
+    write   : in std_ulogic
+  );
+end component;
+  component RAMB16_S9_S9
+ port (
+   DOA : out std_logic_vector (7 downto 0);
+   DOB : out std_logic_vector (7 downto 0);
+   DOPA : out std_logic_vector (0 downto 0);
+   DOPB : out std_logic_vector (0 downto 0);
+   ADDRA : in std_logic_vector (10 downto 0);
+   ADDRB : in std_logic_vector (10 downto 0);
+   CLKA : in std_ulogic;
+   CLKB : in std_ulogic;
+   DIA : in std_logic_vector (7 downto 0);
+   DIB : in std_logic_vector (7 downto 0);
+   DIPA : in std_logic_vector (0 downto 0);
+   DIPB : in std_logic_vector (0 downto 0);
+   ENA : in std_ulogic;
+   ENB : in std_ulogic;
+   SSRA : in std_ulogic;
+   SSRB : in std_ulogic;
+   WEA : in std_ulogic;
+   WEB : in std_ulogic
+ );
+end component;
+
+signal gnd : std_logic_vector(3 downto 0);
+signal xa, ya : std_logic_vector(19 downto 0);
+begin
+
+  gnd <= "0000"; 
+  xa(abits-1 downto 0) <= address; xa(19 downto abits) <= (others => '0');
+  ya(abits-1 downto 0) <= address; ya(19 downto abits) <= (others => '1');
+
+  a11 : if abits <= 10 generate
+    x0 : for i in 0 to 7 generate
+      r0 : RAMB16_S9_S9 port map (
+	dataout(i*8+7+64 downto i*8+64), dataout(i*8+7 downto i*8), open, open,
+	xa(10 downto 0), ya(10 downto 0), clk, clk,
+	datain(i*8+7+64 downto i*8+64), datain(i*8+7 downto i*8), gnd(0 downto 0), gnd(0 downto 0),
+	enable(i+8), enable(i), gnd(0), gnd(0), write(i+8), write(i));
+    end generate;
+  end generate;
+  a12 : if abits > 10 generate
+    x0 : for i in 0 to 15 generate
+      x2 : unisim_syncram generic map ( abits, 8)
+         port map (clk, address, datain(i*8+7 downto i*8),
+	      dataout(i*8+7 downto i*8), enable(i), write(i));
+    end generate;
+  end generate;
+end;
+
+
+

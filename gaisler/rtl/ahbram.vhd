@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,17 @@
 -----------------------------------------------------------------------------
 -- Entity: 	ahbram
 -- File:	ahbram.vhd
--- Author:	Jiri Gaisler - Gaisler Reserch
+-- Author:	Jiri Gaisler - Gaisler Research
+-- Modified:    Jan Andersson - Aeroflex Gaisler
 -- Description:	AHB ram. 0-waitstate read, 0/1-waitstate write.
 ------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_AHBRAM
+-- VERSION:     0
+-- AHBSLAVE:    0
+-- BAR: 0       TYPE: 0010      PREFETCH: 1     CACHE: 1        DESC: RAM_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -38,7 +46,9 @@ entity ahbram is
     haddr   : integer := 0;
     hmask   : integer := 16#fff#;
     tech    : integer := DEFMEMTECH; 
-    kbytes  : integer := 1); 
+    kbytes  : integer := 1;
+    pipe    : integer := 0;
+    maccsz  : integer := AHBDW); 
   port (
     rst     : in  std_ulogic;
     clk     : in  std_ulogic;
@@ -49,10 +59,12 @@ end;
 
 architecture rtl of ahbram is
 
-constant abits : integer := log2(kbytes) + 8;
+constant abits : integer := log2(kbytes) + 8 - maccsz/64;
+
+constant dw : integer := maccsz;
 
 constant hconfig : ahb_config_type := (
-  0 => ahb_device_reg ( VENDOR_GAISLER, GAISLER_AHBRAM, 0, abits+2, 0),
+  0 => ahb_device_reg ( VENDOR_GAISLER, GAISLER_AHBRAM, 0, abits+2+maccsz/64, 0),
   4 => ahb_membar(haddr, '1', '1', hmask),
   others => zero32);
 
@@ -61,49 +73,149 @@ type reg_type is record
   hwrite : std_ulogic;
   hready : std_ulogic;
   hsel   : std_ulogic;
-  addr   : std_logic_vector(abits+1 downto 0);
-  size   : std_logic_vector(1 downto 0);
+  addr   : std_logic_vector(abits-1+log2(dw/8) downto 0);
+  size   : std_logic_vector(2 downto 0);
+  prdata : std_logic_vector((dw-1)*pipe downto 0);
 end record;
 
-signal r, c : reg_type;
-signal ramsel : std_ulogic;
-signal write : std_logic_vector(3 downto 0);
+signal r, c     : reg_type;
+signal ramsel   : std_logic_vector(dw/8-1 downto 0);
+signal write    : std_logic_vector(dw/8-1 downto 0);
 signal ramaddr  : std_logic_vector(abits-1 downto 0);
-signal ramdata  : std_logic_vector(31 downto 0);
+signal ramdata  : std_logic_vector(dw-1 downto 0);
+signal hwdata   : std_logic_vector(dw-1 downto 0);
+
 begin
 
   comb : process (ahbsi, r, rst, ramdata)
-  variable bs : std_logic_vector(3 downto 0);
-  variable v : reg_type;
-  variable haddr  : std_logic_vector(abits-1 downto 0);
+  variable bs      : std_logic_vector(dw/8-1 downto 0);
+  variable v       : reg_type;
+  variable haddr   : std_logic_vector(abits-1 downto 0);
+  variable hrdata  : std_logic_vector(dw-1 downto 0);
+  variable seldata : std_logic_vector(dw-1 downto 0);
+  variable raddr   : std_logic_vector(3 downto 2);
   begin
     v := r; v.hready := '1'; bs := (others => '0');
-    if (r.hwrite or not r.hready) = '1' then haddr := r.addr(abits+1 downto 2);
+    if (r.hwrite or not r.hready) = '1' then
+      haddr := r.addr(abits-1+log2(dw/8) downto log2(dw/8));
     else
-      haddr := ahbsi.haddr(abits+1 downto 2); bs := (others => '0'); 
+      haddr := ahbsi.haddr(abits-1+log2(dw/8) downto log2(dw/8));
+      bs := (others => '0'); 
     end if;
+    raddr := (others => '0');
 
     if ahbsi.hready = '1' then 
       v.hsel := ahbsi.hsel(hindex) and ahbsi.htrans(1);
       v.hwrite := ahbsi.hwrite and v.hsel;
-      v.addr := ahbsi.haddr(abits+1 downto 0); 
-      v.size := ahbsi.hsize(1 downto 0);
+      v.addr := ahbsi.haddr(abits-1+log2(dw/8) downto 0); 
+      v.size := ahbsi.hsize(2 downto 0);
+      if pipe = 1 and v.hsel = '1' and ahbsi.hwrite = '0' then
+        v.hready := '0';
+      end if;
     end if;
 
     if r.hwrite = '1' then
-      case r.size(1 downto 0) is
-      when "00" => bs (conv_integer(r.addr(1 downto 0))) := '1';
-      when "01" => bs := r.addr(1) & r.addr(1) & not (r.addr(1) & r.addr(1));
-      when others => bs := (others => '1');
+      case r.size is
+      when HSIZE_BYTE =>
+        bs(bs'left-conv_integer(r.addr(log2(dw/16) downto 0))) := '1';
+      when HSIZE_HWORD =>
+        for i in 0 to dw/16-1 loop
+          if i = conv_integer(r.addr(log2(dw/16) downto 1)) then
+            bs(bs'left-i*2 downto bs'left-i*2-1) := (others => '1');
+          end if;
+        end loop;  -- i
+      when HSIZE_WORD =>
+        if dw = 32 then bs := (others => '1');
+        else
+          for i in 0 to dw/32-1 loop
+            if i = conv_integer(r.addr(log2(dw/8)-1 downto 2)) then
+              bs(bs'left-i*4 downto bs'left-i*4-3) := (others => '1');
+            end if;
+          end loop;  -- i
+        end if;        
+      when HSIZE_DWORD =>
+        if dw = 32 then null;
+        elsif dw = 64 then bs := (others => '1');
+        else
+          for i in 0 to dw/64-1 loop
+            if i = conv_integer(r.addr(3)) then
+              bs(bs'left-i*8 downto bs'left-i*8-7) := (others => '1');
+            end if;
+          end loop;  -- i
+        end if;
+      when HSIZE_4WORD => 
+        if dw < 128 then null;
+        elsif dw = 128 then bs := (others => '1');
+        else
+          for i in 0 to dw/64-1 loop
+            if i = conv_integer(r.addr(3)) then
+              bs(bs'left-i*8 downto bs'left-i*8-7) := (others => '1');
+            end if;
+          end loop;  -- i  
+        end if;
+      when others => --HSIZE_8WORD
+        if dw < 256 then null;
+        else bs := (others => '1'); end if;
       end case;
       v.hready := not (v.hsel and not ahbsi.hwrite);
       v.hwrite := v.hwrite and v.hready;
     end if;
 
-    if rst = '0' then v.hwrite := '0'; v.hready := '1'; end if;
-    write <= bs; ramsel <= v.hsel or r.hwrite; ahbso.hready <= r.hready; 
-    ramaddr <= haddr; c <= v; ahbso.hrdata <= ramdata;
+    -- Duplicate read data on word basis, unless CORE_ACDM is enabled
+    if CORE_ACDM = 0 then
+      if dw = 32 then
+        seldata := ramdata;
+      elsif dw = 64 then
+        if r.size = HSIZE_DWORD then seldata := ramdata; else
+         if r.addr(2) = '0' then 
+           seldata(dw/2-1 downto 0) := ramdata(dw-1 downto dw/2);
+         else 
+           seldata(dw/2-1 downto 0) := ramdata(dw/2-1 downto 0);
+         end if;
+         seldata(dw-1 downto dw/2) := seldata(dw/2-1 downto 0);
+        end if;
+      elsif dw = 128 then
+        if r.size = HSIZE_4WORD then
+          seldata := ramdata;
+        elsif r.size = HSIZE_DWORD then
+          if r.addr(3) = '0' then seldata(dw/2-1 downto 0) := ramdata(dw-1 downto dw/2);
+          else seldata(dw/2-1 downto 0) := ramdata(dw/2-1 downto 0); end if;
+          seldata(dw-1 downto dw/2) := seldata(dw/2-1 downto 0);
+        else
+          raddr := r.addr(3 downto 2);
+          case raddr is
+            when "00" => seldata(dw/4-1 downto 0) := ramdata(4*dw/4-1 downto 3*dw/4);
+            when "01" => seldata(dw/4-1 downto 0) := ramdata(3*dw/4-1 downto 2*dw/4);
+            when "10" => seldata(dw/4-1 downto 0) := ramdata(2*dw/4-1 downto 1*dw/4);
+            when others => seldata(dw/4-1 downto 0) := ramdata(dw/4-1 downto 0);
+          end case;
+          seldata(dw-1 downto dw/4) := seldata(dw/4-1 downto 0) &
+                                       seldata(dw/4-1 downto 0) &
+                                       seldata(dw/4-1 downto 0);
+        end if;
+      else
+        seldata := ahbselectdata(ramdata, r.addr(4 downto 2), r.size);
+      end if;
+    else
+      seldata := ramdata;
+    end if;
 
+    if pipe = 0 then
+      v.prdata := (others => '0');
+      hrdata := seldata;
+    else
+      v.prdata := seldata;
+      hrdata := r.prdata;
+    end if;
+
+
+    if rst = '0' then v.hwrite := '0'; v.hready := '1'; end if;
+    write <= bs; for i in 0 to dw/8-1 loop ramsel(i) <= v.hsel or r.hwrite; end loop;
+    ramaddr <= haddr; c <= v; 
+
+    ahbso.hrdata <= ahbdrivedata(hrdata);
+    ahbso.hready <= r.hready;
+    
   end process;
 
   ahbso.hresp   <= "00"; 
@@ -113,12 +225,13 @@ begin
   ahbso.hconfig <= hconfig;
   ahbso.hindex  <= hindex;
 
-  ra : for i in 0 to 3 generate
-    aram :  syncram generic map (tech, abits, 8) port map (
-	clk, ramaddr, ahbsi.hwdata(i*8+7 downto i*8),
-	ramdata(i*8+7 downto i*8), ramsel, write(3-i)); 
-  end generate;
-
+  -- Select correct write data
+  hwdata <= ahbreaddata(ahbsi.hwdata, r.addr(4 downto 2),
+                        conv_std_logic_vector(log2(dw/8), 3));
+  
+  aram : syncrambw generic map (tech, abits, dw) port map (
+	clk, ramaddr, hwdata, ramdata, ramsel, write); 
+  
   reg : process (clk)
   begin
     if rising_edge(clk ) then r <= c; end if;

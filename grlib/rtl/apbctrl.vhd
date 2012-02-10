@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -22,6 +22,13 @@
 -- Author:      Jiri Gaisler - Gaisler Research
 -- Description: AMBA AHB/APB bridge with plug&play support
 ------------------------------------------------------------------------------ 
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_APBMST
+-- VERSION:     0
+-- AHBSLAVE:    0
+-- BAR: 0       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: APB_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -98,13 +105,13 @@ begin
   variable pwdata : std_logic_vector(31 downto 0);
   variable apbaddr : std_logic_vector(apbmax downto 0);
   variable apbaddr2 : std_logic_vector(31 downto 0);
-  variable hirq, pirq : std_logic_vector(NAHBIRQ-1 downto 0);
+  variable pirq : std_logic_vector(NAHBIRQ-1 downto 0);
   variable nslave : integer range 0 to nslaves-1;
   variable bnslave : std_logic_vector(3 downto 0);
   begin
 
     v := r; v.psel := '0'; v.penable := '0'; psel := (others => '0');
-    hirq := (others => '0');  pirq := (others => '0'); 
+    pirq := (others => '0'); 
 
     -- detect start of cycle
     if (ahbi.hready = '1') then
@@ -121,7 +128,7 @@ begin
     when "00" => null;		-- idle
     when "01" =>
       if r.hwrite = '0' then v.penable := '1'; 
-      else v.pwdata := ahbi.hwdata; end if;
+      else v.pwdata := ahbreadword(ahbi.hwdata, r.haddr(4 downto 2)); end if;
       v.psel := '1'; v.state := "10";
     when others =>
       if r.penable = '0' then v.psel := '1'; v.penable := '1'; end if;
@@ -164,7 +171,7 @@ begin
 
     -- AHB respons
     ahbo.hready <= r.hready;
-    ahbo.hrdata <= r.prdata;
+    ahbo.hrdata <= ahbdrivedata(r.prdata);
     ahbo.hirq   <= pirq;
 
     if rst = '0' then
@@ -190,8 +197,9 @@ begin
     apbi.scanen <= ahbi.scanen;
     apbi.testrst <= ahbi.testrst;
 
+    apbi.psel <= (others => '0');
     for i in 0 to nslaves-1 loop apbi.psel(i) <= psel(i) and r.psel; end loop;
-
+    
 --pragma translate_off
     lapbi.paddr   <= apbaddr2;
     lapbi.pwdata  <= r.pwdata;

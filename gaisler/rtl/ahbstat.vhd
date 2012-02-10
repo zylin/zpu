@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -16,6 +16,13 @@
 --  You should have received a copy of the GNU General Public License
 --  along with this program; if not, write to the Free Software
 --  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA 
+-------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_GAISLER
+-- DEVICE:      GAISLER_AHBSTAT
+-- VERSION:     0
+-- APB:         0
+-- BAR: 0       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
 -------------------------------------------------------------------------------
 
 library ieee;
@@ -34,7 +41,7 @@ entity ahbstat is
     paddr  : integer := 0;
     pmask  : integer := 16#FFF#;
     pirq   : integer := 0;
-    nftslv : integer range 1 to NAHBSLV - 1 := 1);
+    nftslv : integer range 1 to NAHBSLV - 1 := 3);
   port(
     rst   : in std_ulogic;
     clk   : in std_ulogic;

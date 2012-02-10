@@ -143,7 +143,8 @@ begin
     top_i0 : entity work.top
         port map (
             --
-            simulation_break         => tb_simulation_break,        --: out   std_logic;
+            simulation_run           => simulation_run,            -- : in    boolean;
+            simulation_break         => tb_simulation_break,       -- : out   std_logic;
             --
             cpu_reset                => tb_cpu_reset,              -- : in    std_logic;
             --                                                     

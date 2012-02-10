@@ -17,6 +17,9 @@ use std.textio.all;
 library global;
 use global.global_signals.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 
 entity dcm_ctrl_apb is
   generic (

@@ -12,6 +12,9 @@ use grlib.amba.all;
 use grlib.stdlib.all;
 use grlib.devices.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 
 entity led_control_ahb is
     generic(

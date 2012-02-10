@@ -6,8 +6,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-library s3estarter;
-use s3estarter.types.all;
+library work;
+use work.types.all;
 
 
 

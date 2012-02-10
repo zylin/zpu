@@ -18,15 +18,19 @@ grlib     ../../grlib/rtl/ahbctrl.vhd
 grlib     ../../grlib/rtl/amba.vhd  
 grlib     ../../grlib/rtl/apbctrl.vhd  
 grlib     ../../grlib/rtl/devices.vhd  
-grlib     ../../grlib/rtl/report_version.vhd  
+grlib     ../../grlib/rtl/config.vhd  
+grlib     ../../grlib/rtl/util.vhd  
+grlib     ../../grlib/rtl/testlib.vhd  
 grlib     ../../grlib/rtl/stdlib.vhd  
 grlib     ../../grlib/rtl/version.vhd
-techmap   ../../techmap/rtl/generic_syncram.vhd
+grlib     ../../grlib/rtl_tb/stdio.vhd
 techmap   ../../techmap/rtl/gencomp.vhd
 techmap   ../../techmap/rtl/allmem.vhd
 techmap   ../../techmap/rtl/syncram_2p.vhd
 techmap   ../../techmap/rtl/syncram_dp.vhd
 techmap   ../../techmap/rtl/memory_unisim.vhd
+techmap   ../../techmap/rtl/memory_inferred.vhd
+techmap   ../../techmap/rtl/netcomp.vhd
 gaisler   ../../gaisler/rtl/ahbdpram.vhd
 gaisler   ../../gaisler/rtl/ahbmst.vhd
 gaisler   ../../gaisler/rtl/ahbram.vhd
@@ -39,7 +43,7 @@ gaisler   ../../gaisler/rtl/charrom.vhd
 gaisler   ../../gaisler/rtl/charrom_package.vhd
 gaisler   ../../gaisler/rtl/dcom.vhd
 gaisler   ../../gaisler/rtl/dcom_uart.vhd
-gaisler   ../../gaisler/rtl/ddr_phy.vhd
+gaisler   ../../gaisler/rtl/ddrphy_wrap.vhd
 gaisler   ../../gaisler/rtl/ddrsp16a.vhd
 gaisler   ../../gaisler/rtl/ddrspa.vhd
 gaisler   ../../gaisler/rtl/eth_ahb_mst.vhd
@@ -51,7 +55,7 @@ gaisler   ../../gaisler/rtl/greth.vhd
 gaisler   ../../gaisler/rtl/greth_rx.vhd
 gaisler   ../../gaisler/rtl/greth_tx.vhd
 gaisler   ../../gaisler/rtl/grethc.vhd
-gaisler   ../../gaisler/rtl/grethpkg.vhd
+gaisler   ../../gaisler/rtl/greth_pkg.vhd
 gaisler   ../../gaisler/rtl/grgpio.vhd
 gaisler   ../../gaisler/rtl/i2cmst.vhd
 gaisler   ../../gaisler/rtl/irqmp.vhd
@@ -64,6 +68,7 @@ gaisler   ../../gaisler/rtl/misc.vhd
 gaisler   ../../gaisler/rtl/net.vhd
 gaisler   ../../gaisler/rtl/spimctrl.vhd
 gaisler   ../../gaisler/rtl/spictrl.vhd
+gaisler   ../../gaisler/rtl/spictrlx.vhd
 gaisler   ../../gaisler/rtl/uart.vhd
 opencores ../../opencores/rtl/i2c_master_bit_ctrl.vhd
 opencores ../../opencores/rtl/i2c_master_byte_ctrl.vhd
@@ -76,6 +81,7 @@ tools     ../../tools/rtl/synchronizer_package.vhd
 tools     ../../tools/rtl_tb/fio_pck_body.vhd
 tools     ../../tools/rtl_tb/fio_pkg.vhd
 tools     ../../tools/rtl_tb/image_pkg.vhd    
+hzdr      ../../hzdr/rtl/devices_hzdr.vhd
 hzdr      ../../hzdr/rtl/component_package.vhd
 hzdr      ../../hzdr/rtl/debug_con_apb.vhd
 zpu       ../../zpu/rtl/zpu_config.vhd

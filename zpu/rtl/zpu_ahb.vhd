@@ -18,6 +18,9 @@ use grlib.stdlib.report_version;
 use grlib.stdlib.tost;
 use grlib.devices.all;
 
+library hzdr;
+use hzdr.devices_hzdr.all;
+
 
 entity zpu_ahb is
     generic(

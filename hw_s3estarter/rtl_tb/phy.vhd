@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -33,21 +33,21 @@ use grlib.stdlib.all;
 
 entity phy is
   generic(
-    address        : integer range 0 to 31 := 0;
-    extended_regs  : integer range 0 to 1  := 1;
-    aneg           : integer range 0 to 1  := 1;
-    base100_t4     : integer range 0 to 1  := 0;
-    base100_x_fd   : integer range 0 to 1  := 1;
-    base100_x_hd   : integer range 0 to 1  := 1;
-    fd_10          : integer range 0 to 1  := 1;
-    hd_10          : integer range 0 to 1  := 1;
-    base100_t2_fd  : integer range 0 to 1  := 1;
-    base100_t2_hd  : integer range 0 to 1  := 1;
-    base1000_x_fd  : integer range 0 to 1  := 0;
-    base1000_x_hd  : integer range 0 to 1  := 0;
-    base1000_t_fd  : integer range 0 to 1  := 1;
-    base1000_t_hd  : integer range 0 to 1  := 1;
-    rmii           : integer range 0 to 1  := 0
+    address       : integer range 0 to 31 := 0;
+    extended_regs : integer range 0 to 1  := 1;
+    aneg          : integer range 0 to 1  := 1;
+    base100_t4    : integer range 0 to 1  := 0;
+    base100_x_fd  : integer range 0 to 1  := 1;
+    base100_x_hd  : integer range 0 to 1  := 1;
+    fd_10         : integer range 0 to 1  := 1;
+    hd_10         : integer range 0 to 1  := 1;
+    base100_t2_fd : integer range 0 to 1  := 1;
+    base100_t2_hd : integer range 0 to 1  := 1;
+    base1000_x_fd : integer range 0 to 1  := 0;
+    base1000_x_hd : integer range 0 to 1  := 0;
+    base1000_t_fd : integer range 0 to 1  := 1;
+    base1000_t_hd : integer range 0 to 1  := 1;
+    rmii          : integer range 0 to 1  := 0
     );
   port(
     simulation_run : in boolean := true;
@@ -235,7 +235,7 @@ begin
     end loop;
   end process; 
 
-  mdiocomb : process(r, anegact, mdio) is
+  mdiocomb : process(rstn, r, anegact, mdio) is
     variable v : reg_type;
   begin
     v := r; 
@@ -510,7 +510,7 @@ begin
     rin <= v;
   end process;
 
-  reg : process(rstn, mdc, rin,r ) is
+  reg : process(rstn, mdc) is
   begin
     if rising_edge(mdc) then
       r <= rin;
@@ -627,7 +627,7 @@ begin
   end process;
 
 
-  loopback_sel : process(r.ctrl.loopback, int_clk, gtx_clk, r.ctrl.speedsel, txd, tx_en, tx_er, clkslow) is
+  loopback_sel : process(r.ctrl.loopback, int_clk, gtx_clk, r.ctrl.speedsel, txd, tx_en) is
   begin
     if r.ctrl.loopback = '1' then
       if rmii = 0 then

@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --  This file is a part of the GRLIB VHDL IP LIBRARY
 --  Copyright (C) 2003 - 2008, Gaisler Research
---  Copyright (C) 2008 - 2010, Aeroflex Gaisler
+--  Copyright (C) 2008 - 2012, Aeroflex Gaisler
 --
 --  This program is free software; you can redistribute it and/or modify
 --  it under the terms of the GNU General Public License as published by
@@ -44,22 +44,23 @@ use gaisler.memctrl.all;
 
 entity spimctrl is
   generic (
-    hindex     : integer := 0;            -- AHB slave index
-    hirq       : integer := 0;            -- Interrupt line
-    faddr      : integer := 16#000#;      -- Flash map base address
-    fmask      : integer := 16#fff#;      -- Flash area mask
-    ioaddr     : integer := 16#000#;      -- I/O base address
-    iomask     : integer := 16#fff#;      -- I/O mask
-    spliten    : integer := 0;            -- AMBA SPLIT support
-    oepol      : integer := 0;            -- Output enable polarity
-    sdcard     : integer range 0 to 1   := 0; -- Core is connected to SD card
-    readcmd    : integer range 0 to 255 := 16#0B#;  -- Mem. dev. READ command
-    dummybyte  : integer range 0 to 1   := 1;  -- Dummy byte after cmd
-    dualoutput : integer range 0 to 1   := 0;  -- Enable dual output
-    scaler     : integer range 1 to 512 := 1; -- SCK scaler
-    altscaler  : integer range 1 to 512 := 1; -- Alternate SCK scaler 
-    pwrupcnt   : integer  := 0                -- System clock cycles to init
-  );
+    hindex      : integer := 0;            -- AHB slave index
+    hirq        : integer := 0;            -- Interrupt line
+    faddr       : integer := 16#000#;      -- Flash map base address
+    fmask       : integer := 16#fff#;      -- Flash area mask
+    ioaddr      : integer := 16#000#;      -- I/O base address
+    iomask      : integer := 16#fff#;      -- I/O mask
+    spliten     : integer := 0;            -- AMBA SPLIT support
+    oepol       : integer := 0;            -- Output enable polarity
+    sdcard      : integer range 0 to 1   := 0; -- Core is connected to SD card
+    readcmd     : integer range 0 to 255 := 16#0B#;  -- Mem. dev. READ command
+    dummybyte   : integer range 0 to 1   := 1;  -- Dummy byte after cmd
+    dualoutput  : integer range 0 to 1   := 0;  -- Enable dual output
+    scaler      : integer range 1 to 512 := 1; -- SCK scaler
+    altscaler   : integer range 1 to 512 := 1; -- Alternate SCK scaler 
+    pwrupcnt    : integer  := 0;               -- System clock cycles to init
+    maxahbaccsz : integer range 0 to 256 := AHBDW -- Max AHB access size 
+    );
   port (
     rstn    : in  std_ulogic;
     clk     : in  std_ulogic;
@@ -83,6 +84,8 @@ architecture rtl of spimctrl is
   -- BANKs
   constant CTRL_BANK  : integer := 0;
   constant FLASH_BANK : integer := 1;
+
+  constant MAXDW : integer := maxahbaccsz;
   
   -----------------------------------------------------------------------------
   -- SD card constants
@@ -129,10 +132,6 @@ architecture rtl of spimctrl is
   constant STAT_REG_OFF  : std_logic_vector(7 downto 2) := "000010";
   constant RX_REG_OFF    : std_logic_vector(7 downto 2) := "000011";
   constant TX_REG_OFF    : std_logic_vector(7 downto 2) := "000100";
-
-  constant SPI_HSIZE_BYTE  : std_logic_vector(1 downto 0) := "00";
-  constant SPI_HSIZE_HWORD : std_logic_vector(1 downto 0) := "01";
-  constant SPI_HSIZE_WORD  : std_logic_vector(1 downto 0) := "10";
   
   -----------------------------------------------------------------------------
   -- Subprograms
@@ -189,6 +188,20 @@ architecture rtl of spimctrl is
   begin  -- cslv
     return conv_std_logic_vector(i,w);
   end cslv;
+
+  -- Description: Calculates value for spi.cnt based on AMBA HSIZE
+  function calc_spi_cnt (
+    hsize : std_logic_vector(2 downto 0))
+    return std_logic_vector is
+    variable cnt : std_logic_vector(4 downto 0) := (others => '0');
+  begin  -- calc_spi_cnt
+    for i in 0 to 4 loop
+      if i < conv_integer(hsize) then
+        cnt(i) := '1';
+      end if;
+    end loop;  -- i
+    return cnt;
+  end calc_spi_cnt;
   
   -----------------------------------------------------------------------------
   -- States
@@ -272,8 +285,8 @@ architecture rtl of spimctrl is
 
   type spiflash_type is record          -- Present when !SD card
        state  : spistate_type;           -- Mem. device comm. state
-       cnt    : std_logic_vector(1 downto 0);  -- Generic counter
-       hsize  : std_logic_vector(1 downto 0);  -- Size of access
+       cnt    : std_logic_vector(4 downto 0);  -- Generic counter
+       hsize  : std_logic_vector(2 downto 0);  -- Size of access
        hburst : std_logic_vector(0 downto 0);  -- Incremental burst
   end record;
 
@@ -291,7 +304,7 @@ architecture rtl of spimctrl is
        bcnt           : std_logic_vector(2 downto 0);  -- Bit counter
        go             : std_ulogic;     -- SPI comm. active
        stop           : std_ulogic;     -- Stop SPI comm.
-       ar             : std_logic_vector(31 downto 0); -- argument/response
+       ar             : std_logic_vector(MAXDW-1 downto 0); -- argument/response
        hold           : std_ulogic;     -- Do not shift ar
        insplit        : std_ulogic;     -- SPLIT response issued
        unsplit        : std_ulogic;     -- SPLIT complete not issued
@@ -301,13 +314,13 @@ architecture rtl of spimctrl is
        sd             : sdcard_type;    -- Used when SD card
        -- AHB
        irq            : std_ulogic;     -- Interrupt request
-       hsize          : std_logic_vector(1 downto 0);
+       hsize          : std_logic_vector(2 downto 0);
        hwrite         : std_ulogic;
        hsel           : std_ulogic;
        hmbsel         : std_logic_vector(0 to 1);
        haddr          : std_logic_vector((req_addr_bits-1) downto 0);
        hready         : std_ulogic;
-       frdata         : std_logic_vector(31 downto 0);  -- Flash response data
+       frdata         : std_logic_vector(MAXDW-1 downto 0);  -- Flash response data
        rrdata         : std_logic_vector(7 downto 0);  -- Register response data
        hresp          : std_logic_vector(1 downto 0);
        splmst         : std_logic_vector(3 downto 0);  -- SPLIT:ed master
@@ -339,10 +352,13 @@ begin  -- rtl
     variable enable_altscaler : boolean;
     variable disable_flash    : boolean;
     variable read_flash       : boolean;
+    variable hrdata           : std_logic_vector(MAXDW-1 downto 0);
+    variable hwdata           : std_logic_vector(7 downto 0);
   begin  -- process comb
     v := r; v.spii := r.spii(0) & spii; v.sample := r.sample(0) & '0';
     change := '0'; v.irq := '0'; v.hresp := HRESP_OKAY; v.hready := '1';
     regaddr := r.haddr(7 downto 2); hsplit := (others => '0');
+    hwdata := ahbreadword(ahbsi.hwdata, r.haddr(4 downto 2))(7 downto 0);
     ahbirq := (others => '0'); ahbirq(hirq) := r.irq;
     if sdcard = 1 then v.sd.cd := r.spii(0).cd; else v.sd.cd := '0'; end if;
     read_flash := false;
@@ -367,7 +383,7 @@ begin  -- rtl
             ahbsi.hmbsel(CTRL_BANK) = '1' or ahbsi.hmastlock = '1') then
           -- Writes to register space have no wait state
           v.hready := ahbsi.hmbsel(CTRL_BANK) and ahbsi.hwrite;            
-          v.hsize := ahbsi.hsize(1 downto 0);
+          v.hsize := ahbsi.hsize;
           v.hwrite := ahbsi.hwrite;
           v.haddr := ahbsi.haddr(r.haddr'range);
           v.hsel := '1';
@@ -444,22 +460,22 @@ begin  -- rtl
     if (r.hsel and r.hmbsel(CTRL_BANK) and r.hwrite) = '1' then
       case regaddr is
         when CTRL_REG_OFF =>
-          v.rst           := ahbsi.hwdata(4);
-          if (r.reg.ctrl.usrc and not ahbsi.hwdata(0)) = '1' then
+          v.rst           := hwdata(4);
+          if (r.reg.ctrl.usrc and not hwdata(0)) = '1' then
             v.spio.csn := '1';
-          elsif ahbsi.hwdata(0) = '1' then
-            v.spio.csn := ahbsi.hwdata(3);
+          elsif hwdata(0) = '1' then
+            v.spio.csn := hwdata(3);
           end if;
-          v.reg.ctrl.eas  := ahbsi.hwdata(2);
-          v.reg.ctrl.ien  := ahbsi.hwdata(1);
-          v.reg.ctrl.usrc := ahbsi.hwdata(0);
+          v.reg.ctrl.eas  := hwdata(2);
+          v.reg.ctrl.ien  := hwdata(1);
+          v.reg.ctrl.usrc := hwdata(0);
         when STAT_REG_OFF =>
-          v.spio.errorn := r.spio.errorn or ahbsi.hwdata(3);
-          v.reg.stat.done := r.reg.stat.done and not ahbsi.hwdata(0);
+          v.spio.errorn := r.spio.errorn or hwdata(3);
+          v.reg.stat.done := r.reg.stat.done and not hwdata(0);
         when RX_REG_OFF => null;
         when TX_REG_OFF =>
           if r.reg.ctrl.usrc = '1' then
-            v.sreg := ahbsi.hwdata(7 downto 0);
+            v.sreg := hwdata(7 downto 0);
           end if;
         when others => null;
       end case;
@@ -760,11 +776,7 @@ begin  -- rtl
           if r.bd = '1' then
             if r.spi.cnt = zero32(r.spi.cnt'range) then
               v.spi.state := SPI_DATA;
-              if r.spi.hsize = SPI_HSIZE_WORD then
-                v.spi.cnt := (others => '1');
-              else
-                v.spi.cnt := r.spi.hsize;
-              end if;
+              v.spi.cnt := calc_spi_cnt(r.spi.hsize);
             else
               v.spi.cnt := r.spi.cnt - 1;
             end if;
@@ -821,22 +833,60 @@ begin  -- rtl
           end if;
           if r.spio.ready = '0' then
             case r.spi.hsize is
-              when SPI_HSIZE_BYTE =>
-                v.frdata := (r.ar(7 downto 0) & r.ar(7 downto 0) &
-                             r.ar(7 downto 0) & r.ar(7 downto 0));
-              when SPI_HSIZE_HWORD =>
-                v.frdata := r.ar(15 downto 0) & r.ar(15 downto 0);
+              when HSIZE_BYTE =>
+                for i in 0 to (MAXDW/8-1) loop
+                  v.frdata(7+8*i downto 8*i):= r.ar(7 downto 0);
+                end loop;  -- i
+              when HSIZE_HWORD =>
+                for i in 0 to (MAXDW/16-1) loop
+                  v.frdata(15+16*i downto 16*i) := r.ar(15 downto 0);
+                end loop;  -- i
+              when HSIZE_WORD =>
+                for i in 0 to (MAXDW/32-1) loop
+                  v.frdata(31+32*i downto 32*i) := r.ar(31 downto 0);
+                end loop;  -- i
+              when HSIZE_DWORD =>
+                if MAXDW > 32 and AHBDW > 32 then
+                  for i in 0 to (MAXDW/64-1) loop
+                    if MAXDW = 64 then
+                      v.frdata(MAXDW-1+MAXDW*i downto MAXDW*i) :=
+                        r.ar(MAXDW-1 downto 0);
+                    elsif MAXDW = 128 then
+                      v.frdata(MAXDW/2-1+MAXDW/2*i downto MAXDW/2*i) :=
+                        r.ar(MAXDW/2-1 downto 0);
+                    else
+                      v.frdata(MAXDW/4-1+MAXDW/4*i downto MAXDW/4*i) :=
+                        r.ar(MAXDW/4-1 downto 0);
+                    end if;
+                  end loop;  -- i
+                else
+                  null;
+                end if;
+              when HSIZE_4WORD =>
+                if MAXDW > 64 and AHBDW > 64 then
+                  for i in 0 to (MAXDW/128-1) loop
+                    if MAXDW = 128 then
+                      v.frdata(MAXDW-1+MAXDW*i downto MAXDW*i) :=
+                        r.ar(MAXDW-1 downto 0);
+                    else
+                      v.frdata(MAXDW/2-1+MAXDW/2*i downto MAXDW/2*i) :=
+                        r.ar(MAXDW/2-1 downto 0);
+                    end if;
+                  end loop;  -- i
+                else
+                  null;
+                end if;
               when others =>
-                v.frdata := r.ar;
+                if MAXDW > 128 and AHBDW > 128 then
+                  v.frdata := r.ar;
+                else
+                  null;
+                end if;
             end case;
           end if;
           v.spi.hsize := r.hsize;
           v.spi.hburst(0) := r.hburst(0);
-          if r.spi.hsize = SPI_HSIZE_WORD then
-            v.spi.cnt := (others => '1');
-          else
-            v.spi.cnt := r.spi.hsize;
-          end if;
+          v.spi.cnt := calc_spi_cnt(r.spi.hsize);
           
         when others => -- SPI_PWRUP
           v.hold := '1';
@@ -858,7 +908,7 @@ begin  -- rtl
             -- Power up wait
             if pwrupcnt /= 0 then
               v.frdata := r.frdata - 1;
-              if r.frdata = zero32 then
+              if r.frdata = zahbdw(r.frdata'range) then
                 v.spio.initialized := '1';
                 v.spi.state := SPI_READY;
               end if;
@@ -896,9 +946,9 @@ begin  -- rtl
     if r.sample(1-sdcard) = '1' then
       if r.hold = '0' then
         if sdcard = 0 and dualoutput = 1 and r.spio.mosioen = INPUT then
-          v.ar := r.ar(29 downto 0) & r.spii(1-sdcard).miso & r.spii(1-sdcard).mosi;
+          v.ar := r.ar(r.ar'left-2 downto 0) & r.spii(1-sdcard).miso & r.spii(1-sdcard).mosi;
         else
-          v.ar := r.ar(30 downto 0) & r.spii(1-sdcard).miso;
+          v.ar := r.ar(r.ar'left-1 downto 0) & r.spii(1-sdcard).miso;
         end if;
       end if;
     end if;
@@ -992,12 +1042,15 @@ begin  -- rtl
     ahbso.hready  <= r.hready;
     ahbso.hresp   <= r.hresp;
     if r.hmbsel(CTRL_BANK) = '1' then
-      ahbso.hrdata <= zero32(31 downto 8) & r.rrdata;
+      for i in 0 to (MAXDW/32-1) loop 
+        hrdata(31 + 32*i downto 32*i) := zero32(31 downto 8) & r.rrdata;
+      end loop;
     else
-      ahbso.hrdata <= r.frdata;
+      hrdata := r.frdata;
     end if;
+    ahbso.hrdata  <= ahbdrivedata(hrdata);
     ahbso.hconfig <= HCONFIG;
-    ahbso.hcache  <= r.hmbsel(FLASH_BANK);
+    ahbso.hcache  <= '0';
     ahbso.hirq    <= ahbirq;
     ahbso.hindex  <= hindex;
     ahbso.hsplit  <= hsplit;

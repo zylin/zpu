@@ -20,6 +20,17 @@
 -- Author:	Jiri Gaisler - ESA/ESTEC
 -- Description:	External memory controller.
 ------------------------------------------------------------------------------
+-- GRLIB2 CORE
+-- VENDOR:      VENDOR_ESA
+-- DEVICE:      ESA_MCTRL
+-- VERSION:     1
+-- AHBSLAVE:    0
+-- BAR: 0       TYPE: 0010      PREFETCH: 1     CACHE: 1        DESC: PROM_AREA
+-- BAR: 1       TYPE: 0010      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
+-- BAR: 2       TYPE: 0010      PREFETCH: 1     CACHE: 1        DESC: SDRAM_AREA
+-- APB:         0
+-- BAR: 0       TYPE: 0001      PREFETCH: 0     CACHE: 0        DESC: IO_AREA
+-------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -430,7 +441,7 @@ begin
 
 -- Merge data during byte write
 
-    writedata := ahbsi.hwdata;
+    writedata := ahbreadword(ahbsi.hwdata, r.address(4 downto 2));
     if ((r.brmw and r.busw(1)) = '1')
 
     then
@@ -972,8 +983,12 @@ begin
     memo.vcdrive	<= (others => '0');
     memo.scb		<= (others => '0');
     memo.cb		<= (others => '0');
-    memo.romn		<= '1';
-    memo.ramn		<= '1';
+    memo.romn		<= r.romsn(0);
+    memo.ramn		<= r.ramsn(0);
+    memo.sdram_en       <= r.mcfg2.sdren;         -- Unused
+    memo.rs_edac_en     <= '0';
+    memo.ce             <= '0';
+    
     sdi.idle 		<= bidle;
     sdi.haddr		<= haddr;
     sdi.rhaddr		<= r.haddr;
@@ -990,7 +1005,7 @@ begin
     sdi.brmw		<= '0';
     sdi.error		<= '0';
 
-    ahbso.hrdata <= dataout;
+    ahbso.hrdata <= ahbdrivedata(dataout);
     ahbso.hready <= hready;
     ahbso.hresp  <= r.hresp;
 
@@ -1048,18 +1063,15 @@ begin
 
   sd1 : if not SDRAMEN generate
     -- added BLa
-    memo.sa                   <= (others => '0');
-    memo.sddata(63 downto 0)  <= (others => '0');
     rrsbdrive                 <= (others => '0');
-    memo.ce                   <= '0';
-    memo.sdram_en             <= '0';
-    memo.rs_edac_en           <= '0';
     -- to avoid synthesis warnings
 	sdo <= ("00", "11", '1', '1', '1', "11111111");
         sdmo.prdata <= (others => '0');
         sdmo.address <= (others => '0'); sdmo.busy <= '0';
         sdmo.aload <= '0'; sdmo.bdrive <= '0'; sdmo.hready <= '1';
         sdmo.hresp <= "11";
+        memo.sddata <= (others => '0');
+        memo.sa <= (others => '0');
   end generate;
 
 end;

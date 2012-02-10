@@ -134,6 +134,7 @@ uint32_t rena_channel_config_function( void)
     low_config  = monitor_get_argument_hex(3);
 
     rena_channel_config( channel, high_config, low_config);
+    return( low_config);
 }
 
 
