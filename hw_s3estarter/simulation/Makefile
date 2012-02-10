@@ -22,7 +22,7 @@ all: compile simulate
 
 
 compile: Makefile.msim 
-	test -d $(software_dir) && make --directory $(software_dir) | ccze -A
+	test ! -d $(software_dir) || make --directory $(software_dir) | ccze -A
 	export ANAFLAGS="-quiet -2008"; \
 	make -f Makefile.msim | ccze -A
 
