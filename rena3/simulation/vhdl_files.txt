@@ -1,3 +1,5 @@
+gaisler   ../rtl/ahbrom.vhd
+zpu       ../rtl/dualport_ram.vhd
 rena3     ../rtl/component_package.vhd  
 rena3     ../rtl/chipscope.vhd  
 rena3     ../rtl/rena3_controller_apb.vhd  
@@ -34,7 +36,6 @@ techmap   ../../techmap/rtl/netcomp.vhd
 gaisler   ../../gaisler/rtl/ahbdpram.vhd
 gaisler   ../../gaisler/rtl/ahbmst.vhd
 gaisler   ../../gaisler/rtl/ahbram.vhd
-gaisler   ../../gaisler/rtl/ahbrom.vhd
 gaisler   ../../gaisler/rtl/ahbstat.vhd
 gaisler   ../../gaisler/rtl/ahbuart.vhd
 gaisler   ../../gaisler/rtl/apbuart.vhd
@@ -87,7 +88,6 @@ hzdr      ../../hzdr/rtl/debug_con_apb.vhd
 zpu       ../../zpu/rtl/zpu_config.vhd
 zpu       ../../zpu/rtl/zpu_ahb.vhd
 zpu       ../../zpu/rtl/zpu_bus_trace.vhd
-zpu       ../../zpu/rtl/dualport_ram.vhd
 zpu       ../../zpu/rtl/dualport_ram_ahb_wrapper.vhd
 zpu       ../../zpu/rtl/zpu_wrapper_package.vhd
 zpu       ../../zpu/rtl/zpu_core_small.vhd

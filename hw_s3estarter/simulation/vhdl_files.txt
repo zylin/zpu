@@ -1,3 +1,4 @@
+zpu     ../rtl/dualport_ram.vhd
 work    ../rtl/types.vhd
 work    ../rtl/fpga_components.vhd
 work    ../rtl/clk_gen.vhd
@@ -65,4 +66,3 @@ zpu     ../../zpu/rtl/zpu_core_medium.vhd
 zpu     ../../zpu/rtl/zpu_core_small.vhd
 zpu     ../../zpu/rtl/zpu_bus_trace.vhd
 zpu     ../../zpu/rtl_tb/txt_util.vhd
-zpu     ../../zpu/rtl/dualport_ram.vhd

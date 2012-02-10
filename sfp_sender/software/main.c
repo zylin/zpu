@@ -595,7 +595,7 @@ void banner( void)
     putstr("\n\n");
     putchar('\f');
 
-    putstr("central trigger generator");
+    putstr("SFP sender");
 
     char *hw_revision = (char *)0x80000000;
 

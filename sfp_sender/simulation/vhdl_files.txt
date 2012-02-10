@@ -1,3 +1,4 @@
+zpu ../rtl/dualport_ram.vhd
 techmap ../../techmap/rtl/gencomp.vhd
 techmap ../../techmap/rtl/allmem.vhd
 techmap ../../techmap/rtl/syncram_2p.vhd
@@ -16,7 +17,6 @@ grlib ../../grlib/rtl/ahbctrl.vhd
 grlib ../../grlib/rtl_tb/stdio.vhd
 zpu ../../zpu/rtl/zpu_config.vhd
 zpu ../../zpu/rtl/zpupkg.vhd
-zpu ../../zpu/rtl/dualport_ram.vhd
 zpu ../../zpu/rtl/zpu_wrapper_package.vhd
 zpu ../../zpu/rtl/zpu_core_small.vhd
 zpu ../../zpu/rtl/zpu_core_medium.vhd
@@ -58,13 +58,13 @@ opencores ../../opencores/rtl/8b10_dec.vhd
 hzdr ../../hzdr/rtl/devices_hzdr.vhd
 hzdr ../../hzdr/rtl/component_package.vhd
 hzdr ../../hzdr/rtl/debug_con_apb.vhd
-work ../rtl/component_package.vhd
-work ../rtl/types_package.vhd
-work ../rtl/trigger_generator.vhd
-work ../rtl/trigger_generator_apb.vhd
-work ../rtl/sfp_controller_apb.vhd
-work ../rtl/version.vhd
-work ../rtl/box.vhd
-work ../rtl/top.vhd
-work ../rtl_tb/central_trigger_testboard.vhd
-work ../rtl_tb/top_tb.vhd
+sfp_sender ../rtl/component_package.vhd
+sfp_sender ../rtl/types_package.vhd
+sfp_sender ../rtl/trigger_generator.vhd
+sfp_sender ../rtl/trigger_generator_apb.vhd
+sfp_sender ../rtl/sfp_controller_apb.vhd
+sfp_sender ../rtl/version.vhd
+sfp_sender ../rtl/box.vhd
+sfp_sender ../rtl/top.vhd
+sfp_sender ../rtl_tb/central_trigger_testboard.vhd
+sfp_sender ../rtl_tb/top_tb.vhd

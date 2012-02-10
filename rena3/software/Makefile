@@ -1,8 +1,8 @@
 #
 # $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/software/test/Makefile $
-# $Date: 2011-09-05 16:51:04 +0200 (Mo, 05. Sep 2011) $
-# $Author: lange $
-# $Revision: 1241 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 COMPILER_OPTIONS=-ffunction-sections -fdata-sections -Iinclude
@@ -26,8 +26,8 @@ lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
 ldflags = -nostartfiles $(objs) -Wl,--relax,--gc-sections,-lhal,-Llibhal
 
 
-zpu_rom_vhdl = ../../zpu/rtl/dualport_ram.vhd
-ahb_rom_vhdl = ../../gaisler/rtl/ahbrom.vhd
+zpu_rom_vhdl = ../rtl/dualport_ram.vhd
+ahb_rom_vhdl = ../rtl/ahbrom.vhd
 c_files += main.c 
 c_files += monitor.c 
 c_files += schedule.c

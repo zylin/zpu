@@ -26,8 +26,8 @@ lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
 ldflags = -nostartfiles $(objs) -Wl,--relax,--gc-sections,-lhal,-Llibhal
 
 
-zpu_rom_vhdl = ../../zpu/rtl/dualport_ram.vhd
-ahb_rom_vhdl = ../../gaisler/rtl/ahbrom.vhd
+zpu_rom_vhdl = ../rtl/dualport_ram.vhd
+ahb_rom_vhdl = ../rtl/ahbrom.vhd
 c_files += main.c 
 c_files += monitor.c 
 c_files += schedule.c

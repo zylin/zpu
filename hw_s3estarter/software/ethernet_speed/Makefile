@@ -8,7 +8,7 @@ c_files  = greth_api.c greth.c
 LIBS     = ../libhal/libhal.a
 LIBDIR   = ../libhal/
 
-test_vhdl = ../../../zpu/rtl/dualport_ram.vhd
+test_vhdl = ../../rtl/dualport_ram.vhd
 
 
 all: libhal $(test_vhdl)

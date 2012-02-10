@@ -11,8 +11,8 @@ help:
 	@echo "clean     - clean up"
 
 
-zpu_rom_vhdl = ../../../zpu/rtl/dualport_ram.vhd
-ahb_rom_vhdl = ../../../gaisler/rtl/ahbrom.vhd
+zpu_rom_vhdl = ../../rtl/dualport_ram.vhd
+ahb_rom_vhdl = ../../rtl/ahbrom.vhd
 c_files = lcd-routines.c test.c 
 h_files = ../include/peripherie.h
 
