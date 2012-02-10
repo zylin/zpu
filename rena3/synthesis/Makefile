@@ -34,10 +34,10 @@ all:
 	@echo "finalflow - update bitgen update progspi check"
 
 testflow: 
-	$(MAKE) bitgen update program check     2>&1 | tee $(XST_LOGFILE)
+	$(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
 
 finalflow:
-	$(MAKE) bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
+	$(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
 
 
 check:
@@ -53,27 +53,49 @@ check:
 	@grep --with-filename "WARNING:PhysDesignRules:372" $(BUILDDIR)/*.bgn || echo -n
 
 
-update:
-	@# make software and update the bitfile
-	test -d $(SOFTWARE) && make all --directory $(SOFTWARE)
-	test -d $(SOFTWARE) && data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
-	@# without software just copy the bitfile
-	test -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit 
+software: 
+	###
+	#############################################################################
+	### (re)compile software
+	###
+	test ! -d $(SOFTWARE) || make all --directory $(SOFTWARE)
+
+
+update: $(BUILDDIR)/$(MODULE).bit
+	###
+	#############################################################################
+	### update the bitfile
+	###
+	test ! -d $(SOFTWARE) || data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	test   -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
 
 
 program:
+	###
+	#############################################################################
+	### configure FPGA
+	###
 	impact -batch program_fpga.cmd
 
 
 genmcs:
+	###
+	#############################################################################
+	### generate flash file
+	###
 	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 $(MODULE)_update.bit
 
 
 progspi: genmcs
+	###
+	#############################################################################
+	### program flash
+	###
 	impact -batch program_spi.cmd
 
 
 clean:
+	rm -f $(MODULE).prj
 	rm -f *.log
 	rm -f _impact.cmd
 	rm -f *.cfi
@@ -82,12 +104,20 @@ clean:
 
 
 dir: $(MODULE).prj	
+	###
+	#############################################################################
+	### generate build directory
+	###
 	mkdir -p $(BUILDDIR)
 	mkdir -p $(BUILDDIR)/projnav.tmp
-	#cp $(MODULE).xst $(BUILDDIR)
-	#cp $(MODULE).prj $(BUILDDIR)
+
+
 
 $(MODULE).prj: ../simulation/vhdl_files.txt
+	###
+	#############################################################################
+	### generate project file
+	###
 	grep --invert rtl_tb ../simulation/vhdl_files.txt | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
 
 
@@ -98,36 +128,57 @@ par:    $(MODULE).ncd
 
 
 hw_timestamp:
-	make --directory ../rtl
+	###
+	#############################################################################
+	#### update hw timestamp
+	###
+	test ! -f ../rtl/Makefile || make --directory ../rtl
 
 $(MODULE).ngc: dir hw_timestamp
+	###
+	#############################################################################
+	### synthesis
+	###
 	cd $(BUILDDIR) ; xst -ifn ../$(MODULE).xst -ofn $(MODULE).syr
 
 
 $(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
+	###
+	#############################################################################
+	### translate
+	###
 	cd $(BUILDDIR) ; ngdbuild -dd _ngo -nt timestamp -uc ../$(UCF_FILE) -p $(DEVICE) -sd ../$(CORES) $(MODULE).ngc $(MODULE).ngd
 
-	# -p                    part number
-	# -mt                   multi-threading
-	# -w                    overwrite existing files
-	# -logic_opt            logic optimization
-	# -ol                   overall effor level (std|high)
-	# -t	                placer cost table
-	# -xt                   extra placer cost table
-	# -register_duplication duplicate registers
-	# -global_opt	        Global Optimization (off|speed|area|power)
-	# -ir                   ignore RLOCs
-	# -pr			pack registers in IO (off|i|o|b)
-	# -lc                   lut combining (auto|area|off)
-	# -power		Virtex 6 Power Optimization (on|off|high|xe)
-	# -detail		Generate Detailed MAP Report
-	# -o			Output File Name
-	# -bp                   enables block RAM mapping
 $(MODULE)_map.ncd: $(MODULE).ngd
+	###
+	#############################################################################
+	### map
+	###
+	@# explanation of map parameters:
+	@# -p                    part number
+	@# -mt                   multi-threading
+	@# -w                    overwrite existing files
+	@# -logic_opt            logic optimization
+	@# -ol                   overall effor level (std|high)
+	@# -t	                placer cost table
+	@# -xt                   extra placer cost table
+	@# -register_duplication duplicate registers
+	@# -global_opt	        Global Optimization (off|speed|area|power)
+	@# -ir                   ignore RLOCs
+	@# -pr			pack registers in IO (off|i|o|b)
+	@# -lc                   lut combining (auto|area|off)
+	@# -power		Virtex 6 Power Optimization (on|off|high|xe)
+	@# -detail		Generate Detailed MAP Report
+	@# -o			Output File Name
+	@# -bp                   enables block RAM mapping
 	cd $(BUILDDIR) ; export XIL_PAR_DESIGN_CHECK_VERBOSE=1; map -p $(DEVICE) -mt 2 -w -logic_opt off -ol high -t 1 -xt 0 -register_duplication off -global_opt off -ir off -pr off -lc off -power off -detail -o $(MODULE)_map.ncd $(MODULE).ngd $(MODULE).pcf
 
 
 $(MODULE).ncd: $(MODULE)_map.ncd
+	###
+	#############################################################################
+	### place & route
+	###
 	cd $(BUILDDIR) ; par -w -mt 4 -ol high $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
 
 
@@ -139,6 +190,10 @@ tracefast:
 
 
 bitgen: $(MODULE).ncd
+	###
+	#############################################################################
+	### generate bitfile
+	###
 	cd $(BUILDDIR) ; bitgen -f ../$(MODULE).ut $(MODULE).ncd
 
 

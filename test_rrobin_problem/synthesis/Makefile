@@ -34,10 +34,10 @@ all:
 	@echo "finalflow - update bitgen update progspi check"
 
 testflow: 
-	$(MAKE) bitgen update program check     2>&1 | tee $(XST_LOGFILE)
+	$(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
 
 finalflow:
-	$(MAKE) bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
+	$(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
 
 
 check:
@@ -53,39 +53,49 @@ check:
 	@grep --with-filename "WARNING:PhysDesignRules:372" $(BUILDDIR)/*.bgn || echo -n
 
 
-update:
-	@# make software and update the bitfile
-	@test -d $(SOFTWARE) && echo ""
-	@test -d $(SOFTWARE) && echo "### (re)complie software"
-	test -d $(SOFTWARE) && make all --directory $(SOFTWARE)
-	@test -d $(SOFTWARE) && echo ""
-	@test -d $(SOFTWARE) && echo "### update bitstream with software"
-	test -d $(SOFTWARE) && data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
-	@# without software just copy the bitfile
-	@test -d $(SOFTWARE) || echo ""
-	@test -d $(SOFTWARE) || echo "### copy bitfile"
-	test -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
+software: 
+	###
+	#############################################################################
+	### (re)compile software
+	###
+	test ! -d $(SOFTWARE) || make all --directory $(SOFTWARE)
+
+
+update: $(BUILDDIR)/$(MODULE).bit
+	###
+	#############################################################################
+	### update the bitfile
+	###
+	test ! -d $(SOFTWARE) || data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	test   -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
 
 
 program:
-	@echo ""
-	@echo "### configure FPGA"
+	###
+	#############################################################################
+	### configure FPGA
+	###
 	impact -batch program_fpga.cmd
 
 
 genmcs:
-	@echo ""
-	@echo "### generate flash file"
+	###
+	#############################################################################
+	### generate flash file
+	###
 	promgen -spi -p mcs -w -o $(MODULE)_update.mcs -s 8192 -u 0 $(MODULE)_update.bit
 
 
 progspi: genmcs
-	@echo ""
-	@echo "### program flash"
+	###
+	#############################################################################
+	### program flash
+	###
 	impact -batch program_spi.cmd
 
 
 clean:
+	rm -f $(MODULE).prj
 	rm -f *.log
 	rm -f _impact.cmd
 	rm -f *.cfi
@@ -94,14 +104,20 @@ clean:
 
 
 dir: $(MODULE).prj	
-	@echo ""
-	@echo "### generate build directory"
+	###
+	#############################################################################
+	### generate build directory
+	###
 	mkdir -p $(BUILDDIR)
 	mkdir -p $(BUILDDIR)/projnav.tmp
 
+
+
 $(MODULE).prj: ../simulation/vhdl_files.txt
-	@echo ""
-	@echo "### generate project file"
+	###
+	#############################################################################
+	### generate project file
+	###
 	grep --invert rtl_tb ../simulation/vhdl_files.txt | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
 
 
@@ -112,24 +128,32 @@ par:    $(MODULE).ncd
 
 
 hw_timestamp:
-	@echo ""
-	@echo "### update hw timestamp"
-	#make --directory ../rtl
+	###
+	#############################################################################
+	#### update hw timestamp
+	###
+	test ! -f ../rtl/Makefile || make --directory ../rtl
 
 $(MODULE).ngc: dir hw_timestamp
-	@echo ""
-	@echo "### synthesis"
+	###
+	#############################################################################
+	### synthesis
+	###
 	cd $(BUILDDIR) ; xst -ifn ../$(MODULE).xst -ofn $(MODULE).syr
 
 
 $(MODULE).ngd: $(MODULE).ngc $(UCF_FILE)
-	@echo ""
-	@echo "### translate"
+	###
+	#############################################################################
+	### translate
+	###
 	cd $(BUILDDIR) ; ngdbuild -dd _ngo -nt timestamp -uc ../$(UCF_FILE) -p $(DEVICE) -sd ../$(CORES) $(MODULE).ngc $(MODULE).ngd
 
 $(MODULE)_map.ncd: $(MODULE).ngd
-	@echo ""
-	@echo "### map"
+	###
+	#############################################################################
+	### map
+	###
 	@# explanation of map parameters:
 	@# -p                    part number
 	@# -mt                   multi-threading
@@ -151,8 +175,10 @@ $(MODULE)_map.ncd: $(MODULE).ngd
 
 
 $(MODULE).ncd: $(MODULE)_map.ncd
-	@echo ""
-	@echo "### place & route"
+	###
+	#############################################################################
+	### place & route
+	###
 	cd $(BUILDDIR) ; par -w -mt 4 -ol high $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
 
 
@@ -164,8 +190,10 @@ tracefast:
 
 
 bitgen: $(MODULE).ncd
-	@echo ""
-	@echo "### generate bitfile"
+	###
+	#############################################################################
+	### generate bitfile
+	###
 	cd $(BUILDDIR) ; bitgen -f ../$(MODULE).ut $(MODULE).ncd
 
 
