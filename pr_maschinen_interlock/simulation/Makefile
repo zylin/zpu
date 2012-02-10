@@ -3,7 +3,7 @@ library      = work
 #top          = system_tb
 top          = channel_tb
 
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
 
 # http://sourceforge.net/projects/vmk/
 VMK = vmk

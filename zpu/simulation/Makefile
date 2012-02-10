@@ -5,7 +5,7 @@ library      = zpu
 VMK = vmk
 
 # generate list of used libs
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | uniq)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
 
 
 help:
