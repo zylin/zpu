@@ -9,6 +9,7 @@ DEVICE = xc6slx45t-fgg484-3
 UCF_FILE = sp605.ucf
 CORES = ../cores/
 SOFTWARE = ../software
+BMM_FILE = zpu_i0_memory_64k.bmm
 
 BUILDDIR = isebuild
 DATE = $(shell date +"%Y-%m-%d__%H_%M")
@@ -66,7 +67,7 @@ update: $(BUILDDIR)/$(MODULE).bit
 	#############################################################################
 	### update the bitfile
 	###
-	test ! -d $(SOFTWARE) || data2mem -bm zpu_i0_memory_64k.bmm -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
+	test ! -d $(SOFTWARE) || data2mem -bm $(BMM_FILE) -bd $(SOFTWARE)/*.elf -bt $(BUILDDIR)/$(MODULE).bit -o b $(MODULE)_update.bit
 	test   -d $(SOFTWARE) || cp $(BUILDDIR)/$(MODULE).bit $(MODULE)_update.bit
 
 
