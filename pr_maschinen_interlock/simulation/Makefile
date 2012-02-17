@@ -1,7 +1,7 @@
 
 library      = work
-#top          = system_tb
-top          = channel_tb
+top          = system_tb
+#top          = channel_tb
 
 library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
 

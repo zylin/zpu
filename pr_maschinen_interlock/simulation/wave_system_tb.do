@@ -1,12 +1,13 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
 add wave -noupdate -divider input
-add wave -noupdate /system_tb/system_i0/channel_active_in
+add wave -noupdate /system_tb/system_i0/reset_n
+add wave -noupdate /system_tb/system_i0/channel_active_in_n
 add wave -noupdate /system_tb/system_i0/error_in_n
 add wave -noupdate /system_tb/system_i0/test_in_n
-add wave -noupdate /system_tb/system_i0/test_sps_in
+add wave -noupdate /system_tb/system_i0/test_sps_in_n
 add wave -noupdate /system_tb/system_i0/clear_n
-add wave -noupdate /system_tb/system_i0/clear_sps
+add wave -noupdate /system_tb/system_i0/clear_sps_n
 add wave -noupdate -divider system
 add wave -noupdate /system_tb/system_i0/error_out_int
 add wave -noupdate /system_tb/system_i0/channel_ok_out_int
