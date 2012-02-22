@@ -193,7 +193,7 @@ begin
     ahbmo(2) <= (ahbm_none);
     ahbmo(3) <= (ahbm_none);
     --
-    --ahbso(0) <= (ahbs_none); -- ahbctrl
+    --ahbso(0) <= (ahbs_none); -- apbctrl_i0
     ahbso(1) <= (ahbs_none);
     --ahbso(2) <= (ahbs_none); -- ahb_dpram
     --ahbso(3) <= (ahbs_none); -- dualport_ram_ahb_wrapper
