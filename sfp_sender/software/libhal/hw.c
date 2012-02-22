@@ -7,7 +7,6 @@ gptimer_t         *timer0     = (gptimer_t *)  0x80000200;
 //irqmp_t           *irqmp0     = (irqmp_t *)    0x80000300;
 grgpio_t          *gpio0      = (grgpio_t *)   0x80000400;
 //apbvga_t          *vga0       = (apbvga_t *)   0x80000600;
-//i2cmst_t          *i2cmst0    = (i2cmst_t *)   0x80000700;
 //i2cmst_t          *i2c_dvi    = (i2cmst_t *)   0x80000700;
 i2cmst_t          *i2c_fmc    = (i2cmst_t *)   0x80000a00;
 

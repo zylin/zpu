@@ -22,7 +22,6 @@ help:
 startup = lib/crt0.S
 objs    = lib/crt0.o 
 lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
-#ldflags = -nostartfiles -nostdlib -nodefaultlibs $(objs) -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-Llibhal
 ldflags = -nostartfiles $(objs) -Wl,--relax,--gc-sections,-lhal,-Llibhal
 
 
@@ -58,9 +57,9 @@ main.bin: $(c_files) $(h_files) $(objs)
 
 $(zpu_rom_vhdl): main.bin $(ZPU_ROM_GEN)
 	# concat parts
-	cat > $(zpu_rom_vhdl) ../../zpu/support/dualport_ram.vhd_header
+	cat >  $(zpu_rom_vhdl) $(shell dirname $(ZPU_ROM_GEN))/dualport_ram.vhd_header
 	$(ZPU_ROM_GEN) main.bin >> $(zpu_rom_vhdl)
-	cat >> $(zpu_rom_vhdl) ../../zpu/support/dualport_ram.vhd_footer
+	cat >> $(zpu_rom_vhdl) $(shell dirname $(ZPU_ROM_GEN))/dualport_ram.vhd_footer
 
 $(ahb_rom_vhdl): main.bin $(AHB_ROM_GEN)
 	$(AHB_ROM_GEN) main.bin $(ahb_rom_vhdl)
