@@ -270,6 +270,10 @@ begin
   etho.txd(7 downto 4) <= "0000";
   etho.mdio_oe <= ahbmi.testoen when (scanen = 1) and (ahbmi.testen = '1')
 	else lmdio_oe;
+  -- added BLa, to avoid simulation warnings
+  etho.gbit  <= '0';
+  etho.speed <= '0';
+  
   irqdrv : process(irq)
   begin
     apbo.pirq       <= (others => '0');
