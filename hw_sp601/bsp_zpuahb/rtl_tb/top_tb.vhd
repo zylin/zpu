@@ -168,15 +168,13 @@ begin
     
     -- stimuli for buttons and switches
     tb_gpio_button <= "0000", "0001" after 500 us, "0000" after 700 us;
-    tb_gpio_switch <= "0000", "1111" after 600 us;
+    tb_gpio_switch <= "0000", "0010" after 380 us, "0011" after 400 us, "1111" after 600 us;
 
 
     top_i0: entity work.top
-        generic map (
-            time_factor               => 1                                --: positive
-        )
         port map (
-            cpu_reset        => tb_cpu_reset,        --: in    std_logic; -- SW6 pushbutton (active-high)
+            simulation_break          => tb_simulation_break,            --: out   std_logic;
+            cpu_reset                 => tb_cpu_reset,                   --: in    std_logic; -- SW6 pushbutton (active-high)
             --
             -- DDR2 memory
             ddr2_a                    => tb_ddr2_a,                      --: out   std_logic_vector(12 downto 0);
@@ -455,7 +453,7 @@ begin
     main: process
     begin
 
-        wait for 2 ms;
+        wait until rising_edge( tb_simulation_break);
         simulation_run <= false;
         report "Simlation ended." severity note;
         wait;

@@ -1,0 +1,23 @@
+
+ADDRESS_SPACE zpu_core_medium_i0_memory 
+    RAMB16 [0x00000000:0x00007fff]
+    BUS_BLOCK 
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram16 [31:30] PLACED = X1Y0;  // [31:30] [ 1: 0]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram15 [29:28] PLACED = X1Y2;  // [29:28] [ 3: 2]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram14 [27:26] PLACED = X1Y4;  // [27:26] [ 5: 4]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram13 [25:24] PLACED = X1Y6;  // [25:24] [ 7: 6]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram12 [23:22] PLACED = X1Y8;  // [23:22] [ 9: 8]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram11 [21:20] PLACED = X1Y10; // [21:20] [11:10]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram10 [19:18] PLACED = X1Y12; // [19:18] [13:12]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram9  [17:16] PLACED = X1Y14; // [17:16] [15:14]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8  [15:14] PLACED = X0Y0;  // [15:14] [17:16]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7  [13:12] PLACED = X0Y2;  // [13:12] [19:18]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6  [11:10] PLACED = X0Y4;  // [11:10] [21:20]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5  [ 9: 8] PLACED = X0Y6;  // [ 9: 8] [23:22]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4  [ 7: 6] PLACED = X0Y8;  // [ 7: 6] [25:24]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3  [ 5: 4] PLACED = X0Y10; // [ 5: 4] [27:26]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2  [ 3: 2] PLACED = X0Y12; // [ 3: 2] [29:28]
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1  [ 1: 0] PLACED = X0Y14; // [ 1: 0] [31:30]
+    END_BUS_BLOCK;
+END_ADDRESS_SPACE;
+

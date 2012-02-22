@@ -1,8 +1,8 @@
-#zpu       ../rtl/dualport_ram.vhd
+gaisler   ../rtl/ahbrom.vhd
+zpu       ../rtl/dualport_ram.vhd
 gaisler   ../../../gaisler/rtl/ahbdpram.vhd
 gaisler   ../../../gaisler/rtl/ahbmst.vhd
 gaisler   ../../../gaisler/rtl/ahbram.vhd
-gaisler   ../../../gaisler/rtl/ahbrom.vhd
 gaisler   ../../../gaisler/rtl/ahbstat.vhd
 gaisler   ../../../gaisler/rtl/ahbuart.vhd
 gaisler   ../../../gaisler/rtl/apbuart.vhd
@@ -63,6 +63,8 @@ techmap   ../../../techmap/rtl/memory_unisim.vhd
 techmap   ../../../techmap/rtl/netcomp.vhd
 techmap   ../../../techmap/rtl/syncram_2p.vhd
 techmap   ../../../techmap/rtl/syncram_dp.vhd
+techmap   ../../../techmap/rtl/syncrambw.vhd
+techmap   ../../../techmap/rtl/syncram.vhd
 tools     ../../../tools/rtl/edge_detect_synchronizer.vhd
 tools     ../../../tools/rtl/level_synchronizer.vhd
 tools     ../../../tools/rtl/synchronizer_package.vhd
@@ -70,8 +72,8 @@ tools     ../../../tools/rtl_tb/fio_pck_body.vhd
 tools     ../../../tools/rtl_tb/fio_pkg.vhd
 tools     ../../../tools/rtl_tb/image_pkg.vhd    
 work      ../rtl/box.vhd         
-work      ../rtl/led_control_ahb.vhd
 work      ../rtl/top.vhd
+work      ../rtl/version.vhd
 work      ../rtl_tb/top_tb.vhd
 zpu       ../../../zpu/rtl/dualport_ram_ahb_wrapper.vhd
 zpu       ../../../zpu/rtl/zpu_ahb.vhd

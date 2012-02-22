@@ -1,5 +1,4 @@
 --------------------------------------------------------------------------------
--- $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601_amba/rtl/box.vhd $
 -- $Date$
 -- $Author$
 -- $Revision$
@@ -10,50 +9,8 @@ use ieee.std_logic_1164.all;
 use ieee.std_logic_misc.or_reduce; -- by synopsis
 use ieee.numeric_std.all;
 
-library gaisler;
-use gaisler.misc.all;    -- types
-use gaisler.uart.all;    -- types
-use gaisler.net.all;     -- types
-use gaisler.memctrl.all; -- spimctrl types
-use gaisler.uart.apbuart;
-use gaisler.misc.ahbdpram;
-use gaisler.misc.gptimer;
-use gaisler.misc.grgpio;
-use gaisler.misc.apbvga;
-use gaisler.memoryctrl.mctrl;  -- original in esa lib
-
 library grlib;
 use grlib.amba.all;
-
-library techmap;
-use techmap.gencomp.all; -- constants
-
-
-entity box is
-    generic (
-        time_factor               : positive
-    );
-    port (
-        clk                       : in    std_ulogic;
-        reset_n                   : in    std_ulogic;
-        --                        
-        uarti                     : in    uart_in_type;
-        uarto                     : out   uart_out_type;
-        --                        
-        gpioi                     : in    gpio_in_type;
-        gpioo                     : out   gpio_out_type;
-        --                        
-        fmc_i2ci                  : in    i2c_in_type;
-        fmc_i2co                  : out   i2c_out_type;
-        --
-        spmi                      : in    spimctrl_in_type;
-        spmo                      : out   spimctrl_out_type;
-        --
-        memi                      : in    memory_in_type;
-        memo                      : out   memory_out_type
-    );
-end entity box;
-
 
 library gaisler;
 use gaisler.misc.all;    -- types
@@ -61,11 +18,70 @@ use gaisler.uart.all;    -- types
 use gaisler.net.all;     -- types
 use gaisler.memctrl.all; -- spimctrl types + spmictrl component
 
+-- components
+library gaisler;
+use gaisler.uart.apbuart;
+use gaisler.misc.ahbdpram;
+use gaisler.misc.gptimer;
+use gaisler.misc.grgpio;
+use gaisler.misc.apbvga;
+use gaisler.misc.ahbram;
+use gaisler.memoryctrl.mctrl;  -- original in esa lib
+use gaisler.net.greth;
+
+library techmap;
+use techmap.gencomp.all; -- constants
+
+library zpu;
+use zpu.zpu_wrapper_package.all; -- types
+use zpu.zpu_config.all;
+use zpu.zpupkg.all;
+use zpu.zpu_wrapper_package.zpu_ahb;
+use zpu.zpu_wrapper_package.dualport_ram_ahb_wrapper; -- for medium zpu
+
+library hzdr;
+use hzdr.component_package.debug_con_apb;
+
+library work;
+use work.version.all;
+
+
+
+entity box is
+    port (
+        clk          : in    std_ulogic;        -- clock
+        reset_n      : in    std_ulogic;        -- synchronous reset (low active)
+        break        : out   std_ulogic;        -- to stop simulation
+        --           
+        uarti        : in    uart_in_type;      -- UART
+        uarto        : out   uart_out_type;
+        --           
+        gpioi        : in    gpio_in_type;      -- GPIO (button, switches, LED, header pins)
+        gpioo        : out   gpio_out_type;
+        --           
+        fmc_i2ci     : in    i2c_in_type;       -- I2C on FMC connector
+        fmc_i2co     : out   i2c_out_type;
+        --
+        spmi         : in    spimctrl_in_type;  -- serial SPI Flash memory
+        spmo         : out   spimctrl_out_type;
+        --
+        memi         : in    memory_in_type;    -- parallel Flash memory
+        memo         : out   memory_out_type;
+        --
+        ethi         : in    eth_in_type;       -- ethernet PHY
+        etho         : out   eth_out_type
+    );
+end entity box;
+
+
+
 
 architecture rtl of box is
 
     signal box_reset                     : std_ulogic;
     signal box_reset_n                   : std_ulogic;
+    --
+    signal debug_con_apb_i0_softreset    : std_ulogic;
     --
     signal ahbctrl_i0_msti               : ahb_mst_in_type;
     signal ahbmo                         : ahb_mst_out_vector := (others => ahbm_none);
@@ -87,60 +103,75 @@ architecture rtl of box is
 begin
     
     ---------------------------------------------------------------------
-    --  reset generator (now in top)
+    --  reset
 
-    box_reset   <= (not reset_n);
+    box_reset   <= (not reset_n) or debug_con_apb_i0_softreset;
     box_reset_n <= not box_reset;
 
+    ---------------------------------------------------------------------
+    --  AHB bus masters
+    ---------------------------------------------------------------------
 
     ---------------------------------------------------------------------
-    --  
-    led_control_ahb_i0: entity work.led_control_ahb
+    --  zpu
+    
+    zpu_ahb_i0: zpu_ahb
     generic map (
-        hindex    => 0,                            -- : integer := 0;
-        count     => 20 * time_factor,           -- : natural := 0;
-        gpio_data => x"00000000"                   -- : std_logic_vector(31 downto 0)
-    )
-    port map ( 
-        -- system
-        clk       => clk,                          -- : in  std_ulogic;
-        -- ahb
-        ahbi      => ahbctrl_i0_msti,              -- : in  ahb_mst_in_type; 
-        ahbo      => ahbmo(0)                      -- : out ahb_mst_out_type
-    );
-    ---------------------------------------------------------------------
-
-
-    ---------------------------------------------------------------------
-    --  
-    led_control_ahb_i1: entity work.led_control_ahb
-    generic map (
-        hindex    => 1,                            -- : integer := 0;
-        count     => 20 * time_factor + 3,       -- : natural := 0;
-        gpio_data => x"0000000f"                   -- : std_logic_vector(31 downto 0)
-    )
-    port map ( 
-        -- system
-        clk       => clk,                          -- : in  std_ulogic;
-        -- ahb
-        ahbi      => ahbctrl_i0_msti,              -- : in  ahb_mst_in_type; 
-        ahbo      => ahbmo(1)                      -- : out ahb_mst_out_type
+        hindex    => 0,                            -- : integer := 0
+        zpu_small => false                         -- : boolean := true
+    )                                              
+    port map (                                     
+        clk    => clk,                             -- : in  std_ulogic;
+        reset  => box_reset,                       -- : in  std_ulogic;
+        ahbi   => ahbctrl_i0_msti,                 -- : in  ahb_mst_in_type; 
+        ahbo   => ahbmo(0),                        -- : out ahb_mst_out_type;
+        irq    => or_reduce(ahbctrl_i0_msti.hirq), -- : in  std_ulogic;
+        break  => break                            -- : out std_ulogic
     );
     ---------------------------------------------------------------------
     
-    
+
+    ---------------------------------------------------------------------
+    -- ethernet (ahb master + apb slave)
+
+    greth_i0: greth
+        generic map (
+            hindex      => 1, 
+            pindex      => 5,
+            paddr       => 5,
+            pirq        => 5,
+            memtech     => inferred,
+            mdcscaler   => 20,
+            enable_mdio => 1,
+            fifosize    => 32,
+            nsync       => 1,
+            phyrstadr   => 7         -- depends on used hardware
+        )
+        port map (
+            rst         => reset_n,
+            clk         => clk,
+            ahbmi       => ahbctrl_i0_msti,
+            ahbmo       => ahbmo(1),
+            apbi        => apbctrl_i0_apbi,
+            apbo        => apbo(5),
+            ethi        => ethi,
+            etho        => etho
+        );
+    ---------------------------------------------------------------------
+
+
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
 
-    --ahbmo(0) <= (ahbm_none); -- led_control_ahb_i0
-    --ahbmo(1) <= (ahbm_none); -- led_control_ahb_i1
+    --ahbmo(0) <= (ahbm_none); -- zpu_ahb_i0
+    --ahbmo(1) <= (ahbm_none); -- greth_i0
     ahbmo(2) <= (ahbm_none);
     ahbmo(3) <= (ahbm_none);
     --
-    --ahbso(0) <= (ahbs_none); -- ahbctrl
-    ahbso(1) <= (ahbs_none);
+    --ahbso(0) <= (ahbs_none); -- apbctrl_i0
+    --ahbso(1) <= (ahbs_none); -- ahbram_i0
     ahbso(2) <= (ahbs_none);
-    ahbso(3) <= (ahbs_none);
+    --ahbso(3) <= (ahbs_none); -- dualport_ram_ahb_wrapper_i0
     --ahbso(4) <= (ahbs_none); -- spimctrl
     --ahbso(5) <= (ahbs_none); -- mctrl
     ahbso(6) <= (ahbs_none); 
@@ -149,11 +180,6 @@ begin
     ahbctrl_i0 : ahbctrl        -- AHB arbiter/multiplexer
         generic map (
             defmast    => 0,    -- default master
-            --
-            --
-            rrobin     => 0,    -- round robin arbitration
-            --
-            --
             timeout    => 11,
             disirq     => 0,    -- enable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
@@ -171,6 +197,48 @@ begin
             testrst => '1',
             scanen  => '0',
             testoen => '1'
+        );
+    ----------------------------------------------------------------------
+
+
+    ---------------------------------------------------------------------
+    --  AHB bus slaves
+    ---------------------------------------------------------------------
+
+
+    ---------------------------------------------------------------------
+    --  AHB RAM (internal 4k BRAM)
+
+    ahbram_i0 : ahbram
+        generic map (
+            hindex   => 1,
+            haddr    => 16#a00#,
+            hmask    => 16#FFF#,
+            tech     => inferred,
+            kbytes   => 4
+        )
+        port map (
+            rst    => box_reset_n,
+            clk    => clk,
+            ahbsi  => ahbctrl_i0_slvi,
+            ahbso  => ahbso(1)
+        );
+    ----------------------------------------------------------------------
+    
+
+    ---------------------------------------------------------------------
+    --  AHB ZPU memory (instruction + data memory)
+
+    dualport_ram_ahb_wrapper_i0 : dualport_ram_ahb_wrapper
+        generic map (
+            hindex   => 3,
+            haddr    => 16#000#
+        )
+        port map (
+            clk    => clk,
+            reset  => box_reset,
+            ahbsi  => ahbctrl_i0_slvi,
+            ahbso  => ahbso(3)
         );
     ----------------------------------------------------------------------
 
@@ -242,12 +310,12 @@ begin
     ---------------------------------------------------------------------
     --  AHB/APB bridge
 
-    apbo( 0) <= (apb_none);
+    --apbo( 0) <= (apb_none); -- debug_con_apb_i0
     --apbo( 1) <= (apb_none); -- apbuart_i0
     --apbo( 2) <= (apb_none); -- gptimer_i0
     apbo( 3) <= (apb_none);
     --apbo( 4) <= (apb_none); -- grgpio_i0
-    apbo( 5) <= (apb_none);
+    --apbo( 5) <= (apb_none); -- greth_i0
     apbo( 6) <= (apb_none);   -- no apbvga_i0
     apbo( 7) <= (apb_none);   -- no i2cmst_i0
     apbo( 8) <= (apb_none);
@@ -277,7 +345,30 @@ begin
         );
     ----------------------------------------------------------------------
     
+
+    ---------------------------------------------------------------------
+    --  APB bus slaves
+    ---------------------------------------------------------------------
+
     
+    ---------------------------------------------------------------------
+    -- debug console (for fast simulation output)
+    debug_con_apb_i0: debug_con_apb
+        generic map (
+            pindex       => 0,             -- : integer := 0;
+            paddr        => 0,             -- : integer := 0;
+            version_time => version_time_c -- : string( 1 to 21) := "undefined version    "
+        )
+        port map (
+            rst       => box_reset_n,               -- : in  std_ulogic;
+            clk       => clk,                       -- : in  std_ulogic;
+            apbi      => apbctrl_i0_apbi,           -- : in  apb_slv_in_type;
+            apbo      => apbo(0),                   -- : out apb_slv_out_type;
+            softreset => debug_con_apb_i0_softreset -- : out std_ulogic
+        );
+    ---------------------------------------------------------------------
+
+
     ---------------------------------------------------------------------
     -- uart
     apbuart_i0: apbuart

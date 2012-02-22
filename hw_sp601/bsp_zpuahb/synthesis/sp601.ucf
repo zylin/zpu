@@ -1,6 +1,4 @@
-
 ############################################################
-# $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/hardware/board_sp601/rtl/teilerregister.vhd $
 # $Date$
 # $Author$
 # $Revision$
@@ -8,6 +6,8 @@
 
 ############################################################
 # SPARTAN-6 SP601 BOARD CONSTRAINTS FILE
+#
+# device: xc6slx16-2-csg324
 #
 # Bank Voltage
 # Bank 0: 2.5 V
@@ -38,7 +38,7 @@
 ############################################################
 
 ### internal memory for zpu 8x4 bit = 32 bit width
-### zpu_core_small
+### zpu_core_small (16k)
 #INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram1" AREA_GROUP = "ZPU_MEM1" ;
 #INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram2" AREA_GROUP = "ZPU_MEM2" ;
 #INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram3" AREA_GROUP = "ZPU_MEM3" ;
@@ -48,41 +48,93 @@
 #INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram7" AREA_GROUP = "ZPU_MEM7" ;
 #INST "box_i0/zpu_ahb_i0/zpu_i0/memory/Mram_ram8" AREA_GROUP = "ZPU_MEM8" ;
 
-### zpu_core_medium
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1"  AREA_GROUP = "ZPU_MEM1"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2"  AREA_GROUP = "ZPU_MEM2"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3"  AREA_GROUP = "ZPU_MEM3"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4"  AREA_GROUP = "ZPU_MEM4"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5"  AREA_GROUP = "ZPU_MEM5"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6"  AREA_GROUP = "ZPU_MEM6"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7"  AREA_GROUP = "ZPU_MEM7"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8"  AREA_GROUP = "ZPU_MEM8"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram9"  AREA_GROUP = "ZPU_MEM9"  ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram10" AREA_GROUP = "ZPU_MEM10" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram11" AREA_GROUP = "ZPU_MEM11" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram12" AREA_GROUP = "ZPU_MEM12" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram13" AREA_GROUP = "ZPU_MEM13" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram14" AREA_GROUP = "ZPU_MEM14" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram15" AREA_GROUP = "ZPU_MEM15" ;
-#INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram16" AREA_GROUP = "ZPU_MEM16" ;
+### zpu_core_medium (32k + 64k)
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1"  AREA_GROUP = "ZPU_MEM1"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2"  AREA_GROUP = "ZPU_MEM2"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3"  AREA_GROUP = "ZPU_MEM3"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4"  AREA_GROUP = "ZPU_MEM4"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5"  AREA_GROUP = "ZPU_MEM5"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6"  AREA_GROUP = "ZPU_MEM6"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7"  AREA_GROUP = "ZPU_MEM7"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8"  AREA_GROUP = "ZPU_MEM8"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram9"  AREA_GROUP = "ZPU_MEM9"  ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram10" AREA_GROUP = "ZPU_MEM10" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram11" AREA_GROUP = "ZPU_MEM11" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram12" AREA_GROUP = "ZPU_MEM12" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram13" AREA_GROUP = "ZPU_MEM13" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram14" AREA_GROUP = "ZPU_MEM14" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram15" AREA_GROUP = "ZPU_MEM15" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram16" AREA_GROUP = "ZPU_MEM16" ;
 
-### planahead has problems with "" around range
-AREA_GROUP "ZPU_MEM1"  RANGE = RAMB16_X0Y14:RAMB16_X0Y14 ;
-AREA_GROUP "ZPU_MEM2"  RANGE = RAMB16_X0Y12:RAMB16_X0Y12 ;
-AREA_GROUP "ZPU_MEM3"  RANGE = RAMB16_X0Y10:RAMB16_X0Y10 ;
-AREA_GROUP "ZPU_MEM4"  RANGE = RAMB16_X0Y8:RAMB16_X0Y8 ;
-AREA_GROUP "ZPU_MEM5"  RANGE = RAMB16_X0Y6:RAMB16_X0Y6 ;
-AREA_GROUP "ZPU_MEM6"  RANGE = RAMB16_X0Y4:RAMB16_X0Y4 ;
-AREA_GROUP "ZPU_MEM7"  RANGE = RAMB16_X0Y2:RAMB16_X0Y2 ;
-AREA_GROUP "ZPU_MEM8"  RANGE = RAMB16_X0Y0:RAMB16_X0Y0 ;
-AREA_GROUP "ZPU_MEM9"  RANGE = RAMB16_X1Y14:RAMB16_X1Y14 ;
-AREA_GROUP "ZPU_MEM10" RANGE = RAMB16_X1Y12:RAMB16_X1Y12 ;
-AREA_GROUP "ZPU_MEM11" RANGE = RAMB16_X1Y10:RAMB16_X1Y10 ;
-AREA_GROUP "ZPU_MEM12" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;
-AREA_GROUP "ZPU_MEM13" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;
-AREA_GROUP "ZPU_MEM14" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;
-AREA_GROUP "ZPU_MEM15" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;
-AREA_GROUP "ZPU_MEM16" RANGE = RAMB16_X1Y0:RAMB16_X1Y0 ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram17" AREA_GROUP = "ZPU_MEM17" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram18" AREA_GROUP = "ZPU_MEM18" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram19" AREA_GROUP = "ZPU_MEM19" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram20" AREA_GROUP = "ZPU_MEM20" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram21" AREA_GROUP = "ZPU_MEM21" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram22" AREA_GROUP = "ZPU_MEM22" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram23" AREA_GROUP = "ZPU_MEM23" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram24" AREA_GROUP = "ZPU_MEM24" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram25" AREA_GROUP = "ZPU_MEM25" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram26" AREA_GROUP = "ZPU_MEM26" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram27" AREA_GROUP = "ZPU_MEM27" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram28" AREA_GROUP = "ZPU_MEM28" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram29" AREA_GROUP = "ZPU_MEM29" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram30" AREA_GROUP = "ZPU_MEM30" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram31" AREA_GROUP = "ZPU_MEM31" ;
+INST "box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram32" AREA_GROUP = "ZPU_MEM32" ;
+
+# 32k version (untested)
+#AREA_GROUP "ZPU_MEM1"  RANGE = RAMB16_X0Y14:RAMB16_X0Y14 ;
+#AREA_GROUP "ZPU_MEM2"  RANGE = RAMB16_X0Y12:RAMB16_X0Y12 ;
+#AREA_GROUP "ZPU_MEM3"  RANGE = RAMB16_X0Y10:RAMB16_X0Y10 ;
+#AREA_GROUP "ZPU_MEM4"  RANGE = RAMB16_X0Y8:RAMB16_X0Y8 ;
+#AREA_GROUP "ZPU_MEM5"  RANGE = RAMB16_X0Y6:RAMB16_X0Y6 ;
+#AREA_GROUP "ZPU_MEM6"  RANGE = RAMB16_X0Y4:RAMB16_X0Y4 ;
+#AREA_GROUP "ZPU_MEM7"  RANGE = RAMB16_X0Y2:RAMB16_X0Y2 ;
+#AREA_GROUP "ZPU_MEM8"  RANGE = RAMB16_X0Y0:RAMB16_X0Y0 ;
+#AREA_GROUP "ZPU_MEM9"  RANGE = RAMB16_X1Y14:RAMB16_X1Y14 ;
+#AREA_GROUP "ZPU_MEM10" RANGE = RAMB16_X1Y12:RAMB16_X1Y12 ;
+#AREA_GROUP "ZPU_MEM11" RANGE = RAMB16_X1Y10:RAMB16_X1Y10 ;
+#AREA_GROUP "ZPU_MEM12" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;
+#AREA_GROUP "ZPU_MEM13" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;
+#AREA_GROUP "ZPU_MEM14" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;
+#AREA_GROUP "ZPU_MEM15" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;
+#AREA_GROUP "ZPU_MEM16" RANGE = RAMB16_X1Y0:RAMB16_X1Y0 ;
+
+# 64k version (tested)
+AREA_GROUP "ZPU_MEM1"  RANGE = RAMB16_X0Y30:RAMB16_X0Y30 ;
+AREA_GROUP "ZPU_MEM2"  RANGE = RAMB16_X0Y28:RAMB16_X0Y28 ;
+AREA_GROUP "ZPU_MEM3"  RANGE = RAMB16_X0Y26:RAMB16_X0Y26 ;
+AREA_GROUP "ZPU_MEM4"  RANGE = RAMB16_X0Y24:RAMB16_X0Y24 ;
+AREA_GROUP "ZPU_MEM5"  RANGE = RAMB16_X0Y22:RAMB16_X0Y22 ;
+AREA_GROUP "ZPU_MEM6"  RANGE = RAMB16_X0Y20:RAMB16_X0Y20 ;
+AREA_GROUP "ZPU_MEM7"  RANGE = RAMB16_X0Y18:RAMB16_X0Y18 ;
+AREA_GROUP "ZPU_MEM8"  RANGE = RAMB16_X0Y16:RAMB16_X0Y16 ;
+AREA_GROUP "ZPU_MEM9"  RANGE = RAMB16_X0Y14:RAMB16_X0Y14 ;
+AREA_GROUP "ZPU_MEM10" RANGE = RAMB16_X0Y12:RAMB16_X0Y12 ;
+AREA_GROUP "ZPU_MEM11" RANGE = RAMB16_X0Y10:RAMB16_X0Y10 ;
+AREA_GROUP "ZPU_MEM12" RANGE = RAMB16_X0Y8:RAMB16_X0Y8 ;
+AREA_GROUP "ZPU_MEM13" RANGE = RAMB16_X0Y6:RAMB16_X0Y6 ;
+AREA_GROUP "ZPU_MEM14" RANGE = RAMB16_X0Y4:RAMB16_X0Y4 ;
+AREA_GROUP "ZPU_MEM15" RANGE = RAMB16_X0Y2:RAMB16_X0Y2 ;
+AREA_GROUP "ZPU_MEM16" RANGE = RAMB16_X0Y0:RAMB16_X0Y0 ;
+
+AREA_GROUP "ZPU_MEM17" RANGE = RAMB16_X1Y30:RAMB16_X1Y30 ; 
+AREA_GROUP "ZPU_MEM18" RANGE = RAMB16_X1Y28:RAMB16_X1Y28 ; 
+AREA_GROUP "ZPU_MEM19" RANGE = RAMB16_X1Y26:RAMB16_X1Y26 ; 
+AREA_GROUP "ZPU_MEM20" RANGE = RAMB16_X1Y24:RAMB16_X1Y24 ; 
+AREA_GROUP "ZPU_MEM21" RANGE = RAMB16_X1Y22:RAMB16_X1Y22 ; 
+AREA_GROUP "ZPU_MEM22" RANGE = RAMB16_X1Y20:RAMB16_X1Y20 ; 
+AREA_GROUP "ZPU_MEM23" RANGE = RAMB16_X1Y18:RAMB16_X1Y18 ; 
+AREA_GROUP "ZPU_MEM24" RANGE = RAMB16_X1Y16:RAMB16_X1Y16 ; 
+AREA_GROUP "ZPU_MEM25" RANGE = RAMB16_X1Y14:RAMB16_X1Y14 ; 
+AREA_GROUP "ZPU_MEM26" RANGE = RAMB16_X1Y12:RAMB16_X1Y12 ; 
+AREA_GROUP "ZPU_MEM27" RANGE = RAMB16_X1Y10:RAMB16_X1Y10 ; 
+AREA_GROUP "ZPU_MEM28" RANGE = RAMB16_X1Y8:RAMB16_X1Y8 ;   
+AREA_GROUP "ZPU_MEM29" RANGE = RAMB16_X1Y6:RAMB16_X1Y6 ;   
+AREA_GROUP "ZPU_MEM30" RANGE = RAMB16_X1Y4:RAMB16_X1Y4 ;   
+AREA_GROUP "ZPU_MEM31" RANGE = RAMB16_X1Y2:RAMB16_X1Y2 ;   
+AREA_GROUP "ZPU_MEM32" RANGE = RAMB16_X1Y0:RAMB16_X1Y0 ;   
 
 
 
@@ -185,9 +237,8 @@ NET "FMC_CLK1_M2C_N"            LOC = "V9" ;
 NET "FMC_CLK1_M2C_P"            LOC = "T9" ;
 NET "FMC_LA00_CC_N"             LOC = "C9" ;
 NET "FMC_LA00_CC_P"             LOC = "D9" ;
-NET "FMC_LA01_CC_N"             LOC = "C11" | TNM_NET = "ADC_CLK";
-NET "FMC_LA01_CC_P"             LOC = "D11" | TNM_NET = "ADC_CLK";
-TIMESPEC "TS_ADC_CLK" = PERIOD "ADC_CLK" 52 MHz HIGH 50 %;
+NET "FMC_LA01_CC_N"             LOC = "C11";
+NET "FMC_LA01_CC_P"             LOC = "D11";
 NET "FMC_LA02_N"                LOC = "A15";
 NET "FMC_LA02_P"                LOC = "C15";
 NET "FMC_LA03_N"                LOC = "A13";
@@ -335,7 +386,8 @@ NET "PHY_RXD<7>"                LOC = "P18";
 NET "PHY_RXER"                  LOC = "P17";
 NET "PHY_TXCLK"                 LOC = "B9" ;
 NET "PHY_TXCTL_TXEN"            LOC = "B8"  | SLEW = SLOW | DRIVE = 4;
-NET "PHY_TXC_GTXCLK"            LOC = "A9" ;
+NET "PHY_TXC_GTXCLK1"           LOC = "A9" ;
+PIN "phy_txc_gtxclk_BUFG.O" CLOCK_DEDICATED_ROUTE = FALSE; 
 NET "PHY_TXD<0>"                LOC = "F8"  | SLEW = SLOW | DRIVE = 4;
 NET "PHY_TXD<1>"                LOC = "G8"  | SLEW = SLOW | DRIVE = 4;
 NET "PHY_TXD<2>"                LOC = "A6"  | SLEW = SLOW | DRIVE = 4;

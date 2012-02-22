@@ -23,7 +23,11 @@ all: compile simulate
 software:
 	test ! -d $(software_dir) || make --directory $(software_dir) | ccze -A
 
-compile: Makefile.msim
+hw_timestamp:
+	test ! -f ../rtl/Makefile || make --directory ../rtl
+
+
+compile: hw_timestamp Makefile.msim
 	export ANAFLAGS="-quiet -2008"; \
 	make -f Makefile.msim | ccze -A
 
