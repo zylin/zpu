@@ -12,7 +12,7 @@ software_dir = ../software/test
 VMK = vmk
 
 # generate list of used libs
-library_list = $(shell cut vhdl_files.txt --field 1 --delimiter=' ' | sort --unique)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | grep --invert "\#" | sort --unique)
 
 
 

@@ -15,7 +15,7 @@ software_dir = ../software
 VMK = vmk
 
 # generate list of used libs
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | grep --invert "\#" | sort --unique)
 
 
 all: compile simulate

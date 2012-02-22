@@ -8,7 +8,7 @@
 library      = work
 top          = top
 
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | grep --invert "\#" | sort --unique)
 
 # http://sourceforge.net/projects/vmk/
 VMK = vmk
@@ -31,7 +31,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	@#
-	make -f Makefile.msim clean
+	-make -f Makefile.msim clean
 	rm -f Makefile.msim
 	rm -f .stamp
 	rm -rf $(library_list)

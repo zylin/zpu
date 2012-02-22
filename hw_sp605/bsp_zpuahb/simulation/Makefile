@@ -14,7 +14,7 @@ software_dir = ../software
 VMK = vmk
 
 # generate list of used libs
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | grep --invert "\#" | sort --unique)
 
 
 all: compile simulate
@@ -39,7 +39,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	@#
-	make -f Makefile.msim clean
+	-make -f Makefile.msim clean
 	rm -f Makefile.msim
 	rm -f .stamp
 	rm -rf $(library_list)

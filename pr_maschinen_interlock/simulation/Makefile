@@ -3,7 +3,7 @@ library      = work
 top          = system_tb
 #top          = channel_tb
 
-library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | sort --unique)
+library_list = $(shell cut --field 1 --delimiter=" " --only-delimited vhdl_files.txt | grep --invert "\#" | sort --unique)
 
 # http://sourceforge.net/projects/vmk/
 VMK = vmk
@@ -24,7 +24,7 @@ clean:
 	rm -f *.wlf
 	rm -f wlf*
 	@# vmk stuff
-	make -f Makefile.msim clean
+	-make -f Makefile.msim clean
 	rm -f Makefile.msim
 	rm -rf $(library_list)
 
