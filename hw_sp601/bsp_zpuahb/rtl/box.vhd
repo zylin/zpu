@@ -28,10 +28,6 @@ use grlib.amba.all;
 library techmap;
 use techmap.gencomp.all; -- constants
 
-library work;
---use work.types.all;
---use board_sp601.components.chipscope;
-
 
 entity box is
     generic (
@@ -131,21 +127,13 @@ begin
         ahbo      => ahbmo(1)                      -- : out ahb_mst_out_type
     );
     ---------------------------------------------------------------------
-
---  chipscope_i0 : chipscope
---      port map (
---          clk  => clk,                                --: in std_ulogic;
---          data => std_ulogic_vector( ahbmo(0).haddr), --: in std_ulogic_vector(31 downto 0);
---          trig => ahbmo(0).hbusreq                    --: in std_ulogic
---          );
-
     
     
     ---------------------------------------------------------------------
     --  AHB CONTROLLER
 
-    --ahbmo(0) <= (ahbm_none);
-    --ahbmo(1) <= (ahbm_none);
+    --ahbmo(0) <= (ahbm_none); -- led_control_ahb_i0
+    --ahbmo(1) <= (ahbm_none); -- led_control_ahb_i1
     ahbmo(2) <= (ahbm_none);
     ahbmo(3) <= (ahbm_none);
     --
