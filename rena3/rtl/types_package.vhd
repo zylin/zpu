@@ -34,6 +34,7 @@ package types_package is
         cls     : std_ulogic;
         clf     : std_ulogic;
         tclk    : std_ulogic;
+        test    : std_ulogic;
     end record rena3_controller_out_t;
     constant default_rena3_controller_out_c: rena3_controller_out_t := (
         cshift  => '1', 
@@ -48,7 +49,8 @@ package types_package is
         acquire => '0',
         cls     => '0',
         clf     => '0',
-        tclk    => '0'
+        tclk    => '0',
+        test    => '0'
     );
 
 

@@ -52,7 +52,6 @@
 #define HEADER6                           (1<< 14)
 #define HEADER7                           (1<< 15)
 
-#define TESTGEN_PIN                       (1<< 31)
 
 ////////////////////////////////////////////////////////////
 //  rena3 definitions
@@ -80,7 +79,6 @@ uint32_t rena_trouble( void);
 uint32_t rena_follow_mode_function( void);
 uint32_t rena_set_ecal_function( void);
 uint32_t ddsinit_function( void);
-uint32_t testgen( uint32_t time);
 uint32_t testgen_function( void);
 
 
@@ -153,7 +151,7 @@ void uart_monitor( void)
 
     monitor_add_command(FWF_ROE_CMD_DDSINIT, "initalize DDS chip <freq tuning word>", ddsinit_function,             FWF_ROE_CMD_DDSINIT_Code);
     monitor_add_command("ddsinfo",           "read dds registers",                    ad9854_info,                  -1);
-    monitor_add_command("testgen",           "generate test impulse",                 testgen_function,             -1);
+    monitor_add_command("testgen",           "generate test impulse <length>",        testgen_function,             -1);
     monitor_add_command("adc",               "read adc value",                        adc_read,                     -1);
 
     #ifdef DEBUG_ON                                                              
@@ -376,11 +374,39 @@ uint32_t ddsinit_function( void)
 uint32_t rena_trouble( void)
 {
     uint8_t  index;
-    uint8_t  loop;
+    uint32_t  loop;
     uint32_t value;
+    
+    uint8_t  config_high;
+    uint32_t config_low;
+
 
     loop  = monitor_get_argument_int(1);
     value = monitor_get_argument_int(2);
+    
+    while (loop > 0)
+    {
+        index = 20;
+        rena_powerdown_config_function();
+
+        config_high = 
+            RENA_FB_TC         | 
+            RENA_ECAL;
+
+        config_low  = 
+            (3  << RENA_GAIN)  |
+            (0  << RENA_SEL)   |
+            RENA_POLNEG        |
+            (45 << RENA_DS)    | 
+            RENA_ENS           |
+            RENA_FM;
+        rena_channel_config( index, config_high, config_low);
+        rena_follow_mode( index);
+        usleep( 20);
+        rena_testgen( RENA_TEST_POL_NEG, value);
+        
+        loop--;
+    }
    
     /*
         trouble shoote for follower mode
@@ -391,14 +417,13 @@ uint32_t rena_trouble( void)
             rena_powerdown_config_function();
             rena_set_ecal( index);
             rena_follow_mode( index);
-            testgen( value);
+            rena_testgen( RENA_TEST_POL_NEG, value);
         }
         loop--;
     }
     */
     
-    uint8_t  config_high;
-    uint32_t config_low;
+    /*
 
 #define DAC_SLOW (127)
 #define DAC_FAST (0)
@@ -427,7 +452,7 @@ uint32_t rena_trouble( void)
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
 
-        testgen( 10);
+        rena_testgen( RENA_TEST_POL_NEG, 10);
     
         usleep( 20);
 
@@ -436,6 +461,7 @@ uint32_t rena_trouble( void)
 
         loop--;
     }
+    */
 
     return( config_low);
 }
@@ -462,21 +488,14 @@ uint32_t rena_set_ecal_function( void)
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
 
-uint32_t testgen( uint32_t time)
-{
-    set_bit( gpio0->ioout, TESTGEN_PIN);
-    usleep( time);
-    clear_bit( gpio0->ioout, TESTGEN_PIN);
-}
-
 
 uint32_t testgen_function( void)
 {
-    uint32_t time;
+    uint16_t cycles;
 
-    time = monitor_get_argument_int(1);
+    cycles = monitor_get_argument_int(1);
    
-    testgen( time);
+    rena_testgen( RENA_TEST_POL_NEG, cycles);
 }
 
 ////////////////////////////////////////////////////////////
@@ -499,6 +518,9 @@ int main(void)
     i2c_init();
     // enable timer interrupt, for scheduler
     set_bit( timer0->e[0].ctrl, TIMER_INT_ENABLE);
+    
+    // init rena testgen polarity
+    rena_testgen( RENA_TEST_POL_NEG, 0);
 
 
     if (!simulation_active) {
@@ -544,9 +566,10 @@ int main(void)
 
     // generate some test pulse
     usleep( 50);
-
-    uint16_t time_us = 0;
-    testgen( time_us);
+    rena_testgen( RENA_TEST_POL_NEG, 100);
+    usleep( 50);
+    rena_testgen( RENA_TEST_POL_POS, 100);
+    usleep( 10);
 
     // wait till idle
     while (rena->control_status != 0) {};

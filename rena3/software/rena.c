@@ -299,3 +299,13 @@ void rena_simulate_follower_mode( void)
     rena->control_status = RENA_MODE_IDLE;
 
 }
+
+
+/*
+ * activate the test generator
+ */
+uint32_t rena_testgen( uint8_t polarity, uint16_t cycles)
+{
+    rena->test_generator = (polarity << RENA_TEST_POL_PIN) | cycles;
+    return( rena->test_generator);
+}

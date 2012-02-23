@@ -46,6 +46,8 @@ typedef struct {
     volatile uint32_t slow_trigger_chain_high; // 0x2C
     volatile uint32_t channel_force_mask_low;  // 0x30
     volatile uint32_t channel_force_mask_high; // 0x34
+    volatile uint32_t reserved_0;              // 0x38
+    volatile uint32_t test_generator;          // 0x3C
 } rena_t;
 
 
@@ -53,6 +55,12 @@ typedef struct {
 #define RENA_MODE_IDLE      (0)
 #define RENA_MODE_ACQUIRE   (2)
 #define RENA_MODE_FOLLOW    (9)
+
+
+// definitions for test generator
+#define RENA_TEST_POL_PIN   (31)
+#define RENA_TEST_POL_POS   (0)
+#define RENA_TEST_POL_NEG   (1)
 
 
 extern rena_t *rena; // 0x80000d00;
@@ -74,6 +82,7 @@ uint32_t rena_demo_config_function( void);
 uint32_t rena_powerdown_config_function( void);
 uint32_t rena_follow_mode( uint8_t channel);
 uint32_t rena_set_ecal( uint8_t channel);
+uint32_t rena_testgen( uint8_t polarity, uint16_t cycles);
 
 // simulation functions
 void rena_simulate_follower_mode( void);

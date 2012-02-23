@@ -86,6 +86,8 @@ architecture rtl of rena3_controller_apb is
         clk_adc            : std_ulogic;
         clk_adc_old        : std_ulogic;
         sample_mem         : sample_buffer_mem_out_type;
+        test_length        : unsigned(15 downto 0);
+        test_polarity      : std_ulogic;
     end record reg_t;
     constant default_reg_c : reg_t := (
         state              => IDLE,
@@ -109,7 +111,9 @@ architecture rtl of rena3_controller_apb is
         rena_in            => default_rena3_controller_in_c,
         clk_adc            => '0',
         clk_adc_old        => '0',
-        sample_mem         => default_sample_buffer_mem_out_c
+        sample_mem         => default_sample_buffer_mem_out_c,
+        test_length        => (others => '0'),
+        test_polarity      => '1'
     );
 
     signal r, r_in: reg_t := default_reg_c;
@@ -138,7 +142,7 @@ begin
 
         case apbi.paddr(5 downto 2) is
 
-            -- controller state         // 0x00
+            -- controller state          // 0x00
             when "0000"  =>
                 case v.state is
                     when IDLE          => v.readdata := x"00000000";
@@ -155,59 +159,70 @@ begin
                 end case;
 
 
-            -- rena state               // 0x04
+            -- rena state                // 0x04
             when "0001"  =>
                 v.readdata(0)  := v.rena_in.overflow;
                 v.readdata(1)  := v.rena_in.ts;
                 v.readdata(2)  := v.rena_in.tf;
 
-            -- config low               // 0x08
+            -- config low                // 0x08
             when "0010"  =>
                 v.readdata                       := v.configure(31 downto 0);
                 
-            -- config high              // 0x0C
+            -- config high               // 0x0C
             when "0011" =>
                 v.readdata(8 downto 0)           := v.configure(40 downto 32);
 
-            -- acquire time             // 0x10
+            -- acquire time              // 0x10
             when "0100" =>
                 v.readdata(v.acquire_time'range) := std_logic_vector( v.acquire_time);
                 
-            -- lower channel mask       // 0x14
+            -- lower channel mask        // 0x14
             when "0101" =>
                 v.readdata(31 downto 0)          := std_logic_vector( v.channel_mask(31 downto 0));
 
-            -- higher channel mask      // 0x18
+            -- higher channel mask       // 0x18
             when "0110" =>
                 v.readdata( 3 downto 0)          := std_logic_vector( v.channel_mask(35 downto 32));
                 
-            -- number of sampled tokens // 0x1C
+            -- number of sampled tokens  // 0x1C
             when "0111" =>
                 v.readdata( v.token_count'range) := std_logic_vector( v.token_count);
 
-            -- fast_trigger_chain low   // 0x20
+            -- fast_trigger_chain low    // 0x20
             when "1000" =>
                 v.readdata(31 downto 0)          := std_logic_vector( v.fast_trigger_chain(31 downto 0));
 
-            -- fast_trigger_chain high  // 0x24
+            -- fast_trigger_chain high   // 0x24
             when "1001" =>
                 v.readdata( 3 downto 0)          := std_logic_vector( v.fast_trigger_chain(35 downto 32));
 
-            -- slow_trigger_chain low   // 0x28
+            -- slow_trigger_chain low    // 0x28
             when "1010" =>
                 v.readdata(31 downto 0)          := std_logic_vector( v.slow_trigger_chain(31 downto 0));
 
-            -- slow_trigger_chain high  // 0x2C
+            -- slow_trigger_chain high   // 0x2C
             when "1011" =>
                 v.readdata( 3 downto 0)          := std_logic_vector( v.slow_trigger_chain(35 downto 32));
                 
-            -- lower channel force mask // 0x30
+            -- lower channel force mask  // 0x30
             when "1100" =>
                 v.readdata(31 downto 0)          := std_logic_vector( v.force_mask(31 downto 0));
 
             -- higher channel force mask // 0x34
             when "1101" =>
                 v.readdata( 3 downto 0)          := std_logic_vector( v.force_mask(35 downto 32));
+
+
+            -- unused                    // 0x38
+            when "1110" =>
+                null;
+
+
+            -- test pulse generator      // 0x3C
+            when "1111" =>
+                v.readdata(31)                   := v.test_polarity;
+                v.readdata(15 downto 0)          := std_logic_vector( v.test_length);
 
             when others => 
                 null;
@@ -305,6 +320,12 @@ begin
                 -- higher channel force mask 0x34
                 when "1101" =>
                     v.force_mask(35 downto 32)   := std_ulogic_vector( v.writedata( 3 downto 0));
+                
+
+                -- test pulse generator      0x3C
+                when "1111" =>
+                    v.test_polarity              := v.writedata(31);
+                    v.test_length                := unsigned( v.writedata( v.test_length'range));
 
                 when others => 
                     null;
@@ -473,6 +494,9 @@ begin
             v.timer := v.timer - 1;
         end if;
 
+
+        -- sample memory
+
         v.sample_mem := default_sample_buffer_mem_out_c;
 
         if v.sample_valid( v.sample_valid'high) = '1' then
@@ -488,17 +512,27 @@ begin
 
         v.clk_adc_old := v.clk_adc;
 
-        -- register inputs
-        v.rena_in := rena3_in;
 
-        r_in <= v;
+        -- test pulse generator
+        v.rena.test       := v.test_polarity;
+        if v.test_length > 0 then
+            v.test_length := v.test_length - 1;
+            v.rena.test   := not v.test_polarity;
+        end if;
+
+
+        -- register inputs
+        v.rena_in      := rena3_in;
+
+        r_in           <= v;
 
         apbo.prdata    <= v.readdata; 	-- drive apb read bus
         apbo.pirq      <= (others => '0');
         apbo.pindex    <= pindex;
         apbo.pconfig   <= pconfig;
 
-        -- debug
+
+        -- code debug output
         case v.state is
             when IDLE          => rena_debug.state <= x"0";
             when CONFIGURE     => rena_debug.state <= x"1";

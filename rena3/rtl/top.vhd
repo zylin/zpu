@@ -368,8 +368,6 @@ architecture rtl of top is
     signal dvi_data_0                         : std_logic_vector(dvi_d'range);
     signal dvi_data_1                         : std_logic_vector(dvi_d'range);
     --
-    signal testgen                            : std_ulogic;
-    --
     signal ad9854_out                         : ad9854_out_t := default_ad9854_out_c;
     signal ad9854_in                          : ad9854_in_t;
     --
@@ -667,7 +665,6 @@ begin
     gpio_led       <= box_i0_gpioo.dout(3  downto 0);
     gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
     clk_adc_gpio   <= box_i0_gpioo.dout(30);
-    testgen        <= box_i0_gpioo.dout(31);
 
     
     ------------------------------------------------------------ 
@@ -845,8 +842,8 @@ begin
 
 
     ------------------------------------------------------------ 
-    -- testgen pads
-    fmc_la27_n           <= testgen;
+    -- testgen pad
+    fmc_la27_n           <= rena3_controller_i0_out.test;
 
 
     ------------------------------------------------------------ 
@@ -978,7 +975,7 @@ begin
     
     ------------------------------------------------------------ 
     -- chipscope for debugging
-    chipscope_data( 0)           <= testgen;
+    chipscope_data( 0)           <= rena3_controller_i0_out.test;
     chipscope_data( 1)           <= rena3_controller_i0_out.cs_n;
     chipscope_data( 2)           <= rena3_controller_i0_out.cshift;
     chipscope_data( 3)           <= rena3_controller_i0_out.cin;
@@ -1001,7 +998,7 @@ begin
     --
     chipscope_data(23 downto 20) <= rena_debug.state;
     --
-    chipscope_trigger            <= rena3_controller_i0_out.cs_n xor testgen xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
+    chipscope_trigger            <= rena3_controller_i0_out.cs_n xor rena3_controller_i0_out.test xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
     --
     chipscope_i0 : chipscope
         port map (
