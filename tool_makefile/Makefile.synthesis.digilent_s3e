@@ -80,7 +80,9 @@ program:
 	impact -batch program_fpga.cmd
 
 
-genmcs:
+genmcs: $(MODULE)_update.mcs
+
+$(MODULE)_update.mcs: $(MODULE)_update.bit
 	###
 	#############################################################################
 	### generate flash file
