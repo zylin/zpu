@@ -13,8 +13,23 @@ add wave -noupdate /top_tb/top_i0/gpio_button
 add wave -noupdate /top_tb/top_i0/gpio_switch
 add wave -noupdate /top_tb/top_i0/gpio_header_ls
 add wave -noupdate -expand /top_tb/top_i0/gpio_led
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_mdc
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_mdio
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txclk
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxclk
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_int
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_reset
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_col
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_crs
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxctl_rxdv
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxd
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxer
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txc_gtxclk
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txctl_txen
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txd
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txer
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {145754237 ps} 0}
+WaveRestoreCursors {{Cursor 1} {314532000 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -29,4 +44,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {0 ps} {735 us}
+WaveRestoreZoom {0 ps} {2940 us}

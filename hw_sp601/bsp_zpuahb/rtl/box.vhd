@@ -141,9 +141,9 @@ begin
             paddr       => 5,
             pirq        => 5,
             memtech     => inferred,
-            mdcscaler   => 20,
+            mdcscaler   => 125,
             enable_mdio => 1,
-            fifosize    => 32,
+            fifosize    => 8,
             nsync       => 1,
             phyrstadr   => 7         -- depends on used hardware
         )
