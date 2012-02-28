@@ -874,6 +874,9 @@ begin
         ob => fmc_la21_n
     );
     ibufds_i0 : ibufds
+    generic map (
+        diff_term => true
+    )
     port map (
         i  => fmc_la24_p,
         ib => fmc_la24_n,
@@ -889,6 +892,9 @@ begin
         ob => fmc_la22_n
     );
     ibufds_i1 : ibufds
+    generic map (
+        diff_term => true
+    )
     port map (
         i  => fmc_la25_p,
         ib => fmc_la25_n,
@@ -899,6 +905,9 @@ begin
 
     -- row d
     ibufds_i2 : ibufds
+    generic map (
+        diff_term => true
+    )
     port map (
         i  => fmc_la01_cc_p,
         ib => fmc_la01_cc_n,
@@ -927,6 +936,9 @@ begin
 
     -- row c
     ibufds_i3 : ibufds
+    generic map (
+        diff_term => true
+    )
     port map (
         i  => fmc_la06_p,
         ib => fmc_la06_n,
@@ -998,7 +1010,8 @@ begin
     --
     chipscope_data(23 downto 20) <= rena_debug.state;
     --
-    chipscope_trigger            <= rena3_controller_i0_out.cs_n xor rena3_controller_i0_out.test xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
+    --chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
+    chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
     --
     chipscope_i0 : chipscope
         port map (
