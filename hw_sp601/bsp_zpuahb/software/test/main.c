@@ -2,8 +2,9 @@
 
 #include <peripherie.h>
 #include <common.h>
-#include <timer.h> // sleep
+#include <timer.h>         // sleep
 #include <uart.h>
+#include <schedule.h>      // scheduler
 #include <lcd-routines.h>
 
 // no LCD on SP601
@@ -22,7 +23,7 @@
 #define loop_until_bit_is_clear(mem, bv)  do {} while( bit_is_set(mem, bv))
 
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////
 // named keys
 #define BUTTON_WEST                       (1<<7)
 #define BUTTON_EAST                       (1<<4)
@@ -32,12 +33,14 @@
 #define WORD_MODE                         (0)
 #define BIT_MODE                          (1)
 
-uint32_t simulation_active;
+uint32_t         simulation_active;
+volatile uint8_t timer_tick;
+uint8_t          end_simulation = FALSE;
 
 volatile uint32_t running_direction;
 
 
-////////////////////////////////////////
+////////////////////////////////////////////////////////////
 // combined print functions
 
 
@@ -50,15 +53,31 @@ char combined_putchar( char c)
 }
 
 
+////////////////////////////////////////////////////////////
 // zpu interrupt function
 void _zpu_interrupt( void)
 {
-    running_direction = !running_direction;
+    // test for gpio_button interrupt
+    //running_direction = !running_direction;
     //irqmp0->irq_clear = BUTTON_WEST; // clear interrupt
+
+    uint32_t reg_val;
+
+    // check for timer 0.0 interrupt
+    reg_val = timer0->e[0].ctrl;
+    if bit_is_set( reg_val, TIMER_INT_PENDING)
+    {
+        // clear interrupt pending bit
+        clear_bit( reg_val, TIMER_INT_PENDING);
+        timer0->e[0].ctrl = reg_val;
+
+        timer_tick = TRUE;
+    }
     return;
 }
 
 
+////////////////////////////////////////////////////////////
 void running_light_init( void)
 {
     // enable output drivers
@@ -75,11 +94,19 @@ void running_light_init( void)
 
 
 //
+// function for scheduler
+//
+void end_simulation_task( void)
+{
+    end_simulation = TRUE;
+}
+
+
+//
 // generate a running light pattern
 //
 void running_light( uint32_t simulation_active)
 {
-//  unsigned int pattern = 0x01800180;
 	unsigned int pattern = 0x80300700;
     uint32_t count = 31;
 
@@ -101,8 +128,17 @@ void running_light( uint32_t simulation_active)
         if (simulation_active)
         {
             // do only limited runs
-            if (count == 0) break;
-            count--;
+            //if (count == 0) break;
+            //count--;
+            
+            // limit runs by timer tick
+            if (timer_tick) 
+            {
+                timer_tick = FALSE;
+                scheduler_task_check();
+                
+                if (end_simulation) break;
+            }
         } 
         else
         {
@@ -301,6 +337,9 @@ void led_function( void);
 void quit_function( void);
 void help_function( void);
 
+void ether_test_read_mdio( void);
+
+
 //
 //  react on serial commands
 //
@@ -313,11 +352,12 @@ void uart_monitor( void)
 
     monitor_init();
 
-    monitor_add_command("mem",   "like x",         x_function);
-    monitor_add_command("wmem",  "write word",     wmem_function);
-    monitor_add_command("x",     "eXamine memory", x_function);
-    monitor_add_command("clear", "clear screen",   clear_function);
-    monitor_add_command("led",   "start LED test", led_function);
+    monitor_add_command("mem",   "like x",              x_function);
+    monitor_add_command("wmem",  "write word",          wmem_function);
+    monitor_add_command("x",     "eXamine memory",      x_function);
+    monitor_add_command("clear", "clear screen",        clear_function);
+    monitor_add_command("led",   "start LED test",      led_function);
+    monitor_add_command("mdio",  "read MDIO registers", ether_test_read_mdio);
     monitor_add_command("quit",  "", quit_function);
     monitor_add_command("help",  "", help_function);
 
@@ -327,10 +367,19 @@ void uart_monitor( void)
 
     while( monitor_run)
     {
-        while ( uart_check_receiver() ) {
+        // process scheduler
+        if (timer_tick)
+        {
+            timer_tick = FALSE;
+            scheduler_task_check();
+        }
+
+        // process uart
+        if ( uart_check_receiver() ) {
             monitor_input( uart_getchar() );
         }
 
+        // process commands
         monitor_mainloop();
     }
 }
@@ -530,25 +579,39 @@ void ether_test_read_mdio( void)
 {
     char str[20];
     uint32_t mdio_phy;  // 0..31
-    uint32_t mdio_reg;  // 0..31
-    uint16_t mdio_data; // 16 bit
-
-    uart_putstr("\nmdio phy registers");
-    for (mdio_phy=31; mdio_phy<32; mdio_phy++)
+        
+    void read_registers(uint32_t mdio_phy)
     {
-        uart_putstr("\n mdio phy: 0x"); uart_puthex( 8, mdio_phy);
+        uint32_t mdio_reg;  // 0..31
+        uint16_t mdio_data; // 16 bit
+
+        putstr("\n mdio phy: 0x"); puthex( 8, mdio_phy);
 
         for (mdio_reg=0; mdio_reg<32; mdio_reg++)
         {
+            // skip some registers
             if (mdio_reg==7)  mdio_reg=16;
             if (mdio_reg==19) mdio_reg=20;
             if (mdio_reg==24) mdio_reg=27;
-            uart_putstr("\n  reg: "); itoa( mdio_reg, str); uart_putstr( str);
-            uart_putstr("-> 0x");       uart_puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
-//          uart_putstr("-> 0x");       uart_puthex( 32, ether0->mdio_control);
+            putstr("\n  reg: "); itoa( mdio_reg, str); putstr( str);
+            putstr("-> 0x");       puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
+//          putstr("-> 0x");       puthex( 32, ether0->mdio_control);
         }
     }
-    uart_putchar('\n');
+
+    /*
+    // multiple
+    putstr("\nmdio phy registers");
+    for ( mdio_phy=0; mdio_phy<32; mdio_phy++)
+    {
+        read_registers( mdio_phy);
+    }
+    */
+
+    // single
+    read_registers( 7);
+
+    putchar('\n');
 }
 
 
@@ -857,10 +920,7 @@ void mem_dump( void)
 
 void banner( void)
 {
-    putstr("\n\n");
-    putchar('\f');
-
-    putstr("test.c");
+    putstr("\n\ntest.c");
 
     char *hw_revision = (char *)0x80000000;
 
@@ -898,7 +958,7 @@ int main(void)
 
     timer_init();
     uart_init();
-    //scheduler_init(); TODO
+    scheduler_init();
     //i2c_init();       TODO
     // enable timer interrupt, for scheduler
     set_bit( timer0->e[0].ctrl, TIMER_INT_ENABLE);
@@ -923,12 +983,25 @@ int main(void)
         putchar_fp = debug_putchar;
     }
 
+
     //////////////////////////////////////////////////////////// 
     // banner
     banner();
     #ifdef LCD_ENABLE
     lcd_string("init done.");
     #endif
+    
+    
+    //////////////////////////////////////////////////////////// 
+    // decide which main function to use
+    
+    if (!simulation_active) 
+    {
+        // active uart test
+        //uart_test();
+
+        uart_monitor();
+    }
     
 
     /*
@@ -985,16 +1058,20 @@ int main(void)
     //uint8_t i;
     //for ( i=0; i<3; i++)
     //    ether_test_tx_packet();
-    //ether_test_read_mdio();
-
-    //uart_test();
-    //uart_monitor();
     
+    ether_test_read_mdio();
+    
+    /*
+     *  test of scheduler with running light
+     */
+    scheduler_task_add( end_simulation_task, 2);
     running_light( simulation_active);
     
+    /*
+     *  simple gpio_test
+     */
     //gpio_test();
 
-    //puts("end.");
     abort();
     
 }

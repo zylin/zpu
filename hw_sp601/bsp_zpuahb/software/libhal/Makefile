@@ -9,8 +9,8 @@ DIR=..
 include include.mak
 
 
-C_FILES=hw.c common.c timer.c uart.c vga.c
-OBJECTS=hw.o common.o timer.o uart.o vga.o
+C_FILES=hw.c common.c timer.c uart.c vga.c schedule.c
+OBJECTS=hw.o common.o timer.o uart.o vga.o schedule.o
 INCLUDES=../include/peripherie.h
 
 

@@ -27,10 +27,12 @@ c_files  += main.c
 c_files  += $(lib_src)
 h_files = ../include/peripherie.h
 
+
 software: $(zpu_rom_vhdl) $(ahb_rom_vhdl)
 
 
-main.elf: libhal $(c_files) $(h_files) $(objs)
+main.elf: $(c_files) $(h_files) $(objs)
+	make --directory $(LIBDIR)
 	@# normal compile command (emulate instructions)
 	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) $(ldflags) -o $@ 
 
@@ -50,12 +52,6 @@ $(zpu_rom_vhdl): main.bin $(ZPU_ROM_GEN)
 $(ahb_rom_vhdl): main.bin $(AHB_ROM_GEN)
 	$(AHB_ROM_GEN) main.bin $(ahb_rom_vhdl)
 
-
-
-
-
-libhal:
-	make --directory $(DIR)/libhal
 
 $(startup:.S=.o): $(startup)
 	$(CC) -c $< -o $@
