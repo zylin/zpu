@@ -132,7 +132,7 @@ add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_crs
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_int
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_mdc
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_mdio
-add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_reset
+add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_reset_b
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_rxclk
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_rxctl_rxdv
 add wave -noupdate -group {Ethernet phy} /top_tb/tb_phy_rxd

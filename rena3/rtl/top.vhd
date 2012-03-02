@@ -234,7 +234,7 @@ entity top is
         phy_int                   : out   std_logic;
         phy_mdc                   : out   std_logic;
         phy_mdio                  : inout std_logic;
-        phy_reset                 : out   std_logic;
+        phy_reset_b               : out   std_logic;
         phy_rxclk                 : in    std_logic;
         phy_rxctl_rxdv            : in    std_logic;
         phy_rxd                   : in    std_logic_vector(7 downto 0);
@@ -662,7 +662,13 @@ begin
     gpioi.din(31)           <= simulation_active;
     -- gpio output pads
     -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led       <= box_i0_gpioo.dout(3  downto 0);
+    --gpio_led       <= box_i0_gpioo.dout(3  downto 0);
+    gpio_led(0)             <= box_i0_gpioo.dout(0);
+    gpio_led(1)             <= rena_debug.fast_trigger;
+    gpio_led(2)             <= rena_debug.slow_trigger;
+    gpio_led(3)             <= rena_debug.overflow;
+
+
     gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
     clk_adc_gpio   <= box_i0_gpioo.dout(30);
 
@@ -694,7 +700,7 @@ begin
     ethi.phyrstaddr <= "00111";
     ethi.edcladdr   <= (others => '0');
     -- out
-    phy_reset       <= '0';
+    phy_reset_b     <= '0';
     phy_int         <= 'Z';
     phy_txc_gtxclk  <= clk_gtx_125;
     phy_txd         <= box_i0_etho.txd;
@@ -1009,9 +1015,12 @@ begin
     chipscope_data(19)           <= rena3_controller_i0_out.tin;
     --
     chipscope_data(23 downto 20) <= rena_debug.state;
+    chipscope_data(24)           <= rena_debug.fast_trigger;
+    chipscope_data(25)           <= rena_debug.slow_trigger;
+    chipscope_data(26)           <= rena_debug.overflow;
     --
     --chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
-    chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
+    chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.ts;
     --
     chipscope_i0 : chipscope
         port map (

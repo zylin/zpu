@@ -295,7 +295,7 @@ package component_package is
             phy_int                   : out   std_logic;
             phy_mdc                   : out   std_logic;
             phy_mdio                  : inout std_logic;
-            phy_reset                 : out   std_logic;
+            phy_reset_b               : out   std_logic;
             phy_rxclk                 : in    std_logic;
             phy_rxctl_rxdv            : in    std_logic;
             phy_rxd                   : in    std_logic_vector(7 downto 0);

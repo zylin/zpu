@@ -169,7 +169,7 @@ architecture testbench of top_tb is
     signal   tb_PHY_INT                   : std_logic;
     signal   tb_PHY_MDC                   : std_logic;
     signal   tb_PHY_MDIO                  : std_logic;
-    signal   tb_PHY_RESET                 : std_logic;
+    signal   tb_PHY_RESET_B               : std_logic;
     signal   tb_PHY_RXCLK                 : std_logic;
     signal   tb_PHY_RXCTL_RXDV            : std_logic;
     signal   tb_PHY_RXD                   : std_logic_vector(7 downto 0);
@@ -443,7 +443,7 @@ begin
             PHY_INT                     => tb_PHY_INT,               --: out   std_logic;
             PHY_MDC                     => tb_PHY_MDC,               --: out   std_logic;
             PHY_MDIO                    => tb_PHY_MDIO,              --: inout std_logic;
-            PHY_RESET                   => tb_PHY_RESET,             --: out   std_logic;
+            PHY_RESET_B                 => tb_PHY_RESET_B,           --: out   std_logic;
             PHY_RXCLK                   => tb_PHY_RXCLK,             --: in    std_logic;
             PHY_RXCTL_RXDV              => tb_PHY_RXCTL_RXDV,        --: in    std_logic;
             PHY_RXD                     => tb_PHY_RXD,               --: in    std_logic_vector(7 downto 0);

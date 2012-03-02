@@ -167,7 +167,7 @@ entity top is
         phy_int                   : in    std_logic;
         phy_mdc                   : out   std_logic;
         phy_mdio                  : inout std_logic;
-        phy_reset                 : out   std_logic;
+        phy_reset_b               : out   std_logic;
         phy_rxclk                 : in    std_logic;
         phy_rxctl_rxdv            : in    std_logic;
         phy_rxd                   : in    std_logic_vector(7 downto 0);
@@ -324,7 +324,7 @@ begin
     --
     phy_mdc                  <= '0';
     phy_mdio                 <= 'Z';
-    phy_reset                <= '0';
+    phy_reset_b              <= '0';
     phy_txc_gtxclk           <= '0';
     phy_txctl_txen           <= '0';
     phy_txd                  <= (others => '1');

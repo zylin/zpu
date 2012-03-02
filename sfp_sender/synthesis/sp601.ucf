@@ -370,7 +370,7 @@ NET "PHY_CRS"                   LOC = "M13";
 NET "PHY_INT"                   LOC = "J13";
 NET "PHY_MDC"                   LOC = "N14" | SLEW = SLOW | DRIVE = 4;
 NET "PHY_MDIO"                  LOC = "P16" | SLEW = SLOW | DRIVE = 4;
-NET "PHY_RESET"                 LOC = "L13";
+NET "PHY_RESET_B"               LOC = "L13";
 NET "PHY_RXCLK"                 LOC = "L16";
 NET "PHY_RXCTL_RXDV"            LOC = "N18";
 NET "PHY_RXD<0>"                LOC = "M14";

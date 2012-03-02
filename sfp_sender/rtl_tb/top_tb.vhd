@@ -89,7 +89,7 @@ architecture testbench of top_tb is
     signal tb_phy_int                  : std_logic                    := '0';
     signal tb_phy_mdc                  : std_logic;
     signal tb_phy_mdio                 : std_logic;
-    signal tb_phy_reset                : std_logic;
+    signal tb_phy_reset_b              : std_logic;
     signal tb_phy_rxclk                : std_logic                    := '0';
     signal tb_phy_rxctl_rxdv           : std_logic                    := '0';
     signal tb_phy_rxd                  : std_logic_vector(7 downto 0);
@@ -283,7 +283,7 @@ begin
             phy_int                  => tb_phy_int,                -- : in    std_logic;
             phy_mdc                  => tb_phy_mdc,                -- : out   std_logic;
             phy_mdio                 => tb_phy_mdio,               -- : inout std_logic;
-            phy_reset                => tb_phy_reset,              -- : out   std_logic;
+            phy_reset_b              => tb_phy_reset_b,            -- : out   std_logic;
             phy_rxclk                => tb_phy_rxclk,              -- : in    std_logic;
             phy_rxctl_rxdv           => tb_phy_rxctl_rxdv,         -- : in    std_logic;
             phy_rxd                  => tb_phy_rxd,                -- : in    std_logic_vector(7 downto 0);

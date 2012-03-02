@@ -18,7 +18,7 @@ add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_mdio
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_txclk
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxclk
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_int
-add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_reset
+add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_reset_b
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_col
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_crs
 add wave -noupdate -expand -group PHY /top_tb/top_i0/phy_rxctl_rxdv

@@ -238,7 +238,7 @@ entity top is
         phy_int                   : out   std_logic;
         phy_mdc                   : out   std_logic;
         phy_mdio                  : inout std_logic;
-        phy_reset                 : out   std_logic;
+        phy_reset_b               : out   std_logic;
         phy_rxclk                 : in    std_logic;
         phy_rxctl_rxdv            : in    std_logic;
         phy_rxd                   : in    std_logic_vector(7 downto 0);
@@ -889,7 +889,7 @@ begin
     ethi.phyrstaddr <= "00111";
     ethi.edcladdr   <= (others => '0');
     -- out
-    phy_reset       <= '0';
+    phy_reset_b     <= '0';
     phy_int         <= 'Z';
     phy_txc_gtxclk  <= clk_gtx_125;
     phy_txd         <= box_i0_etho.txd;

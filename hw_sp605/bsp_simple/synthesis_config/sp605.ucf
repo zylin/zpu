@@ -400,7 +400,7 @@ NET "PHY_CRS"                       LOC = "N15";                       ## 115 on
 NET "PHY_INT"                       LOC = "J20";                       ## 32  on U46
 NET "PHY_MDC"                       LOC = "R19";                       ## 35  on U46
 NET "PHY_MDIO"                      LOC = "V20";                       ## 33  on U46
-NET "PHY_RESET"                     LOC = "J22";                       ## 36  on U46
+NET "PHY_RESET_B"                   LOC = "J22";                       ## 36  on U46
 NET "PHY_RXCLK"                     LOC = "P20" | TNM_NET = "PHY_CLK"; ## 7   on U46
 NET "PHY_RXCTL_RXDV"                LOC = "T22";                       ## 4   on U46
 NET "PHY_RXD<0>"                    LOC = "P19";                       ## 3   on U46
