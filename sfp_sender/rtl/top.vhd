@@ -752,8 +752,16 @@ begin
     ------------------------------------------------------------ 
     -- gpio output pads
     -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led       <= box_i0_gpioo.dout( 3 downto 0);
-    gpio_header_ls <= box_i0_gpioo.dout(15 downto 8);
+    gpio_led          <= box_i0_gpioo.dout( 3 downto 0);
+    --gpio_header_ls  <= box_i0_gpioo.dout(15 downto 8);
+    gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
+    gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
+    gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
+    gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
+    gpio_header_ls(4) <= box_i0_gpioo.dout(12) when box_i0_gpioo.oen(12) = '0' else 'Z';
+    gpio_header_ls(5) <= box_i0_gpioo.dout(13) when box_i0_gpioo.oen(13) = '0' else 'Z';
+    gpio_header_ls(6) <= box_i0_gpioo.dout(14) when box_i0_gpioo.oen(14) = '0' else 'Z';
+    gpio_header_ls(7) <= box_i0_gpioo.dout(15) when box_i0_gpioo.oen(15) = '0' else 'Z';
 
 
 

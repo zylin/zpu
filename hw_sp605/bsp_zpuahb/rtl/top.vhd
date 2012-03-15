@@ -1000,9 +1000,13 @@ begin
     ------------------------------------------------------------ 
     -- gpio output pads
     -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led       <= box_i0_gpioo.dout(3  downto 0);
-    gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
-    fpga_awake     <= testsignal_drain_i0_sig;
+    gpio_led          <= box_i0_gpioo.dout(3  downto 0);
+    --gpio_header_ls  <= box_i0_gpioo.dout(11 downto 8);
+    gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
+    gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
+    gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
+    gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
+    fpga_awake        <= testsignal_drain_i0_sig;
 
 
     ------------------------------------------------------------ 
