@@ -461,7 +461,7 @@ void gpio_test( void)
 // puts ethernet registers
 //
 
-void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
+void ether_mdio_write( uint16_t phy_addr, uint16_t reg_addr, uint16_t data)
 {
     loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
     ether0->mdio_control = (data << 16) | (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_WR;
