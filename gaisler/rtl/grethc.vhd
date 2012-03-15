@@ -2245,4 +2245,18 @@ begin
       port map(rst, clk, ahbmi2, ahbmo2, tmsto2, tmsti2);
   end generate;
   
+  -- added BLa
+  noedclmst : if edclsepahbg = 0 generate
+    ahbmo2.hbusreq <= '0';                 -- : std_ulogic;                    
+    ahbmo2.hlock   <= '0';                 -- : std_ulogic;                    
+    ahbmo2.htrans  <= (others => '0');     -- : std_logic_vector(1 downto 0);  
+    ahbmo2.haddr   <= (others => '0');     -- : std_logic_vector(31 downto 0); 
+    ahbmo2.hwrite  <= '0';                 -- : std_ulogic;                    
+    ahbmo2.hsize   <= (others => '0');     -- : std_logic_vector(2 downto 0);  
+    ahbmo2.hburst  <= (others => '0');     -- : std_logic_vector(2 downto 0);  
+    ahbmo2.hprot   <= (others => '0');     -- : std_logic_vector(3 downto 0);  
+    ahbmo2.hwdata  <= (others => '0');     -- : std_logic_vector(31 downto 0); 
+  end generate;
+  -- end added
+  
 end architecture;

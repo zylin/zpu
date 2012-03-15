@@ -317,6 +317,12 @@ begin
 -------------------------------------------------------------------------------
 -- EDCL buffer ram ------------------------------------------------------------
 -------------------------------------------------------------------------------
+  -- added BLa
+  no_edclram : if (edcl = 0) generate
+      erdata <= (others => '0');
+  end generate;
+  -- end added
+
   edclramnft : if (edcl /= 0) and (edclft = 0) generate
     r0 : syncram_2p generic map (memtech, eabits, 16) port map(
       clk, erenable, eraddress(eabits-1 downto 0), erdata(31 downto 16), clk,
