@@ -24,6 +24,7 @@ use unisim.vcomponents.ibufgds_diff_out;
 use unisim.vcomponents.ibufgds;
 use unisim.vcomponents.ibufds;
 use unisim.vcomponents.dcm_sp;
+use unisim.vcomponents.oddr2;
 use unisim.vcomponents.bufgmux;
 
 
@@ -247,7 +248,8 @@ architecture rtl of top is
     --
     signal sys_clk                            : std_ulogic;
     signal clk_box                            : std_ulogic;
-    signal clk_gtx_125                        : std_ulogic;
+    signal clk_gtx_125_p                      : std_ulogic;
+    signal clk_gtx_125_n                      : std_ulogic;
     --
     signal reset_shreg                        : std_ulogic_vector(3 downto 0) := (others => '1');
     signal reset                              : std_ulogic := '1';
@@ -278,15 +280,16 @@ begin
     -- clock stuff
     --
     clk_driver_b : block
-        signal clk_fb0           : std_ulogic;
-        signal dcm_sp_i0_clk0    : std_ulogic;
-        signal dcm_sp_i0_clkfx   : std_ulogic;
-        signal dcm_sp_i0_clkdv   : std_ulogic;
-        signal dcm_sp_i0_clkdv_n : std_ulogic;
+        signal clk_fb0            : std_ulogic;
+        signal dcm_sp_i0_clk0     : std_ulogic;
+        signal dcm_sp_i0_clkfx    : std_ulogic;
+        signal dcm_sp_i0_clkdv    : std_ulogic;
+        signal dcm_sp_i0_clkdv_n  : std_ulogic;
         --
-        signal clk_fb1           : std_ulogic;
-        signal dcm_sp_i1_clk0    : std_ulogic;
-        signal dcm_sp_i1_clkfx   : std_ulogic;
+        signal clk_fb1            : std_ulogic;
+        signal dcm_sp_i1_clk0     : std_ulogic;
+        signal dcm_sp_i1_clkfx    : std_ulogic;
+        signal dcm_sp_i1_clkfx180 : std_ulogic;
 
     begin
 
@@ -305,7 +308,7 @@ begin
         dcm_sp_i0: dcm_sp
             generic map (
                 clkin_divide_by_2 => false,
-                clkdv_divide      => 8.0,
+                clkdv_divide      => 2.0,
                 clkfx_multiply    => 3,
                 clkfx_divide      => 4,
                 clk_feedback      => "1x"
@@ -330,19 +333,23 @@ begin
             clk_feedback      => "1x"
         )
         port map (
-            clkin => sys_clk,
-            clk0  => dcm_sp_i1_clk0,
-            clkfx => dcm_sp_i1_clkfx,
-            clkfb => clk_fb1
+            clkin    => sys_clk,
+            clk0     => dcm_sp_i1_clk0,
+            clkfx    => dcm_sp_i1_clkfx,
+            clkfx180 => dcm_sp_i1_clkfx180,
+            clkfb    => clk_fb1
         );
         
         clk_fb1     <= dcm_sp_i1_clk0;
         
         -- resulting clocks
 
-        --clk_box     <= dcm_sp_i0_clk0;   -- 200 MHz, is to much
-        clk_box     <= dcm_sp_i1_clkfx;    -- 125 MHz
-        clk_gtx_125 <= dcm_sp_i1_clkfx;    -- 125 MHz
+        --clk_box     <= dcm_sp_i0_clk0;     -- 200 MHz, is to much
+        --clk_box     <= dcm_sp_i1_clkfx;    -- 125 MHz, is on the very edge
+        clk_box       <= dcm_sp_i0_clkdv;    -- 100 MHz
+
+        clk_gtx_125_p <= dcm_sp_i1_clkfx;    -- 125 MHz
+        clk_gtx_125_n <= dcm_sp_i1_clkfx180; -- 125 MHz
        
     end block;
 
@@ -362,12 +369,12 @@ begin
 
 
 
-
---  chipscope_i0 : chipscope
+--  not enough bram for chipscope :-/
+--  chipscope_i0 : entity work.chipscope
 --      port map (
---          clk  => adc_clk_buf,                          --: in std_ulogic;
---          data => adc_debug & x"00" & adc_data_16bit,   --: in std_ulogic_vector(31 downto 0);
---          trig => '1'                                   --: in std_ulogic
+--          clk  => phy_txclk,                            --: in std_ulogic;
+--          data => x"0000" & x"00" & std_ulogic_vector( box_i0_etho.txd),    --: in std_ulogic_vector(31 downto 0);
+--          trig => box_i0_etho.tx_en                     --: in std_ulogic
 --          );
 
 
@@ -499,9 +506,17 @@ begin
     gpioi.din(31)           <= simulation_active;
     -- output
     -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led       <= box_i0_gpioo.dout( 3 downto 0);
-    gpio_header_ls <= box_i0_gpioo.dout(15 downto 8);
-    fpga_awake     <= not box_i0_gpioo.dout( 0);
+    gpio_led          <= box_i0_gpioo.dout( 3 downto 0);
+    --gpio_header_ls  <= box_i0_gpioo.dout(15 downto 8);
+    --gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
+    --gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
+    --gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
+    --gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
+    --gpio_header_ls(4) <= box_i0_gpioo.dout(12) when box_i0_gpioo.oen(12) = '0' else 'Z';
+    --gpio_header_ls(5) <= box_i0_gpioo.dout(13) when box_i0_gpioo.oen(13) = '0' else 'Z';
+    --gpio_header_ls(6) <= box_i0_gpioo.dout(14) when box_i0_gpioo.oen(14) = '0' else 'Z';
+    --gpio_header_ls(7) <= box_i0_gpioo.dout(15) when box_i0_gpioo.oen(15) = '0' else 'Z';
+    fpga_awake        <= not box_i0_gpioo.dout( 0);
    
 
     ------------------------------------------------------------ 
@@ -559,7 +574,7 @@ begin
     ------------------------------------------------------------ 
     -- ethernet (10/100/1000)
     -- in
-    ethi.gtx_clk     <= clk_gtx_125;
+    ethi.gtx_clk     <= clk_gtx_125_p;
     ethi.rmii_clk    <= '0';
     ethi.tx_clk      <= phy_txclk;
     ethi.rx_clk      <= phy_rxclk;
@@ -568,22 +583,39 @@ begin
     ethi.rx_er       <= phy_rxer;
     ethi.rx_col      <= phy_col;
     ethi.rx_crs      <= phy_crs;
-    ethi.mdio_i      <= phy_mdio;
     ethi.mdint       <= '0';
     ethi.phyrstaddr  <= "00111";
     ethi.edcladdr    <= (others => '0');
     ethi.edclsepahb  <= '0';
     ethi.edcldisable <= '0';
     -- out
-    phy_reset_b      <= '1';
+    phy_reset_b      <= reset_n;
     phy_int          <= 'Z';
-    phy_txc_gtxclk   <= clk_gtx_125;
+    --phy_txc_gtxclk <= clk_gtx_125; -- use DDR-FF
     phy_txd          <= box_i0_etho.txd;
     phy_txctl_txen   <= box_i0_etho.tx_en;
     phy_txer         <= box_i0_etho.tx_er;
+
     phy_mdc          <= box_i0_etho.mdc;
     -- inout         
     phy_mdio         <= box_i0_etho.mdio_o when box_i0_etho.mdio_oe = '0' else 'Z';
+    ethi.mdio_i      <= phy_mdio;
+    -- clk out (with DDR-FF)
+    oddr2_i0: oddr2
+        generic map (
+            ddr_alignment => "C0",
+            srtype        => "ASYNC"
+        )
+        port map (
+            q   => phy_txc_gtxclk,
+            c0  => clk_gtx_125_p,
+            c1  => clk_gtx_125_n,
+            ce  => '1',
+            d0  => '1',
+            d1  => '0',
+            r   => '0',
+            s   => '0'
+        );
 
 
     ------------------------------------------------------------ 
@@ -619,6 +651,20 @@ begin
     -- pragma translate_off
     simulation_break <= box_i0_break;
     -- pragma translate_on
+
+
+
+    ------------------------------------------------------------ 
+    -- debugging
+    gpio_header_ls(0) <= box_i0_etho.txd(0);
+    gpio_header_ls(1) <= box_i0_etho.txd(1);
+    gpio_header_ls(2) <= box_i0_etho.txd(2);
+    gpio_header_ls(3) <= box_i0_etho.txd(3);
+    gpio_header_ls(4) <= phy_txclk;
+    gpio_header_ls(5) <= box_i0_etho.tx_en;
+    gpio_header_ls(6) <= box_i0_etho.mdc;
+    gpio_header_ls(7) <= box_i0_etho.mdio_o when box_i0_etho.mdio_o = '0' else phy_mdio;
+    ------------------------------------------------------------ 
 
     
 end architecture rtl;

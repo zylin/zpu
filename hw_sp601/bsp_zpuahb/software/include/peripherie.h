@@ -264,7 +264,7 @@ typedef struct {
 // hardware units
 
 // ZPU frequency
-#define F_CPU           (125000000)
+#define F_CPU           (100000000)
 
 // set min prescaler to ntimers+1
 #define TIMER_PRESCALER (8)

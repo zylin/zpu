@@ -20,6 +20,8 @@ gaisler   ../../../gaisler/rtl/ethcomp.vhd
 gaisler   ../../../gaisler/rtl/ethernet_mac.vhd
 gaisler   ../../../gaisler/rtl/gptimer.vhd
 gaisler   ../../../gaisler/rtl/greth.vhd
+gaisler   ../../../gaisler/rtl/grethm.vhd
+gaisler   ../../../gaisler/rtl/greth_gbit.vhd
 gaisler   ../../../gaisler/rtl/greth_pkg.vhd
 gaisler   ../../../gaisler/rtl/greth_rx.vhd
 gaisler   ../../../gaisler/rtl/greth_tx.vhd
@@ -74,12 +76,15 @@ tools     ../../../tools/rtl_tb/image_pkg.vhd
 work      ../rtl/box.vhd         
 work      ../rtl/top.vhd
 work      ../rtl/version.vhd
+work      ../rtl/chipscope.vhd
 work      ../rtl_tb/top_tb.vhd
+work      ../rtl_tb/phy.vhd
 zpu       ../../../zpu/rtl/dualport_ram_ahb_wrapper.vhd
 zpu       ../../../zpu/rtl/zpu_ahb.vhd
 zpu       ../../../zpu/rtl/zpu_bus_trace.vhd
 zpu       ../../../zpu/rtl/zpu_config.vhd
 zpu       ../../../zpu/rtl/zpu_core_medium.vhd
+zpu       ../../../zpu/rtl/zpu_core_small.vhd
 zpu       ../../../zpu/rtl/zpu_wrapper_package.vhd
 zpu       ../../../zpu/rtl/zpupkg.vhd
 zpu       ../../../zpu/rtl_tb/txt_util.vhd

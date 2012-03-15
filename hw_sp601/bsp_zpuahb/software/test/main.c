@@ -7,6 +7,8 @@
 #include <schedule.h>      // scheduler
 #include <lcd-routines.h>
 
+#define DEBUG_ON
+
 // no LCD on SP601
 //#define LCD_ENABLE
 
@@ -84,12 +86,14 @@ void running_light_init( void)
     gpio0->iodir      |= 0x000000FF;
     running_direction  = 0;
 
+    /*
     // enable interrupt on key west
     gpio0->irqpol      |= BUTTON_WEST; // 0=act_low, 1=act_high / 0=falling edge, 1=rising_edge
     gpio0->irqedge     |= BUTTON_WEST; // 0=level, 1=edge sensitive
     gpio0->irqmask     |= BUTTON_WEST; // set this after polarity and edge to avoid interrupt
 
     irqmp0->irq_mask   = BUTTON_WEST;  // enable global interrupts
+    */
 }
 
 
@@ -338,6 +342,9 @@ void quit_function( void);
 void help_function( void);
 
 void ether_test_read_mdio( void);
+void ether_test_tx_packet( void);
+void ether_test( void);
+void ether_init( void);
 
 
 //
@@ -352,14 +359,17 @@ void uart_monitor( void)
 
     monitor_init();
 
-    monitor_add_command("mem",   "like x",              x_function);
-    monitor_add_command("wmem",  "write word",          wmem_function);
-    monitor_add_command("x",     "eXamine memory",      x_function);
-    monitor_add_command("clear", "clear screen",        clear_function);
-    monitor_add_command("led",   "start LED test",      led_function);
-    monitor_add_command("mdio",  "read MDIO registers", ether_test_read_mdio);
-    monitor_add_command("quit",  "", quit_function);
-    monitor_add_command("help",  "", help_function);
+    monitor_add_command("mem",     "like x",               x_function);
+    monitor_add_command("wmem",    "write word",           wmem_function);
+    monitor_add_command("x",       "eXamine memory",       x_function);
+    monitor_add_command("clear",   "clear screen",         clear_function);
+    monitor_add_command("led",     "start LED test",       led_function);
+    monitor_add_command("mdio",    "read MDIO registers",  ether_test_read_mdio);
+    monitor_add_command("tx",      "transmit test packet", ether_test_tx_packet);
+    monitor_add_command("ethinfo", "greth info",           ether_test);
+    monitor_add_command("ethinit", "reinit ethernet",      ether_init);
+    monitor_add_command("quit",    "", quit_function);
+    monitor_add_command("help",    "", help_function);
 
     monitor_prompt();
 
@@ -518,7 +528,7 @@ void gpio_test( void)
 // puts ethernet registers
 //
 
-void ether_mdio_write( uint16_t data, uint16_t phy_addr, uint16_t reg_addr)
+void ether_mdio_write( uint16_t phy_addr, uint16_t reg_addr, uint16_t data)
 {
     loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
     ether0->mdio_control = (data << 16) | (phy_addr << 11) | (reg_addr << 6) | ETHER_MDIO_WR;
@@ -531,46 +541,85 @@ uint16_t ether_mdio_read( uint16_t phy_addr, uint16_t reg_addr)
     loop_until_bit_is_clear( ether0->mdio_control, ETHER_MDIO_BUSY);
     return (ether0->mdio_control >> 16);
 }
+
+
 void ether_init( void)
 {
+    uint16_t value;
     
     ether0->status  = 0xffffffff; // 0xffffffff is necessary to reset status
     ether0->mac_msb = 0x00000a00;
     ether0->mac_lsb = 0x2a0bfefb;
     ether0->control = ETHER_CONTROL_RESET;
     loop_until_bit_is_clear( ether0->control, ETHER_CONTROL_RESET);
-    ether_mdio_write( 0x1f, 0x00, 0x8000); // software reset
-    loop_until_bit_is_clear( ether_mdio_read( 0x1f, 0), ETHER_CONTROL_RESET);
-    ether_mdio_write( 0x1f, 0x00, 0x2180); // autoneg off, speed 100, full duplex, col test
+
+
+    /* code for Digilent S3500E
+    #define PHY_ADDRESS     0x1F
+    ether_mdio_write( PHY_ADDRESS,  0, 0x2180);    // autoneg off, speed 100, full duplex, col test
+    ether_mdio_write( PHY_ADDRESS,  0, (1 << 15));   // software reset
+    loop_until_bit_is_clear( ether_mdio_read( PHY_ADDRESS, 0), (1 << 15));
+    */
+
+    /*
+     * code for Marvel 88E111 on SP601 (and SP605?)
+     */
+
+    #define PHY_ADDRESS         7
+    
+    #define PHY_CONTROL         0
+    #define PHY_RESTART_AUTONEG 9
+    #define PHY_RESET           15
+
+    #define GBIT_CONTROL        9
+    #define GBIT_FULL_ADVERTISE 9
+    #define GBIT_HALF_ADVERTISE 8
+    
+    // wait until phy is ready
+    loop_until_bit_is_clear( ether_mdio_read( PHY_ADDRESS, PHY_CONTROL), (1 << PHY_RESET));
+
+    // don't advertise 1000MBit modes
+    // (usefull for 100MBit cores)
+    value = ether_mdio_read( PHY_ADDRESS, GBIT_CONTROL);
+    clear_bit( value, (1 << GBIT_HALF_ADVERTISE));
+    clear_bit( value, (1 << GBIT_FULL_ADVERTISE));
+    ether_mdio_write( PHY_ADDRESS, GBIT_CONTROL, value);
+  
+    // redo autonegotaion
+    value = ether_mdio_read( PHY_ADDRESS, PHY_CONTROL);
+    set_bit( value, (1 << PHY_RESTART_AUTONEG));
+    ether_mdio_write( PHY_ADDRESS, PHY_CONTROL, value);
 }
   
 
 void ether_test( void)
 {
     char str[20];
+    uint32_t         simulation_active;
+    simulation_active = bit_is_set(gpio0->iodata, (1<<31));
     
-    //sprintf( str, "%d", 15); // compiled library too big for ram
+    if (simulation_active)
+    {
+        // reset status (for simulation)
+        ether0->status     = 0xffffffff;
+        ether0->mac_msb    = 0xffff001b;
+        ether0->mac_lsb    = 0x21684b0a;
+        ether0->tx_pointer = 0x00001234;
+        ether0->rx_pointer = 0x00004321;
+    }
 
-    // reset status (for simulation)
-    ether0->status     = 0xffffffff;
-    ether0->mac_msb    = 0xffff001b;
-    ether0->mac_lsb    = 0x21684b0a;
-    ether0->tx_pointer = 0x00001234;
-    ether0->rx_pointer = 0x00004321;
-
-    uart_putstr( "\ngreth registers:");
-//  uart_putstr( "\ncontrol:      0x"); itoa( ether0->control,      str); uart_puthex(8, str);
-    uart_putstr( "\ncontrol:      0x"); uart_puthex( 32, ether0->control);
-    uart_putstr( "\nstatus:       0x"); uart_puthex( 32, ether0->status);
-    uart_putstr( "\nmac_msb:      0x"); uart_puthex( 32, ether0->mac_msb);
-    uart_putstr( "\nmac_lsb:      0x"); uart_puthex( 32, ether0->mac_lsb);
-    uart_putstr( "\nmdio_control: 0x"); uart_puthex( 32, ether0->mdio_control);
-    uart_putstr( "\ntx_pointer:   0x"); uart_puthex( 32, ether0->tx_pointer);
-    uart_putstr( "\nrx_pointer:   0x"); uart_puthex( 32, ether0->rx_pointer);
-    uart_putstr( "\nedcl_ip:      0x"); uart_puthex( 32, ether0->edcl_ip);
-    uart_putstr( "\nhash_msb:     0x"); uart_puthex( 32, ether0->hash_msb);
-    uart_putstr( "\nhash_lsb:     0x"); uart_puthex( 32, ether0->hash_lsb);
-    uart_putchar('\n');
+    putstr( "\ngreth registers:");
+    putstr( "\ncontrol:      0x"); puthex( 32, ether0->control);
+    putstr( "\nstatus:       0x"); puthex( 32, ether0->status);
+    putstr( "\nmac_msb:      0x"); puthex( 32, ether0->mac_msb);
+    putstr( "\nmac_lsb:      0x"); puthex( 32, ether0->mac_lsb);
+    putstr( "\nmdio_control: 0x"); puthex( 32, ether0->mdio_control);
+    putstr( "\ntx_pointer:   0x"); puthex( 32, ether0->tx_pointer);
+    putstr( "\nrx_pointer:   0x"); puthex( 32, ether0->rx_pointer);
+    putstr( "\nedcl_ip:      0x"); puthex( 32, ether0->edcl_ip);
+    putstr( "\nhash_msb:     0x"); puthex( 32, ether0->hash_msb);
+    putstr( "\nhash_lsb:     0x"); puthex( 32, ether0->hash_lsb);
+    putchar('\n');
 
 } 
 
@@ -590,12 +639,11 @@ void ether_test_read_mdio( void)
         for (mdio_reg=0; mdio_reg<32; mdio_reg++)
         {
             // skip some registers
-            if (mdio_reg==7)  mdio_reg=16;
-            if (mdio_reg==19) mdio_reg=20;
-            if (mdio_reg==24) mdio_reg=27;
+            if (mdio_reg == 11) mdio_reg=15;
+            //if (mdio_reg == 19) mdio_reg=20;
+            //if (mdio_reg == 24) mdio_reg=27;
             putstr("\n  reg: "); itoa( mdio_reg, str); putstr( str);
             putstr("-> 0x");       puthex( 16, ether_mdio_read( mdio_phy, mdio_reg));
-//          putstr("-> 0x");       puthex( 32, ether0->mdio_control);
         }
     }
 
@@ -655,14 +703,14 @@ void ether_test_tx_packet( void)
     mac_header->ip_header.fragment_offset = FLAG_DF | 0;
     mac_header->ip_header.ttl             = 255;
     mac_header->ip_header.protocol_id     = PROTOCOL_UDP;
-    mac_header->ip_header.checksum        = 0x6215;
-    mac_header->ip_header.source_ip       = (10<<24)+(0<<16)+(0<<8)+(2<<0);
-    mac_header->ip_header.dest_ip         = (10<<24)+(0<<16)+(0<<8)+(1<<0);
+    mac_header->ip_header.checksum        = 0x61b9;
+    mac_header->ip_header.source_ip       = (10<<24)+(0<<16)+(0<<8)+(20<<0);
+    mac_header->ip_header.dest_ip         = (10<<24)+(0<<16)+(0<<8)+(75<<0);
 
     mac_header->ip_header.udp_header.source_port = 5050;
     mac_header->ip_header.udp_header.dest_port   = 5050;
     mac_header->ip_header.udp_header.length      = data_length + 8;
-    mac_header->ip_header.udp_header.checksum    = 0xb8f7;
+    mac_header->ip_header.udp_header.checksum    = 0xb89b;
     
     
     // setup the descriptor
@@ -960,12 +1008,12 @@ int main(void)
     uart_init();
     scheduler_init();
     //i2c_init();       TODO
+    ether_init();
+
     // enable timer interrupt, for scheduler
     set_bit( timer0->e[0].ctrl, TIMER_INT_ENABLE);
 
-
     running_light_init();
-    //ether_init();
 
     if (!simulation_active) 
     {
@@ -982,7 +1030,6 @@ int main(void)
         // set to our output function
         putchar_fp = debug_putchar;
     }
-
 
     //////////////////////////////////////////////////////////// 
     // banner
@@ -1055,11 +1102,16 @@ int main(void)
     */
 
     //ether_test();
-    //uint8_t i;
-    //for ( i=0; i<3; i++)
-    //    ether_test_tx_packet();
+
+    // simulate tx package
+    uint8_t i;
+//  for ( i=0; i<3; i++)
+        ether_test_tx_packet();
     
+    /*
+    // simulate MDIO
     ether_test_read_mdio();
+    */
     
     /*
      *  test of scheduler with running light

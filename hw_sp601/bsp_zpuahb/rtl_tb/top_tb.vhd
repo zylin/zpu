@@ -114,21 +114,21 @@ architecture testbench of top_tb is
     signal   tb_gpio_switch               : std_logic_vector(3 downto 0); -- active high
     --
     -- Ethernet Gigabit PHY
-    signal   tb_PHY_COL                   : std_logic;
-    signal   tb_PHY_CRS                   : std_logic;
-    signal   tb_PHY_INT                   : std_logic;
-    signal   tb_PHY_MDC                   : std_logic;
-    signal   tb_PHY_MDIO                  : std_logic;
-    signal   tb_PHY_RESET_B               : std_logic;
-    signal   tb_PHY_RXCLK                 : std_logic;
-    signal   tb_PHY_RXCTL_RXDV            : std_logic;
-    signal   tb_PHY_RXD                   : std_logic_vector(7 downto 0);
-    signal   tb_PHY_RXER                  : std_logic;
-    signal   tb_PHY_TXCLK                 : std_logic;
-    signal   tb_PHY_TXCTL_TXEN            : std_logic;
-    signal   tb_PHY_TXC_GTXCLK            : std_logic;
-    signal   tb_PHY_TXD                   : std_logic_vector(7 downto 0);
-    signal   tb_PHY_TXER                  : std_logic;
+    signal   tb_phy_col                   : std_logic;
+    signal   tb_phy_crs                   : std_logic;
+    signal   tb_phy_int                   : std_logic;
+    signal   tb_phy_mdc                   : std_logic;
+    signal   tb_phy_mdio                  : std_logic;
+    signal   tb_phy_reset_b               : std_logic;
+    signal   tb_phy_rxclk                 : std_logic;
+    signal   tb_phy_rxctl_rxdv            : std_logic;
+    signal   tb_phy_rxd                   : std_logic_vector(7 downto 0);
+    signal   tb_phy_rxer                  : std_logic;
+    signal   tb_phy_txclk                 : std_logic;
+    signal   tb_phy_txctl_txen            : std_logic;
+    signal   tb_phy_txc_gtxclk            : std_logic;
+    signal   tb_phy_txd                   : std_logic_vector(7 downto 0);
+    signal   tb_phy_txer                  : std_logic;
     --
     --
     signal   tb_SPI_CS_B                  : std_logic;
@@ -308,21 +308,21 @@ begin
             gpio_switch               => tb_gpio_switch,                 --: in    std_logic_vector(3 downto 0); -- active high
             --
             -- Ethernet Gigabit PHY
-            PHY_COL                   => tb_PHY_COL,                     --: in    std_logic;
-            PHY_CRS                   => tb_PHY_CRS,                     --: in    std_logic;
-            PHY_INT                   => tb_PHY_INT,                     --: out   std_logic;
-            PHY_MDC                   => tb_PHY_MDC,                     --: out   std_logic;
-            PHY_MDIO                  => tb_PHY_MDIO,                    --: inout std_logic;
-            PHY_RESET_B               => tb_PHY_RESET_B,                 --: out   std_logic;
-            PHY_RXCLK                 => tb_PHY_RXCLK,                   --: in    std_logic;
-            PHY_RXCTL_RXDV            => tb_PHY_RXCTL_RXDV,              --: in    std_logic;
-            PHY_RXD                   => tb_PHY_RXD,                     --: in    std_logic_vector(7 downto 0);
-            PHY_RXER                  => tb_PHY_RXER,                    --: in    std_logic;
-            PHY_TXCLK                 => tb_PHY_TXCLK,                   --: in    std_logic;
-            PHY_TXCTL_TXEN            => tb_PHY_TXCTL_TXEN,              --: out   std_logic;
-            PHY_TXC_GTXCLK            => tb_PHY_TXC_GTXCLK,              --: out   std_logic;
-            PHY_TXD                   => tb_PHY_TXD,                     --: out   std_logic_vector(7 downto 0);
-            PHY_TXER                  => tb_PHY_TXER,                    --: out    std_logic;
+            phy_col                   => tb_phy_col,                     --: in    std_logic;
+            phy_crs                   => tb_phy_crs,                     --: in    std_logic;
+            phy_int                   => tb_phy_int,                     --: out   std_logic;
+            phy_mdc                   => tb_phy_mdc,                     --: out   std_logic;
+            phy_mdio                  => tb_phy_mdio,                    --: inout std_logic;
+            phy_reset_b               => tb_phy_reset_b,                 --: out   std_logic;
+            phy_rxclk                 => tb_phy_rxclk,                   --: in    std_logic;
+            phy_rxctl_rxdv            => tb_phy_rxctl_rxdv,              --: in    std_logic;
+            phy_rxd                   => tb_phy_rxd,                     --: in    std_logic_vector(7 downto 0);
+            phy_rxer                  => tb_phy_rxer,                    --: in    std_logic;
+            phy_txclk                 => tb_phy_txclk,                   --: in    std_logic;
+            phy_txctl_txen            => tb_phy_txctl_txen,              --: out   std_logic;
+            phy_txc_gtxclk            => tb_phy_txc_gtxclk,              --: out   std_logic;
+            phy_txd                   => tb_phy_txd,                     --: out   std_logic_vector(7 downto 0);
+            phy_txer                  => tb_phy_txer,                    --: out   std_logic;
             --
             --
             SPI_CS_B                  => tb_SPI_CS_B,                    --: in    std_logic;
@@ -354,6 +354,30 @@ begin
     tb_phy_rxer       <= 'H';              -- : out std_logic; 
     tb_phy_col        <= 'H';              -- : out std_logic;
     tb_phy_crs        <= 'H';              -- : out std_logic;
+    
+    phy_i0: entity work.phy
+        generic map (
+            address        => 7,  -- : integer range 0 to 31 := 0;
+            base1000_t_fd  => 1,  -- : integer range 0 to 1  := 1;
+            base1000_t_hd  => 1   -- : integer range 0 to 1  := 1;
+        ) 
+        port map (
+            simulation_run => simulation_run,
+            rstn           => tb_phy_reset_b,      -- : in std_logic;
+            mdio           => tb_phy_mdio,         -- : inout std_logic;
+            tx_clk         => tb_phy_txclk,        -- : out std_logic;
+            rx_clk         => tb_phy_rxclk,        -- : out std_logic; 
+            rxd            => tb_phy_rxd,          -- : out std_logic_vector(7 downto 0);   
+            rx_dv          => tb_phy_rxctl_rxdv,   -- : out std_logic; 
+            rx_er          => tb_phy_rxer,         -- : out std_logic; 
+            rx_col         => tb_phy_col,          -- : out std_logic;
+            rx_crs         => tb_phy_crs,          -- : out std_logic;
+            txd            => tb_phy_txd,          -- : in std_logic_vector(7 downto 0);   
+            tx_en          => tb_phy_txctl_txen,   -- : in std_logic; 
+            tx_er          => tb_phy_txer,         -- : in std_logic; 
+            mdc            => tb_phy_mdc,          -- : in std_logic;
+            gtx_clk        => tb_phy_txc_gtxclk    -- : in std_logic  
+        );
 
 
     -- predefined connections on fmc connector

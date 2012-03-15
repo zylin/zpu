@@ -3,7 +3,7 @@
 # this file is used both, by simulation and synthesis
 #
 
-target_dir = test
+target_dir = ethernet_speed
 
 all:
 	make --directory $(target_dir)

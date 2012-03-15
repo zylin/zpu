@@ -141,9 +141,9 @@ begin
             paddr       => 5,
             pirq        => 5,
             memtech     => inferred,
-            mdcscaler   => 8,
+            mdcscaler   => 20,
             enable_mdio => 1,
-            fifosize    => 8,
+            fifosize    => 32,
             nsync       => 1,
             phyrstadr   => 7         -- depends on used hardware
         )
@@ -165,8 +165,8 @@ begin
 
     --ahbmo(0) <= (ahbm_none); -- zpu_ahb_i0
     --ahbmo(1) <= (ahbm_none); -- greth_i0
-    ahbmo(2) <= (ahbm_none);
-    ahbmo(3) <= (ahbm_none);
+    ahbmo(2) <= ahbm_none;
+    ahbmo(3) <= ahbm_none;
     --
     --ahbso(0) <= (ahbs_none); -- apbctrl_i0
     --ahbso(1) <= (ahbs_none); -- ahbram_i0
@@ -183,6 +183,7 @@ begin
             timeout    => 11,
             disirq     => 0,    -- enable interrupt routing
             enbusmon   => 0,    -- enable bus monitor
+            rrobin     => 0,
             assertwarn => 1,    -- enable assertions for warnings
             asserterr  => 1     -- enable assertions for errors
         )
@@ -396,6 +397,7 @@ begin
     
     gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
+    gpti.wdogen <= '0'; -- watchdog enable
 
     gptimer_i0: gptimer
         generic map (
@@ -405,7 +407,7 @@ begin
             sepirq  => 0, -- use separate interupts for each timer
             sbits   => 8, -- prescaler bits
             ntimers => 2, -- number of timers
-            nbits   => 20 -- timer bits
+            nbits   => 24 -- timer bits
         )
         port map (
             rst     => box_reset_n,
