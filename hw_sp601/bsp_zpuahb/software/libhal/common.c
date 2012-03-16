@@ -106,12 +106,83 @@ unsigned char itoa( int z, char* Buffer )
 }
 
 
+void DecToString (unsigned char *str, unsigned int value, unsigned char max_chars, 
+                  unsigned char type)
+
+/*
+This function converts a decimal number into a string. 
+As it features some formatting, it can be used as a small 
+replacement for sprintf().
+
+str       = output string
+value     = input integer
+max_chars = number of output characters
+type      = type of leading characters (0='0', 1=' ' )
+
+Note: 
+For less memory consumption this implementaion can only handle integers.
+But if you adjust the type of the "value" and "factor" variables, this 
+function can easily handle bigger numbers than integer!
+
+written by Oliver Keller <oli@deswahnsinnsfettebeute.de>
+06.04.2004
+*/
+
+{
+  unsigned char i=0;
+  unsigned char digit_count=0;
+  unsigned char leading_count=0;  //number of _needed_  leading characters
+  unsigned int  factor=1;
+  unsigned char number=0;
+
+  while(value / factor){       
+    digit_count++;            //count digits
+    factor = factor * 10;      //calculate factor
+  }
+ 
+  factor /= 10;
+
+  if (digit_count)
+  leading_count=max_chars - digit_count;
+  else
+  leading_count=max_chars - digit_count - 1;
+
+  while(i < leading_count){      //fill up leading chars
+     if(type){
+       str[i++]=' ';  
+     }
+     else{
+       str[i++]='0';
+     }
+  }
+
+  if (digit_count){
+
+     while(factor){        //convert into chars
+  
+       number = value / factor; 
+       value %= factor;
+       factor /= 10;
+       str[i++] = number + 48;
+     }
+  }
+  else{
+   
+    str[i++]='0';        //keep at least one zero!
+
+  }
+
+  str[i++]='\0';
+
+}
+
 unsigned char putuint( unsigned long data)
 {
     char           str[20];
-    unsigned char  length;
+    unsigned char  length = 0;
 
-    length = utoa( data, str);
+    //length = utoa( data, str);
+    DecToString( str, data, 19, ' ');
     putstr( str);
     return length;
 }
@@ -157,7 +228,7 @@ unsigned char putfloat( float data)
 // (an integer with 3 significant digits after the point)
 void putpfloat( unsigned long data)
 {
-    putint( data/1000);
+    putint( (unsigned int)(data/1000));
     putchar( '.');
     putint( data%1000 );
 }
