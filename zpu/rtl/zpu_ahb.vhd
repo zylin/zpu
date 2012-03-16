@@ -68,6 +68,7 @@ architecture rtl of zpu_ahb is
     signal data_from_ahb        : std_ulogic_vector(31 downto 0);
     signal write_flag           : std_ulogic;
     signal mem_request          : std_ulogic;
+    signal mem_busy             : std_ulogic;
     signal mem_ack              : std_ulogic;
 
     -- zpu core connection signals
@@ -93,12 +94,14 @@ begin
                 write_flag          <= '0';
                 mem_request         <= '0';
                 mem_ack             <= '0';
+                mem_busy            <= '0';
 --              clk_en              <= '1';
                 if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                     state           <= ADDR_PHASE;
                     write_flag      <= out_mem_writeEnable;
                     data_to_ahb     <= mem_write;
                     mem_request     <= '1';
+                    mem_busy        <= '1';
                     --
                     ahbo.htrans     <= HTRANS_NONSEQ;
                     ahbo.hbusreq    <= '1';
@@ -117,6 +120,7 @@ begin
                     if ahbi.hgrant( hindex) = '0' then
                         save_state  <= state;
                         state       <= NOGRANT;
+                        mem_busy    <= '1';
                     end if;
                 end if;
 
@@ -142,12 +146,14 @@ begin
                     state           <= READY;
                     mem_request     <= '0';
                     mem_ack         <= '1';
+                    mem_busy        <= '0';
                     clk_en          <= '1';
                 
                     -- check if we have grant
                     if ahbi.hgrant( hindex) = '0' then
                         save_state  <= IDLE;
                         state       <= NOGRANT;
+                        mem_busy    <= '1';
                     end if;
 
                 end if;
@@ -162,6 +168,7 @@ begin
                     clk_en          <= '0';
                     state           <= WAIT_FOR_GRANT;
                     mem_request     <= '1';
+                    mem_busy        <= '1';
                     ahbo.hbusreq    <= '1';
                     ahbo.haddr      <= std_logic_vector( out_mem_addr);
                     write_flag      <= out_mem_writeEnable;
@@ -172,6 +179,7 @@ begin
                     state           <= save_state;
                     if (out_mem_readEnable = '1')  or  (out_mem_writeEnable = '1') then
                         clk_en          <= '1';
+                        mem_busy        <= '1';
                         state           <= ADDR_PHASE;
                         ahbo.htrans     <= HTRANS_NONSEQ;
                         ahbo.hwrite     <= write_flag;  
@@ -188,7 +196,6 @@ begin
                 end if;
 
         end case;
-
 
         if reset = '1' then
             state               <= IDLE;
@@ -258,7 +265,7 @@ begin
             clk_en              => clk_en_to_zpu,
             reset               => reset,
             --
-            in_mem_busy         => '0',
+            in_mem_busy         => mem_busy,
             mem_read            => mem_read,
             interrupt           => irq,
             --
@@ -279,7 +286,7 @@ begin
             clk_en              => clk_en_to_zpu,
             reset               => reset,
             --
-            in_mem_busy         => '0',
+            in_mem_busy         => mem_busy,
             mem_read            => mem_read,
             interrupt           => irq,
             --
