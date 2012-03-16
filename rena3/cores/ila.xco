@@ -1,7 +1,7 @@
 ##############################################################
 #
-# Xilinx Core Generator version 12.2
-# Date: Mon Aug 15 13:26:23 2011
+# Xilinx Core Generator version 13.3
+# Date: Fri Mar 09 07:09:43 2012
 #
 ##############################################################
 #
@@ -12,30 +12,36 @@
 #
 ##############################################################
 #
+#  Generated from component: xilinx.com:ip:chipscope_ila:1.05.a
+#
+##############################################################
+#
 # BEGIN Project Options
 SET addpads = false
 SET asysymbol = false
 SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = false
 SET designentry = VHDL
-SET device = xc6slx16
+SET device = xc6slx45t
 SET devicefamily = spartan6
-SET flowvendor = Other
+SET flowvendor = Foundation_ISE
 SET formalverification = false
 SET foundationsym = false
 SET implementationfiletype = Ngc
 SET package = csg324
 SET removerpms = false
-SET simulationfiles = Structural
+SET simulationfiles = Behavioral
 SET speedgrade = -2
 SET verilogsim = false
 SET vhdlsim = true
 # END Project Options
 # BEGIN Select
-SELECT ILA_(ChipScope_Pro_-_Integrated_Logic_Analyzer) family Xilinx,_Inc. 1.03.a
+SELECT ILA_(ChipScope_Pro_-_Integrated_Logic_Analyzer) family Xilinx,_Inc. 1.05.a
 # END Select
 # BEGIN Parameters
-CSET component_name=ila
+CSET check_bramcount=false
+CSET component_name=chipscope
+CSET constraint_type=embedded
 CSET counter_width_1=Disabled
 CSET counter_width_10=Disabled
 CSET counter_width_11=Disabled
@@ -54,8 +60,10 @@ CSET counter_width_8=Disabled
 CSET counter_width_9=Disabled
 CSET data_port_width=32
 CSET data_same_as_trigger=false
+CSET disable_save_keep=false
 CSET enable_storage_qualification=true
 CSET enable_trigger_output_port=false
+CSET example_design=false
 CSET exclude_from_data_storage_1=true
 CSET exclude_from_data_storage_10=true
 CSET exclude_from_data_storage_11=true
@@ -108,7 +116,7 @@ CSET max_sequence_levels=1
 CSET number_of_trigger_ports=1
 CSET sample_data_depth=1024
 CSET sample_on=Rising
-CSET trigger_port_width_1=1
+CSET trigger_port_width_1=8
 CSET trigger_port_width_10=8
 CSET trigger_port_width_11=8
 CSET trigger_port_width_12=8
@@ -124,7 +132,7 @@ CSET trigger_port_width_6=8
 CSET trigger_port_width_7=8
 CSET trigger_port_width_8=8
 CSET trigger_port_width_9=8
-CSET use_rpms=false
+CSET use_rpms=true
 # END Parameters
 GENERATE
-# CRC: abfb9cec
+# CRC: f8d9e277

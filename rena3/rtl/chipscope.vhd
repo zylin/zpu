@@ -11,7 +11,7 @@ entity chipscope is
     port (
         clk  : in std_ulogic;
         data : in std_ulogic_vector(31 downto 0);
-        trig : in std_ulogic
+        trig : in std_ulogic_vector(7 downto 0)
         );
 end entity chipscope;
 
@@ -32,11 +32,10 @@ architecture rtl of chipscope is
         control : inout std_logic_vector(35 downto 0);
         clk     : in    std_logic;
         data    : in    std_logic_vector(31 downto 0);
-        trig0   : in    std_logic_vector(0 downto 0));
+        trig0   : in    std_logic_vector(7 downto 0));
     end component;
 
     signal control : std_logic_vector(35 downto 0);
-    signal trig0   : std_logic_vector(0 downto 0);
 
 begin
 
@@ -47,14 +46,12 @@ begin
                 control0 => control
                 );
 
-        trig0(0) <= trig;
-
         ila_i0 : ila
             port map (
                 control => control,
                 clk     => clk,
                 data    => std_logic_vector( data),
-                trig0   => trig0
+                trig0   => std_logic_vector( trig)
                 );
     end generate synthesis_only;
 

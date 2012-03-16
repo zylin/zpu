@@ -371,13 +371,4 @@ package component_package is
     end component top;
 
 
-    component chipscope is
-        port (
-            clk  : in std_ulogic;
-            data : in std_ulogic_vector(31 downto 0);
-            trig : in std_ulogic
-        );
-    end component chipscope;
-
-
 end package component_package;
