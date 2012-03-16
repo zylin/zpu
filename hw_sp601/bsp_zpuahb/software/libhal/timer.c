@@ -33,16 +33,21 @@ void msleep(uint32_t msec)
 {
     uint32_t tcr;
 
-    // some values for 50MHz @ Spartan 3e
+    // some values for 50 MHz @ Spartan 3e
     // 1 msec    = 6250
     // 167 msec  = 2**20 (20 bit counter) 391 slices
     // 2684 msec = 2**24 (24 bit counter) 450 slices
     //           = 2**32 (32 bit counter) 572 slices
-    // some values for 52MHz @ Spartan 6
+    // some values for 52 MHz @ Spartan 6
     // 1 msec    = 6500
     // 161 msec  = 2**20 (20 bit counter)
     // 2581 msec = 2**24 (24 bit counter) 450 slices
     // 660 sec   = 2**32 (32 bit counter) 572 slices
+    // some values for 100 MHz @ Spartan 6
+    // 1 msec    = 12500
+    // 83 msec   = 2**20 (20 bit counter)
+    // 335 msec  = 2**22 (22 bit counter)
+    // 1342 msec = 2**24 (24 bit counter)
     timer0->e[0].reload = (F_CPU/TIMER_PRESCALER/1000)*msec;
     timer0->e[0].ctrl   = TIMER_ENABLE | TIMER_LOAD;
 
@@ -97,7 +102,10 @@ uint32_t get_time( void)
     TIMER_STOP;
 
     // combine values (seconds.milliseconds)
-    value = timer0->e[1].value * 1000 + timer0->e[0].value;
+    //value = timer0->e[1].value * 1000 + timer0->e[0].value;
+
+    // timer 1 ticks with milliseconds
+    value = timer0->e[1].value;
 
     TIMER_RUN;
 
