@@ -166,11 +166,11 @@ begin
             memtech     => inferred,
             mdcscaler   => 20,
             enable_mdio => 1,
-            fifosize    => 32,
+            fifosize    => 4,
             nsync       => 1,
             phyrstadr   => 7,        -- depends on used hardware
-            -- activate EDCL
-            edcl        => 1
+            -- deactivate EDCL
+            edcl        => 0
         )
         port map (
             rst         => reset_n,

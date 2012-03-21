@@ -76,6 +76,7 @@ uint32_t banner_help_function( void);
 
 uint32_t version_function( void);
 uint32_t rena_trouble( void);
+uint32_t rena_random_config_function( void);
 uint32_t rena_follow_mode_function( void);
 uint32_t rena_set_ecal_function( void);
 uint32_t ddsinit_function( void);
@@ -114,6 +115,26 @@ char debug_vga_putchar( char c)
 }
 
 
+uint8_t button_pressed( void)
+{
+    if bit_is_set( gpio0->iodata, BUTTON0)
+    {
+        return TRUE;
+    }
+    if bit_is_set( gpio0->iodata, BUTTON1)
+    {
+        return TRUE;
+    }
+    if bit_is_set( gpio0->iodata, BUTTON2)
+    {
+        return TRUE;
+    }
+    if bit_is_set( gpio0->iodata, BUTTON3)
+    {
+        return TRUE;
+    }
+    return FALSE;
+}
 
 //
 //  process serial commands
@@ -148,6 +169,7 @@ void uart_monitor( void)
     monitor_add_command(FWF_ROE_CMD_TOKEN,   "print sampled RENA tokens",             rena_read_token,              FWF_ROE_CMD_TOKEN_Code);
     
     monitor_add_command("trouble",           "<count> <time> troublesearch RENA",     rena_trouble,                 -1);
+    monitor_add_command("random",            "<count> <time> random config RENA",     rena_random_config_function,  -1);
 
     monitor_add_command(FWF_ROE_CMD_DDSINIT, "initalize DDS chip <freq tuning word>", ddsinit_function,             FWF_ROE_CMD_DDSINIT_Code);
     monitor_add_command("ddsinfo",           "read dds registers",                    ad9854_info,                  -1);
@@ -384,9 +406,11 @@ uint32_t rena_trouble( void)
     loop  = monitor_get_argument_int(1);
     value = monitor_get_argument_int(2);
     
+    
+    // trouble shoot for follower mode
     while (loop > 0)
     {
-        index = 20;
+        index = loop % 16;
         rena_powerdown_config_function();
 
         config_high = 
@@ -394,74 +418,127 @@ uint32_t rena_trouble( void)
             RENA_ECAL;
 
         config_low  = 
-            (3  << RENA_GAIN)  |
-            (0  << RENA_SEL)   |
+            (1   << RENA_GAIN)  |
+            RENA_RSEL_VREFHI        |
+            (10  << RENA_SEL)   |
+            (45 << RENA_DF)    | 
             RENA_POLNEG        |
             (45 << RENA_DS)    | 
-            RENA_ENS           |
+        //  RENA_ENS           |
             RENA_FM;
-        rena_channel_config( index, config_high, config_low);
+        //rena_channel_config( index, config_high, config_low);
+        rena_channel_config( index, 2, 1);
         rena_follow_mode( index);
-        usleep( 20);
+        usleep( 10);
         rena_testgen( RENA_TEST_POL_NEG, value);
+        usleep( 10);
         
         loop--;
     }
+        
    
-    /*
-        trouble shoote for follower mode
-    while (loop > 0)
-    {
-        for (index = 0; index < 35; index++)
-        {
-            rena_powerdown_config_function();
-            rena_set_ecal( index);
-            rena_follow_mode( index);
-            rena_testgen( RENA_TEST_POL_NEG, value);
-        }
-        loop--;
-    }
+   /*
+   // trouble shoot on acquire mode
     */
-    
-    /*
 
-#define DAC_SLOW (127)
-#define DAC_FAST (0)
-#define SEL      (15)
+/*
+#define DAC_SLOW (45)
+#define DAC_FAST (45)
+#define SEL      (12)
 #define GAIN     (3)
 
-    // acquire mode
+    uint8_t dac_value;
+
+    dac_value = 0;
+
     while (loop > 0)
     {
         rena_stop_function();
         rena_powerdown_config_function();
 
-        config_high = RENA_ECAL;
+        config_high = 
+            RENA_FB_TC              | 
+            RENA_ECAL               |
+            RENA_FPDWN;
         config_low  = 
             (GAIN     << RENA_GAIN) |
-            RENA_RANGE_15fF         |
+            RENA_RSEL_VREFHI        |
             (SEL      << RENA_SEL)  |
-            RENA_SIEZA_1000         |
             (DAC_FAST << RENA_DF)   | 
-            RENA_POLPOS             |
-            (value    << RENA_DS)   | 
-            //RENA_ENF                | 
-            RENA_ENS;
-        rena_channel_config( 0, config_high, config_low);
+            RENA_POLNEG             |
+            (DAC_SLOW << RENA_DS)   | 
+//          (dac_value << RENA_DS)  | 
+//          RENA_ENF                | 
+            RENA_ENS                |
+            RENA_FM;
+        rena_channel_config( dac_value, config_high, config_low);
     
-        rena->acquire_time   = 0;
-        rena->control_status = RENA_MODE_ACQUIRE;
+        //rena->acquire_time   = 0;
+        //rena->control_status = RENA_MODE_ACQUIRE;
+        
+        rena_follow_mode( index);
+        
+        usleep( 2);
 
-        rena_testgen( RENA_TEST_POL_NEG, 10);
+        rena_testgen( RENA_TEST_POL_NEG, value);
     
         usleep( 20);
 
-        rena_controller_status();
-        rena_status();
+        puthex( 8,  config_high); putchar(' ');
+        puthex( 32, config_low);  putchar(' ');
+        putint( dac_value);       putchar('\n');
+        dac_value = (dac_value < 35) ? dac_value + 1 : 0;
+
+        //rena_controller_status();
+        //rena_status();
 
         loop--;
     }
-    */
+*/
+    return( config_low);
+}
+
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
+uint32_t rena_random_config_function( void)
+{
+    uint8_t  index;
+    uint32_t value;
+    uint32_t config;
+    
+    uint8_t  config_high;
+    uint32_t config_low;
+
+
+    value = monitor_get_argument_int(1);
+        
+    rena->acquire_time   = 0;
+    
+    while ( ! button_pressed())
+    {
+        rena_stop_function();
+        rena_powerdown_config_function();
+
+        config_high = 
+            RENA_FB_TC              | 
+            RENA_ECAL;
+        config = get_time();
+        config_low  = 
+            config << RENA_DS       |
+            RENA_FM;
+        
+        rena_channel_config( 0, config_high, config_low);
+        rena_follow_mode( 0);
+        
+        usleep( 10);
+
+        rena_testgen( RENA_TEST_POL_NEG, value);
+    
+        usleep( 10);
+
+        putint( config); putchar('\n');
+    }
 
     return( config_low);
 }
@@ -519,8 +596,10 @@ int main(void)
     // enable timer interrupt, for scheduler
     set_bit( timer0->e[0].ctrl, TIMER_INT_ENABLE);
     
+    // set all rena registers to (zero/ power off)    
+    rena_powerdown_config_function();
     // init rena testgen polarity
-    rena_testgen( RENA_TEST_POL_NEG, 0);
+    rena_testgen( RENA_TEST_POL_NEG, 1);
 
 
     if (!simulation_active) {
@@ -555,20 +634,24 @@ int main(void)
 
 
     // configure rena
-    rena_channel_config(0, RENA_ECAL, RENA_ENF | RENA_ENS);
-//  rena_channel_config(1, RENA_ECAL, RENA_ENS);
+    /*
+    rena_channel_config( 0, 
+        RENA_FB_TC | RENA_ECAL, 
+        (3  << RENA_GAIN) | (12  << RENA_SEL) | RENA_POLNEG | (45 << RENA_DS) | RENA_ENS);
+    */
+    rena_channel_config( 35, RENA_ECAL, RENA_ENS);
 
-    // set additional acquire time (1000 ns)
-    rena->acquire_time = 100;
+    // set additional acquire time (100 ns)
+    rena->acquire_time = 0;
 
     // activate acquire
-    rena->control_status = 2;
+    rena->control_status = RENA_MODE_ACQUIRE;
 
     // generate some test pulse
-    usleep( 50);
-    rena_testgen( RENA_TEST_POL_NEG, 100);
-    usleep( 50);
-    rena_testgen( RENA_TEST_POL_POS, 100);
+    //usleep( 1);
+    rena_testgen( RENA_TEST_POL_NEG, 50);
+    usleep( 100);
+    rena_testgen( RENA_TEST_POL_POS, 20);
     usleep( 10);
 
     // wait till idle

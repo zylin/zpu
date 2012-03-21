@@ -33,7 +33,6 @@ use gaisler.memctrl.all; -- spimctrl types
 library work;
 use work.types_package.all;
 use work.component_package.box;
-use work.component_package.chipscope;
 
 
 entity top is
@@ -376,6 +375,8 @@ architecture rtl of top is
     signal adc_data                           : std_ulogic_vector(13 downto 0);
     signal adc_otr                            : std_ulogic;
     --
+    signal rena3_controller_i0_in_unsync      : rena3_controller_in_t;
+    signal rena3_controller_i0_in_ff          : rena3_controller_in_t;
     signal rena3_controller_i0_in             : rena3_controller_in_t;
     signal rena3_controller_i0_out            : rena3_controller_out_t;
     signal rena3_controller_i1_in             : rena3_controller_in_t;
@@ -383,7 +384,7 @@ architecture rtl of top is
     signal rena_debug                         : rena_debug_t;
     --
     signal chipscope_data                     : std_ulogic_vector(31 downto 0) := (others => '0');
-    signal chipscope_trigger                  : std_ulogic;
+    signal chipscope_trigger                  : std_ulogic_vector(7 downto 0)  := (others => '0');
 
 
 begin
@@ -401,13 +402,9 @@ begin
         --
         signal clk_fb1           : std_ulogic;
         signal dcm_sp_i1_clk0    : std_ulogic;
-        signal dcm_sp_i1_clk180  : std_ulogic;
+        signal dcm_sp_i1_clkfx   : std_ulogic;
         signal dcm_sp_i1_locked  : std_ulogic;
         signal dcm_sp_i1_status  : std_logic_vector(7 downto 0);
-        --
-        signal clk_fb2           : std_ulogic;
-        signal dcm_sp_i2_clk0    : std_ulogic;
-        signal dcm_sp_i2_clkfx   : std_ulogic;
     begin
 
         -- global differential input buffer 
@@ -433,7 +430,8 @@ begin
             clkin => sys_clk,
             clk0  => dcm_sp_i0_clk0,
             clkdv => dcm_sp_i0_clkdv,
-            clkfb => clk_fb0
+            clkfb => clk_fb0,
+            psen  => '0'
         );
         
         clk_fb0   <= dcm_sp_i0_clk0;
@@ -450,7 +448,7 @@ begin
 
         -- DCM for GTX clock (ethernet)
         -- todo: switch to PLL
-        dcm_sp_i2: dcm_sp
+        dcm_sp_i1: dcm_sp
         generic map (
             startup_wait      => true, -- wait with DONE till locked
             clkfx_multiply    => 5,
@@ -459,13 +457,14 @@ begin
         )
         port map (
             clkin => sys_clk,
-            clk0  => dcm_sp_i2_clk0,
-            clkfx => dcm_sp_i2_clkfx,
-            clkfb => clk_fb2
+            clk0  => dcm_sp_i1_clk0,
+            clkfx => dcm_sp_i1_clkfx,
+            clkfb => clk_fb1,
+            psen  => '0'
         );
         
-        clk_fb2     <= dcm_sp_i2_clk0;
-        clk_gtx_125 <= dcm_sp_i2_clkfx;
+        clk_fb1     <= dcm_sp_i1_clk0;
+        clk_gtx_125 <= dcm_sp_i1_clkfx;
 
     end block clk_driver_b;
 
@@ -669,8 +668,12 @@ begin
     gpio_led(3)             <= rena_debug.overflow;
 
 
-    gpio_header_ls <= box_i0_gpioo.dout(11 downto 8);
-    clk_adc_gpio   <= box_i0_gpioo.dout(30);
+    --gpio_header_ls   = box_i0_gpioo.dout(11 downto 8);
+    gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
+    gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
+    gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
+    gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
+    clk_adc_gpio      <= box_i0_gpioo.dout(30);
 
     
     ------------------------------------------------------------ 
@@ -917,7 +920,7 @@ begin
     port map (
         i  => fmc_la01_cc_p,
         ib => fmc_la01_cc_n,
-        o  => rena3_controller_i0_in.ts
+        o  => rena3_controller_i0_in_unsync.ts
     );
     obufds_i2 : obufds
     port map (
@@ -931,8 +934,8 @@ begin
         o  => fmc_la09_p,
         ob => fmc_la09_n
     );
-    rena3_controller_i0_in.sout     <= fmc_la13_p;
-    rena3_controller_i0_in.overflow <= fmc_la13_n;
+    rena3_controller_i0_in_unsync.sout     <= fmc_la13_p;
+    rena3_controller_i0_in_unsync.overflow <= fmc_la13_n;
     fmc_la17_cc_p <= rena3_controller_i0_out.cin;
     fmc_la17_cc_n <= rena3_controller_i0_out.clf;
     fmc_la23_p    <= rena3_controller_i0_out.fhrclk;
@@ -948,16 +951,20 @@ begin
     port map (
         i  => fmc_la06_p,
         ib => fmc_la06_n,
-        o  => rena3_controller_i0_in.tf
+        o  => rena3_controller_i0_in_unsync.tf
     );
-    rena3_controller_i0_in.tout     <= fmc_la10_p;
-    rena3_controller_i0_in.fout     <= fmc_la10_n;
+    rena3_controller_i0_in_unsync.tout     <= fmc_la10_p;
+    rena3_controller_i0_in_unsync.fout     <= fmc_la10_n;
     fmc_la14_p     <= rena3_controller_i0_out.cs_n;
     fmc_la14_n     <= rena3_controller_i0_out.cshift;
     fmc_la18_cc_p  <= rena3_controller_i0_out.tclk;
     fmc_la18_cc_n  <= rena3_controller_i0_out.read;
     fmc_la27_p     <= rena3_controller_i0_out.tin;
 
+
+    -- synchronizer (signals from rena)
+    rena3_controller_i0_in_ff <= rena3_controller_i0_in_unsync when rising_edge( clk_box);
+    rena3_controller_i0_in    <= rena3_controller_i0_in_ff     when rising_edge( clk_box);
 
     ------------------------------------------------------------ 
     -- ADC pads
@@ -1019,14 +1026,17 @@ begin
     chipscope_data(25)           <= rena_debug.slow_trigger;
     chipscope_data(26)           <= rena_debug.overflow;
     --
-    --chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.tf xor rena3_controller_i0_in.ts xor rena3_controller_i0_out.acquire;
-    chipscope_trigger            <= rena3_controller_i0_out.test xor rena3_controller_i0_in.ts;
+    chipscope_trigger(0)         <= rena3_controller_i0_out.test;
+    chipscope_trigger(1)         <= rena3_controller_i0_in.tf;
+    chipscope_trigger(2)         <= rena3_controller_i0_in.ts;
+    chipscope_trigger(3)         <= rena3_controller_i0_out.acquire;
+    chipscope_trigger(4)         <= rena3_controller_i0_out.cs_n;
     --
-    chipscope_i0 : chipscope
+    chipscope_i0 : entity work.chipscope
         port map (
             clk  => clk_box,                   --: in std_ulogic;
             data => chipscope_data,            --: in std_ulogic_vector(15 downto 0);
-            trig => chipscope_trigger          --: in std_ulogic
+            trig => chipscope_trigger          --: in std_ulogic_vector(7 downto 0)
             );
 
 end architecture rtl;

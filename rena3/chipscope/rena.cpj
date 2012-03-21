@@ -1,5 +1,5 @@
 #ChipScope Pro Analyzer Project File, Version 3.0
-#Thu Mar 08 18:12:19 CET 2012
+#Wed Mar 21 14:07:04 CET 2012
 deviceChain.deviceName0=System_ACE_CF
 deviceChain.deviceName1=XC6SLX45T
 deviceChain.iRLength0=8
@@ -33,8 +33,8 @@ unit.1.0.1.HEIGHT1=0.8102625
 unit.1.0.1.WIDTH1=1.0
 unit.1.0.1.X1=-0.0036845985
 unit.1.0.1.Y1=0.18973747
-unit.1.0.MFBitsA0=B
-unit.1.0.MFBitsB0=0
+unit.1.0.MFBitsA0=BXXXXXXX
+unit.1.0.MFBitsB0=00000000
 unit.1.0.MFCompareA0=0
 unit.1.0.MFCompareB0=999
 unit.1.0.MFCount=1
@@ -57,6 +57,8 @@ unit.1.0.TCOutputEnable0=0
 unit.1.0.TCOutputHigh0=1
 unit.1.0.TCOutputMode0=0
 unit.1.0.browser_tree_state<Data\ Port>=1
+unit.1.0.browser_tree_state<Trigger\ Ports>=1
+unit.1.0.browser_tree_state<TriggerPort0>=1
 unit.1.0.coretype=ILA
 unit.1.0.eventCount0=1
 unit.1.0.port.-1.b.0.alias=state
@@ -236,7 +238,7 @@ unit.1.0.port.-1.s.9.name=DataPort[9]
 unit.1.0.port.-1.s.9.orderindex=-1
 unit.1.0.port.-1.s.9.visible=1
 unit.1.0.port.0.b.0.alias=
-unit.1.0.port.0.b.0.channellist=0
+unit.1.0.port.0.b.0.channellist=0 1 2 3 4 5 6 7
 unit.1.0.port.0.b.0.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.b.0.name=TriggerPort0
 unit.1.0.port.0.b.0.orderindex=-1
@@ -249,12 +251,47 @@ unit.1.0.port.0.b.0.unsignedPrecision=0
 unit.1.0.port.0.b.0.unsignedScaleFactor=1.0
 unit.1.0.port.0.b.0.visible=1
 unit.1.0.port.0.buscount=1
-unit.1.0.port.0.channelcount=1
-unit.1.0.port.0.s.0.alias=
+unit.1.0.port.0.channelcount=8
+unit.1.0.port.0.s.0.alias=testpuls
 unit.1.0.port.0.s.0.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.0.name=TriggerPort0[0]
 unit.1.0.port.0.s.0.orderindex=-1
 unit.1.0.port.0.s.0.visible=1
+unit.1.0.port.0.s.1.alias=TF
+unit.1.0.port.0.s.1.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.1.name=TriggerPort0[1]
+unit.1.0.port.0.s.1.orderindex=-1
+unit.1.0.port.0.s.1.visible=1
+unit.1.0.port.0.s.2.alias=TS
+unit.1.0.port.0.s.2.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.2.name=TriggerPort0[2]
+unit.1.0.port.0.s.2.orderindex=-1
+unit.1.0.port.0.s.2.visible=1
+unit.1.0.port.0.s.3.alias=ACQUIRE
+unit.1.0.port.0.s.3.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.3.name=TriggerPort0[3]
+unit.1.0.port.0.s.3.orderindex=-1
+unit.1.0.port.0.s.3.visible=1
+unit.1.0.port.0.s.4.alias=CS_N
+unit.1.0.port.0.s.4.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.4.name=TriggerPort0[4]
+unit.1.0.port.0.s.4.orderindex=-1
+unit.1.0.port.0.s.4.visible=1
+unit.1.0.port.0.s.5.alias=
+unit.1.0.port.0.s.5.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.5.name=TriggerPort0[5]
+unit.1.0.port.0.s.5.orderindex=-1
+unit.1.0.port.0.s.5.visible=1
+unit.1.0.port.0.s.6.alias=
+unit.1.0.port.0.s.6.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.6.name=TriggerPort0[6]
+unit.1.0.port.0.s.6.orderindex=-1
+unit.1.0.port.0.s.6.visible=1
+unit.1.0.port.0.s.7.alias=
+unit.1.0.port.0.s.7.color=java.awt.Color[r\=0,g\=0,b\=124]
+unit.1.0.port.0.s.7.name=TriggerPort0[7]
+unit.1.0.port.0.s.7.orderindex=-1
+unit.1.0.port.0.s.7.visible=1
 unit.1.0.portcount=1
 unit.1.0.rep_trigger.clobber=1
 unit.1.0.rep_trigger.dir=D\:\\home\\bl5599

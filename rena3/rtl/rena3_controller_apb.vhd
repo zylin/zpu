@@ -72,6 +72,9 @@ architecture rtl of rena3_controller_apb is
         configure          : std_logic_vector(40 downto 0);
         bitindex           : integer range 0 to 40;
         acquire_time       : unsigned(31 downto 0);
+        fast_trigger       : std_ulogic;
+        slow_trigger       : std_ulogic;
+        overflow           : std_ulogic;
         channel_mask       : std_ulogic_vector(35 downto 0);
         force_mask         : std_ulogic_vector(35 downto 0);
         fast_chain         : std_ulogic_vector(35 downto 0);
@@ -98,6 +101,9 @@ architecture rtl of rena3_controller_apb is
         configure          => (others => '0'),
         bitindex           => 0,
         acquire_time       => (others => '0'),
+        fast_trigger       => '0',
+        slow_trigger       => '0',
+        overflow           => '0',
         channel_mask       => (others => '1'),
         force_mask         => (others => '0'),
         fast_chain         => (others => '0'),
@@ -161,9 +167,9 @@ begin
 
             -- rena state                // 0x04
             when "0001"  =>
-                v.readdata(0)  := v.rena_in.overflow;
-                v.readdata(1)  := v.rena_in.ts;
-                v.readdata(2)  := v.rena_in.tf;
+                v.readdata(0)  := v.overflow;
+                v.readdata(1)  := v.slow_trigger;
+                v.readdata(2)  := v.fast_trigger;
 
             -- config low                // 0x08
             when "0010"  =>
@@ -243,11 +249,13 @@ begin
                         when 2 =>
                             v.rena.clf           := '1';
                             v.rena.cls           := '1'; 
+                            v.rena.acquire       := '1';
                             v.timer              := 2;     -- 20 ns
                             v.state              := CLEAR;
 
                         when 9 =>
                             v.rena.cls           := '1';
+                            v.rena.acquire       := '1';
                             v.timer              := 2;     -- 20 ns for cls
                             v.fast_chain         := (others => '0');
                             v.slow_chain         := v.force_mask;
@@ -272,7 +280,7 @@ begin
                     v.configure(40 downto 32)    := v.writedata(8 downto 0);
                     v.bitindex                   := 40;
                     v.rena.cin                   := v.configure( v.bitindex);
---                  v.timer                      := 2;
+                    v.timer                      := 1;
                     v.state                      := CONFIGURE;
 
                 -- acquire time             0x10
@@ -371,16 +379,30 @@ begin
 
                 -- clear detector triggers
                 when CLEAR =>
-                    v.rena.clf              := '0'; 
+                    v.fast_trigger          := '0';
+                    v.overflow              := '0';
                     v.timer                 := 97;   -- 1000 ns 
                     v.state                 := DETECT;
 
                 -- wait for trigger event
                 when DETECT =>
+                    v.rena.clf              := '0'; 
                     v.rena.cls              := '0'; 
-                    v.rena.acquire          := '1';
+                    v.slow_trigger          := '0';
+                    
+                    -- detect trigger events
+                    if v.rena_in.ts = '1' then
+                        v.slow_trigger      := '1';
+                    end if;
+                    if v.rena_in.tf = '1' then
+                        v.fast_trigger      := '1';
+                    end if;
+                    if v.rena_in.overflow = '1' then
+                        v.overflow          := '1';
+                    end if;
+
                     -- event detected
-                    if (v.rena_in.ts = '1') or (v.rena_in.tf = '1') then
+                    if (v.slow_trigger = '1') or (v.fast_trigger = '1') then
                         v.state             := ACQUIRE;    
                     end if;
 
@@ -486,7 +508,7 @@ begin
 
 
                 when FOLLOW =>
-                    v.rena.acquire          := '1';
+                    v.rena.cls              := '0';
                     v.rena.read             := '1';
 
             end case;
@@ -546,6 +568,10 @@ begin
             when READLAG       => rena_debug.state <= x"8";
             when FOLLOW        => rena_debug.state <= x"9";
         end case;
+
+        rena_debug.fast_trigger <= v.fast_trigger;
+        rena_debug.slow_trigger <= v.slow_trigger;
+        rena_debug.overflow     <= v.overflow;
 
 
     end process;

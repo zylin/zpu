@@ -99,7 +99,10 @@ package types_package is
     
     ------------------------------------------------------------
     type rena_debug_t is record
-        state: std_ulogic_vector(3 downto 0);
+        state        : std_ulogic_vector(3 downto 0);
+        fast_trigger : std_ulogic;
+        slow_trigger : std_ulogic;
+        overflow     : std_ulogic;
     end record rena_debug_t;
 
 

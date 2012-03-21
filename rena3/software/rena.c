@@ -238,6 +238,8 @@ uint32_t rena_powerdown_config_function( void)
 */
 uint32_t rena_follow_mode( uint8_t channel)
 {
+    rena->control_status = RENA_MODE_IDLE;
+
     // decide which bit to set
     if (channel < 32)
     {
