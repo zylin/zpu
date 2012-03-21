@@ -199,7 +199,7 @@ uint32_t rena_demo_config_function( void)
         //RENA_ENF                | 
         RENA_ENS;
 
-    for( index = 0; index < 35; index++)
+    for( index = 0; index < 36; index++)
     {
         rena_channel_config( index, config_high, config_low);
     }
@@ -224,7 +224,7 @@ uint32_t rena_powerdown_config_function( void)
     config_low = 
         RENA_PDWN;
 
-    for( index = 0; index < 35; index++)
+    for( index = 0; index < 36; index++)
     {
         rena_channel_config( index, config_high, config_low);
     }
