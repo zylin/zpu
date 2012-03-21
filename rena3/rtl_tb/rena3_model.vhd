@@ -188,7 +188,7 @@ begin
             wait until falling_edge(CS);
             address_bits               := channel_configuration(40 downto 35);
             if is_x(address_bits) then
-                fprint( output, l, me_c & ": undefined address.");
+                fprint( output, l, me_c & ": undefined address.\n");
             else
                 address                    := to_integer(unsigned(address_bits));
                 fprint( output, l, "-------------- %30s --------------\n", me_c);
@@ -405,6 +405,7 @@ begin
     -- slow token register
     --------------------------------------------------------------------------------
     slow_token: block 
+        signal slow_trigger : std_ulogic;
     begin
 
         --------------------
@@ -414,21 +415,23 @@ begin
             triggers: for i in 0 to channels_c-1 loop
                 if channel_outp_array(i).slow_trigger = '1' then
                     slow_token_register(i) <= '1';
-                    TS_P                   <= '1';
-                    TS_N                   <= '0';
+                    slow_trigger           <= transport '1', '0' after 300 ns;
                 end if;
             end loop;
+            
             if rising_edge(SHRCLK) then
                 slow_token_register   <= slow_token_register(slow_token_register'high - 1 downto 0) & SIN;
             end if;
+            
             if (CLS_P = '1') and (CLS_N = '0') then
                 slow_token_register   <= (others => '0');
-                TS_P                  <= '0';
-                TS_N                  <= '1';
+                slow_trigger          <= '0';
             end if;
 
         end process;
         SOUT                          <= slow_token_register(slow_token_register'high);
+        TS_P <=     slow_trigger when ACQUIRE_P = '1' else 'Z';
+        TS_N <= not slow_trigger when ACQUIRE_P = '1' else 'Z';
 
 
     end block slow_token;
@@ -631,7 +634,7 @@ begin
                                   test               => TEST, 
                                   clear_fast_channel => CLF, 
                                   clear_slow_channel => CLS_P,
-                                  acquire            => ACQUIRE_N,
+                                  acquire            => ACQUIRE_P,
                                   vu                 => VU, 
                                   vv                 => VV);
         --------------------
