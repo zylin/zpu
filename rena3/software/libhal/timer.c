@@ -97,7 +97,8 @@ uint32_t get_time( void)
     TIMER_STOP;
 
     // combine values (seconds.milliseconds)
-    value = timer0->e[1].value * 1000 + timer0->e[0].value;
+    //value = timer0->e[1].value * 1000 + timer0->e[0].value;
+    value = timer0->e[1].value;
 
     TIMER_RUN;
 
