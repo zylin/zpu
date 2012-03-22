@@ -405,12 +405,12 @@ uint32_t rena_trouble( void)
 
     loop  = monitor_get_argument_int(1);
     value = monitor_get_argument_int(2);
+    index = monitor_get_argument_int(3);
     
     
     // trouble shoot for follower mode
-    while (loop > 0)
+    while ((loop > 0) && (! button_pressed()))
     {
-        index = loop % 16;
         rena_powerdown_config_function();
 
         config_high = 
@@ -418,20 +418,22 @@ uint32_t rena_trouble( void)
             RENA_ECAL;
 
         config_low  = 
-            (1   << RENA_GAIN)  |
-            RENA_RSEL_VREFHI        |
-            (10  << RENA_SEL)   |
-            (45 << RENA_DF)    | 
+            (0   << RENA_GAIN)  |
+            //RENA_RSEL_VREFHI    |
+            (0  << RENA_SEL)   |
             RENA_POLNEG        |
             (45 << RENA_DS)    | 
-        //  RENA_ENS           |
             RENA_FM;
-        //rena_channel_config( index, config_high, config_low);
-        rena_channel_config( index, 2, 1);
+        rena_channel_config( index, config_high, config_low);
+        usleep( 5);
         rena_follow_mode( index);
         usleep( 10);
         rena_testgen( RENA_TEST_POL_NEG, value);
         usleep( 10);
+        msleep( 100);
+
+        //index = (index < 5) ? index + 1 : 0;
+        //index = 5;
         
         loop--;
     }
@@ -599,7 +601,7 @@ int main(void)
     // set all rena registers to (zero/ power off)    
     rena_powerdown_config_function();
     // init rena testgen polarity
-    rena_testgen( RENA_TEST_POL_NEG, 1);
+    rena_testgen( RENA_TEST_POL_NEG, 0);
 
 
     if (!simulation_active) {
@@ -634,38 +636,15 @@ int main(void)
 
 
     // configure rena
-    /*
-    rena_channel_config( 0, 
-        RENA_FB_TC | RENA_ECAL, 
-        (3  << RENA_GAIN) | (12  << RENA_SEL) | RENA_POLNEG | (45 << RENA_DS) | RENA_ENS);
-    */
-    rena_channel_config( 35, RENA_ECAL, RENA_ENS);
-
-    // set additional acquire time (100 ns)
-    rena->acquire_time = 0;
-
-    // activate acquire
-    rena->control_status = RENA_MODE_ACQUIRE;
-
+    rena_set_ecal( 35);
+    rena_follow_mode ( 0);
+    
     // generate some test pulse
-    //usleep( 1);
-    rena_testgen( RENA_TEST_POL_NEG, 50);
-    usleep( 100);
+    usleep( 5);
+    rena_testgen( RENA_TEST_POL_NEG, 20);
+    usleep( 5);
     rena_testgen( RENA_TEST_POL_POS, 20);
     usleep( 10);
-
-    // wait till idle
-    while (rena->control_status != 0) {};
-    
-    putstr("tokens: ");
-    putint( rena->token_count);
-    putchar('\n');
-
- 
-
-    //rena_simulate_follower_mode();
-
-    rena_chains_function();
 
     // test of scheduler
 //  scheduler_task_add( end_simulation_task, 3);

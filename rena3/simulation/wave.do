@@ -132,7 +132,7 @@ add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_0_in
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r.rena
 add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask -radix hexadecimal}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}}} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
 add wave -noupdate -divider testgen
-add wave -noupdate /top_tb/top_i0/testgen
+add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_out.test
 add wave -noupdate -divider {analog -> ADC}
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/clk
 add wave -noupdate /top_tb/rena3_testboard_i0/adc_model_i0/analog_p

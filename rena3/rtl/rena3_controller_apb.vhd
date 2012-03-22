@@ -61,7 +61,7 @@ architecture rtl of rena3_controller_apb is
       0 => ahb_device_reg ( VENDOR, DEVICE, CONFIG, REVISION, INTR),
       1 => apb_iobar(paddr, pmask));
 
-    type state_t is (IDLE, CONFIGURE, CONFIGURE_END, CLEAR, DETECT, ACQUIRE, ANALYZE, DESIRE, READOUT, READLAG, FOLLOW);
+    type state_t is (IDLE, CONFIGURE, CONFIGURE_END, CLEAR, DETECT, ACQUIRE, ANALYZE, PRE_DESIRE, DESIRE, READOUT, READLAG, FOLLOW);
 
     type reg_t is record
         state              : state_t;
@@ -158,6 +158,7 @@ begin
                     when DETECT        => v.readdata := x"00000003";
                     when ACQUIRE       => v.readdata := x"00000004";
                     when ANALYZE       => v.readdata := x"00000005";
+                    when PRE_DESIRE    => v.readdata := x"00000006";
                     when DESIRE        => v.readdata := x"00000006";
                     when READOUT       => v.readdata := x"00000007";
                     when READLAG       => v.readdata := x"00000008";
@@ -255,13 +256,11 @@ begin
 
                         when 9 =>
                             v.rena.cls           := '1';
-                            v.rena.acquire       := '1';
+                            v.rena.fhrclk        := '1';
+                            v.rena.shrclk        := '1';
+
                             v.timer              := 2;     -- 20 ns for cls
-                            v.fast_chain         := (others => '0');
-                            v.slow_chain         := v.force_mask;
-                            v.bitindex           := 35;
-                            v.state              := DESIRE;
-                            v.state_after_desire := FOLLOW;
+                            v.state              := PRE_DESIRE;
 
                         when others =>
                             null;
@@ -438,11 +437,26 @@ begin
                             v.slow_trigger_chain := v.slow_chain;
                             v.fast_chain         := (v.fast_chain and v.channel_mask) or v.force_mask;
                             v.slow_chain         := (v.slow_chain and v.channel_mask) or v.force_mask;
+                            v.rena.fin           := v.fast_chain( v.fast_chain'high);
+                            v.rena.sin           := v.slow_chain( v.slow_chain'high);
                         end if;
                     end if;
 
-                when DESIRE =>
+                -- this state is only for follower mode
+                when PRE_DESIRE =>
+--                  v.rena.fin              := v.fast_chain( v.fast_chain'high);
+--                  v.rena.sin              := v.slow_chain( v.slow_chain'high);
                     v.rena.cls              := '0';  -- for follower mode
+                            
+                            v.fast_chain         := (others => '0');
+                            v.slow_chain         := v.force_mask;
+                            v.bitindex           := 36;
+
+                    v.timer                 := 2;
+                    v.state                 := DESIRE;
+                            v.state_after_desire := FOLLOW;
+
+                when DESIRE =>
                     v.rena.fin              := v.fast_chain( v.fast_chain'high);
                     v.rena.sin              := v.slow_chain( v.slow_chain'high);
                     if v.rena.fhrclk = '0' then
@@ -510,6 +524,7 @@ begin
                 when FOLLOW =>
                     v.rena.cls              := '0';
                     v.rena.read             := '1';
+                    v.rena.acquire          := '1';
 
             end case;
         else
@@ -563,6 +578,7 @@ begin
             when DETECT        => rena_debug.state <= x"3";
             when ACQUIRE       => rena_debug.state <= x"4";
             when ANALYZE       => rena_debug.state <= x"5";
+            when PRE_DESIRE    => rena_debug.state <= x"6";
             when DESIRE        => rena_debug.state <= x"6";
             when READOUT       => rena_debug.state <= x"7";
             when READLAG       => rena_debug.state <= x"8";
