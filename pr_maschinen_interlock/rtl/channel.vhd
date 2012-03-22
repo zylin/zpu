@@ -33,7 +33,7 @@ begin
 
     error_combined <= (not test_sps_in_n) or (not test_in_n) or (not error_in_n);
 
-    process (reset_n, clk)  --( channel_active_in, error_combined, clear, clear_sps, channel_active, channel_error, channel_ok)
+    process (reset_n, clk)
     begin
         if reset_n = '0' then
             channel_active <= '0';

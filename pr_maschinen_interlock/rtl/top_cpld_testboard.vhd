@@ -31,7 +31,7 @@ begin
 	 	  clk               => clk,                   --: in  std_ulogic;
         channel_active_in => dip_switch(3),         --: in  std_ulogic;
         error_in_n        => dip_switch_n(2),       --: in  std_ulogic; -- low active
-        test_in_n         => dip_switch_n(1),       --: in  std_ulogic; -- low active
+        test_in_n      => dip_switch_n(1),       --: in  std_ulogic; -- low active
         test_sps_in       => button(1),             --: in  std_ulogic;
         clear             => dip_switch(0),         --: in  std_ulogic;
         clear_sps         => button(0),             --: in  std_ulogic;
