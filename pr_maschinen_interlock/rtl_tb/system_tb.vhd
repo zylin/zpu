@@ -11,23 +11,23 @@ architecture testbench of system_tb is
     constant zeit : time := 10 ns;
         
 
-    signal simulation_active      : boolean := true;
-	signal tb_reset_n             : std_ulogic;
-    signal tb_clk                 : std_ulogic := '0';
-    signal tb_channel_active_in_n : std_ulogic_vector(16 downto 1) := (others => '1');
-    signal tb_error_in_n          : std_ulogic_vector(16 downto 1) := (others => '1');
-    signal tb_test_mt_in_n           : std_ulogic := '1';
-    signal tb_test_sps_in_n       : std_ulogic := '1';
-    signal tb_clear_mt_in_n             : std_ulogic := '1';
-    signal tb_clear_sps_in_n         : std_ulogic := '1';
+    signal simulation_active       : boolean := true;
+	signal tb_reset_n              : std_ulogic;
+    signal tb_clk                  : std_ulogic := '0';
+    signal tb_channel_active_in_n  : std_ulogic_vector(16 downto 1) := (others => '1');
+    signal tb_error_in             : std_ulogic_vector(16 downto 1) := (others => '0');
+    signal tb_test_mt_in_n         : std_ulogic := '1';
+    signal tb_test_sps_in_n        : std_ulogic := '1';
+    signal tb_clear_mt_in_n        : std_ulogic := '1';
+    signal tb_clear_sps_in_n       : std_ulogic := '1';
     --                            
-    signal tb_error_out_n           : std_ulogic_vector(16 downto 1);
-    signal tb_channel_ok_out      : std_ulogic_vector(16 downto 1);
-    signal tb_main_error_led_out_n      : std_ulogic;
-    signal tb_main_ok_led_out_n         : std_ulogic;
-    signal tb_main_opto_out         : std_ulogic;
-    signal tb_test_led1_n           : std_ulogic;
-    signal tb_test_led2_n           : std_ulogic;
+    signal tb_error_out_n          : std_ulogic_vector(16 downto 1);
+    signal tb_channel_ok_out       : std_ulogic_vector(16 downto 1);
+    signal tb_main_error_led_out_n : std_ulogic;
+    signal tb_main_ok_led_out_n    : std_ulogic;
+    signal tb_main_opto_out        : std_ulogic;
+    signal tb_test_led1_n          : std_ulogic;
+    signal tb_test_led2_n          : std_ulogic;
 
 begin
 
@@ -35,23 +35,23 @@ begin
 
     system_i0: entity work.system
     port map (
-		reset_n             => tb_reset_n,              --: in  std_ulogic;
-        clk                 => tb_clk,                  --: in  std_ulogic;
+		reset_n              => tb_reset_n,               --: in  std_ulogic;
+        clk                  => tb_clk,                   --: in  std_ulogic;
         --
-        channel_active_in_n => tb_channel_active_in_n,  --: in  std_ulogic_vector(16 downto 1);
-        error_in_n          => tb_error_in_n,           --: in  std_ulogic_vector(16 downto 1);
-        test_mt_in_n           => tb_test_mt_in_n,            --: in  std_ulogic;
-        test_sps_in_n       => tb_test_sps_in_n,        --: in  std_ulogic;
-        clear_mt_in_n             => tb_clear_mt_in_n,              --: in  std_ulogic;
-        clear_sps_in_n         => tb_clear_sps_in_n,          --: in  std_ulogic;
+        channel_active_in_n  => tb_channel_active_in_n,   --: in  std_ulogic_vector(16 downto 1);
+        error_in             => tb_error_in,              --: in  std_ulogic_vector(16 downto 1);
+        test_mt_in_n         => tb_test_mt_in_n,          --: in  std_ulogic;
+        test_sps_in_n        => tb_test_sps_in_n,         --: in  std_ulogic;
+        clear_mt_in_n        => tb_clear_mt_in_n,         --: in  std_ulogic;
+        clear_sps_in_n       => tb_clear_sps_in_n,        --: in  std_ulogic;
         --                  
-        main_error_led_out_n    => tb_main_error_led_out_n,       --: out std_ulogic;
-        main_ok_opto_out         => tb_main_opto_out,          --: out std_ulogic
-        main_ok_led_out_n         => tb_main_ok_led_out_n,          --: out std_ulogic
-        channel_ok_out      => tb_channel_ok_out,       --: out std_ulogic_vector(16 downto 1);
-        error_out_n           => tb_error_out_n,            --: out std_ulogic_vector(16 downto 1);
-        test_led1_n   => tb_test_led1_n,                                  --: out std_ulogic;
-        test_led2_n   => tb_test_led2_n                                   --: out std_ulogic
+        main_error_led_out_n => tb_main_error_led_out_n,  --: out std_ulogic;
+        main_ok_opto_out     => tb_main_opto_out,         --: out std_ulogic
+        main_ok_led_out_n    => tb_main_ok_led_out_n,     --: out std_ulogic
+        channel_ok_out       => tb_channel_ok_out,        --: out std_ulogic_vector(16 downto 1);
+        error_out_n          => tb_error_out_n,           --: out std_ulogic_vector(16 downto 1);
+        test_led1_n          => tb_test_led1_n,           --: out std_ulogic;
+        test_led2_n          => tb_test_led2_n            --: out std_ulogic
     );
 
     process
