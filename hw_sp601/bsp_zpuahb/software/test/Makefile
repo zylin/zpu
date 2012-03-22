@@ -37,6 +37,7 @@ main.elf: $(c_files) $(h_files) $(objs)
 	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) $(ldflags) -o $@ 
 
 	$(SIZE) $@
+	print_mem_zpu.sh $@
 	$(OBJDUMP) -D -S $@ > main.lst
 
 %.bin: %.elf

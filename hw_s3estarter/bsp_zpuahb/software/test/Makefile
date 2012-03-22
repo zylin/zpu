@@ -31,6 +31,7 @@ test.bin: $(c_files) $(h_files)
 	@#zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -abel crt0_phi.S $(c_files) -o test.elf -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L../libhal -nostdlib 
 
 	zpu-elf-size test.elf
+	print_mem_zpu.sh test.elf
 	zpu-elf-objdump -D -S test.elf > test.lst
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary test.elf test.bin
 

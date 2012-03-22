@@ -48,6 +48,7 @@ main.bin: $(c_files) $(h_files) $(objs)
 	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi $(c_files) $(ldflags) -o main.elf 
 
 	zpu-elf-size main.elf
+	print_mem_zpu.sh main.elf
 	zpu-elf-objdump -D -S main.elf > main.lst
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary main.elf main.bin
 

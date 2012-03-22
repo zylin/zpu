@@ -17,6 +17,7 @@ all: libhal $(test_vhdl)
 	$(CC) $(COMPILER_OPTIONS) -O3 -phi $(c_files) -o $@ -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-L$(LIBDIR) -g | ccze -A
 	$(OBJDUMP) -D -S $@ > greth.lst
 	$(SIZE) $@
+	print_mem_zpu.sh $@
 
 %.bin: %.elf
 	$(OBJCOPY) $(OBJCOPY_OPTIONS) -O binary $< $@  
