@@ -1,30 +1,7 @@
---------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   15:30:17 06/28/2010
--- Design Name:   
--- Module Name:   D:/home/bl5599/projects/sr/sr_tb.vhd
--- Project Name:  sr
--- Target Device:  
--- Tool versions:  
--- Description:   
 -- 
 -- VHDL Test Bench Created by ISE for module: sr
--- 
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
 --
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends
--- that these types always be used for the top-level I/O of a design in order
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -35,7 +12,6 @@ end sr_tb;
 architecture testbench of sr_tb is 
  
     -- component declaration for the unit under test (uut)
- 
     component sr
         generic (
             port_count_in  : positive := 4;
@@ -89,7 +65,7 @@ begin
       latch_or_shift <= '0';
 
       report "shift" severity note;
-      di  <= '1';
+      sdi  <= '1';
       for i in 1 to 10 loop
           -- clocking;
           clk <= '1';
