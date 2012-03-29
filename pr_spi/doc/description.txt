@@ -1,0 +1,6 @@
+Nachbildung von 74HC595 und 74HC165 im CPLD
+
+(SPI-Schieberegister)
+
+kommen ursprüglich zum Einsatz für SSIO-Mode der Hilscher-ProfiNET-Briefmarken
+
