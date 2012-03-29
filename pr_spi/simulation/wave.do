@@ -7,6 +7,8 @@ add wave -noupdate -divider SPI
 add wave -noupdate /top_tb/tb_ssio_do
 add wave -noupdate /top_tb/tb_ssio_clk
 add wave -noupdate /top_tb/tb_ssio_lo
+add wave -noupdate /top_tb/tb_ssio_di
+add wave -noupdate /top_tb/tb_ssio_li
 add wave -noupdate -divider <NULL>
 add wave -noupdate -expand /top_tb/tb_button_n
 add wave -noupdate /top_tb/tb_dip_switch_n
@@ -28,4 +30,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits us
 update
-WaveRestoreZoom {329013539652 ps} {373694390716 ps}
+WaveRestoreZoom {486107784431 ps} {664831188687 ps}

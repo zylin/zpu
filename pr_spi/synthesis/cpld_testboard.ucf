@@ -23,3 +23,6 @@ NET button_n<1>         LOC = P44;
 NET ssio_do             LOC = P7;
 NET ssio_clk            LOC = P8;
 NET ssio_lo             LOC = P9;
+
+NET ssio_di             LOC = P13;
+NET ssio_li             LOC = P14;
