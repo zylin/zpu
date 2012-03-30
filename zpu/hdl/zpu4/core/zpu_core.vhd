@@ -79,48 +79,48 @@ entity zpu_core is
     );
 end zpu_core;
 
+
 architecture behave of zpu_core is
 
   type InsnType is (
-    State_AddTop,
-    State_Dup,
-    State_DupStackB,
-    State_Pop,
-    State_Popdown,
-    State_Add,
-    State_Or,
-    State_And,
-    State_Store,
-    State_AddSP,
-    State_Shift,
-    State_Nop,
-    State_Im,
-    State_LoadSP,
-    State_StoreSP,
-    State_Emulate,
-    State_Load,
-    State_PushPC,
-    State_PushSP,
-    State_PopPC,
-    State_PopPCRel,
-    State_Not,
-    State_Flip,
-    State_PopSP,
-    State_Neqbranch,
-    State_Eq,
-    State_Loadb,
-    State_Mult,
-    State_Lessthan,
-    State_Lessthanorequal,
-    State_Ulessthanorequal,
-    State_Ulessthan,
-    State_Pushspadd,
-    State_Call,
-    State_Callpcrel,
-    State_Sub,
-    State_Break,
-    State_Storeb,
-    State_InsnFetch
+    Insn_AddTop,
+    Insn_Dup,
+    Insn_DupStackB,
+    Insn_Pop,
+    Insn_PopDown,
+    Insn_Add,
+    Insn_Or,
+    Insn_And,
+    Insn_Store,
+    Insn_AddSP,
+    Insn_Shift,
+    Insn_Nop,
+    Insn_Im,
+    Insn_LoadSP,
+    Insn_StoreSP,
+    Insn_Emulate,
+    Insn_Load,
+    Insn_PushSP,
+    Insn_PopPC,
+    Insn_PopPCrel,
+    Insn_Not,
+    Insn_Flip,
+    Insn_PopSP,
+    Insn_Neqbranch,
+    Insn_Eq,
+    Insn_Loadb,
+    Insn_Mult,
+    Insn_Lessthan,
+    Insn_Lessthanorequal,
+    Insn_Ulessthanorequal,
+    Insn_Ulessthan,
+    Insn_PushSPadd,
+    Insn_Call,
+    Insn_CallPCrel,
+    Insn_Sub,
+    Insn_Break,
+    Insn_Storeb,
+    Insn_InsnFetch
     );
 
   type StateType is (
@@ -189,7 +189,6 @@ architecture behave of zpu_core is
 
 
 
-
   signal begin_inst        : std_logic;
   signal trace_opcode      : std_logic_vector(7 downto 0);
   signal trace_pc          : std_logic_vector(maxAddrBitIncIO downto 0);
@@ -235,7 +234,7 @@ begin
     variable spOffset       : unsigned(4 downto 0);
     variable tSpOffset      : unsigned(4 downto 0);
     variable nextPC         : unsigned(maxAddrBitIncIO downto 0);
-    variable tNextState     : InsnType;
+    variable tNextInsn      : InsnType;
     variable tDecodedOpcode : InsnArray;
     variable tMultResult    : unsigned(wordSize*2-1 downto 0);
   begin
@@ -253,7 +252,7 @@ begin
       multA           <= (others => '0');
       multB           <= (others => '0');
       mem_writeMask   <= (others => '1');
-    elsif (clk'event and clk = '1') then
+    elsif rising_edge(clk) then
       -- we must multiply unconditionally to get pipelined multiplication
       tMultResult := multA * multB;
       multResult3 <= multResult2;
@@ -366,99 +365,99 @@ begin
 
             opcode(i) <= tOpcode;
             if (tOpcode(7 downto 7) = OpCode_Im) then
-              tNextState := State_Im;
+              tNextInsn := Insn_Im;
             elsif (tOpcode(7 downto 5) = OpCode_StoreSP) then
               if tSpOffset = 0 then
-                tNextState := State_Pop;
+                tNextInsn := Insn_Pop;
               elsif tSpOffset = 1 then
-                tNextState := State_PopDown;
+                tNextInsn := Insn_PopDown;
               else
-                tNextState := State_StoreSP;
+                tNextInsn := Insn_StoreSP;
               end if;
             elsif (tOpcode(7 downto 5) = OpCode_LoadSP) then
               if tSpOffset = 0 then
-                tNextState := State_Dup;
+                tNextInsn := Insn_Dup;
               elsif tSpOffset = 1 then
-                tNextState := State_DupStackB;
+                tNextInsn := Insn_DupStackB;
               else
-                tNextState := State_LoadSP;
+                tNextInsn := Insn_LoadSP;
               end if;
             elsif (tOpcode(7 downto 5) = OpCode_Emulate) then
-              tNextState := State_Emulate;
+              tNextInsn := Insn_Emulate;
               if tOpcode(5 downto 0) = OpCode_Neqbranch then
-                tNextState := State_Neqbranch;
+                tNextInsn := Insn_Neqbranch;
               elsif tOpcode(5 downto 0) = OpCode_Eq then
-                tNextState := State_Eq;
+                tNextInsn := Insn_Eq;
               elsif tOpcode(5 downto 0) = OpCode_Lessthan then
-                tNextState := State_Lessthan;
+                tNextInsn := Insn_Lessthan;
               elsif tOpcode(5 downto 0) = OpCode_Lessthanorequal then
-                --tNextState :=State_Lessthanorequal;
+                --tNextInsn :=Insn_Lessthanorequal;
               elsif tOpcode(5 downto 0) = OpCode_Ulessthan then
-                tNextState := State_Ulessthan;
+                tNextInsn := Insn_Ulessthan;
               elsif tOpcode(5 downto 0) = OpCode_Ulessthanorequal then
-                --tNextState :=State_Ulessthanorequal;
+                --tNextInsn :=Insn_Ulessthanorequal;
               elsif tOpcode(5 downto 0) = OpCode_Loadb then
-                tNextState := State_Loadb;
+                tNextInsn := Insn_Loadb;
               elsif tOpcode(5 downto 0) = OpCode_Mult then
-                tNextState := State_Mult;
+                tNextInsn := Insn_Mult;
               elsif tOpcode(5 downto 0) = OpCode_Storeb then
-                tNextState := State_Storeb;
+                tNextInsn := Insn_Storeb;
               elsif tOpcode(5 downto 0) = OpCode_Pushspadd then
-                tNextState := State_Pushspadd;
+                tNextInsn := Insn_PushSPadd;
               elsif tOpcode(5 downto 0) = OpCode_Callpcrel then
-                tNextState := State_Callpcrel;
+                tNextInsn := Insn_CallPCrel;
               elsif tOpcode(5 downto 0) = OpCode_Call then
-                                        --tNextState :=State_Call;
+                --tNextInsn :=Insn_Call;
               elsif tOpcode(5 downto 0) = OpCode_Sub then
-                tNextState := State_Sub;
+                tNextInsn := Insn_Sub;
               elsif tOpcode(5 downto 0) = OpCode_PopPCRel then
-                                        --tNextState :=State_PopPCRel;
+                --tNextInsn :=Insn_PopPCrel;
               end if;
             elsif (tOpcode(7 downto 4) = OpCode_AddSP) then
               if tSpOffset = 0 then
-                tNextState := State_Shift;
+                tNextInsn := Insn_Shift;
               elsif tSpOffset = 1 then
-                tNextState := State_AddTop;
+                tNextInsn := Insn_AddTop;
               else
-                tNextState := State_AddSP;
+                tNextInsn := Insn_AddSP;
               end if;
             else
               case tOpcode(3 downto 0) is
                 when OpCode_Nop =>
-                  tNextState := State_Nop;
+                  tNextInsn := Insn_Nop;
                 when OpCode_PushSP =>
-                  tNextState := State_PushSP;
+                  tNextInsn := Insn_PushSP;
                 when OpCode_PopPC =>
-                  tNextState := State_PopPC;
+                  tNextInsn := Insn_PopPC;
                 when OpCode_Add =>
-                  tNextState := State_Add;
+                  tNextInsn := Insn_Add;
                 when OpCode_Or =>
-                  tNextState := State_Or;
+                  tNextInsn := Insn_Or;
                 when OpCode_And =>
-                  tNextState := State_And;
+                  tNextInsn := Insn_And;
                 when OpCode_Load =>
-                  tNextState := State_Load;
+                  tNextInsn := Insn_Load;
                 when OpCode_Not =>
-                  tNextState := State_Not;
+                  tNextInsn := Insn_Not;
                 when OpCode_Flip =>
-                  tNextState := State_Flip;
+                  tNextInsn := Insn_Flip;
                 when OpCode_Store =>
-                  tNextState := State_Store;
+                  tNextInsn := Insn_Store;
                 when OpCode_PopSP =>
-                  tNextState := State_PopSP;
+                  tNextInsn := Insn_PopSP;
                 when others =>
-                  tNextState := State_Break;
+                  tNextInsn := Insn_Break;
 
               end case; -- tOpcode(3 downto 0)
             end if; -- tOpcode
-            tDecodedOpcode(i) := tNextState;
+            tDecodedOpcode(i) := tNextInsn;
             
           end loop; -- 0 to wordBytes-1
 
           insn <= tDecodedOpcode(to_integer(pc(byteBits-1 downto 0)));
 
           -- once we wrap, we need to fetch
-          tDecodedOpcode(0) := State_InsnFetch;
+          tDecodedOpcode(0) := Insn_InsnFetch;
 
           decodedOpcode <= tDecodedOpcode;
           state         <= State_Execute;
@@ -468,7 +467,7 @@ begin
           -- Each instruction must:
           --
           -- 1. set idim_flag
-          -- 2. increase pc if applicable
+          -- 2. increase PC if applicable
           -- 3. set next state if appliable
           -- 4. do it's operation
           
@@ -477,10 +476,10 @@ begin
 
           case insn is
 
-            when State_InsnFetch =>
+            when Insn_InsnFetch =>
               state <= State_Fetch;
 
-            when State_Im =>
+            when Insn_Im =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '1';
@@ -502,7 +501,7 @@ begin
                 end if; -- idim_flag
               end if; -- in_mem_busy
 
-            when State_StoreSP =>
+            when Insn_StoreSP =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -516,7 +515,7 @@ begin
               end if;
 
               
-            when State_LoadSP =>
+            when Insn_LoadSP =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -528,7 +527,7 @@ begin
                 mem_write       <= std_logic_vector(stackB);
               end if;
 
-            when State_Emulate =>
+            when Insn_Emulate =>
               if in_mem_busy = '0' then
                 begin_inst                       <= '1';
                 idim_flag                        <= '0';
@@ -548,7 +547,7 @@ begin
                 state          <= State_Fetch;
               end if; -- in_mem_busy
 
-            when State_Callpcrel =>
+            when Insn_CallPCrel =>
               if in_mem_busy = '0' then
                 begin_inst                       <= '1';
                 idim_flag                        <= '0';
@@ -559,7 +558,7 @@ begin
                 state <= State_Fetch;
               end if;
 
-            when State_Call =>
+            when Insn_Call =>
               if in_mem_busy = '0' then
                 begin_inst                       <= '1';
                 idim_flag                        <= '0';
@@ -569,7 +568,7 @@ begin
                 state                            <= State_Fetch;
               end if;
 
-            when State_AddSP =>
+            when Insn_AddSP =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -579,7 +578,7 @@ begin
                 mem_addr       <= std_logic_vector(sp+spOffset);
               end if;
 
-            when State_PushSP =>
+            when Insn_PushSP =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -594,7 +593,7 @@ begin
                 mem_write                                 <= std_logic_vector(stackB);
               end if;
 
-            when State_PopPC =>
+            when Insn_PopPC =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -607,7 +606,7 @@ begin
                 state           <= State_Resync;
               end if;
 
-            when State_PopPCRel =>
+            when Insn_PopPCrel =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -620,7 +619,7 @@ begin
                 state           <= State_Resync;
               end if;
 
-            when State_Add =>
+            when Insn_Add =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -632,7 +631,7 @@ begin
                 state          <= State_Popped;
               end if;
 
-            when State_Sub =>
+            when Insn_Sub =>
               if in_mem_busy = '0' then
                 begin_inst     <= '1';
                 idim_flag      <= '0';
@@ -640,7 +639,7 @@ begin
                 state          <= State_BinaryOpResult;
               end if;
 
-            when State_Pop =>
+            when Insn_Pop =>
               if in_mem_busy = '0' then
                 begin_inst     <= '1';
                 idim_flag      <= '0';
@@ -651,7 +650,7 @@ begin
                 state          <= State_Popped;
               end if;
 
-            when State_PopDown =>
+            when Insn_PopDown =>
               if in_mem_busy = '0' then
                                         -- PopDown leaves top of stack unchanged
                 begin_inst     <= '1';
@@ -662,7 +661,7 @@ begin
                 state          <= State_Popped;
               end if;
 
-            when State_Or =>
+            when Insn_Or =>
               if in_mem_busy = '0' then
                 begin_inst     <= '1';
                 idim_flag      <= '0';
@@ -673,7 +672,7 @@ begin
                 state          <= State_Popped;
               end if;
 
-            when State_And =>
+            when Insn_And =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -685,7 +684,7 @@ begin
                 state          <= State_Popped;
               end if;
 
-            when State_Eq =>
+            when Insn_Eq =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -697,7 +696,7 @@ begin
                 state <= State_BinaryOpResult;
               end if;
 
-            when State_Ulessthan =>
+            when Insn_Ulessthan =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -709,7 +708,7 @@ begin
                 state <= State_BinaryOpResult;
               end if;
 
-            when State_Ulessthanorequal =>
+            when Insn_Ulessthanorequal =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -721,7 +720,7 @@ begin
                 state <= State_BinaryOpResult;
               end if;
 
-            when State_Lessthan =>
+            when Insn_Lessthan =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -733,7 +732,7 @@ begin
                 state <= State_BinaryOpResult;
               end if;
 
-            when State_Lessthanorequal =>
+            when Insn_Lessthanorequal =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -745,7 +744,7 @@ begin
                 state <= State_BinaryOpResult;
               end if;
 
-            when State_Load =>
+            when Insn_Load =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -755,7 +754,7 @@ begin
                 mem_readEnable <= '1';
               end if;
 
-            when State_Dup =>
+            when Insn_Dup =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -768,7 +767,7 @@ begin
                 mem_writeEnable <= '1';
               end if;
 
-            when State_DupStackB =>
+            when Insn_DupStackB =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -782,7 +781,7 @@ begin
                 mem_writeEnable <= '1';
               end if;
 
-            when State_Store =>
+            when Insn_Store =>
               if in_mem_busy = '0' then
                 begin_inst      <= '1';
                 idim_flag       <= '0';
@@ -794,7 +793,7 @@ begin
                 state           <= State_Resync;
               end if;
 
-            when State_PopSP =>
+            when Insn_PopSP =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -807,19 +806,19 @@ begin
                 state           <= State_Resync;
               end if;
 
-            when State_Nop =>
+            when Insn_Nop =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
 
-            when State_Not =>
+            when Insn_Not =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
 
-              stackA <= not stackA;
+              stackA     <= not stackA;
 
-            when State_Flip =>
+            when Insn_Flip =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
@@ -828,14 +827,14 @@ begin
                 stackA(i) <= stackA(wordSize-1-i);
               end loop;
 
-            when State_AddTop =>
+            when Insn_AddTop =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
 
-              stackA <= stackA + stackB;
+              stackA     <= stackA + stackB;
 
-            when State_Shift =>
+            when Insn_Shift =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
@@ -843,7 +842,7 @@ begin
               stackA(wordSize-1 downto 1) <= stackA(wordSize-2 downto 0);
               stackA(0)                   <= '0';
 
-            when State_Pushspadd =>
+            when Insn_PushSPadd =>
               begin_inst <= '1';
               idim_flag  <= '0';
               pc         <= pc + 1;
@@ -851,7 +850,7 @@ begin
               stackA                                    <= (others => '0');
               stackA(maxAddrBitIncIO downto minAddrBit) <= stackA(maxAddrBitIncIO-minAddrBit downto 0)+sp;
 
-            when State_Neqbranch =>
+            when Insn_Neqbranch =>
               -- branches are almost always taken as they form loops
               begin_inst <= '1';
               idim_flag  <= '0';
@@ -864,7 +863,7 @@ begin
               -- need to fetch stack again.                           
               state <= State_Resync;
 
-            when State_Mult =>
+            when Insn_Mult =>
               begin_inst <= '1';
               idim_flag  <= '0';
 
@@ -872,11 +871,11 @@ begin
               multB <= stackB;
               state <= State_Mult2;
 
-            when State_Break =>
+            when Insn_Break =>
               report "Break instruction encountered" severity failure;
               break <= '1';
 
-            when State_Loadb =>
+            when Insn_Loadb =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
@@ -886,7 +885,7 @@ begin
                 mem_readEnable <= '1';
               end if;
 
-            when State_Storeb =>
+            when Insn_Storeb =>
               if in_mem_busy = '0' then
                 begin_inst <= '1';
                 idim_flag  <= '0';
