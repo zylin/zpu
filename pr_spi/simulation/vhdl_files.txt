@@ -1,2 +1,0 @@
-work ../rtl/top.vhd
-work ../rtl_tb/top_tb.vhd
