@@ -45,7 +45,7 @@ void print_vendor_device( uint8_t vendor, uint8_t device)
                 case 0x05: putstr("trigger generator");             break;
                 case 0x06: putstr("beam position monitor");         break;
                 case 0x07: putstr("debug buffer control");          break;
-                case 0x08: putstr("EADOGS102 display driver");      break;
+                case 0x08: putstr("EA-DOGS display driver");        break;
                 case 0x09: putstr("debug tracer memory");           break;
                 case 0x0a: putstr("differential current monitor");  break;
                 default  : putstr("unknown device"); break;
