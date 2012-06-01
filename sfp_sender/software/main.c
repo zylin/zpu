@@ -208,9 +208,31 @@ void uart_monitor( void)
         monitor_mainloop();
 
         // process buttons
+
+        // update for trigger channels
         if bit_is_set( gpio0->iodata, BUTTON0)
         {
             update_function();
+        }
+
+        
+        // activate SFP sender
+        if bit_is_set( gpio0->iodata, BUTTON1)
+        {
+            set_bit( sfp_controller->status,   (1<<8));
+        }
+
+        // activate transmission
+        if bit_is_set( gpio0->iodata, BUTTON2)
+        {
+            set_bit( sfp_controller->status,   (1<<16));
+            loop_until_bit_is_clear( sfp_controller->status, (1<<16));
+        }
+
+        // deactivate SFP sender
+        if bit_is_set( gpio0->iodata, BUTTON3)
+        {
+            clear_bit( sfp_controller->status, (1<<8));
         }
 
     }
@@ -576,12 +598,12 @@ uint32_t run_light_function( void)
 uint32_t sfp_tx_test( void)
 {
     putstr("\nSFT TX test");
-    // active SFP sender
+    // activate SFP sender
     set_bit( sfp_controller->status,   (1<<8));
     // activate transmission
     set_bit( sfp_controller->status,   (1<<16));
     loop_until_bit_is_clear( sfp_controller->status, (1<<16));
-    // deactive SFP sender
+    // deactivate SFP sender
     clear_bit( sfp_controller->status, (1<<8));
     putstr("\ndone.\n");
     return 0;

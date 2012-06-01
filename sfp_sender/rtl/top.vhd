@@ -422,6 +422,10 @@ begin
             o  => sys_clk
         );
 
+--  clk <= sys_clk;          -- too fast
+--  clk <= user_clock;       -- 27 MHz
+    clk <= user_sma_clock_p; -- external generator
+
     ibufgds_i1 : ibufgds
         generic map (
             diff_term => true
@@ -465,10 +469,13 @@ begin
             );
 
     clk_fb <= dcm_sp_i0_clk0;
-    clk    <= dcm_sp_i0_clkfx;
+--  clk    <= dcm_sp_i0_clkfx;
 --  gpio_led <= dcm_sp_i0_status(3 downto 1) & dcm_sp_i0_locked;
 
 
+    -- just for testing
+    -- 266 are not possible with this FPGA -> component switching limit (in PLL?)
+    --
     -- generate  266 MHz as main refernce clock
 --  dcm_sp_i1 : dcm_sp
 --      generic map (
@@ -488,45 +495,46 @@ begin
 
 --  clk_fb2          <= dcm_sp_i1_clk0;
 
-    pll_base_i0 : pll_base
-        generic map (
-            clkfbout_mult         => 12,           -- : integer := 1;
-            clkin_period          => 5.0,          -- : real := 0.000;
-            clkout0_divide        =>  3,           -- : integer := 1;
-            clkout1_divide        =>  3,           -- : integer := 1;
-            clkout1_phase         => 180.0,        -- : real := 0.0;
-            compensation          => "INTERNAL",   -- : string := "SYSTEM_SYNCHRONOUS";
-            divclk_divide         => 3             -- : integer := 1;
-        )
-        port map (
-            clkfbout => pll_base_i0_clkfbout, -- : out std_ulogic;
-            clkout0  => pll_base_i0_clkout0,  -- : out std_ulogic;
-            clkout1  => pll_base_i0_clkout1,  -- : out std_ulogic;
-            clkfbin  => pll_base_i0_clkfbout, -- : in std_ulogic;
-            clkin    => sys_clk,              -- : in std_ulogic;
-            rst      => top_pll_reset         -- : in std_ulogic
-        );
-    -- pragma translate_off
-    -- reset the pll to stop the simulation
-    top_pll_reset <= '0' when simulation_run else '1';
-    -- pragma translate_on
 
-    -- output for generated 266 MHz
-    oddr2_i0: oddr2
-        generic map (
-            ddr_alignment => "C0",
-            srtype        => "ASYNC"
-        )
-        port map (
-            q   => user_sma_clock_p,
-            c0  => pll_base_i0_clkout0, --dcm_sp_i1_clkfx,
-            c1  => pll_base_i0_clkout1, --dcm_sp_i1_clkfx180,
-            ce  => '1',
-            d0  => '1',
-            d1  => '0',
-            r   => '0',
-            s   => '0'
-        );
+--  pll_base_i0 : pll_base
+--      generic map (
+--          clkfbout_mult         => 12,           -- : integer := 1;
+--          clkin_period          => 5.0,          -- : real := 0.000;
+--          clkout0_divide        =>  3,           -- : integer := 1;
+--          clkout1_divide        =>  3,           -- : integer := 1;
+--          clkout1_phase         => 180.0,        -- : real := 0.0;
+--          compensation          => "INTERNAL",   -- : string := "SYSTEM_SYNCHRONOUS";
+--          divclk_divide         => 3             -- : integer := 1;
+--      )
+--      port map (
+--          clkfbout => pll_base_i0_clkfbout, -- : out std_ulogic;
+--          clkout0  => pll_base_i0_clkout0,  -- : out std_ulogic;
+--          clkout1  => pll_base_i0_clkout1,  -- : out std_ulogic;
+--          clkfbin  => pll_base_i0_clkfbout, -- : in std_ulogic;
+--          clkin    => sys_clk,              -- : in std_ulogic;
+--          rst      => top_pll_reset         -- : in std_ulogic
+--      );
+--  -- pragma translate_off
+--  -- reset the pll to stop the simulation
+--  top_pll_reset <= '0' when simulation_run else '1';
+--  -- pragma translate_on
+
+--  -- output for generated 266 MHz
+--  oddr2_i0: oddr2
+--      generic map (
+--          ddr_alignment => "C0",
+--          srtype        => "ASYNC"
+--      )
+--      port map (
+--          q   => user_sma_clock_p,
+--          c0  => pll_base_i0_clkout0, --dcm_sp_i1_clkfx,
+--          c1  => pll_base_i0_clkout1, --dcm_sp_i1_clkfx180,
+--          ce  => '1',
+--          d0  => '1',
+--          d1  => '0',
+--          r   => '0',
+--          s   => '0'
+--      );
 
 --  -- check output
 --  oddr2_i1: oddr2

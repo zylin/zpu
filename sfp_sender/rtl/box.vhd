@@ -267,6 +267,7 @@ begin
     
     gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
+    gpti.wdogen <= '0'; -- watchdog enable
 
     gptimer_i0: gptimer
         generic map (

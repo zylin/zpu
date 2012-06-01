@@ -414,8 +414,8 @@ NET "USB_1_TX"                  LOC = "K14";                            # RX dat
 NET "USER_CLOCK"                LOC = "V10"| IOSTANDARD = LVCMOS33 ;
 NET "USER_CLOCK"                PERIOD = 27 MHz HIGH 40%;
 ##
-NET "USER_SMA_CLOCK_N"         LOC = "H18"| TNM_NET = "USER_SMA_CLOCK";
-NET "USER_SMA_CLOCK_P"         LOC = "H17"| TNM_NET = "USER_SMA_CLOCK";
+NET "USER_SMA_CLOCK_N"         LOC = "H18"| TNM_NET = "USER_SMA_CLOCK" | DRIVE = 2;
+NET "USER_SMA_CLOCK_P"         LOC = "H17"| TNM_NET = "USER_SMA_CLOCK" | DRIVE = 2;
 #TIMESPEC "TS_USER_SMA_CLOCK" = PERIOD "USER_SMA_CLOCK" 52 MHz HIGH 50 %;
 
 #PIN "user_sma_clock_n_BUFG.O" CLOCK_DEDICATED_ROUTE = FALSE; 
