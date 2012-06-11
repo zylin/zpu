@@ -143,7 +143,7 @@ add wave -noupdate -divider DDS
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {246655000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {246626178 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -158,4 +158,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {243195477 ps} {250905331 ps}
+WaveRestoreZoom {430934906 ps} {431809513 ps}

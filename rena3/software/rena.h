@@ -19,6 +19,7 @@
 #define RENA_SIEZA_450     (0 << 20)
 #define RENA_SIEZA_1000    (1 << 20)
 #define RENA_SEL           (21)
+#define RENA_RSEL_VREFLO   (0 << 25)
 #define RENA_RSEL_VREFHI   (1 << 25)
 #define RENA_RANGE_15fF    (0 << 26)
 #define RENA_RANGE_60fF    (1 << 26)

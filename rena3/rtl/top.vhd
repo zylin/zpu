@@ -718,6 +718,9 @@ begin
     ------------------------------------------------------------ 
     -- box system
     box_i0: box
+        generic map (
+            system_frequency  => system_frequency_c                        --: integer
+        )
         port map (
             clk          => clk_box,                                       --: in    std_ulogic;
             reset_n      => reset_n,                                       --: in    std_ulogic;
@@ -900,6 +903,7 @@ begin
         o  => fmc_la22_p,
         ob => fmc_la22_n
     );
+
     ibufds_i1 : ibufds
     generic map (
         diff_term => true
@@ -922,18 +926,26 @@ begin
         ib => fmc_la01_cc_n,
         o  => rena3_controller_i0_in_unsync.ts
     );
-    obufds_i2 : obufds
-    port map (
-        i  => rena3_controller_i0_out.acquire,
-        o  => fmc_la05_p,
-        ob => fmc_la05_n
-    );
-    obufds_i3 : obufds
-    port map (
-        i  => rena3_controller_i0_out.cls,
-        o  => fmc_la09_p,
-        ob => fmc_la09_n
-    );
+
+--  obufds_i2 : obufds
+--  port map (
+--      i  => rena3_controller_i0_out.acquire,
+--      o  => fmc_la05_p,
+--      ob => fmc_la05_n
+--  );
+    fmc_la05_p <=     rena3_controller_i0_out.acquire;
+    fmc_la05_n <= not rena3_controller_i0_out.acquire;
+
+--  obufds_i3 : obufds
+--  port map (
+--      i  => rena3_controller_i0_out.cls,
+--      o  => fmc_la09_p,
+--      ob => fmc_la09_n
+--  );
+    fmc_la09_p <=     rena3_controller_i0_out.cls;
+    fmc_la09_n <= not rena3_controller_i0_out.cls;
+
+
     rena3_controller_i0_in_unsync.sout     <= fmc_la13_p;
     rena3_controller_i0_in_unsync.overflow <= fmc_la13_n;
     fmc_la17_cc_p <= rena3_controller_i0_out.cin;
@@ -988,14 +1000,14 @@ begin
 
     ------------------------------------------------------------ 
     -- spare test pads
-    fmc_la30_p <= '0';
-    fmc_la30_n <= '0';
-    fmc_la31_p <= '0';
-    fmc_la31_n <= '0';
-    fmc_la32_p <= '0';
-    fmc_la32_n <= '0';
+    fmc_la31_p <= rena3_controller_i0_out.test;
+    fmc_la31_n <= rena3_controller_i0_in.tf;
+    fmc_la30_p <= rena3_controller_i0_in.ts;
+    fmc_la30_n <= rena3_controller_i0_out.acquire;
     fmc_la33_p <= '0';
     fmc_la33_n <= '0';
+    fmc_la32_p <= '0';
+    fmc_la32_n <= '0';
 
     
     ------------------------------------------------------------ 

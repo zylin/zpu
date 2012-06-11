@@ -52,6 +52,9 @@ use rena3.component_package.rena3_controller_apb;
 
 
 entity box is
+    generic (
+        system_frequency          : integer
+    );
     port(
         clk                       : in    std_ulogic;
         reset_n                   : in    std_ulogic;
@@ -372,9 +375,10 @@ begin
     -- debug console (for fast simulation output)
     debug_con_apb_i0: debug_con_apb
         generic map (
-            pindex       => 0,             -- : integer := 0;
-            paddr        => 0,             -- : integer := 0;
-            version_time => version_time_c -- : string( 1 to 21)
+            pindex           => 0,                  -- : integer := 0;
+            paddr            => 0,                  -- : integer := 0;
+            version_time     => version_time_c,     -- : string( 1 to 21)
+            system_frequency => system_frequency    -- : integer 
         )
         port map (
             rst       => box_reset_n,               -- : in  std_ulogic;

@@ -245,8 +245,11 @@ begin
                 -- state                    0x00
                 when "0000"  => 
                     case to_integer( unsigned(v.writedata)) is
+                        -- idle state
                         when 0 =>
                             v.state              := IDLE;
+
+                        -- acqire mode
                         when 2 =>
                             v.rena.clf           := '1';
                             v.rena.cls           := '1'; 
@@ -254,10 +257,9 @@ begin
                             v.timer              := 2;     -- 20 ns
                             v.state              := CLEAR;
 
+                        -- folower mode
                         when 9 =>
                             v.rena.cls           := '1';
-                            v.rena.fhrclk        := '1';
-                            v.rena.shrclk        := '1';
 
                             v.timer              := 2;     -- 20 ns for cls
                             v.state              := PRE_DESIRE;
@@ -402,7 +404,7 @@ begin
 
                     -- event detected
                     if (v.slow_trigger = '1') or (v.fast_trigger = '1') then
-                        v.state             := ACQUIRE;    
+--                      v.state             := ACQUIRE;    
                     end if;
 
                 when ACQUIRE =>
@@ -432,7 +434,7 @@ begin
                             v.timer              := 1; -- just to see a gap
                             v.state              := DESIRE;
                             v.state_after_desire := READOUT;
-                            v.bitindex           := 35;
+                            v.bitindex           := 36;
                             v.fast_trigger_chain := v.fast_chain;
                             v.slow_trigger_chain := v.slow_chain;
                             v.fast_chain         := (v.fast_chain and v.channel_mask) or v.force_mask;
@@ -444,17 +446,19 @@ begin
 
                 -- this state is only for follower mode
                 when PRE_DESIRE =>
---                  v.rena.fin              := v.fast_chain( v.fast_chain'high);
---                  v.rena.sin              := v.slow_chain( v.slow_chain'high);
-                    v.rena.cls              := '0';  -- for follower mode
+                    v.rena.cls              := '0';
                             
-                            v.fast_chain         := (others => '0');
-                            v.slow_chain         := v.force_mask;
-                            v.bitindex           := 36;
+                    v.fast_chain            := (others => '0');
+                    v.slow_chain            := v.force_mask;
+                    
+                    v.rena.fin              := v.fast_chain( v.fast_chain'high);
+                    v.rena.sin              := v.slow_chain( v.slow_chain'high);
+                    
+                    v.bitindex              := 35;
 
-                    v.timer                 := 2;
+                    v.timer                 := 1;
                     v.state                 := DESIRE;
-                            v.state_after_desire := FOLLOW;
+                    v.state_after_desire    := FOLLOW;
 
                 when DESIRE =>
                     v.rena.fin              := v.fast_chain( v.fast_chain'high);
@@ -479,7 +483,9 @@ begin
                             v.sample_valid  := (others => '0');
                             v.rena.tin      := '1';
                             v.rena.read     := '1';
-                            v.timer         := 99;  -- 1 us
+                            if v.state_after_desire = READOUT then
+                                v.timer     := 99;  -- 1 us
+                            end if;
                         end if;
                     end if;
 
@@ -522,7 +528,6 @@ begin
 
 
                 when FOLLOW =>
-                    v.rena.cls              := '0';
                     v.rena.read             := '1';
                     v.rena.acquire          := '1';
 

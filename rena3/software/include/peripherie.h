@@ -277,7 +277,8 @@ typedef struct {
 #define TIMER_PRESCALER (8)
 
 // scaler for uart
-#define UART_BAUD_RATE  (115200)
+#define UART_BAUD_RATE  (128000)
+//#define UART_BAUD_RATE  (115200)
 //#define UART_BAUD_RATE  (9600)
 #define UART_SCALER     (F_CPU/(8 * UART_BAUD_RATE))
 #define UART_FIFOSIZE   (16)

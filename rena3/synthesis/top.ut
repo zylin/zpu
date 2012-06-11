@@ -12,7 +12,7 @@
 -g UnusedPin:PullDown
 -g UserID:0xFFFFFFFF
 -g ExtMasterCclk_en:No
--g SPI_buswidth:1
+-g SPI_buswidth:4
 -g TIMER_CFG:0xFFFF
 -g multipin_wakeup:No
 -g StartUpClk:CClk

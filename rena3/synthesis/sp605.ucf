@@ -273,14 +273,14 @@ NET "FMC_LA28_N"                    LOC = "AB16";  ## H32 on J2
 NET "FMC_LA28_P"                    LOC = "AA16";  ## H31 on J2
 NET "FMC_LA29_N"                    LOC = "U15";   ## G31 on J2
 NET "FMC_LA29_P"                    LOC = "T15";   ## G30 on J2
-NET "FMC_LA30_N"                    LOC = "AB15";  ## H35 on J2
-NET "FMC_LA30_P"                    LOC = "Y15";   ## H34 on J2
-NET "FMC_LA31_N"                    LOC = "V15";   ## G34 on J2
-NET "FMC_LA31_P"                    LOC = "U16";   ## G33 on J2
-NET "FMC_LA32_N"                    LOC = "Y18";   ## H38 on J2
-NET "FMC_LA32_P"                    LOC = "W17";   ## H37 on J2
-NET "FMC_LA33_N"                    LOC = "AB17";  ## G37 on J2
-NET "FMC_LA33_P"                    LOC = "Y17";   ## G36 on J2
+NET "FMC_LA30_N"                    LOC = "AB15"| DRIVE = 2 ;   ## H35 on J2
+NET "FMC_LA30_P"                    LOC = "Y15" | DRIVE = 2 ;   ## H34 on J2
+NET "FMC_LA31_N"                    LOC = "V15" | DRIVE = 2 ;   ## G34 on J2
+NET "FMC_LA31_P"                    LOC = "U16" | DRIVE = 2 ;   ## G33 on J2
+NET "FMC_LA32_N"                    LOC = "Y18" | DRIVE = 2 ;   ## H38 on J2
+NET "FMC_LA32_P"                    LOC = "W17" | DRIVE = 2 ;   ## H37 on J2
+NET "FMC_LA33_N"                    LOC = "AB17"| DRIVE = 2 ;   ## G37 on J2
+NET "FMC_LA33_P"                    LOC = "Y17" | DRIVE = 2 ;   ## G36 on J2
 NET "FMC_PRSNT_M2C_L"               LOC = "Y16";   ## H2  on J2
 NET "FMC_PWR_GOOD_FLASH_RST_B"      LOC = "V13";   ## D1  on J2, 1 of Q2 (LED DS1 driver), U1 AB2 FPGA_PROG (through series R260 DNP), 44 of U25
 ##

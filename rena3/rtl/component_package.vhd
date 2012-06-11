@@ -52,6 +52,9 @@ package component_package is
 
 
     component box is
+        generic (
+            system_frequency          : integer
+        );
         port (
             clk                       : in    std_ulogic;
             reset_n                   : in    std_ulogic;

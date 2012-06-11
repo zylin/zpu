@@ -25,10 +25,18 @@
 #define FWF_ROE_CMD_SET_PORT 	"SET PORT"	 	// Setzen der TCP/UDP Kommunikations-Port#
 #define FWF_ROE_CMD_SET_PORT_Code (FWF_ROE_CMD_GET_PORT_Code +1)
 
+#define FWF_ROE_CMD_POWER_OFF   "poff"
+#define FWF_ROE_CMD_POWER_OFF_Code (FWF_ROE_CMD_SET_PORT_Code +1)
+
+#define FWF_ROE_CMD_FOLLOW     "follow"
+#define FWF_ROE_CMD_FOLLOW_Code (FWF_ROE_CMD_POWER_OFF_Code +1)
+
+#define FWF_ROE_CMD_TESTGEN     "testgen"
+#define FWF_ROE_CMD_TESTGEN_Code (FWF_ROE_CMD_FOLLOW_Code +1)
+
 #define FWF_ROE_ZPU_SW_VERSION "V1.0-12.2011_ROE_ZPU"
 #define FWF_ROE_CMD_VERSION     "version"	    // Abfrage Versionsinformation
-#define FWF_ROE_CMD_VERSION_Code (FWF_ROE_CMD_SET_PORT_Code +1)
-
+#define FWF_ROE_CMD_VERSION_Code (FWF_ROE_CMD_TESTGEN_Code  +1)
 
 #define FWF_ROE_CMD_CONTROL     "control"
 #define FWF_ROE_CMD_CONTROL_Code (FWF_ROE_CMD_VERSION_Code +1)
@@ -63,17 +71,8 @@ result:         none
 */
 
 
-#define FWF_ROE_CMD_DEMO        "demo"
-#define FWF_ROE_CMD_DEMO_Code (FWF_ROE_CMD_CONFIG_Code +1)
-
-/*
-description:    do complete demo config for RENA
-parameter:      none
-result:         none
-*/
-
 #define FWF_ROE_CMD_ACQUIRE       "acquire"
-#define FWF_ROE_CMD_ACQUIRE_Code (FWF_ROE_CMD_DEMO_Code +1)
+#define FWF_ROE_CMD_ACQUIRE_Code (FWF_ROE_CMD_CONFIG_Code +1)
 /*
 description:    activate RENA
 parameter:      time (optional) additional acquire time after first trigger in 10 ns steps
@@ -118,6 +117,26 @@ description:    initalize DDS chip
 parameter:      frequency tuning word (optional)
 result:         none
 */
+
+
+#define RENA_TABLE_POS_FB_TC    0
+#define RENA_TABLE_POS_ECAL     1
+#define RENA_TABLE_POS_FPDWN    2
+#define RENA_TABLE_POS_FETSEL   3
+#define RENA_TABLE_POS_GAIN     4
+#define RENA_TABLE_POS_PWDN     5
+#define RENA_TABLE_POS_PZSEL    6
+#define RENA_TABLE_POS_RANGE    7
+#define RENA_TABLE_POS_RSEL     8
+#define RENA_TABLE_POS_SEL      9
+#define RENA_TABLE_POS_SIZEA    10
+#define RENA_TABLE_POS_DF       11
+#define RENA_TABLE_POS_POL      12
+#define RENA_TABLE_POS_DS       13
+#define RENA_TABLE_POS_ENF      14
+#define RENA_TABLE_POS_ENS      15
+#define RENA_TABLE_POS_FM       16
+
 
 #endif
 
