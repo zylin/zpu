@@ -334,6 +334,7 @@ begin
                 -- test pulse generator      0x3C
                 when "1111" =>
                     v.test_polarity              := v.writedata(31);
+                    v.rena.test                  := v.test_polarity;
                     v.test_length                := unsigned( v.writedata( v.test_length'range));
 
                 when others => 
@@ -404,7 +405,14 @@ begin
 
                     -- event detected
                     if (v.slow_trigger = '1') or (v.fast_trigger = '1') then
---                      v.state             := ACQUIRE;    
+                        v.state             := ACQUIRE;    
+                    end if;
+
+                    -- run test pulse generator
+                    if v.test_length > 0 then
+                        v.test_length := v.test_length - 1;
+                    else
+                        v.rena.test   := not v.test_polarity;
                     end if;
 
                 when ACQUIRE =>
@@ -553,15 +561,6 @@ begin
         end if;
 
         v.clk_adc_old := v.clk_adc;
-
-
-        -- test pulse generator
-        v.rena.test       := v.test_polarity;
-        if v.test_length > 0 then
-            v.test_length := v.test_length - 1;
-            v.rena.test   := not v.test_polarity;
-        end if;
-
 
         -- register inputs
         v.rena_in      := rena3_in;

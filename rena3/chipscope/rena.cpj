@@ -1,5 +1,5 @@
 #ChipScope Pro Analyzer Project File, Version 3.0
-#Tue Mar 27 16:02:48 CEST 2012
+#Mon Jun 11 17:01:34 CEST 2012
 deviceChain.deviceName0=System_ACE_CF
 deviceChain.deviceName1=XC6SLX45T
 deviceChain.iRLength0=8
@@ -28,12 +28,12 @@ unit.1.0.0.TriggerRow1=1
 unit.1.0.0.TriggerRow2=1
 unit.1.0.0.WIDTH0=1.0
 unit.1.0.0.X0=0.0
-unit.1.0.0.Y0=0.0
+unit.1.0.0.Y0=-0.0011933175
 unit.1.0.1.HEIGHT1=0.8102625
 unit.1.0.1.WIDTH1=1.0
 unit.1.0.1.X1=-0.0036845985
 unit.1.0.1.Y1=0.18973747
-unit.1.0.MFBitsA0=FXXXXXXX
+unit.1.0.MFBitsA0=XXRXXXXX
 unit.1.0.MFBitsB0=00000000
 unit.1.0.MFCompareA0=0
 unit.1.0.MFCompareB0=999
@@ -302,9 +302,9 @@ unit.1.0.rep_trigger.signals=All Signals/Buses
 unit.1.0.samplesPerTrigger=1
 unit.1.0.triggerCapture=1
 unit.1.0.triggerNSamplesTS=0
-unit.1.0.triggerPosition=1000
-unit.1.0.triggerWindowCount=1
-unit.1.0.triggerWindowDepth=1024
+unit.1.0.triggerPosition=6
+unit.1.0.triggerWindowCount=2
+unit.1.0.triggerWindowDepth=512
 unit.1.0.triggerWindowTS=0
 unit.1.0.username=MyILA0
 unit.1.0.waveform.count=29
