@@ -447,9 +447,13 @@ uint32_t ddsinit_function( void)
     ad9854_init( ftw);
 }
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 
+/*****************************************************************************
+* Function:     rena_trouble
+* Description:  for troubleshooting the RENA config
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 uint32_t rena_trouble( void)
 {
     uint8_t  index;
@@ -504,9 +508,13 @@ uint32_t rena_trouble( void)
     return( config_low);
 }
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 
+/*****************************************************************************
+* Function:     rena_trouble_acquire
+* Description:  for troubleshooting the RENA triggers with acquire
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 uint32_t rena_trouble_acquire( void)
 {
     uint8_t  index;
@@ -569,7 +577,12 @@ uint32_t rena_trouble_acquire( void)
 }
 
 
-////////////////////////////////////////////////////////////
+/*****************************************************************************
+* Function:     rena_follow_mode_function
+* Description:  activate follower mode (for debugging)
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 uint32_t rena_follow_mode_function( void)
 {
     uint8_t channel;
@@ -579,7 +592,12 @@ uint32_t rena_follow_mode_function( void)
 }
 
 
-////////////////////////////////////////////////////////////
+/*****************************************************************************
+* Function:     rena_set_ecal_function
+* Description:  activate ecal mode (for debugging/calibrating)
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 uint32_t rena_set_ecal_function( void)
 {
 
@@ -589,10 +607,15 @@ uint32_t rena_set_ecal_function( void)
     return( rena_set_ecal( channel));
 }
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 
 
+
+/*****************************************************************************
+* Function:     testgen_function
+* Description:  program the test pulse generator (for debugging/calibrating)
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 uint32_t testgen_function( void)
 {
     uint16_t cycles;
@@ -602,9 +625,13 @@ uint32_t testgen_function( void)
     rena_testgen( RENA_TEST_POL_NEG, cycles);
 }
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 
+/*****************************************************************************
+* Function:     main
+* Description:  initialisation and running the system
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 int main(void)
 {
     uint32_t port_value;
