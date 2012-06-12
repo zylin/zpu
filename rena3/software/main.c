@@ -87,9 +87,12 @@ uint32_t testgen_function( void);
 // combined print functions
 
 
-/*
-    output function for UART and VGA
-*/
+/*****************************************************************************
+* Function:     uart_vga_putchar                                             
+* Description:  output function for UART and VGA
+* Parameters:   c           - character for output                         
+* Returns:      
+*****************************************************************************/
 char uart_vga_putchar( char c)
 {
     uart_putchar( c);
@@ -97,6 +100,12 @@ char uart_vga_putchar( char c)
 }
 
 
+/*****************************************************************************
+* Function:     uart_lcd_vga_putchar 
+* Description:  output function for UART, VGA and LCD/GLCD
+* Parameters:   c           - character for output                         
+* Returns:      
+*****************************************************************************/
 char uart_lcd_vga_putchar( char c)
 {
     uart_putchar( c);
@@ -105,9 +114,12 @@ char uart_lcd_vga_putchar( char c)
 }
 
 
-/*
-    output function for DEBUG console and VGA
-*/
+/*****************************************************************************
+* Function:     debug_vga_putchar
+* Description:  output function for DEBUG console and VGA
+* Parameters:   c           - character for output                         
+* Returns:      
+*****************************************************************************/
 char debug_vga_putchar( char c)
 {
     debug_putchar( c);
@@ -115,6 +127,12 @@ char debug_vga_putchar( char c)
 }
 
 
+/*****************************************************************************
+* Function:     button_pressed
+* Description:  check if actually a button is pressed
+* Parameters:   
+* Returns:      boolean     - TRUE if one of the buttons is pressed
+*****************************************************************************/
 uint8_t button_pressed( void)
 {
     if bit_is_set( gpio0->iodata, BUTTON0)
@@ -136,9 +154,13 @@ uint8_t button_pressed( void)
     return FALSE;
 }
 
-//
-//  process serial commands
-//
+
+/*****************************************************************************
+* Function:     uart_monitor
+* Description:  process serial commands
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 void uart_monitor( void)
 {
     uint8_t  c;
@@ -231,10 +253,12 @@ void uart_monitor( void)
 ////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
-
-
+/*****************************************************************************
+* Function:     running_light
+* Description:  give a small running light on the LED output
+* Parameters:   boolean     - simulation is active or not
+* Returns:      
+*****************************************************************************/
 void running_light( uint32_t simulation_active)
 {
 	unsigned int pattern = 0x80300700;
@@ -277,22 +301,28 @@ void running_light( uint32_t simulation_active)
 
 
 
-////////////////////////////////////////////////////////////
-
-
-////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////
 // functions for scheduler
 
+/*****************************************************************************
+* Function:     end_simulation_task
+* Description:  set the end simulation flag
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 void end_simulation_task( void)
 {
     end_simulation = TRUE;
 }
 
 
-////////////////////////////////////////////////////////////
-// start running light
+/*****************************************************************************
+* Function:     run_light_function
+* Description:  start the running light
+* Parameters:   
+* Returns:      0
+*****************************************************************************/
 uint32_t run_light_function( void)
 {
     running_light( simulation_active);
@@ -301,8 +331,12 @@ uint32_t run_light_function( void)
 
 
 
-////////////////////////////////////////////////////////////
-
+/*****************************************************************************
+* Function:     banner
+* Description:  print system information for sim and on hardware
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 void banner( void)
 {
     putstr("\n\n");
@@ -332,6 +366,12 @@ void banner( void)
 }
 
 
+/*****************************************************************************
+* Function:     banner_help_function
+* Description:  print the banner and the system help
+* Parameters:   
+* Returns:      0
+*****************************************************************************/
 uint32_t banner_help_function( void)
 {
     banner();
@@ -342,6 +382,12 @@ uint32_t banner_help_function( void)
 
 ////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////
+/*****************************************************************************
+* Function:     _zpu_interrupt
+* Description:  interrupt funktion, maintain the timer tick, set flags
+* Parameters:   
+* Returns:      
+*****************************************************************************/
 void _zpu_interrupt( void)
 {
     uint32_t reg_val;
@@ -359,19 +405,27 @@ void _zpu_interrupt( void)
     return;
 }
 
-////////////////////////////////////////////////////////////
+/*****************************************************************************
+* Function:     version_function
+* Description:  print out the interface version
+* Parameters:   
+* Returns:      0
+*****************************************************************************/
 uint32_t version_function( void)
 {
     putstr( FWF_ROE_ZPU_SW_VERSION);
     putchar('\n');
     return 0;
 }
-////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////
 
+/*****************************************************************************
+* Function:     ddsinit_function
+* Description:  init DDS with frequency tuning word
+* Parameters:   
+* Returns:      0
+*****************************************************************************/
 uint32_t ddsinit_function( void)
 {
     uint32_t low;
@@ -469,7 +523,7 @@ uint32_t rena_trouble_acquire( void)
    // trouble shoot on acquire mode
     uint8_t dac_value;
 
-    dac_value = 170;
+    dac_value = 0;
     index     = 0;
     rena_powerdown_config_function();
 
@@ -486,26 +540,24 @@ uint32_t rena_trouble_acquire( void)
             (dac_value << RENA_DF)  | 
             RENA_POLNEG             |
             (dac_value << RENA_DS)  | 
-            RENA_ENF                |
+//          RENA_ENF                |
             RENA_ENS;
         rena_channel_config( index, config_high, config_low);
     
+        rena_testgen( RENA_TEST_POL_NEG, value);
+
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
         
-        usleep( 50);
-
-        rena_testgen( RENA_TEST_POL_NEG, value);
-    
         msleep( 20);
 
         rena_powerdown_config_function();
 //      puthex( 8,  config_high); putchar(' ');
 //      puthex( 32, config_low);  putchar(' ');
         putint( dac_value);       putchar(' ');
-        putint( index);           putchar('\n');
-//      dac_value = (dac_value < 255) ? dac_value + 1 : 0;
-        index     = (index     < 35 ) ? index     + 1 : 0;
+//      putint( index);           putchar('\n');
+        dac_value = (dac_value < 255) ? dac_value + 1 : 0;
+//      index     = (index     < 35 ) ? index     + 1 : 0;
 
         rena_controller_status();
         rena_status();
@@ -636,12 +688,12 @@ int main(void)
             RENA_FM;
         rena_channel_config( 35, config_high, config_low);
     
+        rena_testgen( RENA_TEST_POL_NEG, 100);
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
         
-        //usleep( 2);
+        usleep( 2);
 
-        rena_testgen( RENA_TEST_POL_NEG, 100);
     
 
     // test of scheduler
