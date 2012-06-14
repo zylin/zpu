@@ -7,7 +7,7 @@
 //#include <stdio.h>
 
 #include "peripherie.h"
-#include <common.h>
+#include <common.h>             // fill
 #include <timer.h>              // sleep
 #include <uart.h>
 #include "schedule.h"           // scheduler_init, scheduler_task_*
@@ -17,11 +17,11 @@
 #include "monitor_functions.h"  // x_function, wmem_function, clear_function
 #include "ad9854_functions.h"   // ad9854_init
 #include "adc.h"                // adc_read
-#include "rena.h"               // rena_t, rena_channel_config
+#include "rena.h"               // rena_t, rena_channel_config, rena_controller_status, rena_status, rena_read_token
 #include "fwf_roe_cmd.h"        // interface command definitions
 
 //#define BOARD_SP605  TODO
-//#define DEBUG_ON
+#define DEBUG_ON
 #define SYSINFO_ON
 
 
@@ -199,13 +199,12 @@ void uart_monitor( void)
     monitor_add_command("adc",                 "read adc value",                        adc_read,                       -1);
                                                
     #ifdef DEBUG_ON                                                                
-    monitor_add_command("run",                 "running light",                         run_light_function);
-    monitor_add_command("i2c",                 "check I2C address",                     i2c_check_function);
-    monitor_add_command("eeprom",              "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function);
+    monitor_add_command("run",                 "running light",                         run_light_function, -1);
+    monitor_add_command("i2c",                 "check I2C address",                     i2c_check_function, -1);
+    monitor_add_command("eeprom",              "read EEPROM <bus> <i2c_addr> <length>", i2c_read_eeprom_function, -1);
                                                
-    monitor_add_command("mem",                 "alias for x",                           x_function);
-    monitor_add_command("wmem",                "write word <addr> <length> <value(s)>", wmem_function);
-    monitor_add_command("x",                   "eXamine memory <addr> <length>",        x_function);
+    monitor_add_command("wmem",                "write word <addr> <length> <value(s)>", wmem_function, -1);
+    monitor_add_command("x",                   "eXamine memory <addr> <length>",        x_function, -1);
     #endif                                     
     //monitor_add_command("clear",               "clear screen",   clear_function,       -1);
     monitor_add_command(FWF_ROE_CMD_HELP,      "",                                      banner_help_function,           FWF_ROE_CMD_HELP_Code);
@@ -234,6 +233,39 @@ void uart_monitor( void)
 
         // process commands
         monitor_mainloop();
+
+        uint32_t status;
+
+        // set leds
+        status = rena->rena_status;
+        
+        if bit_is_set( status, (1 << 0))  // overflow
+        {
+            set_bit( gpio0->ioout, LED3);
+        }
+        else
+        {
+            clear_bit( gpio0->ioout, LED3);
+        }
+
+        if bit_is_set( status, (1 << 1))  //  slow trigger
+        {
+            set_bit( gpio0->ioout, LED2);
+        }
+        else
+        {
+            clear_bit( gpio0->ioout, LED2);
+        }
+
+        if bit_is_set( status, (1 << 2))  //  fast trigger
+        {
+            set_bit( gpio0->ioout, LED1);
+        }
+        else
+        {
+            clear_bit( gpio0->ioout, LED1);
+        }
+
 
         // process buttons
         if bit_is_set( gpio0->iodata, BUTTON0)
@@ -521,6 +553,7 @@ uint32_t rena_trouble_acquire( void)
     uint32_t  loop;
     uint32_t value;
     uint32_t config;
+    uint32_t status;
     
     uint8_t  config_high;
     uint32_t config_low;
@@ -528,29 +561,125 @@ uint32_t rena_trouble_acquire( void)
     loop  = monitor_get_argument_int(1);
     value = monitor_get_argument_int(2);
    
-   // trouble shoot on acquire mode
     uint8_t dac_value;
 
-    dac_value = 0;
-    index     = 0;
+    dac_value = 177;
+    index     = monitor_get_argument_int(1);
     rena_powerdown_config_function();
+   
 
-    while ((loop > 0) && (! button_pressed()))
-    {
-
+    // check token chain for every channel
+    dac_value = value; // 200; //177;
+//  for (index = 0; index <= 35; index++)
+//  {
+        fill( putint( index), 2);
+        putstr( ": ");
+            
         config_high = 
             RENA_ECAL;
 
         config_low  = 
-            (3        << RENA_GAIN) |
+            (0        << RENA_GAIN) |
             RENA_RSEL_VREFHI        |
             (5        << RENA_SEL)  |
             (dac_value << RENA_DF)  | 
             RENA_POLNEG             |
             (dac_value << RENA_DS)  | 
-//          RENA_ENF                |
             RENA_ENS;
         rena_channel_config( index, config_high, config_low);
+
+        // mask to read only the desired channel
+        rena->fast_channel_force_mask_low  = 0;
+        rena->fast_channel_force_mask_high = 0;
+        if (index < 32)
+        {
+            rena->slow_channel_mask_low  = (1 << index);
+            rena->slow_channel_mask_high = 0;
+            rena->slow_channel_force_mask_low  = (1 << index);
+            rena->slow_channel_force_mask_high = 0;
+        }
+        else
+        {
+            rena->slow_channel_mask_low  = 0;
+            rena->slow_channel_mask_high = (1 << (index - 32));
+            rena->slow_channel_force_mask_low  = 0;
+            rena->slow_channel_force_mask_high = (1 << (index - 32));
+        }
+
+
+        rena_testgen( RENA_TEST_POL_NEG, 100);
+        rena->acquire_time   = 0;
+        rena->control_status = RENA_MODE_ACQUIRE;
+
+        msleep( 10);
+
+        status = rena->control_status;
+        switch( status & 0xff)
+        {
+            case 0x00: putstr("idle     "); break;
+            case 0x01: putstr("configure"); break;
+            case 0x03: putstr("detect   "); break;
+            case 0x04: putstr("aquire   "); break;
+            case 0x05: putstr("analyze  "); break;
+            case 0x06: putstr("desire   "); break;
+            case 0x07: putstr("readout  "); break;
+            case 0x08: putstr("readlag  "); break;
+            case 0x09: putstr("follow   "); break;
+            default:   putstr("UNKNOWN  "); break;
+        }
+
+//      putstr("   fast trigger chain: 0x");  
+//      puthex( 4, rena->fast_trigger_chain_high); 
+//      puthex(32, rena->fast_trigger_chain_low);
+        putstr("   slow trigger chain: 0x"); 
+        puthex( 4, rena->slow_trigger_chain_high); 
+        puthex(32, rena->slow_trigger_chain_low);
+
+        rena_powerdown_config_function();
+        putchar( '\n');
+//  }
+
+/*
+    // find the dac switch values for all channels
+    for (index = 0; index <= 35; index++)
+    {
+        fill( putint( index), 2);
+        putstr( ": ");
+        for (dac_value = 0; dac_value < 255; dac_value += 3)
+        {
+            config_high = 
+                RENA_ECAL;
+
+            config_low  = 
+                (3        << RENA_GAIN) |
+                RENA_RSEL_VREFHI        |
+                (5        << RENA_SEL)  |
+                (dac_value << RENA_DF)  | 
+                RENA_POLNEG             |
+                (dac_value << RENA_DS)  | 
+//              RENA_ENF                |
+                RENA_ENF;
+            rena_channel_config( index, config_high, config_low);
+        
+            rena_testgen( RENA_TEST_POL_NEG, 1000);
+            rena->acquire_time   = 0;
+            rena->control_status = RENA_MODE_ACQUIRE;
+
+            msleep( 20);
+            status = rena->rena_status;
+            putchar( status + 0x30);
+
+            msleep( 20);
+            rena_powerdown_config_function();
+        }
+        putchar( '\n');
+    }
+*/
+    
+/*
+    while ((loop > 0) && (! button_pressed()))
+    {
+
     
         rena_testgen( RENA_TEST_POL_NEG, value);
 
@@ -572,6 +701,7 @@ uint32_t rena_trouble_acquire( void)
 
         loop--;
     }
+*/
 
     return( config_low);
 }
@@ -706,16 +836,17 @@ int main(void)
             RENA_ECAL;
 
         config_low  = 
-            (1        << RENA_GAIN) |
+            (0        << RENA_GAIN) |
 //          RENA_RSEL_VREFHI        |
-            (6        << RENA_SEL)  |
-            RENA_POLPOS             |
-            (30 << RENA_DS)  | 
+            (5        << RENA_SEL)  |
+            (170      << RENA_DF)   | 
+            RENA_POLNEG             |
+            (170      << RENA_DS)   | 
             RENA_ENS                |
             RENA_FM;
         rena_channel_config( 35, config_high, config_low);
     
-        rena_testgen( RENA_TEST_POL_NEG, 100);
+        rena_testgen( RENA_TEST_POL_NEG, 1000);
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
         

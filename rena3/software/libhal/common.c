@@ -163,9 +163,13 @@ void putpfloat( unsigned long data)
 }
 
 
-/*
-    print some spaces to make output alignment columnwise
-*/
+/*****************************************************************************
+* Function:     fill
+* Description:  print some spaces to make output alignment columnwise
+* Parameters:   uint8_t     length of content
+*               uint8_t     number till which have filled up with spaces
+* Returns:      
+*****************************************************************************/
 void fill( unsigned char length, unsigned char fillupto)
 {
     while (length < fillupto)

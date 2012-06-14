@@ -140,7 +140,8 @@ begin
         -- overflow
         outp.overflow <= '0';
         if config.pdwn = '0' then
-            if ( preamp_input > 3.8) or ( preamp_input < 1.1) then
+            --if ( preamp_input > 3.8) or ( preamp_input < 1.1) then
+            if preamp_input > 3.8 then
                 outp.overflow <= '1';
             end if;
         end if;

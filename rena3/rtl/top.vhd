@@ -661,11 +661,11 @@ begin
     gpioi.din(31)           <= simulation_active;
     -- gpio output pads
     -- placement on board: LED0, LED1, LED2, LED3
-    --gpio_led       <= box_i0_gpioo.dout(3  downto 0);
-    gpio_led(0)             <= box_i0_gpioo.dout(0);
-    gpio_led(1)             <= rena_debug.fast_trigger;
-    gpio_led(2)             <= rena_debug.slow_trigger;
-    gpio_led(3)             <= rena_debug.overflow;
+    gpio_led                <= box_i0_gpioo.dout(3  downto 0);
+--  gpio_led(0)             <= box_i0_gpioo.dout(0);
+--  gpio_led(1)             <= rena_debug.fast_trigger;
+--  gpio_led(2)             <= rena_debug.slow_trigger;
+--  gpio_led(3)             <= rena_debug.overflow;
 
 
     --gpio_header_ls   = box_i0_gpioo.dout(11 downto 8);
@@ -1005,9 +1005,9 @@ begin
     fmc_la30_p <= rena3_controller_i0_in.ts;
     fmc_la30_n <= rena3_controller_i0_out.acquire;
     fmc_la33_p <= '0';
-    fmc_la33_n <= '0';
-    fmc_la32_p <= '0';
-    fmc_la32_n <= '0';
+    fmc_la33_n <= rena3_controller_i0_in.sout;
+    fmc_la32_p <= rena3_controller_i0_out.shrclk;
+    fmc_la32_n <= rena3_controller_i0_out.sin;
 
     
     ------------------------------------------------------------ 

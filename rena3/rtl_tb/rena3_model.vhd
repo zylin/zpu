@@ -621,7 +621,7 @@ begin
         for i in 0 to channels_c-1 loop
             channel_overflow( i) := channel_outp_array( i).overflow;
         end loop;
-       OVERFLOW <= or_reduce( channel_overflow);
+        OVERFLOW <= or_reduce( channel_overflow);
     end process overflow_p;
     --------------------------------------------------------------------------------
 

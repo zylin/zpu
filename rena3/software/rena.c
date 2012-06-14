@@ -84,15 +84,22 @@ uint32_t rena_chains_function( void)
     putstr(  "fast trigger chain: 0x");  
     puthex( 4, rena->fast_trigger_chain_high); 
     puthex(32, rena->fast_trigger_chain_low);
+    putstr("\nfast channel mask (and): 0x"); 
+    puthex( 4, rena->fast_channel_mask_high); 
+    puthex(32, rena->fast_channel_mask_low);
+    putstr("\nfast force mask (or):    0x"); 
+    puthex( 4, rena->fast_channel_force_mask_high); 
+    puthex(32, rena->fast_channel_force_mask_low);
+    putchar('\n');
     putstr("\nslow trigger chain: 0x"); 
     puthex( 4, rena->slow_trigger_chain_high); 
     puthex(32, rena->slow_trigger_chain_low);
-    putstr("\nchannel mask (and): 0x"); 
-    puthex( 4, rena->channel_mask_high); 
-    puthex(32, rena->channel_mask_low);
-    putstr("\nforce mask (or):    0x"); 
-    puthex( 4, rena->channel_force_mask_high); 
-    puthex(32, rena->channel_force_mask_low);
+    putstr("\nslow channel mask (and): 0x"); 
+    puthex( 4, rena->slow_channel_mask_high); 
+    puthex(32, rena->slow_channel_mask_low);
+    putstr("\nslow force mask (or):    0x"); 
+    puthex( 4, rena->slow_channel_force_mask_high); 
+    puthex(32, rena->slow_channel_force_mask_low);
     putchar('\n');
     return (0);
 }
@@ -112,7 +119,7 @@ uint32_t rena_read_token( void)
     putint( token);
     putchar('\n');
 
-    for ( index = 0; index < token - 1; index++)
+    for ( index = 0; index < token; index++)
     {
         putint( token_table[ index]);
         putchar('\n');
@@ -243,18 +250,18 @@ uint32_t rena_follow_mode( uint8_t channel)
     // decide which bit to set
     if (channel < 32)
     {
-        rena->channel_force_mask_low  = (1 << channel);
-        rena->channel_force_mask_high = 0;
+        rena->slow_channel_force_mask_low  = (1 << channel);
+        rena->slow_channel_force_mask_high = 0;
     }
     else
     {
-        rena->channel_force_mask_low  = 0;
-        rena->channel_force_mask_high = (1 << (channel - 32));
+        rena->slow_channel_force_mask_low  = 0;
+        rena->slow_channel_force_mask_high = (1 << (channel - 32));
     }
     
     rena->control_status = RENA_MODE_FOLLOW;
 
-    return( rena->channel_force_mask_low);
+    return( rena->slow_channel_force_mask_low);
 }
 
 
@@ -293,8 +300,8 @@ void rena_simulate_follower_mode( void)
 {
     rena_channel_config( 0, 0x2, RENA_FM);
     
-    rena->channel_force_mask_low  = 0x00000001;
-    rena->channel_force_mask_high = 0x0;
+    rena->slow_channel_force_mask_low  = 0x00000001;
+    rena->slow_channel_force_mask_high = 0x0;
     rena->control_status = RENA_MODE_FOLLOW;
     usleep( 50);
     testgen( 0);
