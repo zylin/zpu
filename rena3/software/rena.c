@@ -59,6 +59,34 @@ uint32_t rena_status( void)
 
 
 /*
+    write configuration of one channel, with print out the config
+*/
+uint32_t rena_channel_config_verbose(uint8_t channel, uint8_t high_config, uint32_t low_config)
+{
+    putstr("\nchannel: "); putint( channel);
+    putstr("\nFB_TC  : "); putint( 0x01 & ( high_config >> 2)); 
+    putstr("\nECAL   : "); putint( 0x01 & ( high_config >> 1)); 
+    putstr("\nFPDWN  : "); putint( 0x01 & ( high_config >> 0)); 
+    putstr("\nFETSEL : "); putint( 0x01 & ( low_config >> 31)); 
+    putstr("\nGAIN   : "); putint( 0x03 & ( low_config >> RENA_GAIN));
+    putstr("\nPDWN   : "); putint( 0x01 & ( low_config >> 28)); 
+    putstr("\nPZSEL  : "); putint( 0x01 & ( low_config >> 27)); 
+    putstr("\nRANGE  : "); putint( 0x01 & ( low_config >> 26)); 
+    putstr("\nRSEL   : "); putint( 0x01 & ( low_config >> 25)); 
+    putstr("\nSEL    : "); putint( 0x0f & ( low_config >> RENA_SEL));
+    putstr("\nSIZEA  : "); putint( 0x01 & ( low_config >> 20)); 
+    putstr("\nDF     : "); putint( 0xff & ( low_config >> RENA_DF));
+    putstr("\nPOL    : "); putint( 0x01 & ( low_config >> 11)); 
+    putstr("\nDS     : "); putint( 0xff & ( low_config >> RENA_DS));
+    putstr("\nENF    : "); putint( 0x01 & ( low_config >> 2)); 
+    putstr("\nENS    : "); putint( 0x01 & ( low_config >> 1)); 
+    putstr("\nFM     : "); putint( 0x01 & ( low_config >> 0)); 
+    putchar('\n');
+    rena_channel_config( channel, high_config, low_config);
+}
+
+
+/*
     write configuration of one channel
 */
 uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_config)
@@ -69,7 +97,7 @@ uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_
     rena->config_low  = low_config;
     // write to high config trigger the config process
     // combine trigger an high config bits
-    rena->config_high = (channel << 3) | high_config;
+    rena->config_high = (channel << 3) | (high_config & 0x07);
     
     // wait until config is ready
     while (rena->control_status != RENA_MODE_IDLE) {};
@@ -280,15 +308,16 @@ uint32_t rena_set_ecal( uint8_t channel)
 
     config_low = 
 //      RENA_FETSEL_SIMPLE      |
-//      (GAIN     << RENA_GAIN) |
-//      (SEL      << RENA_SEL)  |
+        (3        << RENA_GAIN) |
+        RENA_PZSEL_EN           |
+        (10       << RENA_SEL)  |
 //      RENA_RANGE_60fF         |
 //      RENA_SIEZA_1000         |
 //      (DAC_FAST << RENA_DF)   | 
-//      RENA_POLPOS             |
-//      (DAC_SLOW << RENA_DS)   | 
+        RENA_POLNEG             |
+        (128      << RENA_DS)   | 
 //      RENA_ENF                | 
-//      RENA_ENS                |
+        RENA_ENS                |
         RENA_FM;
     
     rena_channel_config( channel, config_high, config_low);

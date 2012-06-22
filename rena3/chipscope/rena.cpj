@@ -1,5 +1,5 @@
 #ChipScope Pro Analyzer Project File, Version 3.0
-#Mon Jun 11 17:01:34 CEST 2012
+#Wed Jun 20 17:06:26 CEST 2012
 deviceChain.deviceName0=System_ACE_CF
 deviceChain.deviceName1=XC6SLX45T
 deviceChain.iRLength0=8
@@ -12,8 +12,8 @@ mdiAreaHeightLast=0.7
 mdiCount=2
 mdiDevice0=1
 mdiDevice1=1
-mdiType0=1
-mdiType1=0
+mdiType0=0
+mdiType1=1
 mdiUnit0=0
 mdiUnit1=0
 navigatorHeight=0.1796116504854369
@@ -22,7 +22,7 @@ navigatorWidth=0.17986896962477666
 navigatorWidthLast=0.17986896962477666
 signalDisplayPath=0
 unit.-1.-1.username=
-unit.1.0.0.HEIGHT0=0.5453461
+unit.1.0.0.HEIGHT0=0.50358
 unit.1.0.0.TriggerRow0=1
 unit.1.0.0.TriggerRow1=1
 unit.1.0.0.TriggerRow2=1
@@ -33,7 +33,7 @@ unit.1.0.1.HEIGHT1=0.8102625
 unit.1.0.1.WIDTH1=1.0
 unit.1.0.1.X1=-0.0036845985
 unit.1.0.1.Y1=0.18973747
-unit.1.0.MFBitsA0=XXRXXXXX
+unit.1.0.MFBitsA0=XXBXXXXX
 unit.1.0.MFBitsB0=00000000
 unit.1.0.MFCompareA0=0
 unit.1.0.MFCompareB0=999
@@ -162,17 +162,17 @@ unit.1.0.port.-1.s.23.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.23.name=DataPort[23]
 unit.1.0.port.-1.s.23.orderindex=-1
 unit.1.0.port.-1.s.23.visible=0
-unit.1.0.port.-1.s.24.alias=
+unit.1.0.port.-1.s.24.alias=debug_fast_trigger
 unit.1.0.port.-1.s.24.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.24.name=DataPort[24]
 unit.1.0.port.-1.s.24.orderindex=-1
 unit.1.0.port.-1.s.24.visible=1
-unit.1.0.port.-1.s.25.alias=
+unit.1.0.port.-1.s.25.alias=debug_slow_trigger
 unit.1.0.port.-1.s.25.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.25.name=DataPort[25]
 unit.1.0.port.-1.s.25.orderindex=-1
 unit.1.0.port.-1.s.25.visible=1
-unit.1.0.port.-1.s.26.alias=
+unit.1.0.port.-1.s.26.alias=debug_overflow
 unit.1.0.port.-1.s.26.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.26.name=DataPort[26]
 unit.1.0.port.-1.s.26.orderindex=-1
@@ -197,12 +197,12 @@ unit.1.0.port.-1.s.3.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.3.name=DataPort[3]
 unit.1.0.port.-1.s.3.orderindex=-1
 unit.1.0.port.-1.s.3.visible=1
-unit.1.0.port.-1.s.30.alias=
+unit.1.0.port.-1.s.30.alias=adc_otr
 unit.1.0.port.-1.s.30.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.30.name=DataPort[30]
 unit.1.0.port.-1.s.30.orderindex=-1
 unit.1.0.port.-1.s.30.visible=1
-unit.1.0.port.-1.s.31.alias=
+unit.1.0.port.-1.s.31.alias=clk_adc
 unit.1.0.port.-1.s.31.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.-1.s.31.name=DataPort[31]
 unit.1.0.port.-1.s.31.orderindex=-1
@@ -277,12 +277,12 @@ unit.1.0.port.0.s.4.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.4.name=TriggerPort0[4]
 unit.1.0.port.0.s.4.orderindex=-1
 unit.1.0.port.0.s.4.visible=1
-unit.1.0.port.0.s.5.alias=
+unit.1.0.port.0.s.5.alias=read
 unit.1.0.port.0.s.5.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.5.name=TriggerPort0[5]
 unit.1.0.port.0.s.5.orderindex=-1
 unit.1.0.port.0.s.5.visible=1
-unit.1.0.port.0.s.6.alias=
+unit.1.0.port.0.s.6.alias=TOUT
 unit.1.0.port.0.s.6.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.6.name=TriggerPort0[6]
 unit.1.0.port.0.s.6.orderindex=-1
@@ -302,7 +302,7 @@ unit.1.0.rep_trigger.signals=All Signals/Buses
 unit.1.0.samplesPerTrigger=1
 unit.1.0.triggerCapture=1
 unit.1.0.triggerNSamplesTS=0
-unit.1.0.triggerPosition=6
+unit.1.0.triggerPosition=200
 unit.1.0.triggerWindowCount=2
 unit.1.0.triggerWindowDepth=512
 unit.1.0.triggerWindowTS=0
@@ -352,14 +352,14 @@ unit.1.0.waveform.posn.20.name=state
 unit.1.0.waveform.posn.20.radix=1
 unit.1.0.waveform.posn.20.type=bus
 unit.1.0.waveform.posn.21.channel=24
-unit.1.0.waveform.posn.21.name=DataPort[24]
+unit.1.0.waveform.posn.21.name=debug_fast_trigger
 unit.1.0.waveform.posn.21.radix=1
 unit.1.0.waveform.posn.21.type=signal
 unit.1.0.waveform.posn.22.channel=25
-unit.1.0.waveform.posn.22.name=DataPort[25]
+unit.1.0.waveform.posn.22.name=debug_slow_trigger
 unit.1.0.waveform.posn.22.type=signal
 unit.1.0.waveform.posn.23.channel=26
-unit.1.0.waveform.posn.23.name=DataPort[26]
+unit.1.0.waveform.posn.23.name=debug_overflow
 unit.1.0.waveform.posn.23.type=signal
 unit.1.0.waveform.posn.24.channel=27
 unit.1.0.waveform.posn.24.name=DataPort[27]

@@ -416,6 +416,8 @@ begin
     -- GP timer (grip.pdf p. 279)
     gpti.extclk <= '0'; -- alternativ timer clock
     gpti.dhalt  <= '0'; -- debug halt
+    gpti.wdogen <= '0'; -- watch dog enable
+
 
     gptimer_i0: gptimer
         generic map (

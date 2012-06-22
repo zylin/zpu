@@ -61,17 +61,18 @@ architecture rtl of rena3_controller_apb is
       0 => ahb_device_reg ( VENDOR, DEVICE, CONFIG, REVISION, INTR),
       1 => apb_iobar(paddr, pmask));
 
-    type state_t is (IDLE, CONFIGURE, CONFIGURE_END, CLEAR, DETECT, ACQUIRE, ANALYZE, PRE_DESIRE, DESIRE, READOUT, READLAG, FOLLOW);
+    type state_t is (IDLE, CONFIGURE, CONFIGURE_END, CLEAR, TRAP, DETECT, ACQUIRE, ANALYZE, PRE_DESIRE, DESIRE, READOUT, READLAG, FOLLOW);
 
     type reg_t is record
         state              : state_t;
         state_after_desire : state_t;
-        timer              : integer range 0 to 100;
+        timer              : integer range 0 to 65535;
         readdata           : std_logic_vector(31 downto 0);
         writedata          : std_logic_vector(31 downto 0);
         configure          : std_logic_vector(40 downto 0);
         bitindex           : integer range 0 to 40;
         acquire_time       : unsigned(31 downto 0);
+        trap_count         : unsigned(15 downto 0);
         fast_trigger       : std_ulogic;
         slow_trigger       : std_ulogic;
         overflow           : std_ulogic;
@@ -103,6 +104,7 @@ architecture rtl of rena3_controller_apb is
         configure          => (others => '0'),
         bitindex           => 0,
         acquire_time       => (others => '0'),
+        trap_count         => (others => '0'),
         fast_trigger       => '0',
         slow_trigger       => '0',
         overflow           => '0',
@@ -159,6 +161,7 @@ begin
                     when CONFIGURE     => v.readdata := x"00000001";
                     when CONFIGURE_END => v.readdata := x"00000001";
                     when CLEAR         => v.readdata := x"00000002";
+                    when TRAP          => v.readdata := x"0000000A";
                     when DETECT        => v.readdata := x"00000003";
                     when ACQUIRE       => v.readdata := x"00000004";
                     when ANALYZE       => v.readdata := x"00000005";
@@ -250,6 +253,10 @@ begin
             -- fast higher channel force mask // 0x4c
             when "10011" =>
                 v.readdata( 3 downto 0)          := std_logic_vector( v.fast_force_mask(35 downto 32));
+
+            -- trap counter                   // 0x50
+            when "10100" =>
+                v.readdata(15 downto 0)          := std_logic_vector( v.trap_count);
 
             when others => 
                 null;
@@ -372,6 +379,10 @@ begin
                 when "10011" =>
                     v.fast_force_mask(35 downto 32)   := std_ulogic_vector( v.writedata( 3 downto 0));
 
+                -- trap counter                   // 0x50
+                when "10100" =>
+                    v.trap_count                      := unsigned( v.writedata(15 downto 0));
+
                 when others => 
                     null;
 
@@ -385,6 +396,8 @@ begin
         if v.timer = 0 then
             case v.state is
 
+
+                -- reset relevant signals
                 when IDLE =>
                     v.rena.cs_n             := '0';
                     v.rena.cshift           := '0';
@@ -393,6 +406,8 @@ begin
                     v.rena.cls              := '0'; 
                     v.rena.clf              := '0'; 
 
+
+                -- start toggeling the configuration chain
                 when CONFIGURE =>
 
                         if v.rena.cshift = '1' then
@@ -409,27 +424,38 @@ begin
                             v.rena.cshift   := '1';
                         end if;
 
+                -- clean up configuration
                 when CONFIGURE_END =>
                     v.rena.cs_n             := '1';
+                    v.rena.cin              := '0';
                     v.timer                 := 1;
                     v.state                 := IDLE;
 
-                -- clear detector triggers
+
+
+                -- reset detector triggers
                 when CLEAR =>
                     v.fast_trigger_chain    := (others => '0');
                     v.slow_trigger_chain    := (others => '0'); 
-                    v.fast_trigger          := '0';
-                    v.overflow              := '0';
+                    v.token_count           := (others => '0');
+                    v.sample_valid          := (others => '0');
+                    v.sample_address        := (others => '0');
                     v.timer                 := 97;   -- 1000 ns 
-                    v.state                 := DETECT;
+                    v.state                 := TRAP;
 
-                -- wait for trigger event
-                when DETECT =>
+                when TRAP =>
+                    v.timer                 := to_integer( v.trap_count);
                     v.rena.clf              := '0'; 
                     v.rena.cls              := '0'; 
+                    v.state                 := DETECT;
+
+                -- wait for trigger event (TS/TF)
+                when DETECT =>
                     v.slow_trigger          := '0';
+                    v.fast_trigger          := '0';
+                    v.overflow              := '0';
                     
-                    -- detect trigger events
+                    -- catch trigger events
                     if v.rena_in.ts = '1' then
                         v.slow_trigger      := '1';
                     end if;
@@ -452,7 +478,8 @@ begin
                         v.rena.test   := not v.test_polarity;
                     end if;
 
-
+                -- wait a given aquire time
+                -- after a tigger event occure
                 when ACQUIRE =>
                     if v.acquire_time > 0 then
                         v.acquire_time      := v.acquire_time - 1;
@@ -462,7 +489,8 @@ begin
                         v.bitindex          := 35;
                     end if;
 
-
+                
+                -- check which channel has triggered
                 when ANALYZE =>
                     v.timer                 := 4; -- no timing in datasheet given
                     if v.rena.fhrclk = '0' then
@@ -482,7 +510,7 @@ begin
                             v.timer              := 10; -- just to see a gap
                             v.state              := DESIRE;
                             v.state_after_desire := READOUT;
-                            v.bitindex           := 36;
+                            v.bitindex           := 35;
                             v.fast_trigger_chain := v.fast_chain;
                             v.slow_trigger_chain := v.slow_chain;
                             v.fast_chain         := (v.fast_chain and v.fast_channel_mask) or v.fast_force_mask;
@@ -529,10 +557,9 @@ begin
                         if v.bitindex > 0 then
                             v.bitindex       := v.bitindex - 1;
                         else
+                            v.rena.fin       := '0';
+                            v.rena.sin       := '0';
                             v.state          := v.state_after_desire;
-                            v.token_count    := (others => '0');
-                            v.sample_valid   := (others => '0');
-                            v.sample_address := (others => '0');
                             v.rena.tin       := '1';
                             v.rena.read      := '1';
                             if v.state_after_desire = READOUT then
@@ -541,7 +568,7 @@ begin
                         end if;
                     end if;
 
-
+                -- start token/ADC readout
                 when READOUT =>
                     if v.rena_in.tout = '1' then
                         -- no more token in chain
@@ -585,6 +612,13 @@ begin
                     v.rena.read              := '1';
                     v.rena.acquire           := '1';
 
+                    -- run test pulse generator
+                    if v.test_length > 0 then
+                        v.test_length := v.test_length - 1;
+                    else
+                        v.rena.test   := not v.test_polarity;
+                    end if;
+
             end case;
         else
             v.timer := v.timer - 1;
@@ -625,6 +659,7 @@ begin
             when CONFIGURE     => rena_debug.state <= x"1";
             when CONFIGURE_END => rena_debug.state <= x"1";
             when CLEAR         => rena_debug.state <= x"2";
+            when TRAP          => rena_debug.state <= x"A";
             when DETECT        => rena_debug.state <= x"3";
             when ACQUIRE       => rena_debug.state <= x"4";
             when ANALYZE       => rena_debug.state <= x"5";

@@ -454,8 +454,15 @@ uint32_t version_function( void)
 
 /*****************************************************************************
 * Function:     ddsinit_function
+*
 * Description:  init DDS with frequency tuning word
-* Parameters:   
+*               can be calculates as follow:
+*               FTW = ( desired frequency * 2**48) / sysclk
+*               sysclk should be 200 MHz
+*               example: 10 MHz ddsinit CCCC CCCCCCCC
+*
+* Parameters:   (frequency tuning word high bits: 47..32)
+*               (frequency tuning word low  bits: 31..0)
 * Returns:      0
 *****************************************************************************/
 uint32_t ddsinit_function( void)
@@ -529,6 +536,7 @@ uint32_t rena_trouble( void)
         // generate testpulse
         rena_testgen( RENA_TEST_POL_NEG, value);
         usleep( 100);
+        rena_testgen( RENA_TEST_POL_POS, value);
 
         // switch off all channels
         rena_powerdown_config_function();
@@ -558,35 +566,37 @@ uint32_t rena_trouble_acquire( void)
     uint8_t  config_high;
     uint32_t config_low;
    
-    loop  = monitor_get_argument_int(1);
-    value = monitor_get_argument_int(2);
+//  loop  = monitor_get_argument_int(1);
+//  value = monitor_get_argument_int(2);
    
     uint8_t dac_value;
 
-    dac_value = 177;
     index     = monitor_get_argument_int(1);
+    dac_value = monitor_get_argument_int(2);
+
     rena_powerdown_config_function();
    
 
     // check token chain for every channel
-    dac_value = value; // 200; //177;
 //  for (index = 0; index <= 35; index++)
 //  {
-        fill( putint( index), 2);
-        putstr( ": ");
             
+        rena_testgen( RENA_TEST_POL_NEG, 2000);
+        rena->trap_count = 100;
+
         config_high = 
             RENA_ECAL;
 
         config_low  = 
-            (0        << RENA_GAIN) |
-            RENA_RSEL_VREFHI        |
-            (5        << RENA_SEL)  |
-            (dac_value << RENA_DF)  | 
-            RENA_POLNEG             |
-            (dac_value << RENA_DS)  | 
+            (3         << RENA_GAIN) |
+            RENA_RSEL_VREFHI         |
+            (10        << RENA_SEL)  |
+            (dac_value << RENA_DF)   | 
+            RENA_POLNEG              |
+            (dac_value << RENA_DS)   | 
             RENA_ENS;
-        rena_channel_config( index, config_high, config_low);
+
+        rena_channel_config_verbose( index, config_high, config_low);
 
         // mask to read only the desired channel
         rena->fast_channel_force_mask_low  = 0;
@@ -606,12 +616,17 @@ uint32_t rena_trouble_acquire( void)
             rena->slow_channel_force_mask_high = (1 << (index - 32));
         }
 
-
-        rena_testgen( RENA_TEST_POL_NEG, 100);
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
-
-        msleep( 10);
+        
+        // wait until testedge
+        while ((( rena->test_generator & 0x7fffffff) > 0) & ( rena->control_status == 0x03));
+        // and longer
+        //msleep( 10);
+        putstr("testgen : ");
+        puthex( 32, rena->test_generator);
+        putchar('\n');
+        rena_status();
 
         status = rena->control_status;
         switch( status & 0xff)
@@ -635,7 +650,9 @@ uint32_t rena_trouble_acquire( void)
         puthex( 4, rena->slow_trigger_chain_high); 
         puthex(32, rena->slow_trigger_chain_low);
 
+        rena->control_status = RENA_MODE_IDLE;
         rena_powerdown_config_function();
+        rena_testgen( RENA_TEST_POL_NEG, 0);
         putchar( '\n');
 //  }
 
@@ -753,6 +770,7 @@ uint32_t testgen_function( void)
     cycles = monitor_get_argument_int(1);
    
     rena_testgen( RENA_TEST_POL_NEG, cycles);
+    return cycles;
 }
 
 
@@ -779,14 +797,13 @@ int main(void)
     i2c_init();
     // enable timer interrupt, for scheduler
     set_bit( timer0->e[0].ctrl, TIMER_INT_ENABLE);
-    
-    // set all rena registers to (zero/ power off)    
-    rena_powerdown_config_function();
-    // init rena testgen polarity
-    rena_testgen( RENA_TEST_POL_NEG, 0);
-
 
     if (!simulation_active) {
+        
+        // set all rena registers to (zero/ power off)    
+        rena_powerdown_config_function();
+        // init rena testgen polarity
+        rena_testgen( RENA_TEST_POL_NEG, 0);
 
         #ifdef BOARD_SP605
         vga_init();
@@ -819,16 +836,20 @@ int main(void)
 /*
     // configure rena
     rena_set_ecal( 34);
+    rena_testgen( RENA_TEST_POL_NEG, 5000);
     rena_follow_mode( 34);
+        
+    //second pulse
+    while ( ( rena->test_generator & 0x0ffff) > 0);
+    usleep( 20);
+    rena_testgen( RENA_TEST_POL_NEG, 500);
     
-    // generate some test pulse
-    usleep( 5);
-    rena_testgen( RENA_TEST_POL_NEG, 10);
-    usleep( 5);
-    rena_testgen( RENA_TEST_POL_POS, 10);
     usleep( 5);
 */
-    
+      
+    rena_testgen( RENA_TEST_POL_NEG, 200);
+    rena->trap_count = 100;
+
     uint8_t  config_high;
     uint32_t config_low;
 
@@ -837,23 +858,28 @@ int main(void)
 
         config_low  = 
             (0        << RENA_GAIN) |
-//          RENA_RSEL_VREFHI        |
+            RENA_RSEL_VREFHI        |
             (5        << RENA_SEL)  |
             (170      << RENA_DF)   | 
             RENA_POLNEG             |
             (170      << RENA_DS)   | 
             RENA_ENS                |
             RENA_FM;
-        rena_channel_config( 35, config_high, config_low);
+        rena_channel_config( 3, config_high, config_low);
     
-        rena_testgen( RENA_TEST_POL_NEG, 1000);
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
         
-        usleep( 2);
+        // wait until testedge
+        while ( ( rena->test_generator & 0x0ffff) > 0);
+        // and longer
+        usleep( 20);
 
+    rena->control_status = RENA_MODE_IDLE;
+    rena_testgen( RENA_TEST_POL_NEG, 0);
     
-
+    usleep( 20);
+  
     // test of scheduler
 //  scheduler_task_add( end_simulation_task, 3);
 //  running_light( simulation_active);

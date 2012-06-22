@@ -53,6 +53,7 @@ typedef struct {
     volatile uint32_t fast_channel_mask_high;       // 0x44
     volatile uint32_t fast_channel_force_mask_low;  // 0x48
     volatile uint32_t fast_channel_force_mask_high; // 0x4c
+    volatile uint32_t trap_count;                   // 0x50
 } rena_t;
 
 
@@ -73,6 +74,7 @@ extern rena_t *rena; // 0x80000d00;
 
 // low level functions
 uint32_t rena_channel_config(uint8_t channel, uint8_t high_config, uint32_t low_config);
+uint32_t rena_channel_config_verbose(uint8_t channel, uint8_t high_config, uint32_t low_config);
 
 
 // monitor functions

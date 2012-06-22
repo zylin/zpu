@@ -1001,10 +1001,10 @@ begin
     ------------------------------------------------------------ 
     -- spare test pads
     fmc_la31_p <= rena3_controller_i0_out.test;
-    fmc_la31_n <= rena3_controller_i0_in.tf;
-    fmc_la30_p <= rena3_controller_i0_in.ts;
-    fmc_la30_n <= rena3_controller_i0_out.acquire;
-    fmc_la33_p <= '0';
+    fmc_la31_n <= rena3_controller_i0_in.ts;
+    fmc_la30_p <= rena3_controller_i0_in.tout;
+    fmc_la30_n <= rena3_controller_i0_out.tin;
+    fmc_la33_p <= rena3_controller_i0_out.tclk;
     fmc_la33_n <= rena3_controller_i0_in.sout;
     fmc_la32_p <= rena3_controller_i0_out.shrclk;
     fmc_la32_n <= rena3_controller_i0_out.sin;
@@ -1037,12 +1037,16 @@ begin
     chipscope_data(24)           <= rena_debug.fast_trigger;
     chipscope_data(25)           <= rena_debug.slow_trigger;
     chipscope_data(26)           <= rena_debug.overflow;
+    chipscope_data(30)           <= adc_otr;
+    chipscope_data(31)           <= clk_adc;
     --
     chipscope_trigger(0)         <= rena3_controller_i0_out.test;
     chipscope_trigger(1)         <= rena3_controller_i0_in.tf;
     chipscope_trigger(2)         <= rena3_controller_i0_in.ts;
     chipscope_trigger(3)         <= rena3_controller_i0_out.acquire;
     chipscope_trigger(4)         <= rena3_controller_i0_out.cs_n;
+    chipscope_trigger(5)         <= rena3_controller_i0_out.read;
+    chipscope_trigger(6)         <= rena3_controller_i0_in.tout;
     --
     chipscope_i0 : entity work.chipscope
         port map (
