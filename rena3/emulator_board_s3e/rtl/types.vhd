@@ -1,0 +1,28 @@
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+
+package types is
+
+    type fpga_button_in_t is record
+        east   : std_ulogic;
+        north  : std_ulogic;
+        south  : std_ulogic;
+        west   : std_ulogic;
+    end record fpga_button_in_t;
+
+
+    type fpga_led_out_t is record
+        data   : std_ulogic_vector(7 downto 0);
+    end record fpga_led_out_t;
+
+
+    type fpga_rotary_sw_in_t is record
+        a      : std_ulogic;
+        b      : std_ulogic;
+        center : std_ulogic;
+    end record fpga_rotary_sw_in_t;
+
+
+end package types;
