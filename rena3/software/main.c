@@ -601,6 +601,7 @@ uint32_t rena_trouble_acquire( void)
         // mask to read only the desired channel
         rena->fast_channel_force_mask_low  = 0;
         rena->fast_channel_force_mask_high = 0;
+
         if (index < 32)
         {
             rena->slow_channel_mask_low  = (1 << index);
@@ -615,6 +616,10 @@ uint32_t rena_trouble_acquire( void)
             rena->slow_channel_force_mask_low  = 0;
             rena->slow_channel_force_mask_high = (1 << (index - 32));
         }
+        rena->slow_channel_force_mask_low  = 0x0F3;
+        rena->slow_channel_force_mask_high = 0;
+        rena->slow_channel_mask_low  = 0xF3;
+        rena->slow_channel_mask_high = 0;
 
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;

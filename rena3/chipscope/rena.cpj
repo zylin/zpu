@@ -1,5 +1,5 @@
 #ChipScope Pro Analyzer Project File, Version 3.0
-#Wed Jun 20 17:06:26 CEST 2012
+#Wed Jun 27 17:44:38 CEST 2012
 deviceChain.deviceName0=System_ACE_CF
 deviceChain.deviceName1=XC6SLX45T
 deviceChain.iRLength0=8
@@ -12,8 +12,8 @@ mdiAreaHeightLast=0.7
 mdiCount=2
 mdiDevice0=1
 mdiDevice1=1
-mdiType0=0
-mdiType1=1
+mdiType0=1
+mdiType1=0
 mdiUnit0=0
 mdiUnit1=0
 navigatorHeight=0.1796116504854369
@@ -33,7 +33,7 @@ unit.1.0.1.HEIGHT1=0.8102625
 unit.1.0.1.WIDTH1=1.0
 unit.1.0.1.X1=-0.0036845985
 unit.1.0.1.Y1=0.18973747
-unit.1.0.MFBitsA0=XXBXXXXX
+unit.1.0.MFBitsA0=XXXXXXXR
 unit.1.0.MFBitsB0=00000000
 unit.1.0.MFCompareA0=0
 unit.1.0.MFCompareB0=999
@@ -287,7 +287,7 @@ unit.1.0.port.0.s.6.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.6.name=TriggerPort0[6]
 unit.1.0.port.0.s.6.orderindex=-1
 unit.1.0.port.0.s.6.visible=1
-unit.1.0.port.0.s.7.alias=
+unit.1.0.port.0.s.7.alias=TIN
 unit.1.0.port.0.s.7.color=java.awt.Color[r\=0,g\=0,b\=124]
 unit.1.0.port.0.s.7.name=TriggerPort0[7]
 unit.1.0.port.0.s.7.orderindex=-1
@@ -303,8 +303,8 @@ unit.1.0.samplesPerTrigger=1
 unit.1.0.triggerCapture=1
 unit.1.0.triggerNSamplesTS=0
 unit.1.0.triggerPosition=200
-unit.1.0.triggerWindowCount=2
-unit.1.0.triggerWindowDepth=512
+unit.1.0.triggerWindowCount=1
+unit.1.0.triggerWindowDepth=1024
 unit.1.0.triggerWindowTS=0
 unit.1.0.username=MyILA0
 unit.1.0.waveform.count=29
@@ -371,10 +371,10 @@ unit.1.0.waveform.posn.26.channel=29
 unit.1.0.waveform.posn.26.name=DataPort[29]
 unit.1.0.waveform.posn.26.type=signal
 unit.1.0.waveform.posn.27.channel=30
-unit.1.0.waveform.posn.27.name=DataPort[30]
+unit.1.0.waveform.posn.27.name=adc_otr
 unit.1.0.waveform.posn.27.type=signal
 unit.1.0.waveform.posn.28.channel=31
-unit.1.0.waveform.posn.28.name=DataPort[31]
+unit.1.0.waveform.posn.28.name=clk_adc
 unit.1.0.waveform.posn.28.type=signal
 unit.1.0.waveform.posn.29.channel=31
 unit.1.0.waveform.posn.29.name=DataPort[31]

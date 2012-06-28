@@ -563,7 +563,7 @@ begin
                             v.rena.tin       := '1';
                             v.rena.read      := '1';
                             if v.state_after_desire = READOUT then
-                                v.timer      := 99;  -- 1 us
+                                v.timer      := 199;  -- 2 us
                             end if;
                         end if;
                     end if;

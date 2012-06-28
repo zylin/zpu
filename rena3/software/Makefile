@@ -22,7 +22,12 @@ help:
 startup = lib/crt0.S
 objs    = lib/crt0.o 
 lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
-ldflags = -nostartfiles $(objs) -Wl,--relax,--gc-sections,-lhal,-Llibhal
+ldflags = $(objs)
+ldflags += -nostartfiles 
+ldflags += -Wl,--relax
+ldflags += -Wl,--gc-sections
+ldflags += -Wl,-lhal
+ldflags += -Wl,-Llibhal
 
 
 zpu_rom_vhdl = ../rtl/dualport_ram.vhd
@@ -71,6 +76,7 @@ $(startup:.S=.o): $(startup)
 clean:
 	rm -f *.bin
 	rm -f *.elf
+	rm -f *.map
 	rm -f *.lst
 	rm -f *.o
 	rm -f lib/*.o

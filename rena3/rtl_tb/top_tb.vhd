@@ -260,8 +260,8 @@ begin
     
     -- stimuli for buttons and switches
     tb_cpu_reset   <= '0';
-    tb_gpio_button <= "0000", "0001" after 500 us, "0000" after 700 us;
-    tb_gpio_switch <= "0000", "0010" after 380 us, "0011" after 400 us, "1111" after 600 us;
+    tb_gpio_button <= "0000";--, "0001" after 500 us, "0000" after 700 us;
+    tb_gpio_switch <= "0000";--, "0010" after 380 us, "0011" after 400 us, "1111" after 600 us;
 
 
     top_i0: top

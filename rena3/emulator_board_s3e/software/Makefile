@@ -22,8 +22,13 @@ help:
 startup = lib/crt0.S
 objs    = lib/crt0.o 
 lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
-ldflags = -nostartfiles $(objs) -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-Llibhal
-#ldflags =              $(objs) -Wl,--relax -Wl,--gc-sections -Wl,-lhal -Wl,-Llibhal
+ldflags = $(objs)
+ldflags += -nostartfiles
+ldflags += -Wl,--relax
+ldflags += -Wl,--gc-sections
+ldflags += -Wl,-lhal
+ldflags += -Wl,-Llibhal
+ldflags += -Wl,-Map=main.map,--cref
 
 zpu_rom_vhdl = ../rtl/dualport_ram.vhd
 ahb_rom_vhdl = ../rtl/ahbrom.vhd
@@ -48,7 +53,7 @@ software: $(zpu_rom_vhdl) $(ahb_rom_vhdl)
 main.bin: $(c_files) $(h_files) $(objs)
 	make --directory libhal
 	@# normal compile command (emulate instructions)
-	zpu-elf-gcc $(COMPILER_OPTIONS) -O3 -phi $(c_files) $(ldflags) -o main.elf 
+	zpu-elf-gcc $(COMPILER_OPTIONS) -Os -phi $(c_files) $(ldflags) -o main.elf 
 	zpu-elf-size main.elf
 	../../../fpga_tools/print_mem_zpu.sh main.elf 16 3
 	zpu-elf-objdump -D -S main.elf > main.lst
@@ -76,6 +81,7 @@ $(startup:.S=.o): $(startup)
 clean:
 	rm -f *.bin
 	rm -f *.elf
+	rm -f *.map
 	rm -f *.lst
 	rm -f *.o
 	rm -f lib/*.o

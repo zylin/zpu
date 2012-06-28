@@ -130,7 +130,7 @@ add wave -noupdate /top_tb/top_i0/gpio_switch
 add wave -noupdate -divider {rena controller}
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_0_in
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r.rena
-add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask -radix hexadecimal}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.channel_mask {-height 15 -radix hexadecimal} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}}} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
+add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}}} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
 add wave -noupdate -divider testgen
 add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_out.test
 add wave -noupdate -divider {analog -> ADC}
@@ -143,7 +143,7 @@ add wave -noupdate -divider DDS
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {246626178 ps} 0}
+WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {234215311 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -158,4 +158,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {430934906 ps} {431809513 ps}
+WaveRestoreZoom {0 ps} {426964125 ps}

@@ -1047,6 +1047,7 @@ begin
     chipscope_trigger(4)         <= rena3_controller_i0_out.cs_n;
     chipscope_trigger(5)         <= rena3_controller_i0_out.read;
     chipscope_trigger(6)         <= rena3_controller_i0_in.tout;
+    chipscope_trigger(7)         <= rena3_controller_i0_out.tin;
     --
     chipscope_i0 : entity work.chipscope
         port map (
