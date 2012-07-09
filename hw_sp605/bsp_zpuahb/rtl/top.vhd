@@ -27,14 +27,6 @@ use unisim.vcomponents.ibufds;
 use unisim.vcomponents.dcm_sp;
 use unisim.vcomponents.oddr2;
 
-library work;
-use work.components.box;
-use work.components.chipscope;
-use work.components.testsignal_generator;
-
-library bpm;
-use bpm.types_package.all;
-use bpm.components_package.testsignal_drain;
 
 
 entity top is
@@ -328,7 +320,7 @@ use work.types.all;
 
 architecture rtl of top is
 
-    constant system_frequency_c : natural := 52_000_000;
+    constant system_frequency_c : natural := 100_000_000;
     --constant system_frequency_c : natural := 27_000_000;
 
     function simulation_active return std_ulogic is
@@ -451,8 +443,8 @@ begin
             startup_wait      => true, -- wait with DONE till locked
             clkin_divide_by_2 => true,
             clkdv_divide      => 4.0,
-            clkfx_multiply    => 13,
-            clkfx_divide      => 25,
+            clkfx_multiply    => 1,
+            clkfx_divide      => 2,
             clk_feedback      => "1x"
         )
         port map (
@@ -464,66 +456,10 @@ begin
         );
         
         clk_fb0   <= dcm_sp_i0_clk0;
-        clk_52    <= dcm_sp_i0_clkfx;
+        clk_box   <= dcm_sp_i0_clkfx;
         
 
-        -- ADC clk input pads
-        ibufgds_diff_out_i0 : ibufgds_diff_out
-            generic map (
-                diff_term => true
-            )
-            port map (
-                i   => fmc_la01_cc_p,
-                ib  => fmc_la01_cc_n,
-                o   => adc_clk,
-                ob  => adc_clk_n
-            );
-
-        -- use bufg for adc clk (necessary for timing!)
-        bug_i0 : bufg
-            port map (
-                i => adc_clk,
-                o => adc_clk_buf
-        );
-
-        bug_i1 : bufg
-            port map (
-                i => adc_clk_n,
-                o => adc_clk_n_buf
-        );
-
-
-        -- DCM just for detecting an active ADC clock
-        dcm_sp_i1: dcm_sp
-            generic map (
-                clk_feedback      => "1x"
-            )
-            port map (
-                clkin  => adc_clk,
-                clk0   => dcm_sp_i1_clk0,
-                clk180 => dcm_sp_i1_clk180,
-                clkfb  => clk_fb1,
-                locked => dcm_sp_i1_locked,
-                status => dcm_sp_i1_status
-            );
-        clk_fb1        <= dcm_sp_i1_clk0;
-        clk_adc_52     <= dcm_sp_i1_clk0;
-        clk_adc_52_n   <= dcm_sp_i1_clk180;
-        clk_adc_active <= dcm_sp_i1_locked and not dcm_sp_i1_status(1);
-
-        bufgmux_i0: bufgmux
-            generic map (
-                clk_sel_type => "SYNC"
-            )
-            port map (
-                o  => clk_box,
-                i0 => clk_52,
-                i1 => clk_adc_52,
-                s  => clk_adc_select
-            );
-
-       
-        -- chrontel chip needs both clk edges
+        -- chrontel chip needs both clk edges, @25MHz
         clk_vga   <= dcm_sp_i0_clkdv;
         clk_vga_n <= not dcm_sp_i0_clkdv;
         
@@ -563,133 +499,12 @@ begin
     reset_n <= not reset;
 
 
-    ------------------------------------------------------------ 
-    -- adc connection
-    adc_driver_b : block
-        signal d01           : std_ulogic;
-        signal d23           : std_ulogic;
-        signal d45           : std_ulogic;
-        signal d67           : std_ulogic;
-        signal d89           : std_ulogic;
-        signal d1011         : std_ulogic;
-        signal d1213         : std_ulogic;
-        signal adc_ddr       : std_ulogic_vector( 6 downto 0);
-        signal adc_data_rand : std_ulogic_vector(13 downto 0) := (others => '0');
-    begin
-
-        -- differential input buffer
-        ibufds_i00 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d01,
-                i  => fmc_la02_p,
-                ib => fmc_la02_n
-            );
-   
-        ibufds_i01 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d23,
-                i  => fmc_la04_p,
-                ib => fmc_la04_n
-            );
-   
-        ibufds_i02 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d45,
-                i  => fmc_la07_p,
-                ib => fmc_la07_n
-            );
-   
-        ibufds_i03 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d67,
-                i  => fmc_la11_p,
-                ib => fmc_la11_n
-            );
-   
-        ibufds_i04 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d89,
-                i  => fmc_la15_p,
-                ib => fmc_la15_n
-            );
-   
-        ibufds_i05 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d1011,
-                i  => fmc_la19_p,
-                ib => fmc_la19_n
-            );
-   
-        ibufds_i06 : ibufds
-            generic map (
-                diff_term => true
-            )
-            port map (
-                o  => d1213,
-                i  => fmc_la21_p,
-                ib => fmc_la21_n
-            );
-   
-        -- collect signals to vector
-        -- 14 bit ADC:
-        adc_ddr <= d1213 & d1011 & d89 & d67 & d45 & d23 & d01; 
-      
-        -- make double data rate to single data rate signals
-        iddr2_ix : for i in 0 to 6 generate
-            iddr2_i : iddr2
-                generic map (
-                    ddr_alignment => "c0",
-                    init_q0       => '0',
-                    init_q1       => '0'
-                )
-                port map (
-                    ce => '1',
-                    c0 => adc_clk_buf,
-                    c1 => adc_clk_n_buf,
-                    d  => adc_ddr(i),
-                    r  => '0',
-                    s  => '0',
-                    q0 => adc_data_rand(2 * i + 1),
-                    q1 => adc_data_rand(2 * i)
-               );
-        end generate;
-    
-        de_randomizer : for i in 1 to 13 generate
-            adc_data(i) <= adc_data_rand(i) xor adc_data_rand(0);
-        end generate;
-        -- unrandomized LSB
-        adc_data(0) <= adc_data_rand(0);
-        
-        -- emulate 16 Bit DAC (copy the lower bits)
-        adc_data_16bit <= adc_data & adc_data(0) & adc_data(0);
-
-    end block adc_driver_b;
-
-
-    chipscope_i0 : chipscope
-        port map (
-            clk  => adc_clk_buf,               --: in std_ulogic;
-            data => x"0000" & adc_data_16bit,  --: in std_ulogic_vector(15 downto 0);
-            trig => '1'                        --: in std_ulogic
-            );
+--  chipscope_i0 : chipscope
+--      port map (
+--          clk  => adc_clk_buf,               --: in std_ulogic;
+--          data => x"0000" & adc_data_16bit,  --: in std_ulogic_vector(15 downto 0);
+--          trig => '1'                        --: in std_ulogic
+--          );
 
 
     -- default output drivers
@@ -863,6 +678,15 @@ begin
     gpioi.din(11 downto  8) <= gpio_header_ls;
     gpioi.din(29 downto 12) <= (others => '0');
     gpioi.din(31)           <= simulation_active;
+    -- gpio output pads
+    -- placement on board: LED0, LED1, LED2, LED3
+    gpio_led          <= box_i0_gpioo.dout(3  downto 0);
+    --gpio_header_ls  <= box_i0_gpioo.dout(11 downto 8);
+    gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
+    gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
+    gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
+    gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
+    fpga_awake        <= testsignal_drain_i0_sig;
 
     
     ------------------------------------------------------------ 
@@ -870,6 +694,9 @@ begin
     uarti.rxd    <= usb_1_tx;  -- function: RX data in
     uarti.ctsn   <= usb_1_rts; -- not( usb_1_rts); function: CTS input
     uarti.extclk <= '0';
+    -- uart output
+    usb_1_rx   <= box_i0_uarto.txd;  -- function: TX data out
+    usb_1_cts  <= box_i0_uarto.rtsn; -- function: RTS
 
     
     ------------------------------------------------------------ 
@@ -898,140 +725,6 @@ begin
     phy_mdc         <= box_i0_etho.mdc;
     -- inout
     phy_mdio        <= box_i0_etho.mdio_o when box_i0_etho.mdio_oe = '0' else 'Z';
-
-
-    ------------------------------------------------------------ 
-    -- test signals
-    testsignal_generator_i0: testsignal_generator 
-        generic map (
-            use_file_as_source   => testgen_use_file_as_source,           -- : boolean
-            disable_ch2_ch3      => false                                 -- : boolean
-        )                                                        
-        port map (                                               
-            clk                  => clk_box,                              -- : in  std_ulogic;
-            simulation           => simulation_active,                    -- : in  std_ulogic;
-            ctrl                 => box_i0_testsignal_generator_ctrl,     -- : in  testsignal_generator_ctrl_t;
-            micropulse           => testsignal_generator_i0_micropulse,   -- : out std_ulogic
-            adc_0                => testsignal_generator_i0_adc0,         -- : out std_ulogic_vector(15 downto 0);
-            adc_1                => testsignal_generator_i0_adc1,         -- : out std_ulogic_vector(15 downto 0);
-            adc_2                => testsignal_generator_i0_adc2,         -- : out std_ulogic_vector(15 downto 0);
-            adc_3                => testsignal_generator_i0_adc3,         -- : out std_ulogic_vector(15 downto 0)
-            dcm                  => testsignal_generator_i0_dcm,          -- : out std_ulogic_vector(15 downto 0);
-            dcm_enable           => testsignal_generator_i0_dcm_enable    -- : out std_ulogic
-        );
-    dcm_in <= ( data    => (
-                    enable => testsignal_generator_i0_dcm_enable, 
-                    value  => signed( testsignal_generator_i0_dcm)
-                    ),
-                active  => gpio_switch(0),
-                link_up => gpio_switch(1));
-
-
-    ------------------------------------------------------------ 
-    -- box system
-    box_i0: box
-        port map (
-            clk          => clk_box,                                       --: in    std_ulogic;
-            reset_n      => reset_n,                                       --: in    std_ulogic;
-            break        => box_i0_break,                                  --: out   std_ulogic;
-            --                                                             
-            uarti        => uarti,                                         --: in    uart_in_type;
-            uarto        => box_i0_uarto,                                  --: out   uart_out_type;
-            --                                                             
-            gpioi        => gpioi,                                         --: in    gpio_in_type;
-            gpioo        => box_i0_gpioo,                                  --: out   gpio_out_type;
-            --                                                             
-            fmc_i2ci     => fmc_i2ci,                                      --: in    i2c_in_type;
-            fmc_i2co     => box_i0_fmc_i2co,                               --: out   i2c_out_type;
-            --                                                             
-            dvi_i2ci     => dvi_i2ci,                                      --: in    i2c_in_type;
-            dvi_i2co     => box_i0_dvi_i2co,                               --: out   i2c_out_type;
-            --                                                             
-            clk_vga      => clk_vga,                                       --: in    std_ulogic;
-            vgao         => box_i0_vgao,                                   --: out   apbvga_out_type
-            --
-            spmi         => spmi,                                          --: in    spmictrl_in_type;
-            spmo         => box_i0_spmo,                                   --: out   spmictrl_out_type;
-            --  
-            memi         => memi,                                          --: in    memory_in_type;
-            memo         => box_i0_memo,                                   --: out   memory_out_type;
-            --
-            ethi         => ethi,                                          --: in    eth_in_type;
-            etho         => box_i0_etho,                                   --: out   eth_out_type;
-            --
-            testsignal_generator_ctrl => box_i0_testsignal_generator_ctrl, --: out testsignal_generator_ctrl_t;
-            --
-            micropulse   => micropulse,                                    --: in  std_ulogic;
-            channel0     => adc_data_16bit,                                --: in  std_ulogic_vector(15 downto 0);
-            channel1     => testsignal_generator_i0_adc1,                  --: in  std_ulogic_vector(15 downto 0);
-            channel2     => testsignal_generator_i0_adc2,                  --: in  std_ulogic_vector(15 downto 0);
-            channel3     => testsignal_generator_i0_adc3,                  --: in  std_ulogic_vector(15 downto 0)
-            dcm_in       => dcm_in,                                        --: in    int16_t;
-            --                                                             
-            dac0         => box_i0_dac0,                                   --: out dac_spi_t;
-            dac1         => box_i0_dac1,                                   --: out dac_spi_t;
-            dac2         => box_i0_dac2,                                   --: out dac_spi_t;
-            dac3         => box_i0_dac3,                                   --: out dac_spi_t
-            --                                                             
-            glcd         => box_i0_glcd,                                   --: out   ea_dogs_out_t;
-            --                                                             
-            error_led    => box_i0_error_led                               --: out   std_ulogic
-        );
-        
-    ------------------------------------------------------------ 
-    -- break for simulation
-    --
-    -- pragma translate_off
-    simulation_break <= box_i0_break;
-    -- pragma translate_on
-
-    ------------------------------------------------------------
-    -- testsignal drain
-    testsignal_drain_i0: testsignal_drain
-        port map (
-            clk  => clk_box,                 --: in  std_ulogic;
-            dac0 => box_i0_dac0,             --: in  dac_spi_t;
-            dac1 => box_i0_dac1,             --: in  dac_spi_t;
-            dac2 => box_i0_dac2,             --: in  dac_spi_t;
-            dac3 => box_i0_dac3,             --: in  dac_spi_t;
-            sig  => testsignal_drain_i0_sig  --: out std_ulogic;
-        );
-
-    ------------------------------------------------------------ 
-    -- gpio output pads
-    -- placement on board: LED0, LED1, LED2, LED3
-    gpio_led          <= box_i0_gpioo.dout(3  downto 0);
-    --gpio_header_ls  <= box_i0_gpioo.dout(11 downto 8);
-    gpio_header_ls(0) <= box_i0_gpioo.dout( 8) when box_i0_gpioo.oen( 8) = '0' else 'Z';
-    gpio_header_ls(1) <= box_i0_gpioo.dout( 9) when box_i0_gpioo.oen( 9) = '0' else 'Z';
-    gpio_header_ls(2) <= box_i0_gpioo.dout(10) when box_i0_gpioo.oen(10) = '0' else 'Z';
-    gpio_header_ls(3) <= box_i0_gpioo.dout(11) when box_i0_gpioo.oen(11) = '0' else 'Z';
-    fpga_awake        <= testsignal_drain_i0_sig;
-
-
-    ------------------------------------------------------------ 
-    -- adc clk detect/select
-    gpioi.din(30)  <= clk_adc_active;
-    clk_adc_select <= 
-    -- enable clock running in simulation
-    -- pragma translate_off
-        'L' and
-    -- pragma translate_on
-        box_i0_gpioo.dout(30);
-
-    
-    ------------------------------------------------------------ 
-    -- micropulse select
-    -- 0 = internal: testsignal_generator_i0_micropulse
-    -- 1 = external: user_sma_clock_p
-    micropulse <= user_sma_clock_p when box_i0_gpioo.dout(29) = '1' else 
-                  testsignal_generator_i0_micropulse;
-
-
-    ------------------------------------------------------------ 
-    -- uart output
-    usb_1_rx   <= box_i0_uarto.txd;  -- function: TX data out
-    usb_1_cts  <= box_i0_uarto.rtsn; -- function: RTS
 
     
     ------------------------------------------------------------ 
@@ -1112,26 +805,48 @@ begin
             );
     end block dvi_vga_driver_b;
 
-    ------------------------------------------------------------ 
-    -- dac pads (on fmc)
-    fmc_la03_n    <= box_i0_dac0.sclk;         -- fmc G10
-    fmc_la03_p    <= box_i0_dac0.fsync;        -- fmc G9
-    fmc_la08_p    <= box_i0_dac0.sdo;          -- fmc G12
-    fmc_la08_n    <= box_i0_gpioo.dout(19);    -- fmc G13  dac_muteb_n;
-    fmc_la12_p    <= box_i0_gpioo.dout(20);    -- fmc G15  dac_resetb_n;
-    fmc_la12_n    <= box_i0_gpioo.dout(21);    -- fmc G16  dac_bpb_n;
-    fmc_la16_p    <= box_i0_gpioo.dout(22);    -- fmc G18  dac_osr1;
-    fmc_la16_n    <= box_i0_gpioo.dout(23);    -- fmc G19  dac_osr2;
+
 
     ------------------------------------------------------------ 
-    -- LCD pads (on fmc)
-    fmc_la27_p    <= box_i0_glcd.reset_n;      -- fmc C26  LCD RST_n
-    fmc_la27_n    <= box_i0_glcd.cs0_n;        -- fmc C27  LCD CS0_n
-    fmc_la10_n    <= box_i0_glcd.sck;          -- fmc C15  LCD SCK
-    fmc_la10_p    <= box_i0_glcd.sda;          -- fmc C14  LCD SDA
-    fmc_la14_p    <= box_i0_glcd.cd;           -- fmc C18  LCD CD
-    fmc_la18_cc_n <= box_i0_glcd.backlight;    -- fmc C23  LCD BL green
-    fmc_la18_cc_p <= box_i0_error_led;         -- fmc C22  LCD BL red
+    -- box system
+    box_i0: entity work.box
+        port map (
+            clk          => clk_box,                                       --: in    std_ulogic;
+            reset_n      => reset_n,                                       --: in    std_ulogic;
+            break        => box_i0_break,                                  --: out   std_ulogic;
+            --                                                             
+            uarti        => uarti,                                         --: in    uart_in_type;
+            uarto        => box_i0_uarto,                                  --: out   uart_out_type;
+            --                                                             
+            gpioi        => gpioi,                                         --: in    gpio_in_type;
+            gpioo        => box_i0_gpioo,                                  --: out   gpio_out_type;
+            --                                                             
+            fmc_i2ci     => fmc_i2ci,                                      --: in    i2c_in_type;
+            fmc_i2co     => box_i0_fmc_i2co,                               --: out   i2c_out_type;
+            --                                                             
+            dvi_i2ci     => dvi_i2ci,                                      --: in    i2c_in_type;
+            dvi_i2co     => box_i0_dvi_i2co,                               --: out   i2c_out_type;
+            --                                                             
+            clk_vga      => clk_vga,                                       --: in    std_ulogic;
+            vgao         => box_i0_vgao,                                   --: out   apbvga_out_type
+            --
+            spmi         => spmi,                                          --: in    spmictrl_in_type;
+            spmo         => box_i0_spmo,                                   --: out   spmictrl_out_type;
+            --  
+            memi         => memi,                                          --: in    memory_in_type;
+            memo         => box_i0_memo,                                   --: out   memory_out_type;
+            --
+            ethi         => ethi,                                          --: in    eth_in_type;
+            etho         => box_i0_etho                                    --: out   eth_out_type;
+        );
+        
+    ------------------------------------------------------------ 
+    -- break for simulation
+    --
+    -- pragma translate_off
+    simulation_break <= box_i0_break;
+    -- pragma translate_on
 
+    ------------------------------------------------------------ 
 
 end architecture rtl;

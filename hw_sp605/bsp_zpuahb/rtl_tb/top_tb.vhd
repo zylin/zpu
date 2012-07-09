@@ -2,12 +2,12 @@
 --
 -- contains:
 --
---  +--------------+     +-------------+        +---------+
---  |  board_sp605 |     | bpm_adc_dac |        | dc1369  |
---  |              |XFMCX|  board      |XXEDGEXX|  board  |
---  |              |XLPCX|             |XX100XXX|         |
---  |  FPGA        |     | LCD + DAC   |        |  ADC    |
---  +--------------+     +-------------+        +---------+
+--  +--------------+     
+--  |  board_sp605 |     
+--  |              |XFMCX
+--  |              |XLPCX
+--  |  FPGA        |     
+--  +--------------+     
 --
 --
 --  +-------------------------------------------------------------------------+
@@ -19,17 +19,17 @@
 --  |  |                |                                                     |
 --  |  +----------------+                                                     |
 --  |      *FMC LPC*                                                          |
---  |  +------------------------------------------------------------------+   |
---  |  | bpm_adc_dac_testboard                                            |   |
---  |  |                                                                  |   |
---  |  |                                                                  |   |
---  |  | - SPI LCD (=EA DOGS 102)                                         |   |
---  |  | - LCD background LEDs                                            |   |
---  |  | - DAC                                                            |   |
---  |  |                                                                  |   |
---  |  |                                                                  |   |
---  |  |                                                                  |   |
---  |  +------------------------------------------------------------------+   |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
+--  |                                                                         |
 --  |                                                                         |
 --  +-------------------------------------------------------------------------+
 
@@ -53,24 +53,12 @@ use work.components.top;
 library std;
 use std.textio.all;
 
-library bpm;
-use bpm.debug_package.all;
-
 
 
 architecture testbench of top_tb is
     
 
     constant me_c                         : string  := testbench'path_name;
-
-    -- file names for test data input and output
-    constant suffix_c                     : string  := "Daten7";-- "01" for adc_01.txt
-    --
-    constant linfilter_filename_c         : string  := "data/linfilter_" & suffix_c & ".txt";
-    constant linfilter_samples_c          : natural := 2**16;
-    constant quadsum_filename_c           : string  := "data/quadsum_"   & suffix_c & ".txt";
-    constant quadsum_samples_c            : natural := 2**8;
-
 
     constant gnd                          : std_logic := '0';
 
@@ -454,7 +442,7 @@ begin
             -- Ethernet Gigabit PHY
             PHY_COL                     => tb_PHY_COL,               --: in    std_logic;
             PHY_CRS                     => tb_PHY_CRS,               --: in    std_logic;
-            PHY_INT                     => tb_PHY_INT,               --: out   std_logic;
+            PHY_INT                     => tb_PHY_INT,               --: in    std_logic;
             PHY_MDC                     => tb_PHY_MDC,               --: out   std_logic;
             PHY_MDIO                    => tb_PHY_MDIO,              --: inout std_logic;
             PHY_RESET_B                 => tb_PHY_RESET_B,           --: out   std_logic;
@@ -520,6 +508,7 @@ begin
             --
             --  27 MHz, oscillator socket
             user_clock                  => tb_user_clock,            --: in    std_logic;
+            -- user clock provided per SMA
             user_sma_clock_p            => tb_user_sma_clock_p,      --: inout std_logic;
             user_sma_clock_n            => tb_user_sma_clock_n,      --: inout std_logic;
             --
@@ -638,18 +627,6 @@ begin
     tb_fmc_lpc_row_h(40) <= 'X';
 
 
-    bpm_adc_dac_testboard_i0: entity work.bpm_adc_dac_testboard
-    generic map (
-        adc_stimuli_file_name => "data/adc_amplitude_ch0.txt",
-        adc_output_randomizer => true
-    )
-    port map (
-        simulation_run        => simulation_run,
-        fmc_lpc_row_c         => tb_fmc_lpc_row_c,  --: inout std_logic_vector(40 downto 1);
-        fmc_lpc_row_d         => tb_fmc_lpc_row_d,  --: inout std_logic_vector(40 downto 1);
-        fmc_lpc_row_g         => tb_fmc_lpc_row_g,  --: inout std_logic_vector(40 downto 1);
-        fmc_lpc_row_h         => tb_fmc_lpc_row_h   --: inout std_logic_vector(40 downto 1)
-    );
     
     
     main: process
@@ -657,89 +634,10 @@ begin
 
         wait until rising_edge( tb_simulation_break);
         simulation_run <= false;
-        report "Simlation ended." severity note;
-        wait;
+        report "Simulation ended." severity note;
+        wait; -- forever
 
     end process;
-
-
-
-    -- simulation debug output
-    file_save_linfilter_p: process
-      file     f      : text;
-      variable status : file_open_status;
-      variable l      : line;
-      variable count  : natural;
-    begin
-      file_open(status, f, linfilter_filename_c, write_mode);
-      count := 0;
-      if status = open_ok then
-          report me_c & "logging linfilter output to " & linfilter_filename_c
-             severity note;
-          while (count < linfilter_samples_c) loop
-              wait until rising_edge( debug_sample_clk);
-              write(l, to_integer( debug.linfilter_i0_data_out));
-              writeline(f, l);
-              count := count + 1;
-          end loop;
-          file_close(f);
-          report me_c & "logging linfilter done after " & integer'image(linfilter_samples_c) & " samples"
-             severity note;
-      else
-          report me_c & "could not write linfilter debugging output!"
-              severity warning;
-      end if;
-      wait;
-    end process file_save_linfilter_p;
- 
-    
-    -- simulation debug output
-    file_save_quadsum_p: process
-      file     f      : text;
-      variable status : file_open_status;
-      variable count  : natural;
-      variable l      : line;
-      variable l_rev  : line;
-      variable v      : unsigned( debug.quadsum_i0_data_out.value'range);
-    begin
-      file_open(status, f, quadsum_filename_c, write_mode);
-      count := 0;
-      if status = open_ok then
-          report me_c & "log quadsum output to:" & quadsum_filename_c 
-             severity note;
-          while (count < quadsum_samples_c) loop
-              wait until rising_edge( debug_sample_clk);
-              if debug.quadsum_i0_data_out.enable = '1' then
-                  -- work only up to 32 bit:
-                  --write(l, to_integer( quadsum_i0_data_out.value));
-                  -- do it the oldscool way:
-                  v := debug.quadsum_i0_data_out.value;
-                  deallocate(l_rev);
-                  if (v > 0) then
-                      while (v > 0) loop
-                        write(l_rev, to_integer( v mod 10));
-                        v := v / 10;
-                      end loop;
-                  else
-                      write(l_rev, 0);
-                  end if;
-                  -- reverse the string
-                  for i in l_rev.all'range loop
-                      write(l, l_rev(l_rev'length + 1 - i));
-                  end loop;
-                  writeline(f, l);
-                  count := count + 1;
-              end if; -- data enable
-          end loop;
-          file_close(f);
-          report me_c & "logging quadsum done after " & integer'image(quadsum_samples_c) & " samples"
-             severity note;
-      else
-          report me_c & "could not write quadsum debugging output!"
-              severity warning;
-      end if;
-      wait;
-    end process file_save_quadsum_p;
 
 
 end architecture testbench;
