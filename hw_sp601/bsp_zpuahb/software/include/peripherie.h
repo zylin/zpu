@@ -22,7 +22,7 @@ typedef struct {
 
 // uart
 #define UART_STATUS_DATA_READY               (1<< 0)
-#define UART_STATUS_TX_SHREG_EMPT            (1<< 1)
+#define UART_STATUS_TX_SHREG_EMPTY           (1<< 1)
 #define UART_STATUS_TX_REG_EMPTY             (1<< 2)
 #define UART_STATUS_BREAK_RECEIVED           (1<< 3)
 #define UART_STATUS_OVERRUN                  (1<< 4)
