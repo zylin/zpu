@@ -199,8 +199,9 @@ architecture testbench of top_tb is
     signal   tb_PMBUS_DATA                : std_logic;
     --
     -- SFP
-    signal   tb_sfpclk_qo_n               : std_logic;
-    signal   tb_sfpclk_qo_p               : std_logic;
+    constant tb_sfpclk_period             : time      := (1 sec / 125_000_000);
+    signal   tb_sfpclk_qo_n               : std_logic := '1';
+    signal   tb_sfpclk_qo_p               : std_logic := '0';
     signal   tb_iic_scl_sfp               : std_logic;
     signal   tb_iic_sda_sfp               : std_logic;
     signal   tb_SFP_LOS                   : std_logic;
@@ -265,8 +266,13 @@ begin
 
     -- clock generators
     tb_user_clock       <= not tb_user_clock       after tb_user_clock_period       / 2 when simulation_run;
+    --
     tb_sysclk_n         <= not tb_sysclk_n         after tb_sysclk_period           / 2 when simulation_run;
     tb_sysclk_p         <= not tb_sysclk_p         after tb_sysclk_period           / 2 when simulation_run;
+    --
+    tb_sfpclk_qo_n      <= not tb_sfpclk_qo_n      after tb_sfpclk_period           / 2 when simulation_run;
+    tb_sfpclk_qo_p      <= not tb_sfpclk_qo_p      after tb_sfpclk_period           / 2 when simulation_run;
+    --
     tb_clk_33mhz_sysace <= not tb_clk_33mhz_sysace after tb_clk_33mhz_sysace_period / 2 when simulation_run;
 
     
