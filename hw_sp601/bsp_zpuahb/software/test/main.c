@@ -970,7 +970,9 @@ void banner( void)
 {
     putstr("\n\ntest.c");
 
-    char *hw_revision = (char *)0x80000000;
+    char     *hw_revision  =    (char *)0x80000000;
+    char     *svn_revision =    (char *)0x80000020;
+    int32_t  *hw_frequency = (int32_t *)0x80000040;
 
     if (simulation_active) 
     {
@@ -978,9 +980,12 @@ void banner( void)
     }
     else
     {
+        putstr("\nSVN revision  : "); putstr( svn_revision);
         putstr("\nHW synthesized: "); putstr( hw_revision);
+        putstr("\nHW frequency  : "); putint( *hw_frequency/1000000);   putstr(" MHz");
         putstr("\nSW compiled   : " __DATE__ "  " __TIME__ );
-        putstr("\nsystem clock  : "); putint( F_CPU/1000000);  putstr(" MHz\n");
+        putstr("\nSW frequency  : "); putint( F_CPU/1000000);           putstr(" MHz");
+        putchar('\n');
         #ifdef DEBUG_ON
         putstr("DEBUG MODE");
         putstr(" ON\n");

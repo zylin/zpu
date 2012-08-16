@@ -358,6 +358,7 @@ begin
         generic map (
             pindex       => 0,             -- : integer := 0;
             paddr        => 0,             -- : integer := 0;
+            svnrevision  => svnrevision_c, -- : string( 1 to 21) := "unknown SVN revision ";
             version_time => version_time_c -- : string( 1 to 21) := "undefined version    "
         )
         port map (
