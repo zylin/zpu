@@ -23,6 +23,7 @@
 //#define BOARD_SP605  TODO
 #define DEBUG_ON
 #define SYSINFO_ON
+//#define RENA_DEBUG_ON
 
 
 ////////////////////////////////////////
@@ -47,10 +48,6 @@
 #define HEADER1                           (1<<  9)
 #define HEADER2                           (1<< 10)
 #define HEADER3                           (1<< 11)
-#define HEADER4                           (1<< 12)
-#define HEADER5                           (1<< 13)
-#define HEADER6                           (1<< 14)
-#define HEADER7                           (1<< 15)
 
 
 ////////////////////////////////////////////////////////////
@@ -180,18 +177,26 @@ void uart_monitor( void)
     monitor_add_command(FWF_ROE_CMD_CONTROL,   "rena controller status",                rena_controller_status,         FWF_ROE_CMD_CONTROL_Code);
     monitor_add_command(FWF_ROE_CMD_STATUS,    "rena status",                           rena_status,                    FWF_ROE_CMD_STATUS_Code);
     monitor_add_command(FWF_ROE_CMD_CONFIG,    "<channel> <high> <low_config>",         rena_channel_config_function,   FWF_ROE_CMD_CONFIG_Code);
+    #ifdef RENA_DEBUG_ON                                                                
     monitor_add_command("demo",                "<channel> ECAL, demo config for RENA",  rena_demo_config_function,      -1);
+    #endif                                     
     monitor_add_command(FWF_ROE_CMD_POWER_OFF, "set RENA to power down mode",           rena_powerdown_config_function, FWF_ROE_CMD_POWER_OFF_Code);
     monitor_add_command(FWF_ROE_CMD_FOLLOW,    "<channel> set a rena to follower mode", rena_follow_mode_function,      FWF_ROE_CMD_FOLLOW_Code);
+    #ifdef RENA_DEBUG_ON                                                                
     monitor_add_command("ecal",                "<channel> config to ECAL",              rena_set_ecal_function,         -1);
+    #endif                                     
                                                
     monitor_add_command(FWF_ROE_CMD_ACQUIRE,   "<time> activate RENA",                  rena_acquire_function,          FWF_ROE_CMD_ACQUIRE_Code);
     monitor_add_command(FWF_ROE_CMD_STOP,      "set RENA controller to IDLE",           rena_stop_function,             FWF_ROE_CMD_STOP_Code);
+    monitor_add_command("smask",               "<high> <low> set slow readout mask",    rena_set_slow_mask_function,    -1);
+    monitor_add_command("fmask",               "<high> <low> set fast readout mask",    rena_set_fast_mask_function,    -1);
     monitor_add_command(FWF_ROE_CMD_CHAINS,    "print trigger chains",                  rena_chains_function,           FWF_ROE_CMD_CHAINS_Code);
     monitor_add_command(FWF_ROE_CMD_TOKEN,     "print sampled RENA tokens",             rena_read_token,                FWF_ROE_CMD_TOKEN_Code);
                                                
+    #ifdef RENA_DEBUG_ON                                                                
     monitor_add_command("trouble",             "<cnt> <time> <ch> trouble follow mode", rena_trouble,                   -1);
     monitor_add_command("tracq",               "<count> <time> trouble acquire mode",   rena_trouble_acquire,           -1);
+    #endif                                     
                                                
     monitor_add_command(FWF_ROE_CMD_DDSINIT,   "initalize DDS chip <freq tuning word>", ddsinit_function,               FWF_ROE_CMD_DDSINIT_Code);
     monitor_add_command("ddsinfo",             "read dds registers",                    ad9854_info,                    -1);
@@ -272,7 +277,6 @@ void uart_monitor( void)
         {
             run_light_function();
         }
-
     }
 }
 
@@ -293,7 +297,7 @@ void uart_monitor( void)
 *****************************************************************************/
 void running_light( uint32_t simulation_active)
 {
-	unsigned int pattern = 0x80300700;
+    unsigned int pattern = 0x80300700;
     uint32_t count = 3;
 
             
@@ -376,7 +380,8 @@ void banner( void)
     putstr("rena3 - read out electronic");
 
     char     *hw_revision  =    (char *)0x80000000;
-    int32_t  *hw_frequency = (int32_t *)0x80000020;
+    char     *svn_revision =    (char *)0x80000020;
+    int32_t  *hw_frequency = (int32_t *)0x80000040;
 
     if (simulation_active) 
     {
@@ -385,14 +390,17 @@ void banner( void)
     else
     {
         putchar('\n'); putstr( FWF_ROE_ZPU_SW_VERSION);
+        putstr("\nSVN revision  : "); putstr( svn_revision);
         putstr("\nHW synthesized: "); putstr( hw_revision);
         putstr("\nHW frequency  : "); putint( *hw_frequency/1000000);   putstr(" MHz");
         putstr("\nSW compiled   : " __DATE__ "  " __TIME__ );
         putstr("\nSW frequency  : "); putint( F_CPU/1000000);           putstr(" MHz");
         putchar('\n');
+        #ifdef RENA_DEBUG_ON
+        putstr("RENA DEBUG MODE on\n");
+        #endif
         #ifdef DEBUG_ON
-        putstr("DEBUG MODE");
-        putstr(" ON\n");
+        putstr("DEBUG MODE on\n");
         #endif
     }
 }
@@ -779,6 +787,41 @@ uint32_t testgen_function( void)
 }
 
 
+#include "netif/greth_adapter.h"
+
+/* defined by each RAW mode application */
+void print_app_header();
+int start_application();
+int transfer_data();
+
+/* missing declaration in lwIP */
+void lwip_init();
+
+
+void
+print_ip(char *msg, struct ip_addr *ip) 
+{
+    putstr( msg);
+    putint( ip4_addr1(ip)); putchar('.');
+    putint( ip4_addr2(ip)); putchar('.');
+    putint( ip4_addr3(ip)); putchar('.');
+    putint( ip4_addr4(ip)); putchar('\n');
+}
+
+
+void
+print_ip_settings(struct ip_addr *ip, struct ip_addr *mask, struct ip_addr *gw)
+{
+
+    print_ip("Board IP: ", ip);
+    print_ip("Netmask : ", mask);
+    print_ip("Gateway : ", gw);
+}
+
+
+
+
+
 /*****************************************************************************
 * Function:     main
 * Description:  initialisation and running the system
@@ -787,6 +830,10 @@ uint32_t testgen_function( void)
 *****************************************************************************/
 int main(void)
 {
+
+
+
+
     uint32_t port_value;
     uint16_t i;
 
@@ -816,12 +863,57 @@ int main(void)
         #endif
         // uart_vga_putchar use VGA and UART for output
         putchar_fp = uart_vga_putchar;
+
+
+
+//  struct netif *netif, server_netif;
+//  struct ip_addr ipaddr, netmask, gw;
+
+//  /* the mac address of the board. this should be unique per board */
+//  unsigned char mac_ethernet_address[] = { 0x00, 0x0a, 0x35, 0x00, 0x01, 0x02 };
+
+//  netif = &server_netif;
+
+//  /* initliaze IP addresses to be used */
+//  IP4_ADDR(&ipaddr,  192, 168,   1, 10);
+//  IP4_ADDR(&netmask, 255, 255, 255,  0);
+//  IP4_ADDR(&gw,      192, 168,   1,  1);
+
+//  print_app_header();
+//  print_ip_settings(&ipaddr, &netmask, &gw);
+
+//  lwip_init();
+
+//  /* Add network interface to the netif_list, and set it as default */
+//  if (!greth_emac_add(netif, &ipaddr, &netmask, &gw, mac_ethernet_address, &ether0)) {
+//      putstr("Error adding N/W interface\n\r");
+//      return -1;
+//  }
+//  netif_set_default(netif);
+//
+//
+//  /* specify that the network if is up */
+//  netif_set_up(netif);
+//
+//  /* start the application (web server, rxtest, txtest, etc..) */
+//  start_application();
+//
+//  while (1) {
+//      greth_emacif_input(netif);
+//      transfer_data();
+//  }
+
+
+
     }
     else
     {
         // debug_putchar is for simulator
         putchar_fp = debug_putchar;
     }
+    
+    // start first task
+    //scheduler_task_add( dcm_test_task, SECONDS( 5));
 
     //////////////////////////////////////////////////////////// 
     // banner
@@ -838,7 +930,11 @@ int main(void)
 
     // code which executes in simulation is started here:
 
-/*
+    
+//  gcc_test_function();
+
+
+#if 0
     // configure rena
     rena_set_ecal( 34);
     rena_testgen( RENA_TEST_POL_NEG, 5000);
@@ -850,9 +946,10 @@ int main(void)
     rena_testgen( RENA_TEST_POL_NEG, 500);
     
     usleep( 5);
-*/
+#endif
       
-    rena_testgen( RENA_TEST_POL_NEG, 200);
+#if 1
+    rena_testgen( RENA_TEST_POL_NEG, 2000);
     rena->trap_count = 100;
 
     uint8_t  config_high;
@@ -862,15 +959,22 @@ int main(void)
             RENA_ECAL;
 
         config_low  = 
-            (0        << RENA_GAIN) |
+            (3        << RENA_GAIN) |
             RENA_RSEL_VREFHI        |
             (5        << RENA_SEL)  |
             (170      << RENA_DF)   | 
             RENA_POLNEG             |
             (170      << RENA_DS)   | 
+            RENA_ENF                |
             RENA_ENS                |
-            RENA_FM;
+            0;
         rena_channel_config( 3, config_high, config_low);
+        
+        rena->slow_channel_force_mask_low  = 0xffffffff;
+        rena->slow_channel_force_mask_high = 0x0000000f;
+        
+        rena->fast_channel_force_mask_low  = 0xffffffff;
+        rena->fast_channel_force_mask_high = 0x0000000f;
     
         rena->acquire_time   = 0;
         rena->control_status = RENA_MODE_ACQUIRE;
@@ -878,13 +982,14 @@ int main(void)
         // wait until testedge
         while ( ( rena->test_generator & 0x0ffff) > 0);
         // and longer
-        usleep( 20);
+        usleep( 50);
 
     rena->control_status = RENA_MODE_IDLE;
     rena_testgen( RENA_TEST_POL_NEG, 0);
     
     usleep( 20);
-  
+#endif
+
     // test of scheduler
 //  scheduler_task_add( end_simulation_task, 3);
 //  running_light( simulation_active);

@@ -19,9 +19,9 @@ uint32_t rena_controller_status( void)
 {
     uint32_t status;
 
-    status = rena->control_status;
+    status  = rena->control_status & 0xff;
 
-    switch( status & 0xff)
+    switch( status)
     {
         case 0x00: putstr("idle");      break;
         case 0x01: putstr("configure"); break;
@@ -36,7 +36,7 @@ uint32_t rena_controller_status( void)
     }
     putchar('\n');
 
-    return( 0);
+    return( status);
 }
 
 
@@ -129,6 +129,34 @@ uint32_t rena_chains_function( void)
     puthex( 4, rena->slow_channel_force_mask_high); 
     puthex(32, rena->slow_channel_force_mask_low);
     putchar('\n');
+    return (0);
+}
+
+
+/*
+    set slow readout mask
+    <high mask> <low mask> <high force> <low force>
+*/
+uint32_t rena_set_slow_mask_function( void)
+{
+    rena->slow_channel_mask_high       = monitor_get_argument_hex(1);
+    rena->slow_channel_mask_low        = monitor_get_argument_hex(2);
+    rena->slow_channel_force_mask_high = monitor_get_argument_hex(3);
+    rena->slow_channel_force_mask_low  = monitor_get_argument_hex(4);
+    return (0);
+}
+
+
+/*
+    set fast readout mask
+    <high mask> <low mask> <high force> <low force>
+*/
+uint32_t rena_set_fast_mask_function( void)
+{
+    rena->fast_channel_mask_high       = monitor_get_argument_hex(1);
+    rena->fast_channel_mask_low        = monitor_get_argument_hex(2);
+    rena->fast_channel_force_mask_high = monitor_get_argument_hex(3);
+    rena->fast_channel_force_mask_low  = monitor_get_argument_hex(4);
     return (0);
 }
 
@@ -346,4 +374,29 @@ uint32_t rena_testgen( uint8_t polarity, uint16_t cycles)
 {
     rena->test_generator = (polarity << RENA_TEST_POL_PIN) | cycles;
     return( rena->test_generator);
+}
+
+
+/*
+ * just for testing the gcc functions
+ * calculation seem to be wrong
+ */
+#include "peripherie.h"
+
+void gcc_test_function( void)
+{
+    long long a,b,d,m;
+    a=123;
+    b=10;
+
+    a=4294967296;
+    b=4096;
+
+    d=a/b;
+    m=a%b;
+
+    gpio0->ioout = d>>32;
+    gpio0->ioout = d;
+    gpio0->ioout = m>>32;
+    gpio0->ioout = m;
 }

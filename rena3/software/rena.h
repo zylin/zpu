@@ -84,6 +84,8 @@ uint32_t rena_channel_config_function( void);
 uint32_t rena_acquire_function( void);
 uint32_t rena_stop_function( void);
 uint32_t rena_chains_function( void);
+uint32_t rena_set_slow_mask_function( void);
+uint32_t rena_set_fast_mask_function( void);
 uint32_t rena_read_token( void);
 uint32_t rena_demo_config_function( void);
 uint32_t rena_powerdown_config_function( void);
