@@ -276,7 +276,8 @@ void banner( void)
     putstr("rena3 - read out electronic, SIMULATOR");
 
     char     *hw_revision  =    (char *)0x80000000;
-    int32_t  *hw_frequency = (int32_t *)0x80000020;
+    char     *svn_revision =    (char *)0x80000020;
+    int32_t  *hw_frequency = (int32_t *)0x80000040;
 
     if (simulation_active) 
     {
@@ -285,6 +286,7 @@ void banner( void)
     else
     {
         putchar('\n'); putstr( FWF_ROE_ZPU_SW_VERSION);
+        putstr("\nSVN revision  : "); putstr( svn_revision);
         putstr("\nHW synthesized: "); putstr( hw_revision);
         putstr("\nHW frequency  : "); putint( *hw_frequency/1000000);   putstr(" MHz");
         putstr("\nSW compiled   : " __DATE__ "  " __TIME__ );

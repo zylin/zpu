@@ -7,7 +7,10 @@
 
 
 DATE = $(shell date +"%b %e %Y  %X")
-LENGTH = $(shell expr length "$(DATE)")
+DATELENGTH = $(shell expr length "$(DATE)")
+
+SVNREV = $(shell svnversion | awk '{printf "%-21s", $$0}')
+SVNLENGTH = $(shell expr length "$(SVNREV)")
 
 
 all: version.vhd
@@ -15,11 +18,12 @@ all: version.vhd
 
 .PHONY: version.vhd
 version.vhd:
-	@echo "updating $@ ($(DATE))"
+	@echo "updating $@ ($(DATE); $(SVNREV))"
 	@rm -f $@
-	@echo "package version is"                                                    >> $@
-	@echo ""                                                                      >> $@
-	@echo "    constant version_time_c : string( 1 to $(LENGTH)) := \"$(DATE)\";" >> $@
-	@echo ""                                                                      >> $@
-	@echo "end package version;"                                                  >> $@
+	@echo "package version is"                                                         >> $@
+	@echo ""                                                                           >> $@
+	@echo "    constant version_time_c : string( 1 to $(DATELENGTH)) := \"$(DATE)\";"  >> $@
+	@echo "    constant svnrevision_c  : string( 1 to $(SVNLENGTH)) := \"$(SVNREV)\";" >> $@
+	@echo ""                                                                           >> $@
+	@echo "end package version;"                                                       >> $@
 

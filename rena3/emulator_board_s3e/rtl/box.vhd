@@ -480,6 +480,7 @@ begin
             pindex           => 0,               -- : integer := 0;
             paddr            => 0,               -- : integer := 0;
             version_time     => version_time_c,  -- : string( 1 to 21) := "undefined version    "
+            svnrevision      => svnrevision_c,   -- : string( 1 to 21) := "unknown SVN revision ";
             system_frequency => system_frequency -- : integer 
         )
         port map (
