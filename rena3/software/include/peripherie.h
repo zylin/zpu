@@ -20,7 +20,7 @@ typedef struct {
 
 // uart
 #define UART_STATUS_DATA_READY               (1<< 0)
-#define UART_STATUS_TX_SHREG_EMPT            (1<< 1)
+#define UART_STATUS_TX_SHREG_EMPTY           (1<< 1)
 #define UART_STATUS_TX_REG_EMPTY             (1<< 2)
 #define UART_STATUS_BREAK_RECEIVED           (1<< 3)
 #define UART_STATUS_OVERRUN                  (1<< 4)
@@ -82,7 +82,6 @@ typedef struct {
 } gptimer_t;
 
 #define CLOCKS_PER_SECOND         (1000)
-void usleep( uint32_t nsec);
 void msleep( uint32_t msec);
 void sleep( uint32_t sec);
 void timer_init( void);
@@ -131,7 +130,7 @@ typedef struct {
 typedef struct {
     volatile uint32_t control;
     volatile uint32_t address;
-} greth_tx_descriptor_t;
+} greth_descriptor_t;
 
 #define ETHER_CONTROL_TX_ENABLE              (1<< 0)
 #define ETHER_CONTROL_RX_ENABLE              (1<< 1)
@@ -158,7 +157,11 @@ typedef struct {
 #define ETHER_MDIO_BUSY                      (1<< 3)
 #define ETHER_MDIO_NOT_VALID                 (1<< 4)
 
-typedef struct {
+#define ETHER_MII_10FD                       (1<< 6)
+#define ETHER_MII_100TXHD                    (1<< 7)
+#define ETHER_MII_100TXFD                    (1<< 8)
+
+typedef struct _greth_t {
     volatile uint32_t control;          // 0x00
     volatile uint32_t status;           // 0x04
     volatile uint32_t mac_msb;          // 0x08
@@ -170,6 +173,32 @@ typedef struct {
     volatile uint32_t hash_msb;         // 0x20
     volatile uint32_t hash_lsb;         // 0x24
 } greth_t;
+
+
+//typedef void (* emac_handler) (void *CallBackRef);
+
+/* Ethernet buffer descriptor */
+typedef struct _greth_bd {
+    int    stat;
+    int    addr;           /* Buffer address */
+} greth_bd;
+
+
+struct greth_info_t {
+    greth_t  *regs;            /* Address of controller registers. */  
+  
+    unsigned char esa[6];
+    unsigned int gbit;
+    unsigned int phyaddr;
+    unsigned int edcl;
+    
+    struct greth_descriptor_t* txd;
+    struct greth_descriptor_t* rxd;  
+    unsigned int txpnt;
+    unsigned int rxpnt;  
+    unsigned int txchkpnt;
+    unsigned int rxchkpnt;
+};
 
 
 struct udp_header_st {
@@ -309,6 +338,7 @@ extern i2cmst_t          *i2c_fmc;
 //apbuart_t  *uart0      = (apbuart_t *)  0x80000100;
 //gptimer_t  *timer0     = (gptimer_t *)  0x80000200;
 //grgpio_t   *gpio0      = (grgpio_t *)   0x80000400;
+//greth_t    *ether0     = (greth_t *)    0x80000500;
 //i2cmst_t   *i2cmst0    = (i2cmst_t *)   0x80000a00;
 
 

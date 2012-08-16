@@ -5,8 +5,12 @@
 # $Revision$
 #
 
-COMPILER_OPTIONS=-ffunction-sections -fdata-sections -Iinclude
-OBJCOPY_OPTIONS=--strip-debug --discard-locals
+COMPILER_OPTIONS  =-ffunction-sections
+COMPILER_OPTIONS +=-fdata-sections
+COMPILER_OPTIONS +=-Iinclude
+#COMPILER_OPTIONS +=--save-temps
+OBJCOPY_OPTIONS  =--strip-debug
+OBJCOPY_OPTIONS +=--discard-locals
 ZPU_ROM_GEN=../../zpu/support/zpuromgen
 AHB_ROM_GEN=../../gaisler/support/ahbrom
 
@@ -19,10 +23,12 @@ help:
 	@echo "clean     - clean up"
 
 
-startup = lib/crt0.S
-objs    = lib/crt0.o 
-lib_src = lib/premain.c lib/divmod.c lib/udivmodsi4.c
-ldflags = $(objs)
+startup  = lib/crt0.S
+objs     = lib/crt0.o 
+lib_src  = lib/premain.c
+lib_src += lib/divmod.c
+lib_src += lib/udivmodsi4.c
+ldflags  = $(objs)
 ldflags += -nostartfiles 
 ldflags += -Wl,--relax
 ldflags += -Wl,--gc-sections
@@ -46,6 +52,15 @@ c_files += rena.c
 c_files += $(lib_src)
 h_files = *.h include/peripherie.h
 
+# lwip stuff
+c_files += echo.c
+c_files += sys_zpu.c
+c_files += netif/greth_adapter.c
+c_files += lwip/*.c
+c_files += lwip/ipv4/*.c
+h_files += include/arch/*.h
+
+
 
 software: $(zpu_rom_vhdl) $(ahb_rom_vhdl)
 
@@ -57,7 +72,7 @@ main.bin: $(c_files) $(h_files) $(objs)
 
 	zpu-elf-size main.elf
 	print_mem_zpu.sh main.elf
-	zpu-elf-objdump -D -S main.elf > main.lst
+	zpu-elf-objdump --disassemble --source --debugging-tags main.elf > main.lst
 	zpu-elf-objcopy $(OBJCOPY_OPTIONS) -O binary main.elf main.bin
 
 $(zpu_rom_vhdl): main.bin $(ZPU_ROM_GEN)
@@ -79,6 +94,8 @@ clean:
 	rm -f *.map
 	rm -f *.lst
 	rm -f *.o
+	rm -f *.i
+	rm -f *.s
 	rm -f lib/*.o
 
 # disable implicit rule for c files
