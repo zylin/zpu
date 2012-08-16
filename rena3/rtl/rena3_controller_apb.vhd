@@ -563,14 +563,14 @@ begin
                             v.rena.tin       := '1';
                             v.rena.read      := '1';
                             if v.state_after_desire = READOUT then
-                                v.timer      := 199;  -- 2 us
+                                v.timer      := 99;  -- 1 us
                             end if;
                         end if;
                     end if;
 
                 -- start token/ADC readout
                 when READOUT =>
-                    if v.rena_in.tout = '1' then
+                    if (v.rena_in.tout = '1') or (v.token_count = 255) then
                         -- no more token in chain
                         v.rena.tclk          := '0';
                         v.rena.tin           := '0';
