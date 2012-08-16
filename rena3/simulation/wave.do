@@ -88,7 +88,7 @@ add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_n
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_la33_p
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_prsnt_m2c_l
 add wave -noupdate -group FMC /top_tb/top_i0/fmc_pwr_good_flash_rst_b
-add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/TEST
+add wave -noupdate -group RENA3 -format Analog-Step -height 74 -max 1.0 -min -1.0 /top_tb/rena3_testboard_i0/rena3_model_i0/TEST
 add wave -noupdate -group RENA3 -format Analog-Step -height 50 -max 4.0 /top_tb/rena3_testboard_i0/rena3_model_i0/VU
 add wave -noupdate -group RENA3 -format Analog-Step -height 50 -max 4.0 /top_tb/rena3_testboard_i0/rena3_model_i0/VV
 add wave -noupdate -group RENA3 /top_tb/rena3_testboard_i0/rena3_model_i0/DETECTOR_IN
@@ -130,7 +130,7 @@ add wave -noupdate /top_tb/top_i0/gpio_switch
 add wave -noupdate -divider {rena controller}
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_0_in
 add wave -noupdate -expand /top_tb/top_i0/box_i0/rena3_controller_i0/r.rena
-add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}}} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
+add wave -noupdate -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.token_count -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_address -radix decimal}} -expand -subitemconfig {/top_tb/top_i0/box_i0/rena3_controller_i0/r.acquire_time {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.token_count {-radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_address {-radix decimal} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem {-height 15 -childformat {{/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address -radix unsigned} {/top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data -radix decimal}}} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.address {-height 15 -radix unsigned} /top_tb/top_i0/box_i0/rena3_controller_i0/r.sample_mem.data {-height 15 -radix decimal}} /top_tb/top_i0/box_i0/rena3_controller_i0/r
 add wave -noupdate -divider testgen
 add wave -noupdate /top_tb/top_i0/box_i0/rena3_0_out.test
 add wave -noupdate -divider {analog -> ADC}
@@ -143,7 +143,7 @@ add wave -noupdate -divider DDS
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_out
 add wave -noupdate /top_tb/top_i0/box_i0/ad9854_in
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {218469529 ps} 0} {{Cursor 2} {234215311 ps} 0}
+WaveRestoreCursors {{Cursor 1} {256155000 ps} 0} {{Cursor 2} {265345100 ps} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -158,4 +158,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {426964125 ps}
+WaveRestoreZoom {164687517 ps} {387992989 ps}

@@ -113,7 +113,11 @@ begin
         end if;
     
         -- diff. & gain
-        shaper_input      := preamp_input * config.g;
+        if config.pol = '0' then
+            shaper_input  := -preamp_input * config.g;
+        else
+            shaper_input  :=  preamp_input * config.g;
+        end if;
 
         -- fast path (shaper, DAC, comparator)
         --fast_dac := vreflo - 3.0/16.0 * 1.5 * real(config.df)/255.0;

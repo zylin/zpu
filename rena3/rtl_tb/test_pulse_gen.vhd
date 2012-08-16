@@ -29,26 +29,51 @@ begin
         variable fall : real;
     begin
         pulse <= 0.0;
-        rise  := 0.0;
-        wait until rising_edge(trigger);
+        wait until trigger'event;
 
-        -- rise
-        while rise < pulse_height loop
-            rise  := rise + pulse_height / real(rise_time / time_resolution);
-            pulse <= rise;
-            wait for time_resolution;
-        end loop;
+        if trigger = '1' then
 
-        pulse <= pulse_height;
-        fall  := pulse_height;
-        wait for pulse_length;
+            -- rise
+            rise  := 0.0;
+            while rise < pulse_height loop
+                rise  := rise + pulse_height / real(rise_time / time_resolution);
+                pulse <= rise;
+                wait for time_resolution;
+            end loop;
 
-        -- fall
-        while fall > 0.0 loop
-            fall  := fall - pulse_height / real(fall_time / time_resolution);
-            pulse <= fall;
-            wait for time_resolution;
-        end loop;
+            pulse <= pulse_height;
+            fall  := pulse_height;
+            wait for pulse_length;
+
+            -- fall
+            while fall > 0.0 loop
+                fall  := fall - pulse_height / real(fall_time / time_resolution);
+                pulse <= fall;
+                wait for time_resolution;
+            end loop;
+
+        else
+
+            -- fall
+            fall  := 0.0;
+            while fall > -pulse_height loop
+                fall  := fall - pulse_height / real(fall_time / time_resolution);
+                pulse <= fall;
+                wait for time_resolution;
+            end loop;
+
+            pulse <= -pulse_height;
+            rise  := -pulse_height;
+            wait for pulse_length;
+
+            -- rise
+            while rise < 0.0 loop
+                rise  := rise + pulse_height / real(rise_time / time_resolution);
+                pulse <= rise;
+                wait for time_resolution;
+            end loop;
+
+        end if;
 
         pulse <= 0.0;
     end process;
