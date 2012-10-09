@@ -121,7 +121,7 @@ $(MODULE).prj: ../simulation/vhdl_files.txt
 	#############################################################################
 	### generate project file
 	###
-	grep --invert rtl_tb ../simulation/vhdl_files.txt | grep --invert "\#" | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
+	grep --invert rtl_tb ../simulation/vhdl_files.txt | grep --invert "\#" | grep --invert "^$$" | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
 
 
 xst:    $(MODULE).ngc
