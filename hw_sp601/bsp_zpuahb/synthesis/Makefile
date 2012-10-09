@@ -5,7 +5,8 @@
 #
 
 MODULE = top
-DEVICE = xc6slx16-csg324-2
+SPEEDGRADE = 2
+DEVICE = xc6slx16-csg324-$(SPEEDGRADE)
 UCF_FILE = sp601.ucf
 CORES = ../cores/
 SOFTWARE = ../software
@@ -186,10 +187,10 @@ $(MODULE).ncd: $(MODULE)_map.ncd
 
 
 trace:
-	cd $(BUILDDIR) ; trce -e -a -u -s 2 -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -e -a -u -s $(SPEEDGRADE) -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
 
 tracefast:
-	cd $(BUILDDIR) ; trce -v 12 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -v 12 -s $(SPEEDGRADE) -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
 
 
 bitgen: $(MODULE).ncd
