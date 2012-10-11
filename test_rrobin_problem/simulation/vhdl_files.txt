@@ -16,6 +16,7 @@ grlib     ../../grlib/rtl_tb/stdio.vhd
 techmap   ../../techmap/rtl/gencomp.vhd
 gaisler   ../../gaisler/rtl/apbuart.vhd
 gaisler   ../../gaisler/rtl/grgpio.vhd
+gaisler   ../../gaisler/rtl/grgpreg.vhd
 gaisler   ../../gaisler/rtl/misc.vhd
 gaisler   ../../gaisler/rtl/net.vhd
 gaisler   ../../gaisler/rtl/uart.vhd
