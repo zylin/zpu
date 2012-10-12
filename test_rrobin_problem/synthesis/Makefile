@@ -36,10 +36,10 @@ all:
 	@echo "finalflow - update bitgen update progspi check"
 
 testflow: 
-	$(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
+	time $(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
 
 finalflow:
-	$(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
+	time $(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
 
 
 check:
