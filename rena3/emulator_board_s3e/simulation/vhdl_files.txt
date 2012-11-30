@@ -27,6 +27,7 @@ gaisler   ../../../gaisler/rtl/apbvga.vhd
 gaisler   ../../../gaisler/rtl/charrom_package.vhd
 gaisler   ../../../gaisler/rtl/charrom.vhd
 gaisler   ../../../gaisler/rtl/grgpio.vhd
+gaisler   ../../../gaisler/rtl/grgpreg.vhd
 gaisler   ../../../gaisler/rtl/i2cmst.vhd
 gaisler   ../../../gaisler/rtl/leon3.vhd
 gaisler   ../../../gaisler/rtl/memctrl.vhd

@@ -38,6 +38,7 @@ void print_vendor_device( uint8_t vendor, uint8_t device)
                 case 0x2d: putstr("SPI Controller");                break;
                 case 0x45: putstr("SPI Memory Controller");         break;
                 case 0x61: putstr("VGA controller");                break;
+                case 0x87: putstr("General Purpose Register");      break;
                 default  : putstr("unknown device");                break;
             }
             break;

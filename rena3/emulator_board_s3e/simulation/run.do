@@ -8,6 +8,8 @@
 proc nsng {} {
 
     restart -f
+    global StdArithNoWarnings
+    global NumericStdNoWarnings
     set StdArithNoWarnings 1
     set NumericStdNoWarnings  1
 

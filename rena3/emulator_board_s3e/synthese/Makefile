@@ -6,7 +6,8 @@
 #
 
 MODULE = top
-DEVICE = xc3s500e-fg320-4
+SPEEDGRADE = 4
+DEVICE = xc3s500e-fg320-$(SPEEDGRADE)
 UCF_FILE = s3estarter.ucf
 CORES = ../cores/
 SOFTWARE = ../software
@@ -36,10 +37,10 @@ all:
 	@echo "finalflow - update bitgen update progspi check"
 
 testflow: 
-	$(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
+	time $(MAKE) software bitgen update program check     2>&1 | tee $(XST_LOGFILE)
 
 finalflow:
-	$(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
+	time $(MAKE) software bitgen update progspi check     2>&1 | tee $(XST_LOGFILE)
 
 
 check:
@@ -122,7 +123,7 @@ $(MODULE).prj: ../simulation/vhdl_files.txt
 	#############################################################################
 	### generate project file
 	###
-	grep --invert rtl_tb ../simulation/vhdl_files.txt | grep --invert "\#" | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
+	grep --invert rtl_tb ../simulation/vhdl_files.txt | grep --invert "\#" | grep --invert "^$$" | awk '{printf "vhdl %s %s\n",$$1,$$2}' > $(MODULE).prj
 
 
 xst:    $(MODULE).ngc
@@ -186,10 +187,10 @@ $(MODULE).ncd: $(MODULE)_map.ncd
 	cd $(BUILDDIR) ; par -w -ol high -t 1 $(MODULE)_map.ncd $(MODULE).ncd $(MODULE).pcf
 
 trace:
-	cd $(BUILDDIR) ; trce -e -a -u -s 4 -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -e -a -u -s $(SPEEDGRADE) -xml $(MODULE).twx $(MODULE).ncd -o $(MODULE).twr $(MODULE).pcf
 
 tracefast:
-	cd $(BUILDDIR) ; trce -v 12 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -v 12 -s $(SPEEDGRADE) -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
 
 
 bitgen: $(MODULE).ncd
