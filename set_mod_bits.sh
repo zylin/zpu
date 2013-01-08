@@ -11,7 +11,9 @@ find -iname "*.dot"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.odt"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.odg"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.doc"    -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.docx"   -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.xls"    -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.xlsx"   -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname "*.ucf"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.bmm"    -type f -executable -print0 | xargs -0 chmod -x
@@ -31,6 +33,7 @@ find -iname Makefile   -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.do"     -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname "*.tar.gz" -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.zip"    -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname "*.php"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.js"     -type f -executable -print0 | xargs -0 chmod -x
@@ -40,8 +43,9 @@ find -iname "*.css"    -type f -executable -print0 | xargs -0 chmod -x
 find -not -group None -print0 | xargs -0 chown :None
 
 # svn stuff
-DIR=beam_position_monitor
-find $DIR -type f -name "Makefile" -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
-find $DIR -type f -name "*.vhd"    -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
-find $DIR -type f -name "*.h"      -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
-find $DIR -type f -name "*.c"      -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+DIR=. 
+EXCLUDE=-and -not -path './xc3sprog'
+find $DIR -type f -name "Makefile" $EXCLUDE -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.vhd"    $EXCLUDE -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.h"      $EXCLUDE -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
+find $DIR -type f -name "*.c"      $EXCLUDE -exec svn propset svn:keywords "Date Author Id Revision HeadURL" {} \;
