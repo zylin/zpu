@@ -1,5 +1,3 @@
-Digitalmultimeter mit schnellem Durchgangsprüfer
-Mixed-Signal_Oszilloskop (I2C, SPI)
-
-
-RS-232/UART serial decode option. Requires license 232. Purchase option 232 when ordering new oscilloscopes, or N5457A for existing oscilloscopes. Hardware requirement: oscilloscope must be a 4-channel model.
+PMODS für FPGAs
+===============
+http://www.maxim-ic.com/products/evkits/fpga-modules/

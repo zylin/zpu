@@ -1,6 +1,11 @@
+* Ansteuerung von SPI-Flash auf FPGA-Entwicklungsboards
+    (SP601/SP605/Spartan3e)
+    Möglichkeit zur Nutzung als Konfigurations und Programmspeicher
 
-* Portierung uIP auf ZPU/greth microblaze/temac für
+
+* Portierung uIP/lwIP auf ZPU/greth microblaze/temac für
   FPGA Spartan 3e und Spartan 6
+
 
 
 * Entwicklung eines UDP-Stacks (in C) für ZPU (FPGA) und ARM-Cores
@@ -8,6 +13,7 @@
 	ggf. Portierung des vorhandenen Debug-Monitor 
 	Ansteuerung des Debug-Monitors per UDP
 	Ermittlung der maximal möglichen Transferrate auf der jeweiligen Plattform
+
 
 
 * Evaluierung von Entwicklungssystemen [STM32 (STMicroelectronics), NuMicro (Nuvoton), MSP430 (Texas Instruments) und/oder C8051/CP2201 (Sillicon Laboratories)]
@@ -33,8 +39,10 @@
     Xilinx Core bzw. grlib 
 
 
+* Evaluierung von Xilinx-Zync (FPGA mit ARM-Kern)
+
 * Evaluierung von Actel-Smartfusion (FPGA mit ARM-Kern)
 
 
 * Evaluierung Altera/NIOS
-    sowue Vergleichsweise ZPU auf Altera
+    sowie Vergleichsweise ZPU auf Altera
