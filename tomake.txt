@@ -39,7 +39,7 @@
     Xilinx Core bzw. grlib 
 
 
-* Evaluierung von Xilinx-Zync (FPGA mit ARM-Kern)
+* Evaluierung von Xilinx-Zynq (FPGA mit ARM-Kern)
 
 * Evaluierung von Actel-Smartfusion (FPGA mit ARM-Kern)
 

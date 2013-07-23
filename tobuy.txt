@@ -1,3 +1,14 @@
 PMODS für FPGAs
 ===============
 http://www.maxim-ic.com/products/evkits/fpga-modules/
+
+
+Lattice MACH XO(2)
+==================
+
+MACH XO2 Eval Board (38€)
+LCMXO2-1200ZE-P1-EVN
+
+
+MACH XO Breakout Board (25€)
+LCMXO2280C-B-EVN
