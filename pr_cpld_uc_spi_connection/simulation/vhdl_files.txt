@@ -1,4 +1,0 @@
-work ../rtl_tb/sr_tb.vhd
-work ../rtl/sr_cpld.vhd
-work ../rtl/sr.vhd
-work ../rtl/top.vhd
