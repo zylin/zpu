@@ -49,6 +49,8 @@ check:
 	@grep --with-filename "WARNING:Xst:737"             $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nUnassigned signals (653): "          
 	@grep --with-filename "WARNING:Xst:653"             $(BUILDDIR)/*.syr || echo -n
+	@echo -e "\nInternal tristates (2042): "         
+	@grep --with-filename "WARNING:Xst:2042"            $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nCombinatoric loops (2170): "         
 	@grep --with-filename "WARNING:Xst:2170"            $(BUILDDIR)/*.syr || echo -n
 	@echo -e "\nGated clocks (372): "
