@@ -1061,10 +1061,11 @@ For now if you are starting a design, zpu4 or zealot are probably the safest.  z
 <a name="performance"/>
 <h2>Performance Summary</h2>
 
-<a href="#todo">TODO</a> fill in performance table for Altera and Lattice.
+<a href="#todo">TODO</a> fill in performance table for Altera.
 <p>
 Tests are done with the <a href="#zealot">Zealot</a>
  SoC-System and Xilinx ISE 12.2 with standard settings.
+ For the MachXO2 device Lattice Diamond 3.1 with Synplify Pro I-2013.09L was used.
 <p>
 <TABLE WIDTH=604 BORDER=1 BORDERCOLOR="#000000" CELLPADDING=7 CELLSPACING=0 STYLE="page-break-after: avoid">
     <TR VALIGN=TOP>
@@ -1073,7 +1074,7 @@ Tests are done with the <a href="#zealot">Zealot</a>
       <TD WIDTH=85> <P><B>Spartan-3E</B></P> </TD>
       <TD WIDTH=85> <P><B>Spartan-6</B></P> </TD>
       <TD WIDTH=85> <P><B>Virtex-5</B></P> </TD>
-      <TD WIDTH=85> <P><B>Cyclone-3</B></P> </TD>
+      <TD WIDTH=85> <P><B>MachXO2</B></P> </TD>
       <TD WIDTH=85> <P><B>DMIPS</B></P> </TD>
     </TR>
     
@@ -1115,12 +1116,12 @@ maxAddrBit=16
 175 fmax
 </PRE> </TD>
 <TD WIDTH=85> <PRE>
-<!-- Cyclone -->
-? LUT
-? REG
-? MULT18x18
-? M4K
-? fmax
+<!-- MachXO2 -->
+886 LUT4
+459 REG
+
+4   EBR
+75  fmax
 </PRE> </TD>
 <TD WIDTH=85> <!-- DMIPS --> <P>0.5</P> </TD>
 </TR>
@@ -1159,12 +1160,12 @@ maxAddrBit=16
  125 fmax
 </PRE> </TD>
 <TD WIDTH=85> <PRE>
-<!-- Cyclone -->
-? LUT
-? REG
-? MULT18x18
-? M4K
-? fmax
+<!-- MachXO2 -->
+2429 LUT4
+755  REG
+
+4    EBR
+65   fmax
 </PRE> </TD>
 <TD WIDTH=85><!-- DMIPS --><P>2.6</P> </TD>
 </TR>
