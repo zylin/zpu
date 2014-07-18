@@ -1,8 +1,8 @@
 #
 # $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/trunk/hardware/board_prototyp1/synthesis/Makefile $
-# $Date: 2014-05-23 15:16:41 +0200 (Fr, 23. Mai 2014) $
-# $Author: lange $
-# $Revision: 3192 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 MODULE = top
@@ -11,7 +11,7 @@ SPEEDGRADE = 2
 PACKAGE = fgg484
 UCF_FILE = top.ucf
 CORES = ../cores/
-SOFTWARE = ../../../software
+SOFTWARE = ../software
 BMM_FILE = zpu.bmm
 BMM_BD_FILE = zpu_bd.bmm
 
@@ -79,8 +79,46 @@ run
 -infer_ramb8 No
 endef
 
+# 16k
+define BMM16
+ADDRESS_SPACE zpu_i0_memory 
+    RAMB16 [0x00000000:0x00003fff]
+    BUS_BLOCK 
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8 [31:28];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7 [27:24];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6 [23:20];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5 [19:16];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4 [15:12];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3 [11: 8];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2 [ 7: 4];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1 [ 3: 0];
+    END_BUS_BLOCK;
+END_ADDRESS_SPACE;
+endef
 
+# 32k
 define BMM
+ADDRESS_SPACE zpu_core_medium_i0_memory 
+    RAMB16 [0x00000000:0x00007fff]
+    BUS_BLOCK 
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram16 [31:30];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram15 [29:28];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram14 [27:26];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram13 [25:24];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram12 [23:22];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram11 [21:20];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram10 [19:18];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram9  [17:16];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram8  [15:14];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram7  [13:12];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram6  [11:10];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram5  [ 9: 8];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram4  [ 7: 6];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram3  [ 5: 4];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram2  [ 3: 2];
+        box_i0/dualport_ram_ahb_wrapper_i0/dualport_ram_i0/Mram_ram1  [ 1: 0];
+    END_BUS_BLOCK;
+END_ADDRESS_SPACE;
 endef
 
 

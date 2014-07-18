@@ -33,10 +33,8 @@ architecture testbench of top_tb is
     signal tb_mcb1_dram_dq          : std_logic_vector(15 downto 0);
     signal tb_mcb1_dram_ldm         : std_logic; 
     signal tb_mcb1_dram_udm         : std_logic; 
-    signal tb_mcb1_dram_ldqs_n      : std_logic; 
-    signal tb_mcb1_dram_ldqs_p      : std_logic; 
-    signal tb_mcb1_dram_udqs_n      : std_logic; 
-    signal tb_mcb1_dram_udqs_p      : std_logic; 
+    signal tb_mcb1_dram_dqs_n       : std_logic_vector( 1 downto 0); 
+    signal tb_mcb1_dram_dqs_p       : std_logic_vector( 1 downto 0); 
     signal tb_mcb1_dram_odt         : std_logic; 
     signal tb_mcb1_dram_reset_b     : std_logic; 
     --                      
@@ -51,10 +49,8 @@ architecture testbench of top_tb is
     signal tb_mcb3_dram_dq          : std_logic_vector(15 downto 0);
     signal tb_mcb3_dram_ldm         : std_logic; 
     signal tb_mcb3_dram_udm         : std_logic; 
-    signal tb_mcb3_dram_ldqs_n      : std_logic; 
-    signal tb_mcb3_dram_ldqs_p      : std_logic; 
-    signal tb_mcb3_dram_udqs_n      : std_logic; 
-    signal tb_mcb3_dram_udqs_p      : std_logic; 
+    signal tb_mcb3_dram_dqs_n       : std_logic_vector( 1 downto 0); 
+    signal tb_mcb3_dram_dqs_p       : std_logic_vector( 1 downto 0); 
     signal tb_mcb3_dram_odt         : std_logic; 
     signal tb_mcb3_dram_reset_b     : std_logic; 
     --
@@ -208,7 +204,7 @@ begin
         -- pragma translate_on                           
         -- system stuff                                  
         CLK                   => tb_clk,                 -- : in    std_logic; -- 125 MHz
-        RESET_N               => tb_reset_n,             -- : in    std_logic;
+        --RESET_N               => tb_reset_n,             -- : in    std_logic;
         POWER_FAIL_N          => tb_power_fail_n,        -- : in    std_logic;
         WATCHDOG              => tb_watchdog,            -- : out   std_logic;
         REPROG_N              => tb_reprog_n,            -- : out   std_logic;
@@ -227,10 +223,8 @@ begin
         MCB1_DRAM_DQ          => tb_mcb1_dram_dq,        -- : inout std_logic_vector(15 downto 0);
         MCB1_DRAM_LDM         => tb_mcb1_dram_ldm,       -- : out   std_logic; 
         MCB1_DRAM_UDM         => tb_mcb1_dram_udm,       -- : out   std_logic; 
-        MCB1_DRAM_LDQS_N      => tb_mcb1_dram_ldqs_n,    -- : inout std_logic; 
-        MCB1_DRAM_LDQS_P      => tb_mcb1_dram_ldqs_p,    -- : inout std_logic; 
-        MCB1_DRAM_UDQS_N      => tb_mcb1_dram_udqs_n,    -- : inout std_logic; 
-        MCB1_DRAM_UDQS_P      => tb_mcb1_dram_udqs_p,    -- : inout std_logic; 
+        MCB1_DRAM_DQS_N       => tb_mcb1_dram_dqs_n,     -- : inout std_logic_vector; 
+        MCB1_DRAM_DQS_P       => tb_mcb1_dram_dqs_p,     -- : inout std_logic_vector; 
         MCB1_DRAM_ODT         => tb_mcb1_dram_odt,       -- : out   std_logic; 
         MCB1_DRAM_RESET_B     => tb_mcb1_dram_reset_b,   -- : out   std_logic; 
         --                       --                      
@@ -245,10 +239,8 @@ begin
         MCB3_DRAM_DQ          => tb_mcb3_dram_dq,        -- : inout std_logic_vector(15 downto 0);
         MCB3_DRAM_LDM         => tb_mcb3_dram_ldm,       -- : out   std_logic; 
         MCB3_DRAM_UDM         => tb_mcb3_dram_udm,       -- : out   std_logic; 
-        MCB3_DRAM_LDQS_N      => tb_mcb3_dram_ldqs_n,    -- : inout std_logic; 
-        MCB3_DRAM_LDQS_P      => tb_mcb3_dram_ldqs_p,    -- : inout std_logic; 
-        MCB3_DRAM_UDQS_N      => tb_mcb3_dram_udqs_n,    -- : inout std_logic; 
-        MCB3_DRAM_UDQS_P      => tb_mcb3_dram_udqs_p,    -- : inout std_logic; 
+        MCB3_DRAM_DQS_N       => tb_mcb3_dram_dqs_n,     -- : inout std_logic_vector; 
+        MCB3_DRAM_DQS_P       => tb_mcb3_dram_dqs_p,     -- : inout std_logic_vector; 
         MCB3_DRAM_ODT         => tb_mcb3_dram_odt,       -- : out   std_logic; 
         MCB3_DRAM_RESET_B     => tb_mcb3_dram_reset_b,   -- : out   std_logic; 
         --                      

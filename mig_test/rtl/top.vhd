@@ -11,16 +11,13 @@
 --
 
 --------------------------------------------------------------------------------
--- $Date: Thu Dec 22 10:52:48 2011 +0100 $
--- $Author: Bert Lange <b.lange@hzdr.de> $
--- $Revision: c241a5e741dd3f0c14967956eb305177252c6f25 $
+-- $Date$
+-- $Author$
+-- $Revision$
 --------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
-
-library unisim;
---use unisim.vcomponents.;
 
 entity top is
     port ( 
@@ -29,7 +26,7 @@ entity top is
         -- pragma translate_on
         -- system stuff
         CLK                     : in    std_logic; -- 125 MHz
-        RESET_N                 : in    std_logic;
+        --RESET_N                 : in    std_logic;
         POWER_FAIL_N            : in    std_logic;
         WATCHDOG                : out   std_logic;
         REPROG_N                : out   std_logic;
@@ -48,12 +45,12 @@ entity top is
         MCB1_DRAM_DQ            : inout std_logic_vector(15 downto 0);
         MCB1_DRAM_LDM           : out   std_logic; 
         MCB1_DRAM_UDM           : out   std_logic; 
-        MCB1_DRAM_LDQS_N        : inout std_logic; 
-        MCB1_DRAM_LDQS_P        : inout std_logic; 
-        MCB1_DRAM_UDQS_N        : inout std_logic; 
-        MCB1_DRAM_UDQS_P        : inout std_logic; 
+        MCB1_DRAM_DQS_N         : inout std_logic_vector( 1 downto 0); 
+        MCB1_DRAM_DQS_P        : inout std_logic_vector( 1 downto 0); 
         MCB1_DRAM_ODT           : out   std_logic; 
         MCB1_DRAM_RESET_B       : out   std_logic; 
+        MCB1_RZQ          : inout std_logic;
+        MCB1_ZIO          : inout std_logic;
         --
         MCB3_DRAM_A             : out   std_logic_vector(14 downto 0);
         MCB3_DRAM_BA            : out   std_logic_vector(2 downto 0);
@@ -66,12 +63,12 @@ entity top is
         MCB3_DRAM_DQ            : inout std_logic_vector(15 downto 0);
         MCB3_DRAM_LDM           : out   std_logic; 
         MCB3_DRAM_UDM           : out   std_logic; 
-        MCB3_DRAM_LDQS_N        : inout std_logic; 
-        MCB3_DRAM_LDQS_P        : inout std_logic; 
-        MCB3_DRAM_UDQS_N        : inout std_logic; 
-        MCB3_DRAM_UDQS_P        : inout std_logic; 
+        MCB3_DRAM_DQS_N        : inout std_logic_vector( 1 downto 0); 
+        MCB3_DRAM_DQS_P        : inout std_logic_vector( 1 downto 0); 
         MCB3_DRAM_ODT           : out   std_logic; 
         MCB3_DRAM_RESET_B       : out   std_logic; 
+        MCB3_RZQ          : inout std_logic;
+        MCB3_ZIO          : inout std_logic;
         --
         -- Ethernet PHY
         -- phy address = 0b00111
@@ -185,7 +182,7 @@ entity top is
         B2B_B1_L21_P            : inout std_logic; 
         B2B_B1_L61_P            : inout std_logic; 
         B2B_B1_L61_N            : inout std_logic; 
-        --B2B_B0_L1               : inout std_logic;  -- used as reset_n
+        B2B_B0_L1               : inout std_logic;  -- used as reset_n
         B2B_B0_L2_P             : inout std_logic; 
         B2B_B0_L2_N             : inout std_logic; 
         B2B_B0_L4_N             : inout std_logic; 
@@ -227,6 +224,19 @@ entity top is
     );
 end entity top;
 
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+library gaisler;
+use gaisler.misc.all;                   -- types
+use gaisler.uart.all;                   -- types
+use gaisler.net.all;                    -- types
+use gaisler.memctrl.all;                -- spimctrl types
+
+
 architecture Behavioral of top is
 
     function simulation_active return std_ulogic is
@@ -239,30 +249,35 @@ architecture Behavioral of top is
         return result;
     end function simulation_active;
 
-    function divider_init return integer is
-        variable result : integer;
-    begin
-        -- synthessis value:
-        result := 62500000; 
 
-        -- pragma translate_off
-        -- simulation value
-        result := 5;
-        -- pragma translate_on
-
-        return result;
-    end function divider_init;
     
     alias CARRIER_LED0 : std_logic is B2B_B3_L59_N;
     alias CARRIER_LED1 : std_logic is B2B_B3_L59_P;
     alias CARRIER_LED2 : std_logic is B2B_B3_L9_P;
     alias CARRIER_LED3 : std_logic is B2B_B3_L9_N;
+    --
+    alias UART_RX      : std_logic is B2B_B2_L9_N;
+    alias UART_TX      : std_logic is B2B_B2_L6_P;
 
-	constant divider : integer := divider_init;
-	--
-    signal counter   : integer := 0;
-	signal led_i     : std_logic_vector( 4 downto 0) := ( 0 => '0', others => '1');
-	
+
+    constant system_frequency_c               : natural := 125_000_000;
+
+    -- system signals
+    signal clk_box                            : std_ulogic;
+    signal clk_ready                          : std_ulogic := '1';
+    --
+    signal reset_shreg                        : std_ulogic_vector(3 downto 0) := (others => '1');
+    signal reset                              : std_ulogic                    := '1';
+    signal reset_n                            : std_ulogic                    := '0';
+    --
+    -- io signals
+    signal box_i0_break                       : std_ulogic;
+    signal gpioi                              : gpio_in_type;
+    signal uarti                              : uart_in_type;
+    --                                        
+    signal box_i0_gpioo                       : gpio_out_type;
+    signal box_i0_uarto                       : uart_out_type;
+
 
 begin
     
@@ -289,10 +304,8 @@ begin
     MCB1_DRAM_LDM     <= '0';
     MCB1_DRAM_UDM     <= '0';
     MCB1_DRAM_ODT     <= '1';
-    MCB1_DRAM_UDQS_N  <= 'Z';
-    MCB1_DRAM_UDQS_P  <= 'Z';
-    MCB1_DRAM_LDQS_N  <= 'Z';
-    MCB1_DRAM_LDQS_P  <= 'Z';
+    MCB1_DRAM_DQS_N   <= (others => 'Z');
+    MCB1_DRAM_DQS_P   <= (others => 'Z');
     MCB1_DRAM_DQ      <= (others => 'Z');
 
     MCB3_DRAM_RESET_B <= '0';
@@ -307,10 +320,8 @@ begin
     MCB3_DRAM_LDM     <= '0';
     MCB3_DRAM_UDM     <= '0';
     MCB3_DRAM_ODT     <= '1';
-    MCB3_DRAM_UDQS_N  <= 'Z';
-    MCB3_DRAM_UDQS_P  <= 'Z';
-    MCB3_DRAM_LDQS_N  <= 'Z';
-    MCB3_DRAM_LDQS_P  <= 'Z';
+    MCB3_DRAM_DQS_N   <= (others => 'Z');
+    MCB3_DRAM_DQS_P   <= (others => 'Z');
     MCB3_DRAM_DQ      <= (others => 'Z');
 
     SPI_FLASH_CSO_B   <= '1';
@@ -318,7 +329,7 @@ begin
     SPI_FLASH_IO      <= (others => 'Z');
 
     WATCHDOG          <= 'Z'; -- disable watchdog
-    REPROG_N          <= '1';
+    --REPROG_N          <= '1';
 
     MAC_DATA          <= 'Z';
 
@@ -435,34 +446,76 @@ begin
     B2B_B1_L59        <= 'Z';
 
 
-    -- used IOs
-	user_led_n   <= led_i( 0);
-    CARRIER_LED0 <= led_i( 1);
-    CARRIER_LED1 <= led_i( 2);
-    CARRIER_LED2 <= led_i( 3);
-    CARRIER_LED3 <= led_i( 4);
-	
-    process
-	begin
-        wait until rising_edge( clk);
-	    if counter = divider-1 then
-		    counter <= 0;
-		    led_i   <= led_i( led_i'high - 1 downto 0) & led_i( led_i'high);
-		else
-		    counter <= counter + 1;
-	    end if;
-	end process;
-
-
-    -- pragma translate_off
-    process
+    ------------------------------------------------------------ 
+    -- (internal) reset generation
+    -- with wait for locked DCM
+    reset_generator_p : process( clk_box, clk_ready)
     begin
-        simulation_break <= '0';
-        wait for 1 us;
-        simulation_break <= '1';
-        wait;
+		if clk_ready = '0' then
+            reset_shreg <= (others => '1');
+	    elsif rising_edge( clk_box) then
+            reset_shreg <= reset_shreg(reset_shreg'left-1 downto 0) & '0';
+        end if;     
     end process;
+    reset   <= reset_shreg(reset_shreg'left);
+    reset_n <= not reset;
+    
+    
+    ------------------------------------------------------------ 
+    -- clock selection
+    clk_box                 <= CLK; -- 125 MHz 
+
+    -- used IOs
+    -- LEDs
+    gpioi.sig_in            <= ( others => '0');
+    gpioi.sig_en            <= ( others => '0');
+    gpioi.din               <= (  4     => MAC_DATA, 
+                                 31     => simulation_active,
+                                 others => '0');
+    CARRIER_LED0            <= not box_i0_gpioo.dout( 0);
+    CARRIER_LED1            <= not box_i0_gpioo.dout( 1);
+    CARRIER_LED2            <= not box_i0_gpioo.dout( 2);
+    CARRIER_LED3            <= not box_i0_gpioo.dout( 3);
+	user_led_n              <= not box_i0_gpioo.dout( 5);
+    MAC_DATA                <= box_i0_gpioo.dout(4) when box_i0_gpioo.oen(4) = '0' else 'Z';
+                            
+    -- uart i/o             
+    uarti.rxd               <= UART_RX;
+    uarti.ctsn              <= '0';
+    uarti.extclk            <= '0';
+    --                      
+    UART_TX                 <= box_i0_uarto.txd;
+    
+    
+    ------------------------------------------------------------ 
+    -- box system
+    box_i0: entity work.box
+        generic map (
+            simulation_active => simulation_active,               --: std_ulogic;
+            system_frequency  => system_frequency_c               --: integer
+        )                                                         
+        port map (                                                
+            clk                       => clk_box,                 --: in    std_ulogic;
+            reset_n                   => reset_n,                 --: in    std_ulogic;
+            break                     => box_i0_break,            --: out   std_ulogic;
+            --                                                               
+            uarti                     => uarti,                   --: in    uart_in_type;
+            uarto                     => box_i0_uarto,            --: out   uart_out_type;
+            --                                                               
+            gpioi                     => gpioi,                   --: in    gpio_in_type;
+            gpioo                     => box_i0_gpioo             --: out   gpio_out_type;
+            );
+
+
+    ------------------------------------------------------------ 
+    -- break handling
+    --
+    -- pragma translate_off
+    simulation_break <= box_i0_break;
     -- pragma translate_on
+
+    -- reboot FPGA for real
+    REPROG_N <= not box_i0_break;
 
 end architecture Behavioral;
 

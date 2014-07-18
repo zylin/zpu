@@ -1,8 +1,8 @@
 #
 # $HeadURL: https://svn.fzd.de/repo/concast/FWF_Projects/FWKE/beam_position_monitor/trunk/hardware/board_prototyp1/simulation/Makefile $
-# $Date: 2013-08-26 14:18:45 +0200 (Mo, 26. Aug 2013) $
-# $Author: lange $
-# $Revision: 2646 $
+# $Date$
+# $Author$
+# $Revision$
 #
 
 library      = work
@@ -48,6 +48,7 @@ simulate:
 clean:
 	@# modelsim stuff
 	rm -f transcript.log
+	rm -f bus_trace.txt
 	rm -f *.wlf
 	rm -f wlf*
 	@# compile stuff
