@@ -452,7 +452,7 @@ $(MODULE).ncd: $(MODULE)_map.ncd
 
 
 trace:
-	cd $(BUILDDIR) ; trce -v 5 -u 10 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
+	cd $(BUILDDIR) ; trce -v 5 -u 100 -fastpaths -xml $(MODULE).twx -o $(MODULE).twr $(MODULE).ncd $(MODULE).pcf
 
 
 bitgen: $(MODULE).ncd
