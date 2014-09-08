@@ -106,7 +106,6 @@ void running_light( uint32_t simulation_active)
 }
 
 
-
 ////////////////////////////////////////////////////////////
 
 
@@ -122,11 +121,23 @@ void end_simulation_task( void)
 
 
 
+void running_light_task( void)
+{
+    static unsigned int pattern = 0x80300700;
+            
+    gpio0->ioout = 0x0000000f & pattern;
+    pattern = (pattern << 1) | (pattern >> 31);
+
+    scheduler_task_add( running_light_task, SECONDS( 0.125));
+}
+
+
+
 ////////////////////////////////////////////////////////////
 // start running light
 uint32_t run_light_function( void)
 {
-    running_light( simulation_active);
+    scheduler_task_add( running_light_task, 1); 
     return 0;
 }
 
@@ -168,7 +179,7 @@ void uart_monitor( void)
     while( monitor_run)
     {
         // process scheduler
-        if (timer_tick)
+        if ( timer_tick)
         {
             timer_tick = FALSE;
             scheduler_task_check();

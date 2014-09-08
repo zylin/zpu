@@ -61,3 +61,33 @@ zpu         ../zpu/rtl/zpu_wrapper_package.vhd
 zpu         ../zpu/rtl/zpupkg.vhd
 zpu         ../zpu/rtl_tb/sim_small_fpga_top_noint.vhd
 zpu         ../zpu/rtl_tb/txt_util.vhd
+
+
+# MIG example design
+work        cores/mig_v3_61/example_design/rtl/example_top.vhd
+work        cores/mig_v3_61/example_design/rtl/iodrp_controller.vhd
+work        cores/mig_v3_61/example_design/rtl/iodrp_mcb_controller.vhd
+work        cores/mig_v3_61/example_design/rtl/mcb_raw_wrapper.vhd
+work        cores/mig_v3_61/example_design/rtl/mcb_soft_calibration.vhd
+work        cores/mig_v3_61/example_design/rtl/mcb_soft_calibration_top.vhd
+work        cores/mig_v3_61/example_design/rtl/memc1_infrastructure.vhd
+work        cores/mig_v3_61/example_design/rtl/memc1_tb_top.vhd
+work        cores/mig_v3_61/example_design/rtl/memc1_wrapper.vhd
+work        cores/mig_v3_61/example_design/rtl/memc3_infrastructure.vhd
+work        cores/mig_v3_61/example_design/rtl/memc3_tb_top.vhd
+work        cores/mig_v3_61/example_design/rtl/memc3_wrapper.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/afifo.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/cmd_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/cmd_prbs_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/data_prbs_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/init_mem_pattern_ctr.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/mcb_flow_control.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/mcb_traffic_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/rd_data_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/read_data_path.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/read_posted_fifo.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/sp6_data_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/tg_status.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/v6_data_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/wr_data_gen.vhd
+work        cores/mig_v3_61/example_design/rtl/traffic_gen/write_data_path.vhd
