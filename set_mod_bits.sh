@@ -24,6 +24,7 @@ find -iname "*.log"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname modelsim.ini -type f -executable -print0 | xargs -0 chmod -x
 
 find -iname "*.c"      -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.cpp"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.h"      -type f -executable -print0 | xargs -0 chmod -x
                      
 find -iname "*.in"     -type f -executable -print0 | xargs -0 chmod -x
@@ -38,6 +39,10 @@ find -iname "*.zip"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.php"    -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.js"     -type f -executable -print0 | xargs -0 chmod -x
 find -iname "*.css"    -type f -executable -print0 | xargs -0 chmod -x
+
+find -iname "*.sch"    -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.brd"    -type f -executable -print0 | xargs -0 chmod -x
+find -iname "*.lbr"    -type f -executable -print0 | xargs -0 chmod -x
 
 # fix group
 find -not -group None -print0 | xargs -0 chown :None
