@@ -1,0 +1,14 @@
+<html>
+<body>
+<h1>ISS test</h1>
+<ol>
+<li>Launch ISS<br>
+java -Xmx512m -cp simulator.jar com.zylin.zpu.simulator.SimApp 4444 false
+<li>Launch debugger<br>
+zpu-elf-gdb hello.elf<br>
+<li>Connect to ISS<br>
+target remote localhost:4444
+</ol>
+
+</body>
+</html>

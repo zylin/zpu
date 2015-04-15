@@ -1,0 +1,56 @@
+# ====================================================================
+#
+#      net.cdl
+#
+#      Networking configuration data
+#
+# ====================================================================
+#####ECOSPDCOPYRIGHTBEGIN####
+#
+# Copyright (C) 2000, 2001, 2002 Red Hat, Inc.
+# All Rights Reserved.
+#
+# Permission is granted to use, copy, modify and redistribute this
+# file.
+#
+#####ECOSPDCOPYRIGHTEND####
+# ====================================================================
+######DESCRIPTIONBEGIN####
+#
+# Author(s):      gthomas
+# Original data:  gthomas
+# Contributors:
+# Date:           1999-11-29
+#
+#####DESCRIPTIONEND####
+#
+# ====================================================================
+
+cdl_package CYGPKG_PHI_NET {
+    display       "Basic networking framework"
+    doc           nothing.html
+    include_dir   .
+    requires      CYGPKG_IO
+    requires      CYGPKG_ISOINFRA
+    requires      CYGINT_ISO_C_TIME_TYPES
+    requires      CYGINT_ISO_STRERROR
+    requires      CYGINT_ISO_ERRNO
+    requires      CYGINT_ISO_ERRNO_CODES
+    requires      CYGINT_ISO_MALLOC
+    requires      CYGINT_ISO_STRING_BSD_FUNCS
+    requires      CYGPKG_NET 
+    description   "Basic networking support, including TCP/IP."
+
+    cdl_component CYGPKG_PHI_NET_INET {
+        display       "INET support"
+        active_if     CYGPKG_NET_STACK_INET
+        flavor        bool
+        no_define
+        default_value 1
+        description   "
+            This option enables support for PHI INET (IP) network processing."
+        compile \
+            phi_network_support.c
+
+    }
+}

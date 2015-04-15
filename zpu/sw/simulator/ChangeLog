@@ -1,0 +1,6 @@
+2008-02-22 Øyvind Harboe
+	* reduced memory for Phi to 2mByte to avoid Java heap out of memory.
+	  Why does Java have trouble allocating a meagre 32mByte long array? :-)
+	* Hooked up support for the simulator to the Zylin Embedded CDT
+2007-08-04 Øyvind Harboe
+	* First version after open sourcing ZPU

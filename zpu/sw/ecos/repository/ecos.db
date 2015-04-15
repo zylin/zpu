@@ -1,0 +1,128 @@
+
+package CYGPKG_DEVS_ETH_OPENCORES_ETHERMAC {
+        alias           { "opencore's ethermac support" devs_eth_opencores_ethermac }
+        hardware
+        directory       dev/eth/opencores/ethermac
+        script          opencores_ethermac_drivers.cdl
+        description "This package contains hardware support for Opencores
+                     ethermac."
+}
+
+package CYGPKG_DEVS_ETH_ZPU_OPENCORES_PHI {
+        alias           { "ethernet support for opencores on Zylin Phi addon board" devs_eth_zpu_opencores_phi }
+	hardware
+	directory       dev/eth/zpu/opencores/phi
+	script          phi_opencores_ethmac_drivers.cdl
+	description	"This package contains hardware support for Opencores Ethermac
+		    ethernet device on Phi."
+}
+
+
+
+package CYGPKG_HAL_ZYLIN {
+	alias		{ "Zylin common HAL" hal_zylin }
+	directory	hal/zylin/arch
+	script		hal_zylin.cdl
+	hardware
+	description "
+The Zylin architecture HAL package provides generic support for this
+processor architecture. It is also necessary to select a specific
+target platform HAL package."
+}
+
+
+package CYGPKG_HAL_ZYLIN_ZPU {
+	alias		{ "Zylin ZPU variant HAL" hal_zylin_zpu }
+	directory	hal/zylin/zpu/var
+	script		hal_zylin_zpu.cdl
+	hardware
+        description "
+        The Zylin ZPU HAL package provides the support needed to run eCos on Zylin
+        ZPU based targets."
+}
+
+
+
+package CYGPKG_HAL_ZYLIN_ZPU_ZETA {
+	alias		{ "Zylin ZPU simulation" zeta }
+	directory	hal/zylin/zpu/zeta
+	script		hal_zylin_zpu_zeta.cdl
+	hardware
+        description "
+	The Zylin ZPU package provides the support needed to run eCos on an Zylin 
+	evaluation board."
+}
+package CYGPKG_HAL_ZYLIN_ZPU_PHI {
+	alias		{ "Zylin ZPU evaluation board" phi }
+	directory	hal/zylin/zpu/phi
+	script		hal_zylin_zpu_phi.cdl
+	hardware
+        description "
+	The Zylin ZPU package provides the support needed to run eCos on a Zylin eCosBoard"
+}
+
+package CYGPKG_HAL_ZYLIN_ZPU_ABEL {
+	alias		{ "Zylin ZPU Abel board" abel }
+	directory	hal/zylin/zpu/abel
+	script		hal_zylin_zpu_abel.cdl
+	hardware
+        description "
+	The Zylin ZPU package provides the support needed to run eCos on an Abel Zylin 
+	evaluation board."
+}
+
+
+package CYGPKG_PHI_NET {
+	alias		{ "Zylin Phi networking" phi_net }
+	directory	net/zylin
+	script		phi_net.cdl
+	hardware
+        description "Contains phi specific network init."
+}
+
+
+target zeta {
+	alias { "Zylin ZPU evaluation board " zeta }
+	packages { CYGPKG_HAL_ZYLIN
+                   CYGPKG_HAL_ZYLIN_ZPU
+                   CYGPKG_HAL_ZYLIN_ZPU_ZETA
+        }
+        description "
+	The Zylin ZPU target provides the packages needed to run eCos on an Zylin 
+	evaluation board."
+}
+
+target phi {
+	alias { "Zylin ZPU evaluation board " phi }
+	packages { CYGPKG_HAL_ZYLIN
+                   CYGPKG_HAL_ZYLIN_ZPU
+                   CYGPKG_HAL_ZYLIN_ZPU_PHI
+        }
+        description "
+	The Zylin ZPU target provides the packages needed to run eCos on an Zylin eCosBoard"
+}
+
+target abel {
+	alias { "Zylin ZPU evaluation board " abel }
+	packages { CYGPKG_HAL_ZYLIN
+                   CYGPKG_HAL_ZYLIN_ZPU
+                   CYGPKG_HAL_ZYLIN_ZPU_ABEL
+        }
+        description "
+	The Zylin ZPU target provides the packages needed to run eCos on an Abel Zylin 
+	evaluation board."
+}
+
+target zpuetherphi {
+	alias { "Zylin Phi addon board with ethernet" etherphi }
+	packages { CYGPKG_HAL_ZYLIN
+                   CYGPKG_HAL_ZYLIN_ZPU
+                   CYGPKG_HAL_ZYLIN_ZPU_PHI
+                   CYGPKG_IO_ETH_DRIVERS
+                   CYGPKG_DEVS_ETH_OPENCORES_ETHERMAC
+		   CYGPKG_DEVS_ETH_ZPU_OPENCORES_PHI
+        }
+        description "
+	The Zylin Phi ZPU target provides the packages needed to run ZPU eCos on a
+	Zylin eCosBoard addon board with ethernet."
+}

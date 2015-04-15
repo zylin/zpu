@@ -1,0 +1,11 @@
+The current state of the ZPU:
+
+- Patches welcome!
+- Zylin is rummaging up the various files that might be of interest
+  to the open source ZPU project. 
+- The ZPU, GCC toolchain and HDL works. Zylin eCosBoard 1.1 ships w/a 
+  ZPU(see http://www.zylin.com), if you need a development board before 
+  implementing on your own system.
+- The docs leave a lot to be desired at this point.
+- Licensing needs to be ironed out. After which lots of files will have
+  to be updated, strictly speaking. Patches welcome!

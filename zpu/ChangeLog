@@ -1,0 +1,90 @@
+2008-11-12 Álvaro Lopes <alvieboy@alvie.com>
+	* zpu/hdl/zpu4/core/zpu_core.vhd: Basic interrupt implementation
+	for zpu4 core.
+2008-09-16 Salvador Eduardo Tropea <salvador@inti.gob.ar>
+	* zpu/hdl/zealot: added small ZPU core, testbenches and FPGA implementation
+2008-09-11 Salvador Eduardo Tropea <salvador@inti.gob.ar>
+	* zpu/docs/zpu_arch.html: added Zealot information.
+2008-09-08 Salvador Eduardo Tropea <salvador@inti.gob.ar>
+	* zpu/hdl/zealot: a complete ZPU implementation cleaned up and
+	with a UART. 
+2008-08-25 Salvador Eduardo Tropea <salvador@inti.gov.ar>
+	* zpu/docs/arch_html: Fix typo in zpu_arch.html w.r.t. ZPU UART/Debug channel
+2008-08-18 Øyvind Harboe
+	* duplicated crt0.s and some other stuff from libgloss into
+	sw/startup. This makes it easier to tinker w/startup code.
+2008-08-08 Salvador E. Tropea
+	* zpu/hdl/zpu4/core/histogram.perl - generate opcode histogram from
+	HDL simulation output
+2008-06-25 Øyvind Harboe
+	* do not enable interrupts for simzpu_small.do. hello world
+	does not have an interrupt handler, so this caused a BREAK
+	instruction to be executed.
+2008-06-18 Miguel Freitas
+	* zpu_config.vhd: Fixed startSp calculation (address in bytes not words)
+2008-06-18 Miguel Freitas
+	* Removed unisim/roc dependency (it was used just to pulse the areset)
+	  and fixes paths for building the ghdl examples out of the box.
+	  One should check if the areset change doesn't break modelsim.
+2008-06-16 Miguel Freitas
+	* io.vhd: fix address comparsion and added numerous outputs
+	during simulation to make things a bit easier 
+	* zpu_config.vhd: do not use hardcoded startSp, allows more easily
+	tinkering w/RAM size
+2008-05-06 Øyvind Harboe
+	* Small ZPU now supports interrupts
+	* added simulation example demonstrating interrupts 
+2008-05-05 Øyvind Harboe
+	* added eCos HAL for ZPU
+	  zpu/zpu/sw/ecos/repository
+2008-05-04 Øyvind Harboe
+	* moved ZPU core files to seperate folder
+	* deleted some obsolete files
+2008-05-04 jurij kostasenko
+	* Make code synthesize on Synopsis
+	 zpu/hdl/zpu4/src/zpu_core_small.vhd  
+	 zpu/hdl/zpu4/src/io.vhd  
+2008-05-01 Øyvind Harboe
+	* zpu/hdl/zy2000 - ZPU implementation used on the zy2000 dev kit
+2008-04-17 Arnim Läuger
+	* zpu/hdl/example_ghdl/ghdl_import.sh, zpu/hdl/example_ghdl/ghdl_make.sh,
+	  zpu/hdl/example_ghdl/ghdl_options.sh, zpu/hdl/example_ghdl/README: GHDL example
+	* zpu/hdl/zpu4/src/dmipssmalltrace_ghdl.sh: testcase for GHDL
+	* zpu/hdl/zpu4/src/dmipstrace_ghdl.sh: testcase for GHDL
+	* zpu/hdl/zpu4/src/simzpu_medium_ghdl.sh: testcase for GHDL
+	* zpu/hdl/example/helloworld.vhd, zpu/hdl/zpu4/src/bram_dmips.vhd,
+	  zpu/hdl/zpu4/src/dmipssmalltrace_ghdl.sh, zpu/hdl/zpu4/src/dram_dmips.vhd,
+	  zpu/hdl/zpu4/src/dram_hello.vhd, zpu/hdl/zpu4/src/io.vhd,
+	  zpu/hdl/zpu4/src/sim_fpga_top.vhd, zpu/hdl/zpu4/src/sim_small_fpga_top.vhd,
+	  zpu/hdl/zpu4/src/timer.vhd, zpu/hdl/zpu4/src/trace.vhd,
+	  zpu/hdl/zpu4/src/zpu_config_trace.vhd, zpu/hdl/zpu4/src/zpu_core_small.vhd,
+	  zpu/hdl/zpu4/src/zpu_core.vhd, zpu/hdl/zpu4/src/zpupkg.vhd: conversion to numeric_std
+2008-04-17 Øyvind Harboe
+	* deleted duplicate files from example folder.
+	* retired Xilinx synthesizing example. It messes up the zpu4 directory.
+2008-04-16 Øyvind Harboe
+	* zpu/doc/zpupresentation_old.odt: interesting bits moved into zpu_arch.html
+	* zpu/doc/zpupresentation.*: interesting bits moved into zpu_arch.html
+	* zpu/docs/zpu_arch.html: added Phi memory map to end of zpu_arch.html
+	* zpu/docs/zpuphiregs.odt: retired
+	* zpu/docs/zpu_arch.html: added. Need to define instruction set.
+	* zpu/docs/zpu_arch.odt: retired
+2008-04-15 Øyvind Harboe
+	* zpu/docs/zpu_arch.odt - a short summary of the architecture
+	* zpu/simzpu_bram.do - retired. 
+	* zpu/zpu_core_bram.vhd - retired
+	* zpu/hdl/zpu3 - retired
+2008-04-05 Øyvind Harboe
+	* zpu/docs/zpuphiregs.odt - ZPU Phi register overview
+2008-03-06 Adam Pierce
+	* zpu/zpu/hdl/example/zpuromgen.c - generate rom files
+	  without java
+2008-02-21 Øyvind Harboe
+	* zpu/zpu/sw/index.html. Changed it a bit to make installation easier. 
+	* zpu/zpu/hdl/index.html. Sharpened instructions and shows two working 
+	  examples. Small & medium ZPU.
+	* got zpu4/src/simzpu_medium.do working again. 
+2008-02-11 Øyvind Harboe
+	* hdl/index.html. Fixed typo. Use objcopy and not objdump.
+2008-01-02 Øyvind Harboe
+	* Moved to www.opencores.org
