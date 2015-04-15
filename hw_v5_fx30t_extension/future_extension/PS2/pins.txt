@@ -1,4 +1,0 @@
-data    1
-clock   1
-
-sum     2

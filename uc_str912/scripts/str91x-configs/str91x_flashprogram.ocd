@@ -1,7 +1,0 @@
-wait_halt
-str9x flash_config 4 2 0 0x80000
-flash protect 0 0 10 off
-flash erase 0 0 10
-flash write 0 main.bin 0
-reset
-shutdown

@@ -1,2 +1,0 @@
-# -- Enable 96K RAM */
-mww 0x5C002034, 0x0191 # PFQBC enabled / DTCM & AHB wait-states disabled
