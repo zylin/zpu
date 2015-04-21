@@ -25,3 +25,8 @@ The place to get help is the zylin-zpu mailing list: https://groups.google.com/d
 To join the list just send an email to zylin-zpu+subscribe@googlegroups.com
 
 The former mailing list archive (till April 2015) is avalible here: http://zylin.com/pipermail/zylin-zpu_zylin.com/
+
+
+#GCC
+
+The repository for the GCC toolchain is only a small step away: https://github.com/zylin/zpugcc
